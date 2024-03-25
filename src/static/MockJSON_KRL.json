@@ -1,0 +1,671 @@
+{
+  "train_type": "KRL",
+  "waktu_mulai": "11.00",
+  "waktu_selesai": "12.00",
+  "durasi": "30 Menit",
+  "tanggal": "09/10/2023",
+  "nama_crew": "Masinis KRL",
+  "kedudukan": "UPT Crew Manggarai",
+  "usia": "51 tahun",
+  "kode_kedinasan": "41",
+  "no_ka": "8399",
+  "lintas": "Bogor-Depok",
+  "nama_instruktur": "Mamat Haryanto",
+  "keterangan": "Penilaian KRL",
+  "penilaian": [
+    {
+      "unit": 1,
+      "judul": "",
+      "disable": false,
+      "data": [
+        {
+          "no": 1,
+          "langkah_kerja": "Mempersiapkan peralatan, bahan, dan dokumen dinasan",
+          "disable": false,
+          "bobot": 1,
+          "poin": [
+            {
+              "observasi": "Menyiapkan peralatan berupa suling mulut, arloji dan senter, prosedur operasi standar (SOP) dan form terkait.",
+              "id": "K1.1.1",
+              "nilai": 53,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Memeriksa dan membaca dengan teliti O.82, O.100, B.93, B.94.",
+              "id": "K1.1.2",
+              "nilai": 96,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Mencatat taspat yang ada pada lintas dinasan",
+              "id": "K1.1.3",
+              "nilai": 78,
+              "disable": false,
+              "bobot": 1
+            }
+          ]
+        },
+        {
+          "no": 2,
+          "langkah_kerja": "Memeriksa rangka bawah dan kabin masinis pada lokomotif",
+          "disable": false,
+          "bobot": 1,
+          "poin": [
+            {
+              "observasi": "Alat perangkai",
+              "id": "K1.2.2",
+              "nilai": 52,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Rantai pengaman",
+              "id": "K1.2.3",
+              "nilai": 85,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Posisi dan ketebalan blok rem",
+              "id": "K1.2.4",
+              "nilai": 58,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Langkah torak silinder rem",
+              "id": "K1.2.5",
+              "nilai": 35,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Keutuhan pegas pendukung",
+              "id": "K1.2.6",
+              "nilai": 74,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Ketersediaan bahan bakar",
+              "id": "K1.2.7",
+              "nilai": 36,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Kebersihan Lokomotif",
+              "id": "K1.2.8",
+              "nilai": 84,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Tekanan minyak pelumas (1,1 Kg/cm2 = 16 Psi)",
+              "id": "K1.2.10",
+              "nilai": 32,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Tekanan bahan bakar (2,8 Kg/cm2 = 40 Psi)",
+              "id": "K1.2.11",
+              "nilai": 83,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Tekanan Turbo (0 Psi kondisi lok idle)",
+              "id": "K1.2.12",
+              "nilai": 83,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Tekanan udara tangki penyeimbang/ER = Equalizing Reservoir (5 kg/cm2,= 70 Psi)",
+              "id": "K1.2.13",
+              "nilai": 89,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Tekanan udara saluran pipa pengereman rangkaian/BP = Brake Pipe (5 kg/cm2, = 70 Psi)",
+              "id": "K1.2.14",
+              "nilai": 96,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Tekanan udara saluran pipa pengereman lokomotif/BC = Brake Cylinder (3,2kg/cm2=45 Psi)",
+              "id": "K1.2.15",
+              "nilai": 76,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Tekanan udara tangki induk/MR=Main Reservoir (125-140 Psi)",
+              "id": "K1.2.16",
+              "nilai": 76,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Kedudukan motor cut out (MCO) harus 6 TM",
+              "id": "K1.2.17",
+              "nilai": 70,
+              "disable": false,
+              "bobot": 1
+            }
+          ]
+        },
+        {
+          "no": 3,
+          "langkah_kerja": "Memeriksa kelengkapan inventaris dan fungsi go no go item pada lokomotif.",
+          "disable": false,
+          "bobot": 1,
+          "poin": [
+            {
+              "observasi": "4 (empat) buah stop blok;",
+              "id": "K1.3.2",
+              "nilai": 55,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "2 (dua) buah bendera merah;",
+              "id": "K1.3.3",
+              "nilai": 79,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "1 (satu) buah bendera kuning;",
+              "id": "K1.3.4",
+              "nilai": 81,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "2 (dua) keeping papan skip merah;",
+              "id": "K1.3.5",
+              "nilai": 93,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "1 (satu) buah pemadam api (APAR);",
+              "id": "K1.3.6",
+              "nilai": 72,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "1 (satu) set radio rangkaian, dan",
+              "id": "K1.3.7",
+              "nilai": 90,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Kartu riwayat lokomotif (diisi oleh dipo pemeliharaan dan dipo perbaikan)",
+              "id": "K1.3.8",
+              "nilai": 52,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Pembersih kaca (wiper)",
+              "id": "K1.3.10",
+              "nilai": 48,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Lampu sorot (Head Light)",
+              "id": "K1.3.11",
+              "nilai": 90,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Lampu kabin masinis",
+              "id": "K1.3.12",
+              "nilai": 59,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Suling Lokomotif (Horn)",
+              "id": "K1.3.13",
+              "nilai": 67,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Deadman device",
+              "id": "K1.3.14",
+              "nilai": 89,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Radio Lokomotif",
+              "id": "K1.3.15",
+              "nilai": 75,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Pengukur kecepatan (Speedometer)",
+              "id": "K1.3.16",
+              "nilai": 36,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Pengganjal roda (Stop Block)",
+              "id": "K1.3.17",
+              "nilai": 69,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "APAR",
+              "id": "K1.3.18",
+              "nilai": 73,
+              "disable": false,
+              "bobot": 1
+            }
+          ]
+        },
+        {
+          "no": 4,
+          "langkah_kerja": "Melakukan perangkaian Lokomotif dengan Kereta/Gerbong",
+          "disable": false,
+          "bobot": 1,
+          "poin": [
+            {
+              "observasi": "Automatic Coupler dalam keadaan baik",
+              "id": "K1.4.2",
+              "nilai": 73,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Sambungan selang udara lokomotif dengan rangkaian dalam keadaan baik",
+              "id": "K1.4.3",
+              "nilai": 98,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Sambungan rantai lokomotif dengan rangkaian dalam keadaan baik",
+              "id": "K1.4.4",
+              "nilai": 99,
+              "disable": false,
+              "bobot": 1
+            }
+          ]
+        },
+        {
+          "no": 5,
+          "langkah_kerja": "Melakukan percobaan pengereman setelah dirangkai",
+          "disable": false,
+          "bobot": 1,
+          "poin": [
+            {
+              "observasi": "Menggunakan Rem Pelayanan (Automatic Brake) untuk Rem Statis",
+              "id": "K1.5.2",
+              "nilai": 86,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Tekanan udara paling belakang rangkaian (S.21) (4,8-5,2 Psi) dan harus sama pada indicator tekanan Lokomotif dibawah pengawasan masinis/asisten masinis untuk Rem Statis",
+              "id": "K1.5.3",
+              "nilai": 82,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Periksa blok rem pada rangkaian berfungsi dengan baik untuk Rem Statis",
+              "id": "K1.5.4",
+              "nilai": 75,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Menggunakan rem pelayanan (Automatic Brake) full sevice untuk Rem Dinamis",
+              "id": "K1.5.6",
+              "nilai": 90,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Independent Brake keadaan release untuk Rem Dinamis",
+              "id": "K1.5.7",
+              "nilai": 68,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Masukkan Throttle Maks notch 3 Lok DE, 950 rpm Lok DH untuk Rem Dinamis",
+              "id": "K1.5.8",
+              "nilai": 83,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Pastikan tidak ada gerakan untuk Rem Dinamis",
+              "id": "K1.5.9",
+              "nilai": 74,
+              "disable": false,
+              "bobot": 1
+            }
+          ]
+        },
+        {
+          "no": 6,
+          "langkah_kerja": "Melakukan kegiatan awal keberangkatan Kereta Api",
+          "disable": false,
+          "bobot": 1,
+          "poin": [
+            {
+              "observasi": "Semboyan 40 (PPKA/PAP)",
+              "id": "K1.6.1",
+              "nilai": 92,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Semboyan 41 (Kondektur)",
+              "id": "K1.6.2",
+              "nilai": 78,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Memperhatikan dan meyakinkan bahwa Semboyan yang diberikan benar berlaku baginya;",
+              "id": "K1.6.4",
+              "nilai": 59,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Memperhatikan dan meyakinkan bahwa Jalur yang akan dilalui tidak terhalang;",
+              "id": "K1.6.5",
+              "nilai": 57,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Memperhatikan dan meyakinkan bahwa Wesel diarah yang benar (tunjuk sebut);",
+              "id": "K1.6.6",
+              "nilai": 78,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Memperhatikan dan meyakinkan bahwa Lawan persilangan (jika ada) telah masuk lengkap dengan semboyan 21 dan tidak memasang semboyan 31 (tunjuk sebut);",
+              "id": "K1.6.7",
+              "nilai": 94,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Memperhatikan dan meyakinkan bahwa Sinyal keluar telah berindikasi aman (tunjuk sebut);",
+              "id": "K1.6.8",
+              "nilai": 64,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Memperhatikan dan meyakinkan bahwa Masinis/asisten masinis membunyikan semboyan 35;",
+              "id": "K1.6.9",
+              "nilai": 96,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Memperhatikan dan meyakinkan bahwa Masinis menggerakan kereta api tanpa hentakan;",
+              "id": "K1.6.10",
+              "nilai": 90,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Memperhatikan dan meyakinkan bahwa Melakukan pengereman dinamis sebelum wesel keluar tanpa memberhentikan kereta api.",
+              "id": "K1.6.11",
+              "nilai": 73,
+              "disable": false,
+              "bobot": 1
+            }
+          ]
+        },
+        {
+          "no": 7,
+          "langkah_kerja": "Melakukan kegiatan selama perjalanan Kereta Api",
+          "disable": false,
+          "bobot": 1,
+          "poin": [
+            {
+              "observasi": "Tunjuk sebut (semboyan, taspat);",
+              "id": "K1.7.2",
+              "nilai": 60,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Memperhatikan indikator-indikator pada lokomotif;",
+              "id": "K1.7.3",
+              "nilai": 92,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Melihat semboyan 21 saat melewati lengkungan;",
+              "id": "K1.7.4",
+              "nilai": 84,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Percobaan pengereman dinamis tiap 30 menit;",
+              "id": "K1.7.5",
+              "nilai": 56,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Memperhatikan O.100 (table KA);",
+              "id": "K1.7.6",
+              "nilai": 50,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Taktis Masinis/Asisten Masinis;",
+              "id": "K1.7.7",
+              "nilai": 35,
+              "disable": false,
+              "bobot": 1
+            }
+          ]
+        },
+        {
+          "no": 8,
+          "langkah_kerja": "Melaksakan Tanggap Darurat (kondisi darurat)",
+          "disable": false,
+          "bobot": 1,
+          "poin": [
+            {
+              "observasi": "Memberhentikan KA ketika Tertemper",
+              "id": "K1.8.2",
+              "nilai": 87,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Lapor kepada PK (No KA, Petak jalan, bentuk kejadian) ketika Tertemper",
+              "id": "K1.8.3",
+              "nilai": 53,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Pengecekan terhadap sarana ketika Tertemper",
+              "id": "K1.8.4",
+              "nilai": 75,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Memberhentikan KA di stasiun terdekat dan membuat KDLB / B.94 ketika Tertemper",
+              "id": "K1.8.5",
+              "nilai": 96,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Memberhentikan KA ketika Anjlok",
+              "id": "K1.8.7",
+              "nilai": 92,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Lapor kepada PK (No KA, Petak jalan, bentuk kejadian) ketika Anjlok",
+              "id": "K1.8.8",
+              "nilai": 76,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Memberikan semboyan 3 di depan dan belakang rangkaian KA dengan jarak 100 meter, apabila lengkung jarak 600 meter atau sampai terlihat KA lain ketika Anjlok",
+              "id": "K1.8.9",
+              "nilai": 84,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Fungsikan rem pelayanan dan rem independent ketika Anjlok",
+              "id": "K1.8.10",
+              "nilai": 60,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Menggunakan Stop block (pengganjal roda) ketika Anjlok",
+              "id": "K1.8.11",
+              "nilai": 81,
+              "disable": false,
+              "bobot": 1
+            }
+          ]
+        },
+        {
+          "no": 9,
+          "langkah_kerja": "Melakukan kegiatan akhir dinasan kereta api",
+          "disable": false,
+          "bobot": 1,
+          "poin": [
+            {
+              "observasi": "Kegiatan akhir dinasan kereta api di stasiun antara: Posisi throttle handle (gagang tenaga) idle atau 0;",
+              "id": "K1.9.3",
+              "nilai": 72,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Kegiatan akhir dinasan kereta api di stasiun antara: Posisi reverse handle (gagang pembalik arah) neutral dan dilepas;",
+              "id": "K1.9.4",
+              "nilai": 57,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Kegiatan akhir dinasan kereta api di stasiun antara: Posisi Independent brake and automatic brake mengikat;",
+              "id": "K1.9.5",
+              "nilai": 92,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Kegiatan akhir dinasan kereta api di stasiun antara: Masinis/asisten masinis tidak diperbolehkan meninggalkan lokomotif;",
+              "id": "K1.9.6",
+              "nilai": 91,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Kegiatan akhir dinasan kereta api di stasiun antara: Menjaga kebersihan lokomotif;",
+              "id": "K1.9.7",
+              "nilai": 49,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Kegiatan akhir dinasan kereta api di stasiun akhir: Posisi throttle handle (gagang tenaga) idle atau 0;",
+              "id": "K1.9.10",
+              "nilai": 63,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Kegiatan akhir dinasan kereta api di stasiun akhir: Posisi reverse handle (gagang pembalik arah) neutral dan dilepas;",
+              "id": "K1.9.11",
+              "nilai": 60,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Kegiatan akhir dinasan kereta api di stasiun akhir: Posisi Independent brake and automatic brake mengikat;",
+              "id": "K1.9.12",
+              "nilai": 75,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Kegiatan akhir dinasan kereta api di stasiun akhir: Serah terima lokomotif dan T 200 kepada PUL serta penyampaian secara lisan selama perjalanan perihal teknis lokomotif;",
+              "id": "K1.9.13",
+              "nilai": 72,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Kegiatan akhir dinasan kereta api di stasiun akhir: Menjaga kebersihan kabin lokomotif;",
+              "id": "K1.9.14",
+              "nilai": 82,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Kegiatan akhir dinasan kereta api di stasiun akhir: Menyerahkan lapka dan table kereta api kepada JPAK/Penyelia serta penyampaian secara lisan selama dalam perjalanan;",
+              "id": "K1.9.15",
+              "nilai": 91,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Kegiatan akhir dinasan kereta api di stasiun akhir: Masinis/asisten masinis melihat dinasan esok hari dan pengumuman-pengumuman dikantor JPAK/Penyelia dan diperbolehkan istirahat dan pulang;",
+              "id": "K1.9.16",
+              "nilai": 60,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Kegiatan akhir dinasan kereta api di stasiun akhir: PUL melangsir lokomotif ke dipo yang dipandu oleh juru langsir dan menyerahkan T 200 ke pihak dipo.",
+              "id": "K1.9.17",
+              "nilai": 74,
+              "disable": false,
+              "bobot": 1
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "nilai_akhir": 0
+}

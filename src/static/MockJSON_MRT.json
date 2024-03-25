@@ -1,0 +1,242 @@
+{
+  "train_type": "MRT",
+  "waktu_mulai": "11.15",
+  "waktu_selesai": "11.15",
+  "durasi": "15 detik",
+  "tanggal": "06/12/2023",
+  "nama_crew": "Trainee 3",
+  "kedudukan": "Staff",
+  "usia": "0 tahun",
+  "kode_kedinasan": "41",
+  "no_ka": "9041",
+  "lintas": "Depo Lebak Bulus - Stasiun Bundaran HI",
+  "nama_instruktur": "Instructor",
+  "keterangan": "tes 123",
+  "penilaian": [
+    {
+      "unit": 1,
+      "judul": "Melangsir kereta dari stabling track hingga Stasiun Pemberangkatan Awal",
+      "disable": false,
+      "data": [
+        {
+          "no": 1,
+          "langkah_kerja": "Melaksanakan pemeriksaan di stabling track",
+          "disable": false,
+          "bobot": 1,
+          "poin": [
+            {
+              "observasi": "Berjalan menuju kereta yang akan dilayani",
+              "id": "M1.1.1",
+              "nilai": 0,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Memastikan bahwa tidak ada tanda larangan pergerakan kereta yang terpasang",
+              "id": "M1.1.2",
+              "nilai": 0,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Melaksanakan pemeriksaan interior kereta, exterior kereta, dan kabin masinis.",
+              "id": "M1.1.3",
+              "nilai": 0,
+              "disable": false,
+              "bobot": 1
+            }
+          ]
+        },
+        {
+          "no": 2,
+          "langkah_kerja": "Melangsir kereta",
+          "disable": false,
+          "bobot": 1,
+          "poin": [
+            {
+              "observasi": "Melaporkan hasil pemeriksaan dan lapor diri ke OCC",
+              "id": "M1.2.1",
+              "nilai": 0,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Memastikan mode operasi pada posisi ATP Normal",
+              "id": "M1.2.2",
+              "nilai": 0,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Memulai operasi langsir setelah menerima indikasi berjalan dari OCC",
+              "id": "M1.2.3",
+              "nilai": 0,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Melaksanakan prosedur pindah kabin setelah berhenti di DAL",
+              "id": "M1.2.4",
+              "nilai": 0,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Menjalankan kereta dari DAL ke LBBTB",
+              "id": "M1.2.5",
+              "nilai": 0,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Melaksanakan perubahan mode operasi dari ATP Normal ke mode operasi ATO di LBBTB",
+              "id": "M1.2.6",
+              "nilai": 0,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Menjalankan kereta dari LBBTB ke Stasiun Lebak Bulus dengan mode operasi ATO",
+              "id": "M1.2.7",
+              "nilai": 0,
+              "disable": false,
+              "bobot": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "unit": 2,
+      "judul": "Mengoperasikan kereta pada mainline",
+      "disable": false,
+      "data": [
+        {
+          "no": 1,
+          "langkah_kerja": "Pelayanan pemberangkatan dari stasiun",
+          "disable": false,
+          "bobot": 1,
+          "poin": [
+            {
+              "observasi": "Menunggu waktu dwell time",
+              "id": "M2.1.1",
+              "nilai": 0,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Mengkonfirmasi kereta aman untuk berangkat",
+              "id": "M2.1.2",
+              "nilai": 0,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Memberangkatkan kereta",
+              "id": "M2.1.3",
+              "nilai": 0,
+              "disable": false,
+              "bobot": 1
+            }
+          ]
+        },
+        {
+          "no": 2,
+          "langkah_kerja": "Pelayanan kedatangan di stasiun",
+          "disable": false,
+          "bobot": 1,
+          "poin": [
+            {
+              "observasi": "Mempersiapkan kedatangan di stasiun",
+              "id": "M2.2.1",
+              "nilai": 0,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Melakukan prosedur naik-turun penumpang di stasiun",
+              "id": "M2.2.2",
+              "nilai": 0,
+              "disable": false,
+              "bobot": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "unit": 3,
+      "judul": "Melangsirkan kereta dari stasiun akhir ke stabling track",
+      "disable": false,
+      "data": [
+        {
+          "no": 1,
+          "langkah_kerja": "Memberangkatkan kereta ke LBBTB",
+          "disable": false,
+          "bobot": 1,
+          "poin": [
+            {
+              "observasi": "Melakukan prosedur pemberangkatan kereta ke LBBTB",
+              "id": "M3.1.1",
+              "nilai": 0,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Melakukan prosedur perubahan mode operasi dari ATO ke mode operasi ATP Normal di LBBTB",
+              "id": "M3.1.2",
+              "nilai": 0,
+              "disable": false,
+              "bobot": 1
+            }
+          ]
+        },
+        {
+          "no": 2,
+          "langkah_kerja": "Melangsir kereta ke DAL",
+          "disable": false,
+          "bobot": 1,
+          "poin": [
+            {
+              "observasi": "Melakukan prosedur pemberangkatan kereta ke DAL",
+              "id": "M3.2.1",
+              "nilai": 0,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Melakukan prosedur pindah kabin setelah berhenti di jalur balik arah DAL",
+              "id": "M3.2.2",
+              "nilai": 0,
+              "disable": false,
+              "bobot": 1
+            }
+          ]
+        },
+        {
+          "no": 3,
+          "langkah_kerja": "Melangsir kereta ke stabling track",
+          "disable": false,
+          "bobot": 1,
+          "poin": [
+            {
+              "observasi": "Memberangkatkan kereta ke stabling track",
+              "id": "M3.3.1",
+              "nilai": 0,
+              "disable": false,
+              "bobot": 1
+            },
+            {
+              "observasi": "Melakukan prosedur stabling dan meninggalkan kereta",
+              "id": "M3.3.2",
+              "nilai": 0,
+              "disable": false,
+              "bobot": 1
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "nilai_akhir": 0
+}

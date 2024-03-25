@@ -1,0 +1,156 @@
+{
+  "train_type": "MRT",
+  "waktu_mulai": "15.19",
+  "waktu_selesai": "15.59",
+  "durasi": "40 Menit",
+  "tanggal": "25/10/2023",
+  "nama_crew": "Masinis MRT",
+  "kedudukan": "UPT Crew Manggarai",
+  "usia": "43 tahun",
+  "kode_kedinasan": "87",
+  "no_ka": "9041",
+  "lintas": "Bogor-Depok",
+  "nama_instruktur": "Mamat Haryanto",
+  "keterangan": "Lorem Ipsum Dolot",
+  "penilaian_1": {
+    "judul": "Melangsir kereta dari stabling track hingga Stasiun Pemberangkatan Awal",
+    "data": [
+      {
+        "no": 1,
+        "langkah_kerja": "Melaksanakan pemeriksaan di stabling track",
+        "poin": [
+          {
+            "observasi": "Berjalan menuju kereta yang akan dilayani",
+            "nilai": 0
+          },
+          {
+            "observasi": "Memastikan bahwa tidak ada tanda larangan pergerakan kereta yang terpasang",
+            "nilai": 0
+          },
+          {
+            "observasi": "Melaksanakan pemeriksaan interior kereta, exterior kereta, dan kabin masinis.",
+            "nilai": 0
+          }
+        ]
+      },
+      {
+        "no": 2,
+        "langkah_kerja": "Melangsir kereta",
+        "poin": [
+          {
+            "observasi": "Melaporkan hasil pemeriksaan dan lapor diri ke OCC",
+            "nilai": 0
+          },
+          {
+            "observasi": "Memastikan mode operasi pada posisi ATP Normal",
+            "nilai": 0
+          },
+          {
+            "observasi": "Memulai operasi langsir setelah menerima indikasi berjalan dari OCC",
+            "nilai": 0
+          },
+          {
+            "observasi": "Melaksanakan prosedur pindah kabin setelah berhenti di DAL",
+            "nilai": 0
+          },
+          {
+            "observasi": "Menjalankan kereta dari DAL ke LBBTB",
+            "nilai": 0
+          },
+          {
+            "observasi": "Melaksanakan perubahan mode operasi dari ATP Normal ke mode operasi ATO di LBBTB",
+            "nilai": 0
+          },
+          {
+            "observasi": "Menjalankan kereta dari LBBTB ke Stasiun Lebak Bulus dengan mode operasi ATO",
+            "nilai": 0
+          }
+        ]
+      }
+    ]
+  },
+  "penilaian_2": {
+    "judul": "Mengoperasikan kereta pada mainline",
+    "data": [
+      {
+        "no": 1,
+        "langkah_kerja": "Pelayanan pemberangkatan dari stasiun",
+        "poin": [
+          {
+            "observasi": "Menunggu waktu dwell time",
+            "nilai": 0
+          },
+          {
+            "observasi": "Mengkonfirmasi kereta aman untuk berangkat",
+            "nilai": 0
+          },
+          {
+            "observasi": "Memberangkatkan kereta",
+            "nilai": 0
+          }
+        ]
+      },
+      {
+        "no": 2,
+        "langkah_kerja": "Pelayanan kedatangan di stasiun",
+        "poin": [
+          {
+            "observasi": "Mempersiapkan kedatangan di stasiun",
+            "nilai": 0
+          },
+          {
+            "observasi": "Melakukan prosedur naik-turun penumpang di stasiun",
+            "nilai": 0
+          }
+        ]
+      }
+    ]
+  },
+  "penilaian_3": {
+    "judul": "Melangsirkan kereta dari stasiun akhir ke stabling track",
+    "data": [
+      {
+        "no": 1,
+        "langkah_kerja": "Memberangkatkan kereta ke LBBTB",
+        "poin": [
+          {
+            "observasi": "Melakukan prosedur pemberangkatan kereta ke LBBTB",
+            "nilai": 0
+          },
+          {
+            "observasi": "Melakukan prosedur perubahan mode operasi dari ATO ke mode operasi ATP Normal di LBBTB",
+            "nilai": 0
+          }
+        ]
+      },
+      {
+        "no": 2,
+        "langkah_kerja": "Melangsir kereta ke DAL",
+        "poin": [
+          {
+            "observasi": "Melakukan prosedur pemberangkatan kereta ke DAL",
+            "nilai": 0
+          },
+          {
+            "observasi": "Melakukan prosedur pindah kabin setelah berhenti di jalur balik arah DAL",
+            "nilai": 0
+          }
+        ]
+      },
+      {
+        "no": 3,
+        "langkah_kerja": "Melangsir kereta ke stabling track",
+        "poin": [
+          {
+            "observasi": "Memberangkatkan kereta ke stabling track",
+            "nilai": 0
+          },
+          {
+            "observasi": "Melakukan prosedur stabling dan meninggalkan kereta",
+            "nilai": 0
+          }
+        ]
+      }
+    ]
+  }
+}

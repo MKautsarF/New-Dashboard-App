@@ -1,0 +1,30 @@
+{
+  "kcic": {
+    "jenis": [
+      "8 Rangkaian Kereta",
+      "10 Rangkaian Kereta",
+      "12 Rangkaian Kereta"
+    ],
+    "rute": {
+      "Bogor": ["Depok"],
+      "Depok": ["Bogor"],
+      "Bekasi": ["Manggarai"],
+      "Manggarai": ["Bekasi"],
+      "Jakarta Kota": ["Tanjung Priuk"],
+      "Tanjung Priuk": ["Jakarta Kota"],
+      "Tanah Abang": ["Serpong"],
+      "Serpong": ["Tanah Abang", "Rangkasbitung"],
+      "Rangkasbitung": ["Serpong"]
+    },
+    "line": ["Jati Mulya Line", "Harjamukti Line"]
+  },
+  "lrt": {
+    "jenis": ["6 Rangkaian Kereta"],
+    "rute": {
+      "Depo Lebak Bulus": ["Stasiun Lebak Bulus", "Stasiun Bundaran HI"],
+      "Stasiun Lebak Bulus": ["Depo Lebak Bulus", "Stasiun Bundaran HI"],
+      "Stasiun Bundaran HI": ["Stasiun Lebak Bulus", "Depo Lebak Bulus"]
+    },
+    "line": ["Jati Mulya Line", "Harjamukti Line"]
+  }
+}
