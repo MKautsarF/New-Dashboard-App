@@ -43,8 +43,6 @@ function EditKCIC() {
 
   const [jsonToWrite, setJsonToWrite] = useState(JSON.parse(rawData));
 
-  // const [jsonToWrite, setJsonToWrite] = useState(sourceKCIC);
-
   // const [isLoading, setIsLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const [toastData, setToastData] = useState<ToastData>({

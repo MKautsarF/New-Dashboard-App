@@ -724,7 +724,7 @@ function Database() {
             type="button"
             color="error"
             variant="outlined"
-            className="bottom-0 mt-4"
+            // className="bottom-0 mt-4"
             sx={{
               color: "#df2935",
               borderColor: "#df2935",
@@ -745,7 +745,7 @@ function Database() {
             <Button
               type="button"
               variant="outlined"
-              className="bg-white text-blue-500 hover:bg-blue-500 hover:text-white ml-auto"
+              // className="bg-white text-blue-500 hover:bg-blue-500 hover:text-white ml-auto"
               onClick={() => handleStart()}
               sx={{
                 color: "#00a6fb",

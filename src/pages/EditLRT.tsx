@@ -12,18 +12,14 @@ import {
 } from "@mui/material";
 import { AddBox, Delete, Visibility, VisibilityOff } from "@mui/icons-material";
 import Container from "@/components/Container";
-import { default as sourceLRT } from "C:/Train Simulator/Data/MockJSON_KRL.json";
+// import { default as sourceLRT } from "C:/Train Simulator/Data/MockJSON_KRL.json";
 import { flushSync } from "react-dom";
 import fs from "fs";
-// import * as fs from "fs";
 
-// const fs = require("fs");
 interface ToastData {
   severity: AlertColor;
   msg: string;
 }
-const jsonPath = "C:/Train Simulator/Data/MockJSON_MRT.json";
-// const sourceLRT = "C:/Train Simulator/Data/MockJSON_MRT.json";
 
 function useQuery() {
   const { search } = useLocation();
@@ -32,25 +28,20 @@ function useQuery() {
 }
 
 function EditLRT() {
+  // const jsonPath = "C:/Train Simulator/Data/MockJSON_MRT.json";
   const query = useQuery();
 
   const settingsType = query.get("type");
-  // fetch("C:/Train Simulator/Data/MockJSON_MRT.json")
-  // .then(response => response.json())
-  // .then(data => {
-  //   // Access the property
-  //   const trainType = data["Penilaian Kereta"].train_type;
-
-  //   console.log(trainType);
-  // })
-  // .catch(error => console.error('Error loading JSON file', error));
   const navigate = useNavigate();
 
-  // const rawData = fs.readFileSync(jsonPath, "utf-8");
-  // const rawData = fs.readFile(jsonPath);
+  const jsonPath =
+    settingsType === "Default"
+      ? "C:/Train Simulator/Data/MockJSON_KRL.json"
+      : `C:/Train Simulator/Data/lrt_${settingsType}.json`;
 
-  // const [jsonToWrite, setJsonToWrite] = useState(JSON.parse(rawData));
-  const [jsonToWrite, setJsonToWrite] = useState(sourceLRT);
+  const rawData = fs.readFileSync(jsonPath, "utf-8");
+
+  const [jsonToWrite, setJsonToWrite] = useState(JSON.parse(rawData));
 
   // const [isLoading, setIsLoading] = useState(false);
   const [open, setOpen] = useState(false);
@@ -65,6 +56,7 @@ function EditLRT() {
   const handleNext = () => {
     navigate("/");
   };
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -72,7 +64,7 @@ function EditLRT() {
     const { currentTarget } = e;
 
     try {
-      // setIsLoading(true);
+      setIsLoading(true);
 
       // Get input data from form
       const data = new FormData(currentTarget);
@@ -111,9 +103,9 @@ function EditLRT() {
         judulIndex++;
       });
 
-      console.log(sourceLRT);
+      // console.log(sourceLRT);
 
-      // fs.writeFileSync(sourceLRT, JSON.stringify(jsonToWrite, null, 2));
+      fs.writeFileSync(jsonPath, JSON.stringify(jsonToWrite, null, 2));
     } catch (e) {
       console.error(e);
       setToastData({
@@ -152,7 +144,7 @@ function EditLRT() {
               style={{ fontSize: "2rem", fontWeight: "bold" }}
             >
               {/* Penilaian Kereta: {sourceLRT.train_type} */}
-              Penilaian Kereta: {sourceLRT.train_type}
+              Penilaian Kereta: LRT
               {/* Penilaian Kereta: LRT */}
               {/* {trainType} */}
               <IconButton

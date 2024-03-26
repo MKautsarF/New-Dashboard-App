@@ -66,7 +66,15 @@ function Settings() {
   };
 
   const canContinue =
-    settings.kereta && settings.stasiunAsal && settings.stasiunTujuan;
+    trainType === "kcic"
+      ? settings.kereta &&
+        settings.stasiunAsal &&
+        settings.stasiunTujuan &&
+        settings.line
+      : trainType === "lrt"
+      ? settings.line && settings.kereta
+      : false;
+
   const handlePrev = () => {
     navigate("/ThirdPage");
   };

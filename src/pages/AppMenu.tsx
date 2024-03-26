@@ -611,7 +611,7 @@ function AppMenu() {
                       backgroundColor: "#00a6fb",
                     },
                   }}
-                  className=" bg-white text-blue-600 hover:bg-blue-600 hover:text-white border-solid border-blue-600"
+                  // className=" bg-white text-blue-600 hover:bg-blue-600 hover:text-white border-solid border-blue-600"
                 >
                   Find
                 </Button>

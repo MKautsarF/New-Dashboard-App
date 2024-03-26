@@ -30,11 +30,39 @@ function ScoringLRT() {
     }
   }, []);
 
-  const handleAdd = () => {
+  const fs = require("fs");
+  const path = require("path");
+
+  const handleAdd = async () => {
     const newCount = val.length + 1;
     const newSettings = [...val, `New Settings ${newCount}`];
     setVal(newSettings);
     localStorage.setItem("scoringLRTVal", JSON.stringify(newSettings));
+
+    // Duplicate the JSON file
+    const sourceFilePath = "C:/Train Simulator/Data/MockJSON_KRL.json";
+    const destinationFileName = `lrt_New Settings ${newCount}.json`;
+    const destinationFilePath = path.join(
+      "C:/Train Simulator/Data",
+      destinationFileName
+    );
+
+    // Read the source file
+    fs.readFile(sourceFilePath, "utf8", (err: any, data: any) => {
+      if (err) {
+        console.error("Error reading source file:", err);
+        return;
+      }
+
+      // Write the duplicated content to a new file
+      fs.writeFile(destinationFilePath, data, "utf8", (err: any) => {
+        if (err) {
+          console.error("Error writing to destination file:", err);
+          return;
+        }
+        console.log(`File duplicated and saved as ${destinationFileName}`);
+      });
+    });
   };
 
   const handleDelete = (i: any) => {
@@ -66,7 +94,7 @@ function ScoringLRT() {
               <Button
                 variant="text"
                 onClick={() => {
-                  handleDelete(i);
+                  // handleDelete(i);
                 }}
                 disabled // Adding the disabled prop
                 sx={{

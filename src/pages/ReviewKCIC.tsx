@@ -303,7 +303,7 @@ function ReviewKCIC() {
             {/* nav */}
             <div className="flex gap-4 justify-between w-full">
               <Button
-                variant="outlined"
+                variant="text"
                 color="error"
                 onClick={() => {
                   if (simulation) {
@@ -317,7 +317,7 @@ function ReviewKCIC() {
                 sx={{
                   color: "#df2935",
                   borderColor: "#df2935",
-                  backgroundColor: "#ffffff",
+                  // backgroundColor: "#ffffff",
                   "&:hover": {
                     borderColor: "#df2935",
                     backgroundColor: "#df2935",
@@ -354,7 +354,7 @@ function ReviewKCIC() {
               </Button>
 
               <Button
-                variant="outlined"
+                variant="text"
                 className="ml-auto"
                 type="button"
                 onClick={() => setNotesOpen(true)}
@@ -363,7 +363,7 @@ function ReviewKCIC() {
                 sx={{
                   color: "#00a6fb",
                   borderColor: "#00a6fb",
-                  backgroundColor: "#ffffff",
+                  // backgroundColor: "#ffffff",
                   "&:hover": {
                     borderColor: "#00a6fb",
                     backgroundColor: "#00a6fb",
