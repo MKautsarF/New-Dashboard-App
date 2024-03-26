@@ -697,7 +697,7 @@ function AppMenu() {
                   <Button
                     variant="outlined"
                     onClick={() => {
-                      navigate("/Sixthpage/kcic/edit?type=default"); // ganti type = defaultnya, ambil dari const
+                      navigate("/Sixthpage/kcic?type=default"); // ganti type = defaultnya, ambil dari const
                     }}
                     sx={{
                       color: "#00a6fb",
@@ -743,7 +743,7 @@ function AppMenu() {
                   <Button
                     variant="outlined"
                     onClick={() => {
-                      navigate("/Sixthpage/lrt/edit?type=default"); // ganti type = defaultnya, ambil dari const
+                      navigate("/Sixthpage/lrt?type=default"); // ganti type = defaultnya, ambil dari const
                     }}
                     sx={{
                       color: "#00a6fb",

@@ -9,6 +9,7 @@ import {
   CheckBox,
   CheckBoxOutlineBlank,
 } from "@mui/icons-material";
+import { useSettings } from "../context/settings";
 
 function ScoringLRT() {
   const navigate = useNavigate();
@@ -75,6 +76,12 @@ function ScoringLRT() {
   const handleClick = (index: any) => {
     setCheckedItem(index);
   };
+
+  const { settings, setSettings } = useSettings();
+
+  useEffect(() => {
+    setSettings(settings);
+  }, [settings]);
 
   return (
     <>
