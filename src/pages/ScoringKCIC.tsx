@@ -9,6 +9,8 @@ import {
   CheckBox,
   CheckBoxOutlineBlank,
 } from "@mui/icons-material";
+import { useSettings } from "../context/settings";
+import pullAt from "lodash/pullAt";
 
 function ScoringKCIC() {
   const navigate = useNavigate();
@@ -61,20 +63,97 @@ function ScoringKCIC() {
           return;
         }
         console.log(`File duplicated and saved as ${destinationFileName}`);
+
+        // Read the settings_train.json file
+        const settingsFilePath = "C:/Train Simulator/Data/settings_train.json";
+        fs.readFile(settingsFilePath, "utf8", (err: any, settingsData: any) => {
+          if (err) {
+            console.error("Error reading settings file:", err);
+            return;
+          }
+
+          // Parse the JSON content
+          const settings = JSON.parse(settingsData);
+
+          // Update the score array in the kcic section
+          settings.kcic.score.push(destinationFileName);
+
+          // Write the updated settings back to the file
+          fs.writeFile(
+            settingsFilePath,
+            JSON.stringify(settings, null, 2),
+            (err: any) => {
+              if (err) {
+                console.error("Error writing settings file:", err);
+                return;
+              }
+              console.log("settings_train.json updated.");
+            }
+          );
+        });
       });
     });
   };
 
   const handleDelete = (i: any) => {
     const deletVal = [...val];
+    const deletedName = deletVal[i];
     deletVal.splice(i, 1);
     setVal(deletVal);
     localStorage.setItem("scoringKCICVal", JSON.stringify(deletVal));
+
+    // Read the settings_train.json file
+    const settingsFilePath = "C:/Train Simulator/Data/settings_train.json"; // Adjust the path as needed
+
+    fs.readFile(settingsFilePath, "utf8", (err: any, data: any) => {
+      if (err) {
+        console.error("Error reading settings file:", err);
+        return;
+      }
+
+      // Parse JSON data
+      const jsonData = JSON.parse(data);
+
+      // Remove the deleted name from the "kcic" section
+      if (jsonData["kcic"] && jsonData["kcic"]["score"]) {
+        const deletedFileName = jsonData["kcic"]["score"][i + 1];
+        pullAt(jsonData["kcic"]["score"], i + 1); // Remove the element at the specified index
+
+        // Write the modified JSON data back to the file
+        fs.writeFile(
+          settingsFilePath,
+          JSON.stringify(jsonData, null, 2),
+          "utf8",
+          (err: any) => {
+            if (err) {
+              console.error("Error writing to settings file:", err);
+              return;
+            }
+            console.log(`Name ${deletedName} removed from settings_train.json`);
+
+            // Delete the corresponding JSON file
+            const deletedFilePath = path.join(
+              "C:/Train Simulator/Data",
+              deletedFileName
+            );
+            fs.unlink(deletedFilePath, (err: any) => {
+              if (err) {
+                console.error(`Error deleting file ${deletedFileName}:`, err);
+                return;
+              }
+              console.log(`File ${deletedFileName} deleted successfully`);
+            });
+          }
+        );
+      }
+    });
   };
 
   const handleClick = (index: any) => {
     setCheckedItem(index);
   };
+
+  const { settings, setSettings } = useSettings();
 
   return (
     <>

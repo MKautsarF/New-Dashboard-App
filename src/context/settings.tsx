@@ -15,6 +15,7 @@ interface Settings {
   berat: number;
   kereta: string;
   line: string;
+  score: string;
   stasiunAsal: string;
   stasiunTujuan: string;
   statusHujan: string;
@@ -59,6 +60,7 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({
     berat: 30,
     kereta: "",
     line: "",
+    score: "Default",
     stasiunAsal: "",
     stasiunTujuan: "",
     statusHujan: "Cerah",

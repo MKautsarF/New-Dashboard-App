@@ -9,7 +9,8 @@
       "Bogor": ["Depok"],
       "Depok": ["Bogor"]
     },
-    "line": ["Jati Mulya Line", "Harjamukti Line"]
+    "line": ["a Line", "b Line", "c Line", "d Line"],
+    "score": ["Default"]
   },
   "lrt": {
     "jenis": ["6 Rangkaian Kereta"],
@@ -18,6 +19,7 @@
       "Stasiun Lebak Bulus": ["Depo Lebak Bulus", "Stasiun Bundaran HI"],
       "Stasiun Bundaran HI": ["Stasiun Lebak Bulus", "Depo Lebak Bulus"]
     },
-    "line": ["Jati Mulya Line", "Harjamukti Line"]
+    "line": ["a Line", "b Line"],
+    "score": ["Default"]
   }
 }
