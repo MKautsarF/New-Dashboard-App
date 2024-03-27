@@ -10,6 +10,7 @@ import {
   CheckBoxOutlineBlank,
 } from "@mui/icons-material";
 import { useSettings } from "../context/settings";
+import pullAt from "lodash/pullAt";
 
 function ScoringLRT() {
   const navigate = useNavigate();
@@ -22,12 +23,19 @@ function ScoringLRT() {
   };
 
   const [val, setVal] = useState([]);
-  const [checkedItem, setCheckedItem] = useState(null);
+  const [checkedItem2, setCheckedItem] = useState(null);
 
   useEffect(() => {
     const storedVal = localStorage.getItem("scoringLRTVal");
     if (storedVal) {
       setVal(JSON.parse(storedVal));
+    }
+
+    const storedCheckedItem = localStorage.getItem("checkedItem2");
+    if (storedCheckedItem !== null) {
+      setCheckedItem(parseInt(storedCheckedItem));
+    } else {
+      setCheckedItem(null);
     }
   }, []);
 
@@ -41,7 +49,7 @@ function ScoringLRT() {
     localStorage.setItem("scoringLRTVal", JSON.stringify(newSettings));
 
     // Duplicate the JSON file
-    const sourceFilePath = "C:/Train Simulator/Data/MockJSON_KRL.json";
+    const sourceFilePath = "C:/Train Simulator/Data/MockJSON_MRT.json";
     const destinationFileName = `lrt_New Settings ${newCount}.json`;
     const destinationFilePath = path.join(
       "C:/Train Simulator/Data",
@@ -62,32 +70,116 @@ function ScoringLRT() {
           return;
         }
         console.log(`File duplicated and saved as ${destinationFileName}`);
+
+        // Read the settings_train.json file
+        const settingsFilePath = "C:/Train Simulator/Data/settings_train.json";
+        fs.readFile(settingsFilePath, "utf8", (err: any, settingsData: any) => {
+          if (err) {
+            console.error("Error reading settings file:", err);
+            return;
+          }
+
+          // Parse the JSON content
+          const settings = JSON.parse(settingsData);
+
+          // Update the score array in the lrt section
+          settings.lrt.score.push(destinationFileName);
+
+          // Write the updated settings back to the file
+          fs.writeFile(
+            settingsFilePath,
+            JSON.stringify(settings, null, 2),
+            (err: any) => {
+              if (err) {
+                console.error("Error writing settings file:", err);
+                return;
+              }
+              console.log("settings_train.json updated.");
+            }
+          );
+        });
       });
     });
   };
 
   const handleDelete = (i: any) => {
     const deletVal = [...val];
+    const deletedName = deletVal[i];
     deletVal.splice(i, 1);
     setVal(deletVal);
     localStorage.setItem("scoringLRTVal", JSON.stringify(deletVal));
-  };
 
-  const handleClick = (index: any) => {
-    setCheckedItem(index);
+    // Read the settings_train.json file
+    const settingsFilePath = "C:/Train Simulator/Data/settings_train.json"; // Adjust the path as needed
+
+    fs.readFile(settingsFilePath, "utf8", (err: any, data: any) => {
+      if (err) {
+        console.error("Error reading settings file:", err);
+        return;
+      }
+
+      // Parse JSON data
+      const jsonData = JSON.parse(data);
+
+      // Remove the deleted name from the "lrt" section
+      if (jsonData["lrt"] && jsonData["lrt"]["score"]) {
+        const deletedFileName = jsonData["lrt"]["score"][i + 1];
+        pullAt(jsonData["lrt"]["score"], i + 1); // Remove the element at the specified index
+
+        // Write the modified JSON data back to the file
+        fs.writeFile(
+          settingsFilePath,
+          JSON.stringify(jsonData, null, 2),
+          "utf8",
+          (err: any) => {
+            if (err) {
+              console.error("Error writing to settings file:", err);
+              return;
+            }
+            console.log(`Name ${deletedName} removed from settings_train.json`);
+
+            // Delete the corresponding JSON file
+            const deletedFilePath = path.join(
+              "C:/Train Simulator/Data",
+              deletedFileName
+            );
+            fs.unlink(deletedFilePath, (err: any) => {
+              if (err) {
+                console.error(`Error deleting file ${deletedFileName}:`, err);
+                return;
+              }
+              console.log(`File ${deletedFileName} deleted successfully`);
+            });
+          }
+        );
+      }
+    });
   };
 
   const { settings, setSettings } = useSettings();
 
-  useEffect(() => {
-    setSettings(settings);
-  }, [settings]);
+  const handleClick = (index2: any) => {
+    setCheckedItem(index2);
+    localStorage.setItem("checkedItem2", index2 === null ? "default" : index2);
+    localStorage.setItem("selectedValue2", val[index2] || "Default");
+    // Set the selected value in settings
+    setSettings((prevSettings) => ({
+      ...prevSettings,
+      score: val[index2] || "Default", // Assuming val is an array of strings
+    }));
+  };
+
+  // Function to check if a value is selected
+  const isSelected = (index2: number) => {
+    return index2 === checkedItem2;
+  };
 
   return (
     <>
       <Container w={900}>
         <div className="flex flex-col gap-4 w-full">
           <div className="flex flex-col text-left gap-4 p-8 ">
+            {/* {settings.score && <p>Selected Value: {settings.score}</p>} */}
             <h1 style={{ fontSize: "1.75rem", fontWeight: "bold" }}>
               Pengaturan Penilaian LRT
             </h1>
@@ -145,7 +237,7 @@ function ScoringLRT() {
                   borderColor: "#00a6fb",
                 }}
               >
-                {checkedItem === null ? (
+                {checkedItem2 === null || settings.score === "Default" ? (
                   <CheckBox sx={{ fontSize: "1.75rem" }} />
                 ) : (
                   <CheckBoxOutlineBlank sx={{ fontSize: "1.75rem" }} />
@@ -201,7 +293,7 @@ function ScoringLRT() {
                       borderColor: "#00a6fb",
                     }}
                   >
-                    {checkedItem === i ? (
+                    {checkedItem2 === i ? (
                       <CheckBox sx={{ fontSize: "1.75rem" }} />
                     ) : (
                       <CheckBoxOutlineBlank sx={{ fontSize: "1.75rem" }} />

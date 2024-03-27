@@ -31,8 +31,8 @@ function EditKCIC() {
   // const jsonPath = "C:/Train Simulator/Data/MockJSON_MRT.json";
   const query = useQuery();
 
-  const settingsType = query.get("type");
   const navigate = useNavigate();
+  const settingsType = query.get("type");
 
   const jsonPath =
     settingsType === "Default"

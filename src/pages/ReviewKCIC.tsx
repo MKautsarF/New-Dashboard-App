@@ -15,7 +15,7 @@ import {
   Snackbar,
   TextField,
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   formatDurationToString,
   getFilenameSafeDateString,
@@ -38,21 +38,37 @@ import { useSettings } from "../context/settings";
 import { useAuth } from "../context/auth";
 import { EditNoteRounded, EditNoteSharp, Stop } from "@mui/icons-material";
 // const fs = require("fs");
-import { default as mrtjson } from "C:/Train Simulator/Data/MockJSON_MRT.json";
+// import { default as mrtjson } from "C:/Train Simulator/Data/MockJSON_MRT.json";
+import fs from "fs";
 
 interface ToastData {
   severity: AlertColor;
   msg: string;
 }
 
+function useQuery() {
+  const { search } = useLocation();
+
+  return useMemo(() => new URLSearchParams(search), [search]);
+}
+
 function ReviewKCIC() {
+  const query = useQuery();
   const navigate = useNavigate();
   const { instructor } = useAuth();
   const { settings } = useSettings();
 
   const [simulation, setSimulation] = useState(true);
-  const jsonPath = "C:/Train Simulator/Data/MockJSON_MRT.json";
-  // const mrtjson = JSON.parse(fs.readFileSync(jsonPath, "utf-8"));
+  // const jsonPath = "C:/Train Simulator/Data/MockJSON_MRT.json";
+
+  const settingsType = query.get("type");
+
+  const jsonPath =
+    settingsType === "Default"
+      ? "C:/Train Simulator/Data/MockJSON_MRT.json"
+      : `C:/Train Simulator/Data/kcic_${settingsType}.json`;
+
+  const mrtjson = JSON.parse(fs.readFileSync(jsonPath, "utf-8"));
 
   const [realTimeNilai, setRealTimeNilai] = useState(0);
   const [isLoading, setIsLoading] = useState(false);

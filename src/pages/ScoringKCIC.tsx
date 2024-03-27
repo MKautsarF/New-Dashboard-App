@@ -30,6 +30,13 @@ function ScoringKCIC() {
     if (storedVal) {
       setVal(JSON.parse(storedVal));
     }
+
+    const storedCheckedItem = localStorage.getItem("checkedItem");
+    if (storedCheckedItem !== null) {
+      setCheckedItem(parseInt(storedCheckedItem));
+    } else {
+      setCheckedItem(null);
+    }
   }, []);
 
   const fs = require("fs");
@@ -149,17 +156,30 @@ function ScoringKCIC() {
     });
   };
 
+  const { settings, setSettings } = useSettings();
+
   const handleClick = (index: any) => {
     setCheckedItem(index);
+    localStorage.setItem("checkedItem", index === null ? "default" : index);
+    localStorage.setItem("selectedValue", val[index] || "Default");
+    // Set the selected value in settings
+    setSettings((prevSettings) => ({
+      ...prevSettings,
+      score: val[index] || "Default", // Assuming val is an array of strings
+    }));
   };
 
-  const { settings, setSettings } = useSettings();
+  // Function to check if a value is selected
+  const isSelected = (index: number) => {
+    return index === checkedItem;
+  };
 
   return (
     <>
       <Container w={900}>
         <div className="flex flex-col gap-4 w-full">
           <div className="flex flex-col text-left gap-4 p-8 ">
+            {/* {settings.score && <p>Selected Value: {settings.score}</p>} */}
             <h1 style={{ fontSize: "1.75rem", fontWeight: "bold" }}>
               Pengaturan Penilaian KCIC
             </h1>
@@ -217,7 +237,7 @@ function ScoringKCIC() {
                   borderColor: "#00a6fb",
                 }}
               >
-                {checkedItem === null ? (
+                {checkedItem === null || settings.score === "Default" ? (
                   <CheckBox sx={{ fontSize: "1.75rem" }} />
                 ) : (
                   <CheckBoxOutlineBlank sx={{ fontSize: "1.75rem" }} />

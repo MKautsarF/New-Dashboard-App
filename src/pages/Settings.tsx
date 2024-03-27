@@ -143,7 +143,7 @@ function Settings() {
       console.error(error);
     } finally {
       setIsLoading(false);
-      navigate(`/FifthPage/${trainType}`);
+      navigate(`/FifthPage/${trainType}?type=${settings.score}`);
     }
   };
 
@@ -519,7 +519,7 @@ function Settings() {
               onMouseEnter={() => setIsHovered(true)}
               onMouseLeave={() => setIsHovered(false)}
             >
-              {isHovered ? "Edit Penilaian" : "Default"}
+              {isHovered ? "Edit Penilaian" : settings.score}
             </Button>
 
             <Button

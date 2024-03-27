@@ -32,12 +32,15 @@ import { getSubmissionList } from "../services/submission.services";
 import { currentPeserta } from "../context/auth";
 import dayjs, { Dayjs } from "dayjs";
 import SearchIcon from "@mui/icons-material/Search";
+import { useSettings } from "../context/settings";
 
 function AppMenu() {
   const [settingsAnchorEl, setSettingsAnchorEl] = useState(null);
   const [scoringAnchorEl, setScoringAnchorEl] = useState(null);
 
   const navigate = useNavigate();
+
+  const { settings, setSettings } = useSettings();
 
   const handlePrev = () => {
     navigate("/FirstPage");
@@ -208,6 +211,23 @@ function AppMenu() {
   const handleMouseLeave = () => {
     setHoveredBox(null);
   };
+
+  const [selectedValue, setSelectedValue] = useState("Default");
+  const [selectedValue2, setSelectedValue2] = useState("Default");
+
+  useEffect(() => {
+    // Retrieve the last selected value from localStorage
+    const storedValue = localStorage.getItem("selectedValue");
+    if (storedValue) {
+      setSelectedValue(storedValue);
+    }
+    // Retrieve the last selected value from localStorage
+    const storedValue2 = localStorage.getItem("selectedValue2");
+    if (storedValue2) {
+      setSelectedValue2(storedValue2);
+    }
+  }, []);
+
   return (
     <>
       <Container w={1500}>
@@ -713,14 +733,15 @@ function AppMenu() {
                     startIcon={<Settings className="text-3xl" />}
                     className="flex items-center"
                   >
-                    Default{/* ganti default,  ambil dari const  */}
+                    {/*Default ganti default,  ambil dari const  */}
+                    {selectedValue}
                   </Button>
                 </div>
               </div>
               {hoveredBox === 3 && (
                 <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-center py-2">
                   <p className="text-white">
-                    Menggunakan setelan "Default" untuk penilaian KCIC
+                    Menggunakan setelan {selectedValue} untuk penilaian KCIC
                   </p>
                 </div>
               )}
@@ -759,14 +780,15 @@ function AppMenu() {
                     startIcon={<Settings className="text-3xl" />}
                     className="flex items-center"
                   >
-                    Default{/* ganti default,  ambil dari const  */}
+                    {selectedValue2}
                   </Button>
                 </div>
               </div>
               {hoveredBox === 4 && (
                 <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-center py-2">
                   <p className="text-white">
-                    Menggunakan setelan "Default" untuk penilaian LRT
+                    {/* Menggunakan setelan {settings.score} untuk penilaian LRT */}
+                    Menggunakan setelan {selectedValue2} untuk penilaian LRT
                   </p>
                 </div>
               )}
