@@ -27,12 +27,12 @@ import {
 // } from "../services/file.services";
 import FullPageLoading from "../components/FullPageLoading";
 import { shell } from "electron";
-// import {
-//   handleClientDisconnect,
-//   sendTextToClients,
-//   server,
-//   socketClients,
-// } from '@/socket';
+import {
+  handleClientDisconnect,
+  sendTextToClients,
+  server,
+  socketClients,
+} from "@/socket";
 import dayjs from "dayjs";
 import { useSettings } from "../context/settings";
 import { useAuth } from "../context/auth";
@@ -189,7 +189,7 @@ function ReviewLRT() {
       setIsLoading(false);
       if (simulation) {
         setSimulation(false);
-        // sendTextToClients(JSON.stringify({ status: "finish" }, null, 2));
+        sendTextToClients(JSON.stringify({ status: "finish" }, null, 2));
       }
     }
   };
@@ -308,9 +308,9 @@ function ReviewLRT() {
                 onClick={() => {
                   if (simulation) {
                     setSimulation(false);
-                    // sendTextToClients(
-                    //   JSON.stringify({ status: "finish" }, null, 2)
-                    // );
+                    sendTextToClients(
+                      JSON.stringify({ status: "finish" }, null, 2)
+                    );
                   }
                   navigate(-1);
                 }}
@@ -335,9 +335,9 @@ function ReviewLRT() {
                 disabled={!simulation}
                 onClick={() => {
                   setSimulation(false);
-                  // sendTextToClients(
-                  //   JSON.stringify({ status: "finish" }, null, 2)
-                  // );
+                  sendTextToClients(
+                    JSON.stringify({ status: "finish" }, null, 2)
+                  );
                 }}
                 sx={{
                   color: "#ffffff",

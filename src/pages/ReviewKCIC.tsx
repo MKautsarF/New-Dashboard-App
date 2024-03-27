@@ -27,12 +27,12 @@ import {
 // } from "../services/file.services";
 import FullPageLoading from "../components/FullPageLoading";
 import { shell } from "electron";
-// import {
-//   handleClientDisconnect,
-//   sendTextToClients,
-//   server,
-//   socketClients,
-// } from '@/socket';
+import {
+  handleClientDisconnect,
+  sendTextToClients,
+  server,
+  socketClients,
+} from "@/socket";
 import dayjs from "dayjs";
 import { useSettings } from "../context/settings";
 import { useAuth } from "../context/auth";
@@ -101,7 +101,7 @@ function ReviewKCIC() {
       setIsLoading(true);
       const endTime = dayjs();
 
-      // hit API
+      // reset CCTV mode
       // await loadCctv();
 
       // Get input data from form
@@ -137,8 +137,8 @@ function ReviewKCIC() {
         (settings.trainee.bio && settings.trainee.bio.officialCode) || "";
 
       // * Train data
-      jsonToWrite.train_type = "MRT";
-      jsonToWrite.no_ka = "9041";
+      jsonToWrite.train_type = "KRL";
+      jsonToWrite.no_ka = "8399";
       jsonToWrite.lintas =
         settings.stasiunAsal + " - " + settings.stasiunTujuan;
 
@@ -151,6 +151,16 @@ function ReviewKCIC() {
       // Write actual nilai to the copied krl json
       let jsonIdx = 0;
 
+      // jsonToWrite.penilaian.data.forEach((data: any, i: number) => {
+      //   data.poin.forEach((_: any, j: number) => {
+      //     if (jsonToWrite.penilaian.data[i].poin[j].nilai !== null) {
+      //       jsonToWrite.penilaian.data[i].poin[j].nilai = Number(
+      //         inputValues[jsonIdx]
+      //       );
+      //       jsonIdx += 1;
+      //     }
+      //   });
+      // });
       jsonToWrite.penilaian.forEach((penilaian: any, i: number) => {
         // console.log('reading penilaian array');
         penilaian.data.forEach((data: any, j: number) => {
@@ -164,35 +174,41 @@ function ReviewKCIC() {
           });
         });
       });
-      // console.log('penilaian done');
 
       // nilai skor akhir
       jsonToWrite.nilai_akhir = realTimeNilai < 0 ? 0 : realTimeNilai;
 
       // Save file to local
-      const fileName = "MRT_" + getFilenameSafeDateString(new Date());
+      const fileName = "KRL_" + getFilenameSafeDateString(new Date());
 
+      console.log("tes");
       const dir = "C:/Train Simulator/Data/penilaian";
-      // if (!fs.existsSync(dir)) {
-      //   await fs.mkdirSync(dir, { recursive: true });
-      // }
 
-      // fs.writeFileSync(
-      //   `${dir}/${fileName}.json`,
-      //   JSON.stringify(jsonToWrite, null, 2)
-      // );
+      if (!fs.existsSync(dir)) {
+        await fs.mkdirSync(dir, { recursive: true });
+      }
 
-      // Hit C# API for score pdf result generation
-      // const res = await processFile(fileName, "on");
-      // const resExcel = await processFileExcel(fileName, "on");
+      fs.writeFileSync(
+        `${dir}/${fileName}.json`,
+        JSON.stringify(jsonToWrite, null, 2)
+      );
+
+      // // Hit C# API for score pdf result generation
+      // console.log('tes');
+      // const res = await processFile(fileName, 'on');
+      // const resExcel = await processFileExcel(fileName, 'on');
       // setToastData({
-      //   severity: "success",
+      //   severity: 'success',
       //   msg: `Successfuly saved scores as ${fileName}.pdf!`,
       // });
       // setOpen(true);
+      // console.log('tes');
 
       // open pdf in dekstop
       // navigate(`/finish?filename=${fileName}`);
+
+      navigate(`/SecondPage`);
+
       // shell.openPath(`C:/Train Simulator/Data/penilaian/PDF/${fileName}.pdf`);
     } catch (e) {
       console.error(e);
@@ -203,10 +219,7 @@ function ReviewKCIC() {
       setOpen(true);
     } finally {
       setIsLoading(false);
-      if (simulation) {
-        setSimulation(false);
-        // sendTextToClients(JSON.stringify({ status: "finish" }, null, 2));
-      }
+      sendTextToClients(JSON.stringify({ status: "finish" }, null, 2));
     }
   };
 
@@ -324,9 +337,9 @@ function ReviewKCIC() {
                 onClick={() => {
                   if (simulation) {
                     setSimulation(false);
-                    // sendTextToClients(
-                    //   JSON.stringify({ status: "finish" }, null, 2)
-                    // );
+                    sendTextToClients(
+                      JSON.stringify({ status: "finish" }, null, 2)
+                    );
                   }
                   navigate(-1);
                 }}
@@ -351,9 +364,9 @@ function ReviewKCIC() {
                 disabled={!simulation}
                 onClick={() => {
                   setSimulation(false);
-                  // sendTextToClients(
-                  //   JSON.stringify({ status: "finish" }, null, 2)
-                  // );
+                  sendTextToClients(
+                    JSON.stringify({ status: "finish" }, null, 2)
+                  );
                 }}
                 sx={{
                   color: "#ffffff",
