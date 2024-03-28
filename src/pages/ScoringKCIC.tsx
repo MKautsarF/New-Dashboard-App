@@ -160,7 +160,7 @@ function ScoringKCIC() {
 
   const handleClick = (index: any) => {
     setCheckedItem(index);
-    localStorage.setItem("checkedItem", index === null ? "default" : index);
+    localStorage.setItem("checkedItem", index === null ? "Default" : index);
     localStorage.setItem("selectedValue", val[index] || "Default");
     // Set the selected value in settings
     setSettings((prevSettings) => ({

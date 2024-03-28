@@ -23,7 +23,7 @@ function ScoringLRT() {
   };
 
   const [val, setVal] = useState([]);
-  const [checkedItem2, setCheckedItem] = useState(null);
+  const [checkedItem2, setCheckedItem2] = useState(null);
 
   useEffect(() => {
     const storedVal = localStorage.getItem("scoringLRTVal");
@@ -33,9 +33,9 @@ function ScoringLRT() {
 
     const storedCheckedItem = localStorage.getItem("checkedItem2");
     if (storedCheckedItem !== null) {
-      setCheckedItem(parseInt(storedCheckedItem));
+      setCheckedItem2(parseInt(storedCheckedItem));
     } else {
-      setCheckedItem(null);
+      setCheckedItem2(null);
     }
   }, []);
 
@@ -49,7 +49,7 @@ function ScoringLRT() {
     localStorage.setItem("scoringLRTVal", JSON.stringify(newSettings));
 
     // Duplicate the JSON file
-    const sourceFilePath = "C:/Train Simulator/Data/MockJSON_MRT.json";
+    const sourceFilePath = "C:/Train Simulator/Data/MockJSON_KRL.json";
     const destinationFileName = `lrt_New Settings ${newCount}.json`;
     const destinationFilePath = path.join(
       "C:/Train Simulator/Data",
@@ -159,8 +159,8 @@ function ScoringLRT() {
   const { settings, setSettings } = useSettings();
 
   const handleClick = (index2: any) => {
-    setCheckedItem(index2);
-    localStorage.setItem("checkedItem2", index2 === null ? "default" : index2);
+    setCheckedItem2(index2);
+    localStorage.setItem("checkedItem2", index2 === null ? "Default" : index2);
     localStorage.setItem("selectedValue2", val[index2] || "Default");
     // Set the selected value in settings
     setSettings((prevSettings) => ({

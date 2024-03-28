@@ -228,6 +228,29 @@ function AppMenu() {
     }
   }, []);
 
+  // const [isKcicSelected, setIsKcicSelected] = useState(false);
+  // const [isLrtSelected, setIsLrtSelected] = useState(false);
+  const [isSelected, setIsSelected] = useState(false);
+
+  // Handle Select button click
+  const handleSelectButtonClick = () => {
+    // if (selectedPeserta.id !== "") {
+    //   if (selectedValue === "KCIC") {
+    //     setIsKcicSelected(true);
+    //   } else if (selectedValue === "LRT") {
+    //     setIsLrtSelected(true);
+    //   }
+    // }
+    setIsSelected(true);
+  };
+
+  // Effect to reset button selection state when the table data changes
+  useEffect(() => {
+    // setIsKcicSelected(false);
+    // setIsLrtSelected(false);
+    setIsSelected(false);
+  }, [rows]);
+
   return (
     <>
       <Container w={1500}>
@@ -268,6 +291,7 @@ function AppMenu() {
             <Button
               variant="outlined"
               onClick={handleSettingsClick}
+              disabled={!selectedPeserta.id || isSelected}
               sx={{
                 color: "#f3f3f4",
                 borderColor: "#f3f3f4",
@@ -369,8 +393,9 @@ function AppMenu() {
                 <Button
                   variant="outlined"
                   onClick={() => {
-                    navigate("/Fifthpage/kcic");
+                    navigate(`/Fifthpage/kcic?type=${selectedValue}`);
                   }}
+                  disabled={!selectedPeserta.id || isSelected}
                   sx={{
                     color: "#00a6fb",
                     borderColor: "#00a6fb",
@@ -408,11 +433,13 @@ function AppMenu() {
                 onMouseLeave={handleMouseLeave}
               >
                 <h1>LRT</h1>
+                {/* {selectedValue2} */}
                 <Button
                   variant="outlined"
                   onClick={() => {
-                    navigate("/Fifthpage/lrt");
+                    navigate(`/Fifthpage/lrt?type=${selectedValue2}`);
                   }}
+                  disabled={!selectedPeserta.id || isSelected}
                   sx={{
                     color: "#00a6fb",
                     borderColor: "#00a6fb",
