@@ -100,7 +100,7 @@ function ReviewLRT() {
       setIsLoading(true);
       const endTime = dayjs();
 
-      // hit API
+      // reset CCTV mode
       // await loadCctv();
 
       // Get input data from form
@@ -136,8 +136,8 @@ function ReviewLRT() {
         (settings.trainee.bio && settings.trainee.bio.officialCode) || "";
 
       // * Train data
-      jsonToWrite.train_type = "MRT";
-      jsonToWrite.no_ka = "9041";
+      jsonToWrite.train_type = "KRL";
+      jsonToWrite.no_ka = "8399";
       jsonToWrite.lintas =
         settings.stasiunAsal + " - " + settings.stasiunTujuan;
 
@@ -169,29 +169,36 @@ function ReviewLRT() {
       jsonToWrite.nilai_akhir = realTimeNilai < 0 ? 0 : realTimeNilai;
 
       // Save file to local
-      const fileName = "MRT_" + getFilenameSafeDateString(new Date());
+      const fileName = "KCIC_" + getFilenameSafeDateString(new Date());
 
+      console.log("tes");
       const dir = "C:/Train Simulator/Data/penilaian";
-      // if (!fs.existsSync(dir)) {
-      //   await fs.mkdirSync(dir, { recursive: true });
-      // }
 
-      // fs.writeFileSync(
-      //   `${dir}/${fileName}.json`,
-      //   JSON.stringify(jsonToWrite, null, 2)
-      // );
+      if (!fs.existsSync(dir)) {
+        await fs.mkdirSync(dir, { recursive: true });
+      }
 
-      // Hit C# API for score pdf result generation
-      // const res = await processFile(fileName, "on");
-      // const resExcel = await processFileExcel(fileName, "on");
+      fs.writeFileSync(
+        `${dir}/${fileName}.json`,
+        JSON.stringify(jsonToWrite, null, 2)
+      );
+
+      // // Hit C# API for score pdf result generation
+      // console.log('tes');
+      // const res = await processFile(fileName, 'on');
+      // const resExcel = await processFileExcel(fileName, 'on');
       // setToastData({
-      //   severity: "success",
+      //   severity: 'success',
       //   msg: `Successfuly saved scores as ${fileName}.pdf!`,
       // });
       // setOpen(true);
+      // console.log('tes');
 
       // open pdf in dekstop
       // navigate(`/finish?filename=${fileName}`);
+
+      navigate(`/SecondPage`);
+
       // shell.openPath(`C:/Train Simulator/Data/penilaian/PDF/${fileName}.pdf`);
     } catch (e) {
       console.error(e);
@@ -202,10 +209,7 @@ function ReviewLRT() {
       setOpen(true);
     } finally {
       setIsLoading(false);
-      if (simulation) {
-        setSimulation(false);
-        sendTextToClients(JSON.stringify({ status: "finish" }, null, 2));
-      }
+      sendTextToClients(JSON.stringify({ status: "finish" }, null, 2));
     }
   };
 
@@ -220,54 +224,54 @@ function ReviewLRT() {
     setOpen(false);
   };
 
-  // useEffect(() => {
-  //   server.on("connection", (socket) => {
-  //     console.log("Client connected - in start mode");
+  useEffect(() => {
+    server.on("connection", (socket) => {
+      console.log("Client connected - in start mode");
 
-  //     // Add the new client socket to the array
-  //     socketClients.push(socket);
+      // Add the new client socket to the array
+      socketClients.push(socket);
 
-  //     socket.on("data", (data) => {
-  //       const stringData = data.toString();
-  //       const payload = stringData.split("|").slice(-1)[0];
-  //       const jsonData = JSON.parse(payload);
+      socket.on("data", (data) => {
+        const stringData = data.toString();
+        const payload = stringData.split("|").slice(-1)[0];
+        const jsonData = JSON.parse(payload);
 
-  //       console.log("received data: ", jsonData);
+        console.log("received data: ", jsonData);
 
-  //       if (jsonData.id === "M1.1.1") {
-  //         setRealTimeNilai(Number(jsonData.nilai));
-  //       }
-  //     });
+        if (jsonData.id === "K1.1.1") {
+          setRealTimeNilai(Number(jsonData.nilai));
+        }
+      });
 
-  //     socket.on("end", () => {
-  //       console.log("Client disconnected");
-  //       handleClientDisconnect(socket);
-  //     });
+      socket.on("end", () => {
+        console.log("Client disconnected");
+        handleClientDisconnect(socket);
+      });
 
-  //     socket.on("error", (err) => {
-  //       console.error("Socket error:", err.message);
-  //       handleClientDisconnect(socket);
-  //     });
-  //   });
+      socket.on("error", (err) => {
+        console.error("Socket error:", err.message);
+        handleClientDisconnect(socket);
+      });
+    });
 
-  //   socketClients.forEach((socket) => {
-  //     socket.on("data", (data) => {
-  //       const stringData = data.toString();
-  //       const payload = stringData.split("|").slice(-1)[0];
-  //       const jsonData = JSON.parse(payload);
+    socketClients.forEach((socket) => {
+      socket.on("data", (data) => {
+        const stringData = data.toString();
+        const payload = stringData.split("|").slice(-1)[0];
+        const jsonData = JSON.parse(payload);
 
-  //       if (jsonData.id === "M1.1.1") {
-  //         setRealTimeNilai(Number(jsonData.nilai));
-  //       }
-  //     });
-  //   });
+        if (jsonData.id === "M1.1.1") {
+          setRealTimeNilai(Number(jsonData.nilai));
+        }
+      });
+    });
 
-  //   return () => {
-  //     socketClients.forEach((socket) => {
-  //       socket.removeAllListeners("data");
-  //     });
-  //   };
-  // }, []);
+    return () => {
+      socketClients.forEach((socket) => {
+        socket.removeAllListeners("data");
+      });
+    };
+  }, []);
 
   return (
     <Container w={1000}>

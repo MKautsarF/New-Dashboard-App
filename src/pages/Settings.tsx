@@ -32,13 +32,14 @@ import {
   Slider,
   TextField,
 } from "@mui/material";
-import { useSettings } from "../context/settings";
-import { default as sourceSettings } from "../config/settings_train.json";
+import { useSettings } from "@/context/settings";
+import { default as sourceSettings } from "@/config/settings_train.json";
 import { readFile, readFileSync } from "original-fs";
 import { parse } from "postcss";
 import { createSubmission } from "@/services/submission.services";
 import { currentSubmission, currentPeserta } from "@/context/auth";
 import { sendTextToClients } from "@/socket";
+import FullPageLoading from "@/components/FullPageLoading";
 
 function useQuery() {
   const { search } = useLocation();
@@ -89,6 +90,7 @@ function Settings() {
     const payload = {
       module: modul,
       train_type: trainType.toUpperCase(),
+      // train_type: "KRL",
       train: {
         weight: settings.berat.toString(),
         type: settings.kereta,
@@ -126,13 +128,16 @@ function Settings() {
       setIsLoading(true);
 
       // console.log(currentPeserta.id);
-      const submission = {
-        owner: currentPeserta.id,
-        train: payload.train_type,
-        setting: payload,
-      };
-      const res = await createSubmission(submission);
-      currentSubmission.id = res.id;
+
+      // ganti submission, penyebab error
+      // const submission = {
+      //   owner: currentPeserta.id,
+      //   train: payload.train_type,
+      //   setting: payload,
+      // };
+      // const res = await createSubmission(submission);
+      // currentSubmission.id = res.id;
+
       // setCurrentSubmission(res.id);
 
       sendTextToClients(JSON.stringify(payload, null, 2));
@@ -155,6 +160,22 @@ function Settings() {
   }, [settings]);
 
   const [isHovered, setIsHovered] = useState(false);
+
+  const [selectedValue, setSelectedValue] = useState("Default");
+  const [selectedValue2, setSelectedValue2] = useState("Default");
+
+  useEffect(() => {
+    // Retrieve the last selected value from localStorage
+    const storedValue = localStorage.getItem("selectedValue");
+    if (storedValue) {
+      setSelectedValue(storedValue);
+    }
+    // Retrieve the last selected value from localStorage
+    const storedValue2 = localStorage.getItem("selectedValue2");
+    if (storedValue2) {
+      setSelectedValue2(storedValue2);
+    }
+  }, []);
 
   return (
     <>
@@ -273,63 +294,61 @@ function Settings() {
           </div>
 
           {/* Rute */}
-          {trainType !== "lrt" && (
-            <>
-              <div className="w-1/2 my-2 flex items-center p-2">
-                <PlaceOutlined className="my-[0.5px] mr-2 text-gray-600" />
-                <FormControl fullWidth>
-                  <InputLabel id="st-asal-label-id">Stasiun Asal</InputLabel>
-                  <Select
-                    labelId="st-asal-label-id"
-                    label="Stasiun Asal"
-                    // style={{ backgroundColor: "#f3f3f4" }}
-                    value={settings.stasiunAsal}
-                    onChange={(e) =>
-                      setSettings({
-                        ...settings,
-                        stasiunAsal: e.target.value,
-                        stasiunTujuan: "",
-                      })
-                    }
-                  >
-                    {Object.entries(trainSource.rute).map((routePair, idx) => (
-                      <MenuItem key={idx} value={routePair[0]}>
-                        {routePair[0]}
+          {/* {trainType !== "lrt" && ( */}
+          <>
+            <div className="w-1/2 my-2 flex items-center p-2">
+              <PlaceOutlined className="my-[0.5px] mr-2 text-gray-600" />
+              <FormControl fullWidth>
+                <InputLabel id="st-asal-label-id">Stasiun Asal</InputLabel>
+                <Select
+                  labelId="st-asal-label-id"
+                  label="Stasiun Asal"
+                  // style={{ backgroundColor: "#f3f3f4" }}
+                  value={settings.stasiunAsal}
+                  onChange={(e) =>
+                    setSettings({
+                      ...settings,
+                      stasiunAsal: e.target.value,
+                      stasiunTujuan: "",
+                    })
+                  }
+                >
+                  {Object.entries(trainSource.rute).map((routePair, idx) => (
+                    <MenuItem key={idx} value={routePair[0]}>
+                      {routePair[0]}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </div>
+            <div className="w-1/2 my-2 flex items-center p-2">
+              <PlaceRounded className="my-[0.5px] mr-2 text-gray-600" />
+              <FormControl fullWidth disabled={settings.stasiunAsal === ""}>
+                <InputLabel id="st-tujuan-label-id">Stasiun Tujuan</InputLabel>
+                <Select
+                  labelId="st-tujuan-label-id"
+                  label="Stasiun Tujuan"
+                  // style={{ backgroundColor: "#f3f3f4" }}
+                  value={settings.stasiunTujuan}
+                  onChange={(e) =>
+                    setSettings({
+                      ...settings,
+                      stasiunTujuan: e.target.value,
+                    })
+                  }
+                >
+                  {(trainSource.rute as any)[settings.stasiunAsal]?.map(
+                    (destination: string, idx: number) => (
+                      <MenuItem key={idx} value={destination}>
+                        {destination}
                       </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </div>
-              <div className="w-1/2 my-2 flex items-center p-2">
-                <PlaceRounded className="my-[0.5px] mr-2 text-gray-600" />
-                <FormControl fullWidth disabled={settings.stasiunAsal === ""}>
-                  <InputLabel id="st-tujuan-label-id">
-                    Stasiun Tujuan
-                  </InputLabel>
-                  <Select
-                    labelId="st-tujuan-label-id"
-                    label="Stasiun Tujuan"
-                    // style={{ backgroundColor: "#f3f3f4" }}
-                    value={settings.stasiunTujuan}
-                    onChange={(e) =>
-                      setSettings({
-                        ...settings,
-                        stasiunTujuan: e.target.value,
-                      })
-                    }
-                  >
-                    {(trainSource.rute as any)[settings.stasiunAsal]?.map(
-                      (destination: string, idx: number) => (
-                        <MenuItem key={idx} value={destination}>
-                          {destination}
-                        </MenuItem>
-                      )
-                    )}
-                  </Select>
-                </FormControl>
-              </div>
-            </>
-          )}
+                    )
+                  )}
+                </Select>
+              </FormControl>
+            </div>
+          </>
+          {/* )} */}
 
           {/* Rain Status */}
           <div className="w-1/2 mb-2 mt-4 flex items-center p-2">
@@ -504,6 +523,33 @@ function Settings() {
               variant="outlined"
               startIcon={<EditNote />}
               onClick={() => {
+                // navigate(`/Sixthpage/${trainType}`);
+              }}
+              // sx={{
+              //   color: isHovered ? "#ffffff" : "#00a6fb",
+              //   borderColor: isHovered ? "#ffffff" : "#00a6fb",
+              //   backgroundColor: isHovered ? "#00a6fb" : "#ffffff",
+              //   "&:hover": {
+              //     borderColor: "#ffffff",
+              //     color: "#ffffff",
+              //     backgroundColor: "#00a6fb",
+              //   },
+              // }}
+              // onMouseEnter={() => setIsHovered(true)}
+              // onMouseLeave={() => setIsHovered(false)}
+            >
+              Pengaturan: Default
+              {/* {isHovered
+                ? "Edit Penilaian"
+                : trainType === "kcic"
+                ? selectedValue
+                : selectedValue2} */}
+            </Button>
+
+            <Button
+              variant="outlined"
+              startIcon={<EditNote />}
+              onClick={() => {
                 navigate(`/Sixthpage/${trainType}`);
               }}
               sx={{
@@ -519,7 +565,12 @@ function Settings() {
               onMouseEnter={() => setIsHovered(true)}
               onMouseLeave={() => setIsHovered(false)}
             >
-              {isHovered ? "Edit Penilaian" : settings.score}
+              Penilaian:{" "}
+              {isHovered
+                ? "Edit Penilaian"
+                : trainType === "kcic"
+                ? selectedValue
+                : selectedValue2}
             </Button>
 
             <Button
@@ -546,6 +597,7 @@ function Settings() {
             </Button>
           </div>
         </div>
+        <FullPageLoading loading={isLoading} />
       </Container>
     </>
   );

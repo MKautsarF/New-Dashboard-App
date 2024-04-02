@@ -17,6 +17,10 @@ import {
   TextField,
   InputAdornment,
   Box,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from "@mui/material";
 import { getUsers, getUserById } from "../services/user.services";
 import Container from "@/components/Container";
@@ -26,6 +30,7 @@ import {
   Settings,
   Money,
   PeopleAlt,
+  Warning,
 } from "@mui/icons-material";
 import TraineeDetail from "../components/TraineeDetail";
 import { getSubmissionList } from "../services/submission.services";
@@ -33,6 +38,7 @@ import { currentPeserta } from "../context/auth";
 import dayjs, { Dayjs } from "dayjs";
 import SearchIcon from "@mui/icons-material/Search";
 import { useSettings } from "../context/settings";
+import { sendTextToClients } from "@/socket";
 
 function AppMenu() {
   const [settingsAnchorEl, setSettingsAnchorEl] = useState(null);
@@ -251,6 +257,91 @@ function AppMenu() {
     setIsSelected(false);
   }, [rows]);
 
+  const [isConfirmationOpen, setConfirmationOpen] = useState(false);
+
+  const [modul, setModul] = useState("Testing");
+
+  const handleStartClick = () => {
+    // Show the confirmation popup
+    setConfirmationOpen(true);
+  };
+
+  const handleConfirmationClose = () => {
+    // Close the confirmation popup
+    setConfirmationOpen(false);
+  };
+
+  const handleConfirmationYes = async () => {
+    const payload = {
+      module: modul,
+      train_type: "LRT",
+      train: {
+        weight: "72",
+        type: "12 Rangkaian Kereta",
+      },
+      time: "12",
+      weather: [
+        {
+          value: "Cerah",
+          location: [0, 0],
+          name: "rain",
+        },
+        {
+          value: 0,
+          location: [0, 0],
+          name: "fog",
+        },
+      ],
+      route: {
+        start: {
+          name: "Harjamukti",
+        },
+        finish: {
+          name: "TMII",
+        },
+      },
+      motion_base: false,
+      speed_buzzer: false,
+      speed_limit: 70,
+      status: "play",
+    };
+
+    console.log(payload);
+
+    try {
+      setIsLoading(true);
+
+      sendTextToClients(JSON.stringify(payload, null, 2));
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+    // Handle the confirmation action, navigate or perform other actions
+    navigate(`/Fifthpage/lrt?type=${selectedValue2}`);
+    // Close the confirmation popup
+    setConfirmationOpen(false);
+  };
+
+  const [isConfirmationOpenKcic, setConfirmationOpenKcic] = useState(false);
+
+  const handleStartClickKcic = () => {
+    // Show the confirmation popup
+    setConfirmationOpenKcic(true);
+  };
+
+  const handleConfirmationCloseKcic = () => {
+    // Close the confirmation popup
+    setConfirmationOpenKcic(false);
+  };
+
+  const handleConfirmationYesKcic = () => {
+    // Handle the confirmation action, navigate or perform other actions
+    navigate(`/Fifthpage/kcic?type=${selectedValue2}`);
+    // Close the confirmation popup
+    setConfirmationOpenKcic(false);
+  };
+
   return (
     <>
       <Container w={1500}>
@@ -392,9 +483,10 @@ function AppMenu() {
                 <h1>KCIC</h1>
                 <Button
                   variant="outlined"
-                  onClick={() => {
-                    navigate(`/Fifthpage/kcic?type=${selectedValue}`);
-                  }}
+                  // onClick={() => {
+                  //   navigate(`/Fifthpage/kcic?type=${selectedValue}`);
+                  // }}
+                  onClick={handleStartClickKcic}
                   disabled={!selectedPeserta.id || isSelected}
                   sx={{
                     color: "#00a6fb",
@@ -412,11 +504,43 @@ function AppMenu() {
                 >
                   Start
                 </Button>
+                <Dialog
+                  open={isConfirmationOpenKcic}
+                  onClose={handleConfirmationCloseKcic}
+                >
+                  <DialogTitle
+                    sx={{
+                      fontWeight: "bold",
+                      display: "flex",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Warning sx={{ mr: 1 }} color="warning" /> Konfirmasi
+                  </DialogTitle>
+                  <DialogContent>
+                    Apakah yakin untuk langsung menjalankan simulasi KCIC?
+                  </DialogContent>
+                  <DialogActions>
+                    <Button
+                      onClick={handleConfirmationCloseKcic}
+                      sx={{ color: "#df2935" }}
+                    >
+                      No
+                    </Button>
+                    <Button
+                      onClick={handleConfirmationYesKcic}
+                      sx={{ color: "#00a6fb" }}
+                    >
+                      Yes
+                    </Button>
+                  </DialogActions>
+                </Dialog>
               </div>
               {hoveredBox === 1 && (
                 <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-center py-2">
                   <p className="text-white">
-                    Mengoperasikan kereta KCIC secara langsung
+                    Mengoperasikan kereta KCIC secara langsung dengan setelan
+                    kereta standar dan setelan penilaian {selectedValue}.
                   </p>
                 </div>
               )}
@@ -436,9 +560,10 @@ function AppMenu() {
                 {/* {selectedValue2} */}
                 <Button
                   variant="outlined"
-                  onClick={() => {
-                    navigate(`/Fifthpage/lrt?type=${selectedValue2}`);
-                  }}
+                  // onClick={() => {
+                  //   navigate(`/Fifthpage/lrt?type=${selectedValue2}`);
+                  // }}
+                  onClick={handleStartClick}
                   disabled={!selectedPeserta.id || isSelected}
                   sx={{
                     color: "#00a6fb",
@@ -456,11 +581,43 @@ function AppMenu() {
                 >
                   Start
                 </Button>
+                <Dialog
+                  open={isConfirmationOpen}
+                  onClose={handleConfirmationClose}
+                >
+                  <DialogTitle
+                    sx={{
+                      fontWeight: "bold",
+                      display: "flex",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Warning sx={{ mr: 1 }} color="warning" /> Konfirmasi
+                  </DialogTitle>
+                  <DialogContent>
+                    Apakah yakin untuk langsung menjalankan simulasi LRT?
+                  </DialogContent>
+                  <DialogActions>
+                    <Button
+                      onClick={handleConfirmationClose}
+                      sx={{ color: "#df2935" }}
+                    >
+                      No
+                    </Button>
+                    <Button
+                      onClick={handleConfirmationYes}
+                      sx={{ color: "#00a6fb" }}
+                    >
+                      Yes
+                    </Button>
+                  </DialogActions>
+                </Dialog>
               </div>
               {hoveredBox === 2 && (
                 <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-center py-2">
                   <p className="text-white">
-                    Mengoperasikan kereta LRT secara langsung
+                    Mengoperasikan kereta LRT secara langsung dengan setelan
+                    kereta standar dan setelan penilaian {selectedValue2}.
                   </p>
                 </div>
               )}
@@ -468,12 +625,13 @@ function AppMenu() {
           </div>
 
           {/* Box 3 */}
-          {/* <div className="box gap-6 flex flex-col " style={{ width: "300px" }}>
-            <h1 style={{ fontSize: "2.5rem" }}>Settings KCIC</h1>
+          <div className="box gap-6 flex flex-col " style={{ width: "250px" }}>
+            <h1 style={{ fontSize: "2rem" }}>Settings KCIC</h1>
             <div className="flex gap-4 items-center">
               <p>Presets:</p>
               <Button
                 variant="outlined"
+                disabled={!selectedPeserta.id || isSelected}
                 onClick={() => {
                   navigate("/Fifthpage?type=kcic");
                 }}
@@ -494,14 +652,15 @@ function AppMenu() {
                 Default
               </Button>
             </div>
-          </div> */}
+          </div>
           {/* Box 4 */}
-          {/* <div className="box gap-6 flex flex-col " style={{ width: "300px" }}>
-            <h1 style={{ fontSize: "2.5rem" }}>Settings LRT</h1>
+          <div className="box gap-6 flex flex-col " style={{ width: "250px" }}>
+            <h1 style={{ fontSize: "2rem" }}>Settings LRT</h1>
             <div className="flex gap-4 items-center">
               <p>Presets:</p>
               <Button
                 variant="outlined"
+                disabled={!selectedPeserta.id || isSelected}
                 sx={{
                   color: "#00a6fb",
                   borderColor: "#00a6fb",
@@ -519,7 +678,7 @@ function AppMenu() {
                 Default
               </Button>
             </div>
-          </div> */}
+          </div>
         </div>
         {/* Second Box  */}
         <div className="flex gap-4 justify-center p-8 w-full">
@@ -737,7 +896,7 @@ function AppMenu() {
                 onMouseEnter={() => handleMouseEnter(3)}
                 onMouseLeave={handleMouseLeave}
               >
-                <h1 style={{ fontSize: "2.5rem" }}>Scoring KCIC</h1>
+                <h1 style={{ fontSize: "2rem" }}>Scoring KCIC</h1>
                 <div className="flex gap-4 items-center">
                   <p>Presets:</p>
 
@@ -784,7 +943,7 @@ function AppMenu() {
                 onMouseEnter={() => handleMouseEnter(4)}
                 onMouseLeave={handleMouseLeave}
               >
-                <h1 style={{ fontSize: "2.5rem" }}>Scoring LRT</h1>
+                <h1 style={{ fontSize: "2rem" }}>Scoring LRT</h1>
                 <div className="flex gap-4 items-center">
                   <p>Presets:</p>
 

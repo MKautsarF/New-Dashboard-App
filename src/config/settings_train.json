@@ -1,11 +1,15 @@
 {
   "kcic": {
     "jenis": [
+      "6 Rangkaian Kereta",
       "8 Rangkaian Kereta",
       "10 Rangkaian Kereta",
       "12 Rangkaian Kereta"
     ],
     "rute": {
+      "Depo Lebak Bulus": ["Stasiun Lebak Bulus", "Stasiun Bundaran HI"],
+      "Stasiun Lebak Bulus": ["Depo Lebak Bulus", "Stasiun Bundaran HI"],
+      "Stasiun Bundaran HI": ["Stasiun Lebak Bulus", "Depo Lebak Bulus"],
       "Bogor": ["Depok"],
       "Depok": ["Bogor"]
     },
@@ -13,11 +17,12 @@
     "score": ["Default"]
   },
   "lrt": {
-    "jenis": ["6 Rangkaian Kereta"],
+    "jenis": ["12 Rangkaian Kereta"],
     "rute": {
       "Depo Lebak Bulus": ["Stasiun Lebak Bulus", "Stasiun Bundaran HI"],
       "Stasiun Lebak Bulus": ["Depo Lebak Bulus", "Stasiun Bundaran HI"],
-      "Stasiun Bundaran HI": ["Stasiun Lebak Bulus", "Depo Lebak Bulus"]
+      "Stasiun Bundaran HI": ["Stasiun Lebak Bulus", "Depo Lebak Bulus"],
+      "Harjamukti": ["TMII"]
     },
     "line": ["a Line", "b Line"],
     "score": ["Default"]
