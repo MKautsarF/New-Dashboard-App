@@ -40,6 +40,7 @@ import { createSubmission } from "@/services/submission.services";
 import { currentSubmission, currentPeserta } from "@/context/auth";
 import { sendTextToClients } from "@/socket";
 import FullPageLoading from "@/components/FullPageLoading";
+import fs from "fs";
 
 function useQuery() {
   const { search } = useLocation();
@@ -48,6 +49,10 @@ function useQuery() {
 }
 
 function Settings() {
+  const sourceSettingsPath = "C:/Train Simulator/Data/settings_train.json";
+  const sourceSettingsRead = fs.readFileSync(sourceSettingsPath, "utf-8");
+  const sourceSettings = JSON.parse(sourceSettingsRead);
+
   const navigate = useNavigate();
   const { settings, setSettings } = useSettings();
   const query = useQuery();
@@ -68,32 +73,44 @@ function Settings() {
 
   const canContinue =
     trainType === "kcic"
-      ? settings.kereta &&
-        settings.stasiunAsal &&
-        settings.stasiunTujuan &&
-        settings.line
+      ? // settings.kereta &&
+        settings.stasiunAsal && settings.stasiunTujuan && settings.line
       : trainType === "lrt"
-      ? settings.line && settings.kereta
-      : false;
+      ? settings.line
+      : // && settings.stasiunAsal && settings.stasiunTujuan
+        // && settings.kereta
+        false;
 
   const handlePrev = () => {
-    navigate("/ThirdPage");
+    // navigate("/ThirdPage");
+    navigate(`/Modul?type=${trainType}`);
   };
   const handleNext = () => {
     navigate(`/FifthPage/${trainType}`);
   };
 
   const [modul, setModul] = useState("Testing");
+  const rangkaianKereta = "6 Rangkaian";
   const [isLoading, setIsLoading] = useState(false);
 
   const handleMulai = async () => {
+    let startStation = "";
+    let finishStation = "";
+
+    // Assign start and finish stations based on the selected line
+    if (settings.line === "a Line") {
+      startStation = "Harjamukti";
+      finishStation = "TMII";
+    }
+
     const payload = {
       module: modul,
       train_type: trainType.toUpperCase(),
       // train_type: "KRL",
       train: {
         weight: settings.berat.toString(),
-        type: settings.kereta,
+        // type: settings.kereta,
+        type: rangkaianKereta,
       },
       time: Number(settings.waktu.format("HH")),
       weather: [
@@ -110,10 +127,12 @@ function Settings() {
       ],
       route: {
         start: {
-          name: settings.stasiunAsal,
+          // name: settings.stasiunAsal,
+          name: startStation,
         },
         finish: {
-          name: settings.stasiunTujuan,
+          // name: settings.stasiunTujuan,
+          name: finishStation,
         },
       },
       motion_base: settings.useMotionBase,
@@ -161,6 +180,7 @@ function Settings() {
 
   const [isHovered, setIsHovered] = useState(false);
 
+  // scoring kcic:1 and lrt:2
   const [selectedValue, setSelectedValue] = useState("Default");
   const [selectedValue2, setSelectedValue2] = useState("Default");
 
@@ -236,7 +256,7 @@ function Settings() {
           </div>
 
           {/* Jenis Kereta */}
-          <div className="w-1/2 my-2 flex items-center p-2">
+          {/* <div className="w-1/2 my-2 flex items-center p-2">
             <Train className="my-[0.5px] mr-2 text-gray-600" />
             <FormControl fullWidth>
               <InputLabel id="kereta-label-id">Jenis Kereta</InputLabel>
@@ -252,7 +272,7 @@ function Settings() {
                   })
                 }
               >
-                {trainSource.jenis.map((type, idx) => (
+                {trainSource.jenis.map((type: any, idx: any) => (
                   <MenuItem
                     key={idx}
                     value={type.split(" ").slice(0, 2).join(" ")}
@@ -262,10 +282,10 @@ function Settings() {
                 ))}
               </Select>
             </FormControl>
-          </div>
+          </div> */}
 
           {/* Line Kereta */}
-          <div className="w-full my-2 flex items-center p-2">
+          <div className="w-1/2 my-2 flex items-center p-2">
             <Route className="my-[0.5px] mr-2 text-gray-600" />
             <FormControl fullWidth>
               <InputLabel id="line-label-id">Line Kereta</InputLabel>
@@ -281,7 +301,7 @@ function Settings() {
                   })
                 }
               >
-                {trainSource.line.map((type, idx) => (
+                {trainSource.line.map((type: any, idx: any) => (
                   <MenuItem
                     key={idx}
                     value={type.split(" ").slice(0, 2).join(" ")}
@@ -294,61 +314,63 @@ function Settings() {
           </div>
 
           {/* Rute */}
-          {/* {trainType !== "lrt" && ( */}
-          <>
-            <div className="w-1/2 my-2 flex items-center p-2">
-              <PlaceOutlined className="my-[0.5px] mr-2 text-gray-600" />
-              <FormControl fullWidth>
-                <InputLabel id="st-asal-label-id">Stasiun Asal</InputLabel>
-                <Select
-                  labelId="st-asal-label-id"
-                  label="Stasiun Asal"
-                  // style={{ backgroundColor: "#f3f3f4" }}
-                  value={settings.stasiunAsal}
-                  onChange={(e) =>
-                    setSettings({
-                      ...settings,
-                      stasiunAsal: e.target.value,
-                      stasiunTujuan: "",
-                    })
-                  }
-                >
-                  {Object.entries(trainSource.rute).map((routePair, idx) => (
-                    <MenuItem key={idx} value={routePair[0]}>
-                      {routePair[0]}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </div>
-            <div className="w-1/2 my-2 flex items-center p-2">
-              <PlaceRounded className="my-[0.5px] mr-2 text-gray-600" />
-              <FormControl fullWidth disabled={settings.stasiunAsal === ""}>
-                <InputLabel id="st-tujuan-label-id">Stasiun Tujuan</InputLabel>
-                <Select
-                  labelId="st-tujuan-label-id"
-                  label="Stasiun Tujuan"
-                  // style={{ backgroundColor: "#f3f3f4" }}
-                  value={settings.stasiunTujuan}
-                  onChange={(e) =>
-                    setSettings({
-                      ...settings,
-                      stasiunTujuan: e.target.value,
-                    })
-                  }
-                >
-                  {(trainSource.rute as any)[settings.stasiunAsal]?.map(
-                    (destination: string, idx: number) => (
-                      <MenuItem key={idx} value={destination}>
-                        {destination}
+          {trainType !== "lrt" && (
+            <>
+              <div className="w-1/2 my-2 flex items-center p-2">
+                <PlaceOutlined className="my-[0.5px] mr-2 text-gray-600" />
+                <FormControl fullWidth>
+                  <InputLabel id="st-asal-label-id">Stasiun Asal</InputLabel>
+                  <Select
+                    labelId="st-asal-label-id"
+                    label="Stasiun Asal"
+                    // style={{ backgroundColor: "#f3f3f4" }}
+                    value={settings.stasiunAsal}
+                    onChange={(e) =>
+                      setSettings({
+                        ...settings,
+                        stasiunAsal: e.target.value,
+                        stasiunTujuan: "",
+                      })
+                    }
+                  >
+                    {Object.entries(trainSource.rute).map((routePair, idx) => (
+                      <MenuItem key={idx} value={routePair[0]}>
+                        {routePair[0]}
                       </MenuItem>
-                    )
-                  )}
-                </Select>
-              </FormControl>
-            </div>
-          </>
-          {/* )} */}
+                    ))}
+                  </Select>
+                </FormControl>
+              </div>
+              <div className="w-1/2 my-2 flex items-center p-2">
+                <PlaceRounded className="my-[0.5px] mr-2 text-gray-600" />
+                <FormControl fullWidth disabled={settings.stasiunAsal === ""}>
+                  <InputLabel id="st-tujuan-label-id">
+                    Stasiun Tujuan
+                  </InputLabel>
+                  <Select
+                    labelId="st-tujuan-label-id"
+                    label="Stasiun Tujuan"
+                    // style={{ backgroundColor: "#f3f3f4" }}
+                    value={settings.stasiunTujuan}
+                    onChange={(e) =>
+                      setSettings({
+                        ...settings,
+                        stasiunTujuan: e.target.value,
+                      })
+                    }
+                  >
+                    {(trainSource.rute as any)[settings.stasiunAsal]?.map(
+                      (destination: string, idx: number) => (
+                        <MenuItem key={idx} value={destination}>
+                          {destination}
+                        </MenuItem>
+                      )
+                    )}
+                  </Select>
+                </FormControl>
+              </div>
+            </>
+          )}
 
           {/* Rain Status */}
           <div className="w-1/2 mb-2 mt-4 flex items-center p-2">
@@ -523,7 +545,7 @@ function Settings() {
               variant="outlined"
               startIcon={<EditNote />}
               onClick={() => {
-                // navigate(`/Sixthpage/${trainType}`);
+                navigate("/FifthPage/edit/lrt");
               }}
               // sx={{
               //   color: isHovered ? "#ffffff" : "#00a6fb",

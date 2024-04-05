@@ -161,7 +161,7 @@ function ScoringLRT() {
   const handleClick = (index2: any) => {
     setCheckedItem2(index2);
     localStorage.setItem("checkedItem2", index2 === null ? "Default" : index2);
-    localStorage.setItem("selectedValue2", val[index2] || "Default");
+    localStorage.setItem("selectedValue2", val[index2] || "Default"); // scoring lrt
     // Set the selected value in settings
     setSettings((prevSettings) => ({
       ...prevSettings,

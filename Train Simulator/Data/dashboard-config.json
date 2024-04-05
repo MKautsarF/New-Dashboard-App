@@ -1,0 +1,9 @@
+{
+  "PDF_URL": "http://localhost:8001",
+  "CCTV_URL": "http://localhost:8002",
+  "API_URL": "http://192.241.158.31:9000",
+  "SOCKET_HOST": "0.0.0.0",
+  "SOCKET_PORT": 8888,
+  "WINDOW_OFFSET_X": 1920,
+  "WINDOW_OFFSET_Y": 0
+}

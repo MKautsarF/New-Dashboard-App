@@ -164,7 +164,8 @@ function Database() {
       currentPeserta.id = userData.id; // owner id for use in submission
       // console.log(currentPeserta);
       const nextPage =
-        trainType === "kcic" ? "/FifthPage?type=kcic" : "/FifthPage?type=lrt";
+        // trainType === "kcic" ? "/FifthPage?type=kcic" : "/FifthPage?type=lrt";
+        trainType === "kcic" ? "/Modul?type=kcic" : "/Modul?type=lrt";
       navigate(nextPage);
     } catch (e) {
       console.error(e);

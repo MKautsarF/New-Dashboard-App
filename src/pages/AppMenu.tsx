@@ -220,6 +220,7 @@ function AppMenu() {
 
   const [selectedValue, setSelectedValue] = useState("Default");
   const [selectedValue2, setSelectedValue2] = useState("Default");
+  const [selectedValue3, setSelectedValue3] = useState("normal");
 
   useEffect(() => {
     // Retrieve the last selected value from localStorage
@@ -231,6 +232,11 @@ function AppMenu() {
     const storedValue2 = localStorage.getItem("selectedValue2");
     if (storedValue2) {
       setSelectedValue2(storedValue2);
+    }
+
+    const storedValue3 = localStorage.getItem("valueSettingsLRT");
+    if (storedValue3) {
+      setSelectedValue3(storedValue3);
     }
   }, []);
 
@@ -625,7 +631,7 @@ function AppMenu() {
           </div>
 
           {/* Box 3 */}
-          <div className="box gap-6 flex flex-col " style={{ width: "250px" }}>
+          {/* <div className="box gap-6 flex flex-col " style={{ width: "250px" }}>
             <h1 style={{ fontSize: "2rem" }}>Settings KCIC</h1>
             <div className="flex gap-4 items-center">
               <p>Presets:</p>
@@ -652,9 +658,9 @@ function AppMenu() {
                 Default
               </Button>
             </div>
-          </div>
+          </div> */}
           {/* Box 4 */}
-          <div className="box gap-6 flex flex-col " style={{ width: "250px" }}>
+          {/* <div className="box gap-6 flex flex-col " style={{ width: "250px" }}>
             <h1 style={{ fontSize: "2rem" }}>Settings LRT</h1>
             <div className="flex gap-4 items-center">
               <p>Presets:</p>
@@ -678,10 +684,11 @@ function AppMenu() {
                 Default
               </Button>
             </div>
-          </div>
+          </div> */}
         </div>
+
         {/* Second Box  */}
-        <div className="flex gap-4 justify-center p-8 w-full">
+        <div className="flex gap-4 justify-center pr-8 pl-8 pt-8 w-full">
           {/* Box 1 */}
           <div className="box flex-grow gap-6 flex flex-col">
             {/* tabel preview */}
@@ -888,7 +895,196 @@ function AppMenu() {
           </div>
 
           {/* box 2 */}
-          <div className="flex " style={{ width: "300px" }}>
+          {/*<div className="flex " style={{ width: "300px" }}>
+            <div className="relative flex flex-grow">
+              <div
+                className="box gap-6 flex flex-col flex-grow"
+                style={{ backgroundColor: "#ffffff" }}
+                onMouseEnter={() => handleMouseEnter(3)}
+                onMouseLeave={handleMouseLeave}
+              >
+                <h1 style={{ fontSize: "2rem" }}>Scoring KCIC</h1>
+                <div className="flex gap-4 items-center">
+                  <p>Presets:</p>
+
+                  <Button
+                    variant="outlined"
+                    onClick={() => {
+                      navigate("/Sixthpage/kcic?type=default"); // ganti type = defaultnya, ambil dari const
+                    }}
+                    sx={{
+                      color: "#00a6fb",
+                      borderColor: "#00a6fb",
+                      backgroundColor: "#ffffff",
+                      fontSize: "1rem", // Adjust the font size as needed
+                      "&:hover": {
+                        borderColor: "#ffffff",
+                        color: "#ffffff",
+                        backgroundColor: "#00a6fb",
+                      },
+                    }}
+                    startIcon={<Settings className="text-3xl" />}
+                    className="flex items-center"
+                  >
+                    {selectedValue}
+                  </Button>
+                </div>
+              </div>
+              {hoveredBox === 3 && (
+                <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-center py-2">
+                  <p className="text-white">
+                    Menggunakan setelan {selectedValue} untuk penilaian KCIC
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>*/}
+
+          {/* box 3 */}
+          {/* <div className="flex " style={{ width: "300px" }}>
+            <div className="relative flex flex-grow">
+              <div
+                className="box gap-6 flex flex-col flex-grow"
+                style={{ backgroundColor: "#ffffff" }}
+                onMouseEnter={() => handleMouseEnter(4)}
+                onMouseLeave={handleMouseLeave}
+              >
+                <h1 style={{ fontSize: "2rem" }}>Scoring LRT</h1>
+                <div className="flex gap-4 items-center">
+                  <p>Presets:</p>
+
+                  <Button
+                    variant="outlined"
+                    onClick={() => {
+                      navigate("/Sixthpage/lrt?type=default"); // ganti type = defaultnya, ambil dari const
+                    }}
+                    sx={{
+                      color: "#00a6fb",
+                      borderColor: "#00a6fb",
+                      backgroundColor: "#ffffff",
+                      fontSize: "1rem", // Adjust the font size as needed
+                      "&:hover": {
+                        borderColor: "#ffffff",
+                        color: "#ffffff",
+                        backgroundColor: "#00a6fb",
+                      },
+                    }}
+                    startIcon={<Settings className="text-3xl" />}
+                    className="flex items-center"
+                  >
+                    {selectedValue2}
+                  </Button>
+                </div>
+              </div>
+              {hoveredBox === 4 && (
+                <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-center py-2">
+                  <p className="text-white">
+                    Menggunakan setelan {selectedValue2} untuk penilaian LRT
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>*/}
+        </div>
+
+        {/* Third Box  */}
+        <div className="flex gap-4 justify-center pr-8 pl-8 pt-8 w-full">
+          {/* box 1 */}
+          <div className="flex flex-grow">
+            <div className="relative flex flex-grow">
+              <div
+                className="box gap-6 flex flex-col flex-grow"
+                style={{ backgroundColor: "#ffffff" }}
+                onMouseEnter={() => handleMouseEnter(5)}
+                onMouseLeave={handleMouseLeave}
+              >
+                <h1 style={{ fontSize: "2rem" }}>Settings KCIC</h1>
+                <div className="flex gap-4 items-center">
+                  <p>Presets:</p>
+
+                  <Button
+                    variant="outlined"
+                    disabled={!selectedPeserta.id || isSelected}
+                    onClick={() => {
+                      navigate("/Fifthpage?type=kcic");
+                    }}
+                    sx={{
+                      color: "#00a6fb",
+                      borderColor: "#00a6fb",
+                      backgroundColor: "#ffffff",
+                      fontSize: "1rem", // Adjust the font size as needed
+                      "&:hover": {
+                        borderColor: "#ffffff",
+                        color: "#ffffff",
+                        backgroundColor: "#00a6fb",
+                      },
+                    }}
+                    startIcon={<Settings className="text-3xl" />}
+                    className="flex items-center"
+                  >
+                    Default
+                  </Button>
+                </div>
+              </div>
+              {hoveredBox === 5 && (
+                <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-center py-2">
+                  <p className="text-white pr-2 pl-2">
+                    Menggunakan setelan Default untuk pengaturan KCIC
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* box 2 */}
+          <div className="flex flex-grow">
+            <div className="relative flex flex-grow">
+              <div
+                className="box gap-6 flex flex-col flex-grow"
+                style={{ backgroundColor: "#ffffff" }}
+                onMouseEnter={() => handleMouseEnter(6)}
+                onMouseLeave={handleMouseLeave}
+              >
+                <h1 style={{ fontSize: "2rem" }}>Settings LRT</h1>
+                <div className="flex gap-4 items-center">
+                  <p>Presets:</p>
+
+                  <Button
+                    variant="outlined"
+                    // disabled={!selectedPeserta.id || isSelected}
+                    onClick={() => {
+                      navigate("/FifthPage/edit/lrt");
+                    }}
+                    sx={{
+                      color: "#00a6fb",
+                      borderColor: "#00a6fb",
+                      backgroundColor: "#ffffff",
+                      fontSize: "1rem", // Adjust the font size as needed
+                      "&:hover": {
+                        borderColor: "#ffffff",
+                        color: "#ffffff",
+                        backgroundColor: "#00a6fb",
+                      },
+                    }}
+                    startIcon={<Settings className="text-3xl" />}
+                    className="flex items-center"
+                  >
+                    {selectedValue3}
+                  </Button>
+                </div>
+              </div>
+              {hoveredBox === 6 && (
+                <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-center py-2">
+                  <p className="text-white pr-2 pl-2">
+                    Menggunakan setelan {selectedValue3} untuk pengaturan LRT
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* box 3 */}
+          <div className="flex flex-grow">
             <div className="relative flex flex-grow">
               <div
                 className="box gap-6 flex flex-col flex-grow"
@@ -934,8 +1130,8 @@ function AppMenu() {
             </div>
           </div>
 
-          {/* box 3 */}
-          <div className="flex " style={{ width: "300px" }}>
+          {/* box 4 */}
+          <div className="flex flex-grow">
             <div className="relative flex flex-grow">
               <div
                 className="box gap-6 flex flex-col flex-grow"
@@ -981,7 +1177,9 @@ function AppMenu() {
             </div>
           </div>
         </div>
-        <div className="flex gap-4 justify-start pl-8 pb-8 w-full">
+
+        {/* nav */}
+        <div className="flex gap-4 justify-start p-8 w-full">
           <Button
             type="button"
             color="error"
