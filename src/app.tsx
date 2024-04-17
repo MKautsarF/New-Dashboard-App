@@ -14,10 +14,10 @@ import EighthPage from "./pages/EditKCIC";
 import NinthPage from "./pages/EditLRT";
 import TenthPage from "./pages/ReviewKCIC";
 import EleventhPage from "./pages/ReviewLRT";
-import TwelvethPage from "./pages/SettingsLRT";
-import ThirteenPage from "./pages/EditSettingsLRT";
+import TwelvethPage from "./pages/SettingsModul";
+import ThirteenPage from "./pages/EditSettingsLRT"; // not used
 import FourteenPage from "./pages/Modul";
-import Fiveteen from "./pages/SettingsLRTSecond";
+import Fiveteen from "./pages/SettingsSecond";
 
 import { ToastContainer } from "react-toastify";
 import "./index.css";
@@ -79,7 +79,7 @@ const routerData = [
     element: <EleventhPage />,
   },
   {
-    path: "/FifthPage/edit/lrt",
+    path: "/FifthPage/modul/edit",
     element: <TwelvethPage />,
   },
   {

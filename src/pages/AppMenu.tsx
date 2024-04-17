@@ -221,6 +221,7 @@ function AppMenu() {
   const [selectedValue, setSelectedValue] = useState("Default");
   const [selectedValue2, setSelectedValue2] = useState("Default");
   const [selectedValue3, setSelectedValue3] = useState("normal");
+  const [selectedValue4, setSelectedValue4] = useState("normal");
 
   useEffect(() => {
     // Retrieve the last selected value from localStorage
@@ -237,6 +238,11 @@ function AppMenu() {
     const storedValue3 = localStorage.getItem("valueSettingsLRT");
     if (storedValue3) {
       setSelectedValue3(storedValue3);
+    }
+
+    const storedValue4 = localStorage.getItem("valueSettingsKCIC");
+    if (storedValue4) {
+      setSelectedValue4(storedValue4);
     }
   }, []);
 
@@ -279,7 +285,7 @@ function AppMenu() {
 
   const handleConfirmationYes = async () => {
     const payload = {
-      module: modul,
+      // module: modul,
       train_type: "LRT",
       train: {
         weight: "72",
@@ -310,6 +316,7 @@ function AppMenu() {
       speed_buzzer: false,
       speed_limit: 70,
       status: "play",
+      module: `${selectedValue3}`,
     };
 
     console.log(payload);
@@ -341,7 +348,53 @@ function AppMenu() {
     setConfirmationOpenKcic(false);
   };
 
-  const handleConfirmationYesKcic = () => {
+  const handleConfirmationYesKcic = async () => {
+    const payload = {
+      // module: modul,
+      train_type: "KCIC",
+      train: {
+        weight: "72",
+        type: "12 Rangkaian Kereta",
+      },
+      time: "12",
+      weather: [
+        {
+          value: "Cerah",
+          location: [0, 0],
+          name: "rain",
+        },
+        {
+          value: 0,
+          location: [0, 0],
+          name: "fog",
+        },
+      ],
+      route: {
+        start: {
+          name: "Harjamukti",
+        },
+        finish: {
+          name: "TMII",
+        },
+      },
+      motion_base: false,
+      speed_buzzer: false,
+      speed_limit: 70,
+      status: "play",
+      module: `${selectedValue4}`,
+    };
+
+    console.log(payload);
+
+    try {
+      setIsLoading(true);
+
+      sendTextToClients(JSON.stringify(payload, null, 2));
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
     // Handle the confirmation action, navigate or perform other actions
     navigate(`/Fifthpage/kcic?type=${selectedValue2}`);
     // Close the confirmation popup
@@ -1004,9 +1057,10 @@ function AppMenu() {
 
                   <Button
                     variant="outlined"
-                    disabled={!selectedPeserta.id || isSelected}
+                    // disabled={!selectedPeserta.id || isSelected}
                     onClick={() => {
-                      navigate("/Fifthpage?type=kcic");
+                      // navigate("/Fifthpage?type=kcic");
+                      navigate("/FifthPage/modul/edit?type=kcic");
                     }}
                     sx={{
                       color: "#00a6fb",
@@ -1022,14 +1076,14 @@ function AppMenu() {
                     startIcon={<Settings className="text-3xl" />}
                     className="flex items-center"
                   >
-                    Default
+                    {selectedValue4}
                   </Button>
                 </div>
               </div>
               {hoveredBox === 5 && (
                 <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-center py-2">
                   <p className="text-white pr-2 pl-2">
-                    Menggunakan setelan Default untuk pengaturan KCIC
+                    Menggunakan setelan {selectedValue4} untuk pengaturan KCIC
                   </p>
                 </div>
               )}
@@ -1053,7 +1107,7 @@ function AppMenu() {
                     variant="outlined"
                     // disabled={!selectedPeserta.id || isSelected}
                     onClick={() => {
-                      navigate("/FifthPage/edit/lrt");
+                      navigate("/FifthPage/modul/edit?type=lrt");
                     }}
                     sx={{
                       color: "#00a6fb",

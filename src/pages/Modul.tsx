@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@mui/material";
 import Container from "@/components/Container";
+import { EditNote, School } from "@mui/icons-material";
 
 function useQuery() {
   const { search } = useLocation();
@@ -70,6 +71,7 @@ function Modul() {
               }}
               onClick={handleNormal} // Call handleNext when clicked
             >
+              <EditNote style={{ fontSize: 75 }} />
               <h1>Normal</h1>
             </div>
           </div>
@@ -100,6 +102,7 @@ function Modul() {
               }}
               onClick={handleLearning} // Call handleNext when clicked
             >
+              <School style={{ fontSize: 75 }} />
               <h1>Learning</h1>
             </div>
           </div>

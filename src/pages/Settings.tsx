@@ -104,7 +104,7 @@ function Settings() {
     }
 
     const payload = {
-      module: modul,
+      // module: modul,
       train_type: trainType.toUpperCase(),
       // train_type: "KRL",
       train: {
@@ -139,6 +139,7 @@ function Settings() {
       speed_buzzer: settings.useSpeedBuzzer,
       speed_limit: settings.speedLimit,
       status: "play",
+      module: "Normal",
     };
 
     console.log(payload);
@@ -211,7 +212,7 @@ function Settings() {
           </h1>
 
           {/* Modul */}
-          <div className="w-full my-2 flex items-center p-2">
+          {/* <div className="w-full my-2 flex items-center p-2">
             <MenuBook className="my-[0.5px] mr-2 text-gray-600" />
             <FormControl fullWidth>
               <InputLabel id="modul-label-id">Modul</InputLabel>
@@ -226,7 +227,7 @@ function Settings() {
                 <MenuItem value="Testing">Testing</MenuItem>
               </Select>
             </FormControl>
-          </div>
+          </div> */}
 
           {/* Berat */}
           <div className="w-1/2 my-2 flex items-end mb-6 p-2">
