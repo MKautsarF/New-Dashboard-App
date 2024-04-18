@@ -41,17 +41,15 @@ function SettingsModul() {
 
   const handleClick = (buttonName: string) => {
     if (trainType === "lrt") {
-      setCheckedLRT((prev) => (prev === buttonName ? null : buttonName));
-      localStorage.setItem(
-        "valueSettingsLRT",
-        checkedLRT === buttonName ? null : buttonName
-      );
+      if (checkedLRT !== buttonName) {
+        setCheckedLRT(buttonName);
+        localStorage.setItem("valueSettingsLRT", buttonName);
+      }
     } else if (trainType === "kcic") {
-      setCheckedKCIC((prev) => (prev === buttonName ? null : buttonName));
-      localStorage.setItem(
-        "valueSettingsKCIC",
-        checkedKCIC === buttonName ? null : buttonName
-      );
+      if (checkedKCIC !== buttonName) {
+        setCheckedKCIC(buttonName);
+        localStorage.setItem("valueSettingsKCIC", buttonName);
+      }
     }
   };
 

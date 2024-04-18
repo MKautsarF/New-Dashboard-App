@@ -177,6 +177,13 @@ function Settings() {
     // console.log("Motion: " + settings.useMotionBase);
     // console.log("Buzzer: " + settings.useSpeedBuzzer);
     // console.log("Limit: " + settings.speedLimit);
+
+    // assign module
+    if (trainType === "lrt") {
+      localStorage.setItem("valueSettingsLRT", "Normal");
+    } else if (trainType === "kcic") {
+      localStorage.setItem("valueSettingsKCIC", "Normal");
+    }
   }, [settings]);
 
   const [isHovered, setIsHovered] = useState(false);

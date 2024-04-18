@@ -26,6 +26,12 @@ function Modul() {
 
   const handleNormal = () => {
     navigate(`/FifthPage?type=${trainType}`);
+
+    if (trainType === "lrt") {
+      localStorage.setItem("valueSettingsLRT", "Normal");
+    } else if (trainType === "kcic") {
+      localStorage.setItem("valueSettingsKCIC", "Normal");
+    }
   };
 
   const handleLearning = () => {
