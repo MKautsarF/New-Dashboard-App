@@ -18,9 +18,13 @@ import TwelvethPage from "./pages/SettingsModul";
 import ThirteenPage from "./pages/EditSettingsLRT"; // not used
 import FourteenPage from "./pages/Modul";
 import Fiveteen from "./pages/SettingsSecond";
+import Admin from "./pages/AdminStart";
+import Instructor from "./pages/InstructorList";
+import Trainee from "./pages/TraineeList";
 
 import { ToastContainer } from "react-toastify";
 import "./index.css";
+import "react-toastify/dist/ReactToastify.css";
 
 import { SettingsProvider } from "./context/settings.js";
 import { LocalizationProvider } from "@mui/x-date-pickers";
@@ -93,6 +97,18 @@ const routerData = [
   {
     path: "/Modul/learning",
     element: <Fiveteen />,
+  },
+  {
+    path: "/admin",
+    element: <Admin />,
+  },
+  {
+    path: "/admin/instructorlist",
+    element: <Instructor />,
+  },
+  {
+    path: "/admin/traineelist",
+    element: <Trainee />,
   },
 ];
 

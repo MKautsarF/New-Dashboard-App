@@ -40,6 +40,9 @@ import SearchIcon from "@mui/icons-material/Search";
 import { useSettings } from "../context/settings";
 import { sendTextToClients } from "@/socket";
 
+import lrtPng from "@/static/lrt.png";
+import kcicPng from "@/static/kcic.png";
+
 function AppMenu() {
   const [settingsAnchorEl, setSettingsAnchorEl] = useState(null);
   const [scoringAnchorEl, setScoringAnchorEl] = useState(null);
@@ -530,15 +533,23 @@ function AppMenu() {
         </header>
         {/* First Box  */}
         <div className="flex gap-4 justify-center pr-8 pl-8 pt-8 w-full">
+          {/* <img className="h-auto max-w-full rounded-lg" src={lrtPng} /> */}
+
           {/* box 1 */}
           <div className="flex flex-grow">
             <div className="relative flex flex-grow">
               <div
                 className="box gap-6 flex flex-col flex-grow"
-                style={{ backgroundColor: "#ffffff" }}
+                style={{
+                  backgroundImage: `url(${kcicPng})`, // Use the lrtPng variable as the background image URL
+                  backgroundColor: "#ffffff",
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                }}
                 onMouseEnter={() => handleMouseEnter(1)}
                 onMouseLeave={handleMouseLeave}
               >
+                {/* <img className="h-auto max-w-full rounded-lg" src={lrtPng} /> */}
                 <h1>KCIC</h1>
                 <Button
                   variant="outlined"
@@ -611,7 +622,12 @@ function AppMenu() {
             <div className="relative flex flex-grow">
               <div
                 className="box gap-6 flex flex-col flex-grow"
-                style={{ backgroundColor: "#ffffff" }}
+                style={{
+                  backgroundImage: `url(${lrtPng})`, // Use the lrtPng variable as the background image URL
+                  backgroundColor: "#ffffff",
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                }}
                 onMouseEnter={() => handleMouseEnter(2)}
                 onMouseLeave={handleMouseLeave}
               >

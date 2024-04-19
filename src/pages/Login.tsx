@@ -55,7 +55,7 @@ function Login() {
 
       if (username === "admin") {
         currentInstructor.isAdmin = true;
-        navigate("/SecondPage");
+        navigate("/admin");
       } else {
         currentInstructor.isAdmin = false;
         navigate("/SecondPage");
@@ -120,7 +120,7 @@ function Login() {
           <Button
             variant="outlined"
             type="submit"
-            // onClick={() => handleNext()}
+            onClick={() => handleNext()}
             className="mt-4"
             sx={{
               color: "#00a6fb",
