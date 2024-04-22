@@ -4,7 +4,7 @@ import { RouterProvider, createHashRouter } from "react-router-dom";
 import ReactDOM from "react-dom/client";
 import Home from "./pages/Home";
 import FirstPage from "./pages/Login";
-import SecondPage from "./pages/AppMenu";
+import AppMenu from "./pages/AppMenu";
 import ThirdPage from "./pages/Simulation";
 import FourthPage from "./pages/Database";
 import FifthPage from "./pages/Settings";
@@ -44,7 +44,7 @@ const routerData = [
   },
   {
     path: "/SecondPage",
-    element: <SecondPage />,
+    element: <AppMenu />,
   },
   {
     path: "/ThirdPage",

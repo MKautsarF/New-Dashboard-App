@@ -550,7 +550,7 @@ function AppMenu() {
                 onMouseLeave={handleMouseLeave}
               >
                 {/* <img className="h-auto max-w-full rounded-lg" src={lrtPng} /> */}
-                <h1>KCIC</h1>
+                <h1 className="text-white ">KCIC</h1>
                 <Button
                   variant="outlined"
                   // onClick={() => {
