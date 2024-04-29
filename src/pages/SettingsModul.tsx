@@ -343,7 +343,7 @@ function SettingsModul() {
                   </Button>
                 </div>
                 {/* Door Problem button */}
-                <div>
+                {/* <div>
                   <Button
                     variant="outlined"
                     onClick={() => {
@@ -378,7 +378,7 @@ function SettingsModul() {
                       <CheckBoxOutlineBlank />
                     )}
                   </Button>
-                </div>
+                </div> */}
                 {/* Anjlok button */}
                 <div>
                   <Button
@@ -684,7 +684,7 @@ function SettingsModul() {
                   </Button>
                 </div>
                 {/* Door Problem button */}
-                <div>
+                {/* <div>
                   <Button
                     variant="outlined"
                     onClick={() => {
@@ -719,7 +719,7 @@ function SettingsModul() {
                       <CheckBoxOutlineBlank />
                     )}
                   </Button>
-                </div>
+                </div> */}
                 {/* Anjlok button */}
                 <div>
                   <Button

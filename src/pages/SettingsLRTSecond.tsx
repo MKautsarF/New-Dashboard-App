@@ -394,7 +394,7 @@ function SettingsLRTSecond() {
               </Button>
             </div>
             {/* Door Problem button */}
-            <div>
+            {/* <div>
               <Button
                 variant="outlined"
                 onClick={() => {
@@ -429,7 +429,7 @@ function SettingsLRTSecond() {
                   <CheckBoxOutlineBlank />
                 )}
               </Button>
-            </div>
+            </div> */}
             {/* Anjlok button */}
             <div>
               <Button

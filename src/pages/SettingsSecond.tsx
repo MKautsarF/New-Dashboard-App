@@ -439,7 +439,7 @@ function SettingsSecond() {
                   </Button>
                 </div>
                 {/* Door Problem button */}
-                <div>
+                {/* <div>
                   <Button
                     variant="outlined"
                     onClick={() => {
@@ -474,7 +474,7 @@ function SettingsSecond() {
                       <CheckBoxOutlineBlank />
                     )}
                   </Button>
-                </div>
+                </div> */}
                 {/* Anjlok button */}
                 <div>
                   <Button
@@ -780,7 +780,7 @@ function SettingsSecond() {
                   </Button>
                 </div>
                 {/* Door Problem button */}
-                <div>
+                {/* <div>
                   <Button
                     variant="outlined"
                     onClick={() => {
@@ -815,7 +815,7 @@ function SettingsSecond() {
                       <CheckBoxOutlineBlank />
                     )}
                   </Button>
-                </div>
+                </div> */}
                 {/* Anjlok button */}
                 <div>
                   <Button

@@ -549,32 +549,15 @@ function Settings() {
             Back
           </Button>
           <div className="flex gap-4 pr-8">
-            <Button
+            {/* <Button
               variant="outlined"
               startIcon={<EditNote />}
               onClick={() => {
                 navigate("/FifthPage/edit/lrt");
               }}
-              // sx={{
-              //   color: isHovered ? "#ffffff" : "#00a6fb",
-              //   borderColor: isHovered ? "#ffffff" : "#00a6fb",
-              //   backgroundColor: isHovered ? "#00a6fb" : "#ffffff",
-              //   "&:hover": {
-              //     borderColor: "#ffffff",
-              //     color: "#ffffff",
-              //     backgroundColor: "#00a6fb",
-              //   },
-              // }}
-              // onMouseEnter={() => setIsHovered(true)}
-              // onMouseLeave={() => setIsHovered(false)}
             >
               Pengaturan: Default
-              {/* {isHovered
-                ? "Edit Penilaian"
-                : trainType === "kcic"
-                ? selectedValue
-                : selectedValue2} */}
-            </Button>
+            </Button> */}
 
             <Button
               variant="outlined"

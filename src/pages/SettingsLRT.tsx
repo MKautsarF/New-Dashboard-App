@@ -312,7 +312,7 @@ function SettingsLRT() {
               </Button>
             </div>
             {/* Door Problem button */}
-            <div>
+            {/* <div>
               <Button
                 variant="outlined"
                 onClick={() => {
@@ -347,7 +347,7 @@ function SettingsLRT() {
                   <CheckBoxOutlineBlank />
                 )}
               </Button>
-            </div>
+            </div> */}
             {/* Anjlok button */}
             <div>
               <Button

@@ -352,6 +352,24 @@ function AppMenu() {
   };
 
   const handleConfirmationYesKcic = async () => {
+    let weather = "";
+    let fogValue = 0;
+    const payloadDictionary: { [key: string]: () => void } = {
+      "Menyalakan Kereta": () => {
+        weather = "Ringan";
+        fogValue = 100;
+      },
+      "Menjalankan Kereta": () => {
+        weather = "Sedang";
+        fogValue = 200;
+      },
+    };
+
+    // Run the function corresponding to the selected value of selectedValue4
+    if (payloadDictionary[selectedValue4 as keyof typeof payloadDictionary]) {
+      payloadDictionary[selectedValue4 as keyof typeof payloadDictionary](); // This line executes the function to set the weather
+    }
+    // make dictionary to swap values in the payload depending on the selectedvalue4 (module)
     const payload = {
       // module: modul,
       train_type: "KCIC",
@@ -362,12 +380,12 @@ function AppMenu() {
       time: "12",
       weather: [
         {
-          value: "Cerah",
+          value: weather,
           location: [0, 0],
           name: "rain",
         },
         {
-          value: 0,
+          value: fogValue,
           location: [0, 0],
           name: "fog",
         },
@@ -475,28 +493,6 @@ function AppMenu() {
               </MenuItem>
             </Menu>
 
-            {/* <Select
-              labelId="status-settings"
-              label="Status Settings"
-              sx={{
-                "& .MuiSelect-icon": {
-                  color: "#ffffff", // Set the color of the select icon to white
-                  borderColor: "#001119",
-                  "&:hover": {
-                    borderColor: "#001119",
-                    color: "#00a6fb",
-                    // backgroundColor: "#00a6fb",
-                  },
-                },
-              }}
-            >
-              <MenuItem onClick={() => handleSettingsOptionClick("kcic")}>
-                KCIC
-              </MenuItem>
-              <MenuItem onClick={() => handleSettingsOptionClick("lrt")}>
-                LRT
-              </MenuItem>
-            </Select> */}
             <Button
               variant="outlined"
               onClick={handleScoringClick}
@@ -631,7 +627,7 @@ function AppMenu() {
                 onMouseEnter={() => handleMouseEnter(2)}
                 onMouseLeave={handleMouseLeave}
               >
-                <h1>LRT</h1>
+                <h1 className="text-white ">LRT</h1>
                 {/* {selectedValue2} */}
                 <Button
                   variant="outlined"
@@ -698,62 +694,6 @@ function AppMenu() {
               )}
             </div>
           </div>
-
-          {/* Box 3 */}
-          {/* <div className="box gap-6 flex flex-col " style={{ width: "250px" }}>
-            <h1 style={{ fontSize: "2rem" }}>Settings KCIC</h1>
-            <div className="flex gap-4 items-center">
-              <p>Presets:</p>
-              <Button
-                variant="outlined"
-                disabled={!selectedPeserta.id || isSelected}
-                onClick={() => {
-                  navigate("/Fifthpage?type=kcic");
-                }}
-                sx={{
-                  color: "#00a6fb",
-                  borderColor: "#00a6fb",
-                  backgroundColor: "#ffffff",
-                  fontSize: "1rem", // Adjust the font size as needed
-                  "&:hover": {
-                    borderColor: "#ffffff",
-                    color: "#ffffff",
-                    backgroundColor: "#00a6fb",
-                  },
-                }}
-                startIcon={<Settings className="text-3xl" />}
-                className="flex items-center"
-              >
-                Default
-              </Button>
-            </div>
-          </div> */}
-          {/* Box 4 */}
-          {/* <div className="box gap-6 flex flex-col " style={{ width: "250px" }}>
-            <h1 style={{ fontSize: "2rem" }}>Settings LRT</h1>
-            <div className="flex gap-4 items-center">
-              <p>Presets:</p>
-              <Button
-                variant="outlined"
-                disabled={!selectedPeserta.id || isSelected}
-                sx={{
-                  color: "#00a6fb",
-                  borderColor: "#00a6fb",
-                  backgroundColor: "#ffffff",
-                  fontSize: "1rem", // Adjust the font size as needed
-                  "&:hover": {
-                    borderColor: "#ffffff",
-                    color: "#ffffff",
-                    backgroundColor: "#00a6fb",
-                  },
-                }}
-                startIcon={<Settings className="text-3xl" />}
-                className="flex items-center"
-              >
-                Default
-              </Button>
-            </div>
-          </div> */}
         </div>
 
         {/* Second Box  */}
@@ -962,98 +902,6 @@ function AppMenu() {
               />
             </div>
           </div>
-
-          {/* box 2 */}
-          {/*<div className="flex " style={{ width: "300px" }}>
-            <div className="relative flex flex-grow">
-              <div
-                className="box gap-6 flex flex-col flex-grow"
-                style={{ backgroundColor: "#ffffff" }}
-                onMouseEnter={() => handleMouseEnter(3)}
-                onMouseLeave={handleMouseLeave}
-              >
-                <h1 style={{ fontSize: "2rem" }}>Scoring KCIC</h1>
-                <div className="flex gap-4 items-center">
-                  <p>Presets:</p>
-
-                  <Button
-                    variant="outlined"
-                    onClick={() => {
-                      navigate("/Sixthpage/kcic?type=default"); // ganti type = defaultnya, ambil dari const
-                    }}
-                    sx={{
-                      color: "#00a6fb",
-                      borderColor: "#00a6fb",
-                      backgroundColor: "#ffffff",
-                      fontSize: "1rem", // Adjust the font size as needed
-                      "&:hover": {
-                        borderColor: "#ffffff",
-                        color: "#ffffff",
-                        backgroundColor: "#00a6fb",
-                      },
-                    }}
-                    startIcon={<Settings className="text-3xl" />}
-                    className="flex items-center"
-                  >
-                    {selectedValue}
-                  </Button>
-                </div>
-              </div>
-              {hoveredBox === 3 && (
-                <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-center py-2">
-                  <p className="text-white">
-                    Menggunakan setelan {selectedValue} untuk penilaian KCIC
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>*/}
-
-          {/* box 3 */}
-          {/* <div className="flex " style={{ width: "300px" }}>
-            <div className="relative flex flex-grow">
-              <div
-                className="box gap-6 flex flex-col flex-grow"
-                style={{ backgroundColor: "#ffffff" }}
-                onMouseEnter={() => handleMouseEnter(4)}
-                onMouseLeave={handleMouseLeave}
-              >
-                <h1 style={{ fontSize: "2rem" }}>Scoring LRT</h1>
-                <div className="flex gap-4 items-center">
-                  <p>Presets:</p>
-
-                  <Button
-                    variant="outlined"
-                    onClick={() => {
-                      navigate("/Sixthpage/lrt?type=default"); // ganti type = defaultnya, ambil dari const
-                    }}
-                    sx={{
-                      color: "#00a6fb",
-                      borderColor: "#00a6fb",
-                      backgroundColor: "#ffffff",
-                      fontSize: "1rem", // Adjust the font size as needed
-                      "&:hover": {
-                        borderColor: "#ffffff",
-                        color: "#ffffff",
-                        backgroundColor: "#00a6fb",
-                      },
-                    }}
-                    startIcon={<Settings className="text-3xl" />}
-                    className="flex items-center"
-                  >
-                    {selectedValue2}
-                  </Button>
-                </div>
-              </div>
-              {hoveredBox === 4 && (
-                <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-center py-2">
-                  <p className="text-white">
-                    Menggunakan setelan {selectedValue2} untuk penilaian LRT
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>*/}
         </div>
 
         {/* Third Box  */}
