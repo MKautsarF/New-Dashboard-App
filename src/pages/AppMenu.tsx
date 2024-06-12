@@ -354,6 +354,8 @@ function AppMenu() {
   const handleConfirmationYesKcic = async () => {
     let weather = "";
     let fogValue = 0;
+
+    // section untuk mengganti payload tergantung dg module
     const payloadDictionary: { [key: string]: () => void } = {
       "Menyalakan Kereta": () => {
         weather = "Ringan";
