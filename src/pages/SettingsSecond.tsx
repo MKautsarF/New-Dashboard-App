@@ -265,7 +265,7 @@ function SettingsSecond() {
                       handleClick("Menjalankan Kereta");
                     }}
                     sx={{
-                      color: "#00a6fb",
+                      color: completion < 1 ? "#747875": "#00a6fb",
                       backgroundColor: "#f3f3f4",
                       padding: "12px 48px",
                       fontSize: "1rem",
@@ -287,7 +287,7 @@ function SettingsSecond() {
                       }
                       handleClick("Menjalankan Kereta")}} // Reset checkbox state on clicking Default button
                     sx={{
-                      color: "#00a6fb",
+                      color: completion < 1 ? "#747875": "#00a6fb",
                       padding: "12px ",
                       fontSize: "1rem",
                       borderColor: "#00a6fb",
@@ -313,7 +313,7 @@ function SettingsSecond() {
                       handleClick("Mematikan Kereta");
                     }}
                     sx={{
-                      color: "#00a6fb",
+                      color: completion < 2 ? "#747875": "#00a6fb",
                       backgroundColor: "#f3f3f4",
                       padding: "12px 48px",
                       fontSize: "1rem",
@@ -335,7 +335,7 @@ function SettingsSecond() {
                       }
                       handleClick("Mematikan Kereta")}} // Reset checkbox state on clicking Default button
                     sx={{
-                      color: "#00a6fb",
+                      color: completion < 2 ? "#747875": "#00a6fb",
                       padding: "12px ",
                       fontSize: "1rem",
                       borderColor: "#00a6fb",
@@ -361,7 +361,7 @@ function SettingsSecond() {
                       handleClick("Keluar dari Depo");
                     }}
                     sx={{
-                      color: "#00a6fb",
+                      color: completion < 3 ? "#747875": "#00a6fb",
                       backgroundColor: "#f3f3f4",
                       padding: "12px 48px",
                       fontSize: "1rem",
@@ -383,7 +383,7 @@ function SettingsSecond() {
                       }
                       handleClick("Keluar dari Depo")}} // Reset checkbox state on clicking Default button
                     sx={{
-                      color: "#00a6fb",
+                      color: completion < 3 ? "#747875": "#00a6fb",
                       padding: "12px ",
                       fontSize: "1rem",
                       borderColor: "#00a6fb",
@@ -409,7 +409,7 @@ function SettingsSecond() {
                       handleClick("Masuk ke Depo");
                     }}
                     sx={{
-                      color: "#00a6fb",
+                      color: completion < 4 ? "#747875": "#00a6fb",
                       backgroundColor: "#f3f3f4",
                       padding: "12px 48px",
                       fontSize: "1rem",
@@ -427,7 +427,7 @@ function SettingsSecond() {
                     variant="text"
                     onClick={() => handleClick("Masuk ke Depo")} // Reset checkbox state on clicking Default button
                     sx={{
-                      color: "#00a6fb",
+                      color: completion < 4 ? "#747875": "#00a6fb",
                       padding: "12px ",
                       fontSize: "1rem",
                       borderColor: "#00a6fb",
@@ -453,7 +453,7 @@ function SettingsSecond() {
                       handleClick("Pindah Jalur");
                     }}
                     sx={{
-                      color: "#00a6fb",
+                      color: completion < 5 ? "#747875": "#00a6fb",
                       backgroundColor: "#f3f3f4",
                       padding: "12px 48px",
                       fontSize: "1rem",
@@ -471,7 +471,7 @@ function SettingsSecond() {
                     variant="text"
                     onClick={() => handleClick("Pindah Jalur")} // Reset checkbox state on clicking Default button
                     sx={{
-                      color: "#00a6fb",
+                      color: completion < 5 ? "#747875": "#00a6fb",
                       padding: "12px ",
                       fontSize: "1rem",
                       borderColor: "#00a6fb",
@@ -534,7 +534,7 @@ function SettingsSecond() {
                       handleClick("Kereta Anjlok");
                     }}
                     sx={{
-                      color: "#00a6fb",
+                      color: completion < 6 ? "#747875": "#00a6fb",
                       backgroundColor: "#f3f3f4",
                       padding: "12px 48px",
                       fontSize: "1rem",
@@ -552,7 +552,7 @@ function SettingsSecond() {
                     variant="text"
                     onClick={() => handleClick("Kereta Anjlok")} // Reset checkbox state on clicking Default button
                     sx={{
-                      color: "#00a6fb",
+                      color: completion < 6 ? "#747875": "#00a6fb",
                       padding: "12px ",
                       fontSize: "1rem",
                       borderColor: "#00a6fb",
@@ -660,7 +660,7 @@ function SettingsSecond() {
                       handleClick("Menjalankan Kereta");
                     }}
                     sx={{
-                      color: "#00a6fb",
+                      color: completion < 1 ? "#747875": "#00a6fb",
                       backgroundColor: "#f3f3f4",
                       padding: "12px 48px",
                       fontSize: "1rem",
@@ -678,7 +678,7 @@ function SettingsSecond() {
                     variant="text"
                     onClick={() => handleClick("Menjalankan Kereta")} // Reset checkbox state on clicking Default button
                     sx={{
-                      color: "#00a6fb",
+                      color: completion < 1 ? "#747875": "#00a6fb",
                       padding: "12px ",
                       fontSize: "1rem",
                       borderColor: "#00a6fb",
@@ -704,7 +704,7 @@ function SettingsSecond() {
                       handleClick("Mematikan Kereta");
                     }}
                     sx={{
-                      color: "#00a6fb",
+                      color: completion < 2 ? "#747875": "#00a6fb",
                       backgroundColor: "#f3f3f4",
                       padding: "12px 48px",
                       fontSize: "1rem",
@@ -722,7 +722,7 @@ function SettingsSecond() {
                     variant="text"
                     onClick={() => handleClick("Mematikan Kereta")} // Reset checkbox state on clicking Default button
                     sx={{
-                      color: "#00a6fb",
+                      color: completion < 2 ? "#747875": "#00a6fb",
                       padding: "12px ",
                       fontSize: "1rem",
                       borderColor: "#00a6fb",
@@ -748,7 +748,7 @@ function SettingsSecond() {
                       handleClick("Keluar dari Depo");
                     }}
                     sx={{
-                      color: "#00a6fb",
+                      color: completion < 3 ? "#747875": "#00a6fb",
                       backgroundColor: "#f3f3f4",
                       padding: "12px 48px",
                       fontSize: "1rem",
@@ -766,7 +766,7 @@ function SettingsSecond() {
                     variant="text"
                     onClick={() => handleClick("Keluar dari Depo")} // Reset checkbox state on clicking Default button
                     sx={{
-                      color: "#00a6fb",
+                      color: completion < 3 ? "#747875": "#00a6fb",
                       padding: "12px ",
                       fontSize: "1rem",
                       borderColor: "#00a6fb",
@@ -792,7 +792,7 @@ function SettingsSecond() {
                       handleClick("Masuk ke Depo");
                     }}
                     sx={{
-                      color: "#00a6fb",
+                      color: completion < 4 ? "#747875": "#00a6fb",
                       backgroundColor: "#f3f3f4",
                       padding: "12px 48px",
                       fontSize: "1rem",
@@ -810,7 +810,7 @@ function SettingsSecond() {
                     variant="text"
                     onClick={() => handleClick("Masuk ke Depo")} // Reset checkbox state on clicking Default button
                     sx={{
-                      color: "#00a6fb",
+                      color: completion < 4 ? "#747875": "#00a6fb",
                       padding: "12px ",
                       fontSize: "1rem",
                       borderColor: "#00a6fb",
@@ -836,7 +836,7 @@ function SettingsSecond() {
                       handleClick("Pindah Jalur");
                     }}
                     sx={{
-                      color: "#00a6fb",
+                      color: completion < 5 ? "#747875": "#00a6fb",
                       backgroundColor: "#f3f3f4",
                       padding: "12px 48px",
                       fontSize: "1rem",
@@ -854,7 +854,7 @@ function SettingsSecond() {
                     variant="text"
                     onClick={() => handleClick("Pindah Jalur")} // Reset checkbox state on clicking Default button
                     sx={{
-                      color: "#00a6fb",
+                      color: completion < 5 ? "#747875": "#00a6fb",
                       padding: "12px ",
                       fontSize: "1rem",
                       borderColor: "#00a6fb",
@@ -917,7 +917,7 @@ function SettingsSecond() {
                       handleClick("Kereta Anjlok");
                     }}
                     sx={{
-                      color: "#00a6fb",
+                      color: completion < 6 ? "#747875": "#00a6fb",
                       backgroundColor: "#f3f3f4",
                       padding: "12px 48px",
                       fontSize: "1rem",
@@ -935,7 +935,7 @@ function SettingsSecond() {
                     variant="text"
                     onClick={() => handleClick("Kereta Anjlok")} // Reset checkbox state on clicking Default button
                     sx={{
-                      color: "#00a6fb",
+                      color: completion < 6 ? "#747875": "#00a6fb",
                       padding: "12px ",
                       fontSize: "1rem",
                       borderColor: "#00a6fb",

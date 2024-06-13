@@ -68,7 +68,7 @@ function UserLog(){
 
         const data = [
             { name: "Belum Lulus", value: 1, color: "#FF0000"},
-            { name: "Lulus", value: 6, color: "#0000FF"},
+            { name: "Lulus", value: 6, color: "#1fed4f"},
             
             ]
             
