@@ -20,6 +20,7 @@ interface UserDetail {
     officialCode: string;
     position: string;
   };
+  complition?: number;
 }
 
 interface TraineeDetailProps {
@@ -65,6 +66,8 @@ const TraineeDetail: React.FC<TraineeDetailProps> = ({
           name: detailData.name,
           nip: detailData.bio.officialCode,
           bio: detailData.bio,
+          // floor complition to 1 decimal
+          complition: Math.round(3/7 * 100 * 10) / 10,
         });
       } catch (error) {
         console.error(error);
@@ -100,6 +103,10 @@ const TraineeDetail: React.FC<TraineeDetailProps> = ({
                   : '-'}
               </p>
               <p>Kedudukan: {(data.bio && data.bio.position) || '-'}</p>
+              <p>
+                Persentase kelengkapan:{' '}
+                {data.complition ? `${data.complition}%` : '-'}
+              </p>
               {/* <p>
                 Kode kedinasan: {(data.bio && data.bio.officialCode) || '-'}
               </p> */}

@@ -9,6 +9,7 @@ interface Trainee {
     born: string;
     officialCode: string;
   };
+  complition: number;
 }
 
 interface Settings {

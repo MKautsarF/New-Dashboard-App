@@ -51,6 +51,7 @@
     "@fontsource/roboto": "^5.0.8",
     "@mui/icons-material": "^5.14.13",
     "@mui/material": "^5.14.13",
+    "@mui/x-charts": "^7.6.2",
     "@mui/x-date-pickers": "^6.16.1",
     "@types/node": "^20.10.5",
     "axios": "^1.5.1",
