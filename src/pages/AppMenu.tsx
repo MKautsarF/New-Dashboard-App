@@ -912,7 +912,7 @@ function AppMenu() {
           <div className="flex flex-grow">
             <div className="relative flex flex-grow">
               <div
-                className="box gap-6 flex flex-col flex-grow"
+                className="box gap-6 flex flex-col flex-grow px-5"
                 style={{ backgroundColor: "#ffffff" }}
                 onMouseEnter={() => handleMouseEnter(5)}
                 onMouseLeave={handleMouseLeave}
@@ -960,7 +960,7 @@ function AppMenu() {
           <div className="flex flex-grow">
             <div className="relative flex flex-grow">
               <div
-                className="box gap-6 flex flex-col flex-grow"
+                className="box gap-6 flex flex-col flex-grow px-5"
                 style={{ backgroundColor: "#ffffff" }}
                 onMouseEnter={() => handleMouseEnter(6)}
                 onMouseLeave={handleMouseLeave}
@@ -1007,7 +1007,7 @@ function AppMenu() {
           <div className="flex flex-grow">
             <div className="relative flex flex-grow">
               <div
-                className="box gap-6 flex flex-col flex-grow"
+                className="box gap-6 flex flex-col flex-grow px-5"
                 style={{ backgroundColor: "#ffffff" }}
                 onMouseEnter={() => handleMouseEnter(3)}
                 onMouseLeave={handleMouseLeave}
