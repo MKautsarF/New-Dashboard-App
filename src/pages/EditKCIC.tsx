@@ -12,6 +12,7 @@ import {
 } from "@mui/material";
 import { AddBox, Delete, Visibility, VisibilityOff } from "@mui/icons-material";
 import Container from "@/components/Container";
+import ConfirmationModal from "@/components/ConfirmationModal";
 // import { default as sourceKCIC } from "C:/Train Simulator/Data/MockJSON_MRT.json";
 import { flushSync } from "react-dom";
 import fs from "fs";
@@ -57,6 +58,21 @@ function EditKCIC() {
     navigate("/");
   };
   const [isLoading, setIsLoading] = useState(false);
+
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalType, setModalType] = useState("");
+  const [pendingAction, setPendingAction] = useState<Function | null>(null);
+  
+  const handleModalOpen = (type: string) => {
+    setModalType("edit");
+    setModalOpen(true);
+  }
+
+  const handleConfirm = () => {
+    document.getElementById('penilaian-form')?.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+    setModalOpen(false);
+  };
+  
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -514,10 +530,10 @@ function EditKCIC() {
                 </Button>
                 <Button
                   variant="text"
-                  type="submit"
-                  form="penilaian-form"
+                  // type="submit"
+                  // form="penilaian-form"
                   onClick={() => {
-                    handleSubmit;
+                    handleModalOpen("edit");
                   }}
                   sx={{
                     color: "#00a6fb",
@@ -531,6 +547,13 @@ function EditKCIC() {
               </div>
             </div>
           </div>
+          <ConfirmationModal
+            open={modalOpen}
+            onClose={() => setModalOpen(false)}
+            onConfirm={handleConfirm}
+            type={modalType}
+            item={settingsType}
+          />
         </div>
 
         <footer ref={bottom}></footer>
