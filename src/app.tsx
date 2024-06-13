@@ -21,6 +21,7 @@ import Fiveteen from "./pages/SettingsSecond";
 import Admin from "./pages/AdminStart";
 import Instructor from "./pages/InstructorList";
 import Trainee from "./pages/TraineeList";
+import UserLog from "./pages/UserLog";
 
 import { ToastContainer } from "react-toastify";
 import "./index.css";
@@ -53,6 +54,10 @@ const routerData = [
   {
     path: "/FourthPage",
     element: <FourthPage />,
+  },
+  {
+    path: "FourthPage/UserLog",
+    element: <UserLog />,
   },
   {
     path: "/FifthPage",
