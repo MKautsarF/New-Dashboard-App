@@ -1,4 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import lastAutoTable from "jspdf-autotable";
 // import { default as mrtjson } from '@/static/MockJSON_MRT.json';
 import Container from "../components/Container";
 import LangkahKerja from "../components/LangkahKerja";
@@ -40,6 +43,7 @@ import { EditNoteRounded, EditNoteSharp, Stop } from "@mui/icons-material";
 // const fs = require("fs");
 // import { default as mrtjson } from "C:/Train Simulator/Data/MockJSON_MRT.json";
 import fs from "fs";
+import { start } from "repl";
 
 interface ToastData {
   severity: AlertColor;
@@ -57,6 +61,7 @@ function ReviewKCIC() {
   const navigate = useNavigate();
   const { instructor } = useAuth();
   const { settings } = useSettings();
+  // const [json, setJson] = useState<any>(null);
 
   const [simulation, setSimulation] = useState(true);
   // const jsonPath = "C:/Train Simulator/Data/MockJSON_MRT.json";
@@ -169,6 +174,9 @@ function ReviewKCIC() {
       // nilai skor akhir
       jsonToWrite.nilai_akhir = realTimeNilai < 0 ? 0 : realTimeNilai;
 
+      
+      // console.log(json)
+      generatePDF(jsonToWrite);
       // Save file to local
       const fileName = "KCIC_" + getFilenameSafeDateString(new Date());
 
@@ -198,6 +206,9 @@ function ReviewKCIC() {
       // open pdf in dekstop
       // navigate(`/finish?filename=${fileName}`);
 
+      // generate pdf using jspdf
+      // const pdf = new jsPDF();
+
       navigate(`/SecondPage`);
 
       // shell.openPath(`C:/Train Simulator/Data/penilaian/PDF/${fileName}.pdf`);
@@ -212,6 +223,224 @@ function ReviewKCIC() {
       setIsLoading(false);
       sendTextToClients(JSON.stringify({ status: "finish" }, null, 2));
     }
+  };
+
+  const generatePDF = (json: any) => {
+    const doc = new jsPDF();
+    let nilaiAkhir = 0;
+    let nilaiUnit = 0;
+    const addHeader = (doc: any, title: any) => {
+      doc.setFontSize(20);
+      doc.text(title, doc.internal.pageSize.getWidth() / 2, 10, { align: 'center' });
+      doc.setFontSize(12);
+      doc.setLineWidth(0.5);
+      doc.line(10, 25, doc.internal.pageSize.getWidth() - 10, 25); // Horizontal line
+      doc.text('Mulai: ' + json.waktu_mulai, 14, 30);
+      doc.text('Selesai: ' + json.waktu_selesai, 60, 30);
+      doc.text('Durasi: ' +json.durasi, 110, 30);
+      doc.text('Tanggal: ' + json.tanggal, 160, 30);
+    };
+
+    const addUnit = (unit: any, startY: number) => {
+      //find last y
+      
+      doc.setFontSize(16);
+      doc.text('Unit Kompetensi ' + unit.unit, 14, startY);
+      doc.setFontSize(12);
+      doc.text(unit.judul, 14, startY + 5);
+    }
+
+    const addData = (datas: any, startY: number) => {
+      const bodyData = [];
+
+  // Add the first row with rowspan
+  bodyData.push([
+    { content: datas.no + ".", rowSpan: datas.poin.length },
+    { content: datas.langkah_kerja, rowSpan: datas.poin.length, styles: { textDecoration: datas.disable ? "line-through" : "none" } },
+    { content: datas.poin[0].observasi, styles: { textDecoration: datas.poin[0].disable ? "line-through" : "none" } },
+    { content: datas.poin[0].nilai.toString(), styles: { textDecoration: datas.poin[0].disable ? "line-through" : "none" } }
+  ]);
+
+  // Add remaining rows for poin
+  for (let i = 1; i < datas.poin.length; i++) {
+    bodyData.push([
+      // { content: "", styles: { halign: "center" } },
+      // { content: "", styles: { halign: "center" } },
+      {
+        content: datas.poin[i].observasi,
+        styles: {
+          textDecoration: datas.poin[i].disable ? "line-through" : "none"
+        }
+      },
+      {
+        content: datas.poin[i].nilai.toString(),
+        styles: {
+          textDecoration: datas.poin[i].disable ? "line-through" : "none"
+        }
+      }
+    ]);
+  }
+      // Add the main table for each data item
+    (doc as any).autoTable({
+      startY: startY,
+      head: [["No", "Langkah Kerja", "Poin Observasi", "Penilaian"]],
+      body: bodyData,
+      theme: "grid",
+      styles: {
+        fontSize: 12,
+      },
+      didDrawCell: (data: any) => {
+        const { row, column, cell } = data;
+
+        const cellContent = cell.text.join(' ');
+        const cellWidth = cell.width;
+        const textLines = doc.splitTextToSize(cellContent, cellWidth);
+        const numberOfLines = textLines.length;
+
+        console.log(`Number of lines in cell: ${numberOfLines}`);
+        
+        if (data.row.section === "body") {
+          // Check if the content of langkah_kerja or poin.observasi/nilai contains "line-through"
+          if (column.index <= 1 && data.row.index === 0) {
+            const langkahKerja = datas.disable
+            if (langkahKerja) {
+              console.log("langkahKerja", cell.width);
+              // const textPos = cell.textPos;
+              doc.setDrawColor(255, 0, 0);
+              doc.setLineWidth(1);
+              for (let i = 0; i < numberOfLines; i++) {
+                //get content width
+                const linewidth = doc.getTextWidth(textLines[i])
+                doc.line(cell.x + 1, cell.y + 4 + (i * 5), cell.x + linewidth + 1, cell.y + 4 + (i * 5));
+              }
+            }
+          } else if ((column.index === 2 || column.index === 3)) {
+            const observasi = datas.poin[data.row.index].disable;
+            if (observasi) {
+              // const textPos = cell.textPos;
+              doc.setDrawColor(255, 0, 0);
+              doc.setLineWidth(1);
+              for (let i = 0; i < numberOfLines; i++) {
+                //get content width
+                const linewidth = doc.getTextWidth(textLines[i])
+                doc.line(cell.x + 1, cell.y + 4 + (i * 5), cell.x + linewidth + 1, cell.y + 4 + (i * 5));
+              }
+            }
+          }
+        }
+      }
+    });
+
+    // Calculate the average nilai
+    let totalNilai = 0;
+    for (let i = 0; i < datas.poin.length; i++) {
+      totalNilai += datas.poin[i].nilai;
+    }
+    const averageNilai = Math.floor( totalNilai * 10 / datas.poin.length) / 10;
+    nilaiUnit += averageNilai;
+
+    // Add the "Rata-Rata Langkah Kerja" row
+    (doc as any).autoTable({
+      startY: (doc as any).lastAutoTable.finalY,
+      body: [
+        [
+          { content: "Rata-Rata Langkah Kerja " + datas.no + " :", colSpan: 3 },
+          { content: averageNilai, styles: { halign: "center" } }
+        ]
+      ],
+      theme: "grid",
+      styles: {
+        fontSize: 12,
+        fillColor: [220, 220, 220], // Gray background color
+      },
+    });
+    }
+
+    const addPoin = (poin: any, startY: number) => {
+      doc.setFontSize(12);
+      doc.text(poin.nama, 14, startY);
+      doc.text(poin.nilai, 120, startY);
+    }
+
+    // Add header to the first page
+    addHeader(doc, 'Hasil Simulasi Penilaian' + json.train_type);
+    let totalScore = 0;
+    doc.setFontSize(16);
+    doc.text('Data Diri', 14, 40);
+    autoTable(doc,{
+      startY: 45,
+      head: [['No', 'Data Diri', 'Keterangan']],
+      body: [
+        [1, "Nama Crew", json.nama_crew],
+        [2, "Kedudukan", json.kedudukan],
+        [3, "Usia", json.usia],
+        [4, "Kode Kedinasan", json.kode_kedinasan],
+        [5, "No KA", json.no_ka],
+        [6, "Lintas", json.lintas],
+        [7, "Nama Instruktur", json.nama_instruktur],
+        [8, "Keterangan", json.keterangan]
+      ],
+      theme: "grid",
+    });
+    doc.addPage();
+    doc.text('Penilaian', 16, 20);
+    let startY = 25;
+    doc.setFontSize(14);
+    json.penilaian.forEach((unit: any,index: number) => {
+      nilaiUnit = 0
+      if (index > 0) {
+        doc.addPage();
+        startY = 20;
+      }
+      addUnit(unit, startY);
+      startY += 10;
+      unit.data.forEach((data: any) => {
+        addData(data, startY);
+        startY = (doc as any).lastAutoTable.finalY + 5;  
+      });
+      nilaiAkhir += nilaiUnit;
+      const averageUnit = nilaiUnit / unit.data.length;
+      autoTable(doc, {
+        startY: (doc as any).lastAutoTable.finalY,
+          body: [
+            [
+              { content: "Rata-Rata Unit " + unit.unit + " :", colSpan: 3 },
+              { content: averageUnit, styles: { halign: "center" } }
+            ]
+          ],
+          theme: "grid",
+          styles: {
+            fontSize: 12,
+            fillColor: [220, 220, 220], // Gray background color
+          },
+      })
+    });
+    const averageAkhir = nilaiAkhir / json.penilaian.length
+    const averageTotal = (averageAkhir + json.nilai_akhir) / 2;
+    doc.addPage();
+    autoTable(doc,{
+      startY: 20,
+      body: [
+        [
+          { content: "Rata-Rata total penilaian manual ",colSpan: 2 },
+          { content: averageAkhir, styles: { halign: "center" } }
+        ],
+        [
+          { content: "Rata-Rata total penilaian simulasi ",colSpan: 2 },
+          { content: json.nilai_akhir, styles: { halign: "center" } }
+        ],
+        [
+          { content: "Rata-Rata total penilaian total ",colSpan: 2 },
+          { content: averageTotal, styles: { halign: "center" } }
+        ]
+      ],
+      theme: "grid",
+      styles: {
+        fontSize: 12,
+        fillColor: [220, 220, 220], // Gray background color
+      },
+    })
+    doc.save('data.pdf');
   };
 
   const handleClose = (
