@@ -229,6 +229,8 @@ function ReviewKCIC() {
     const doc = new jsPDF();
     let nilaiAkhir = 0;
     let nilaiUnit = 0;
+    let totalUnit = 0;
+    let totalData = 0;
     const addHeader = (doc: any, title: any) => {
       doc.setFontSize(20);
       doc.text(title, doc.internal.pageSize.getWidth() / 2, 10, { align: 'center' });
@@ -243,7 +245,9 @@ function ReviewKCIC() {
 
     const addUnit = (unit: any, startY: number) => {
       //find last y
-      
+      if (!unit.disable){
+        totalUnit++;
+      }
       doc.setFontSize(16);
       doc.text('Unit Kompetensi ' + unit.unit, 14, startY);
       doc.setFontSize(12);
@@ -252,6 +256,9 @@ function ReviewKCIC() {
 
     const addData = (datas: any, startY: number) => {
       const bodyData = [];
+      if (!datas.disable) {
+        totalData++;
+      }
 
   // Add the first row with rowspan
   bodyData.push([
@@ -264,8 +271,6 @@ function ReviewKCIC() {
   // Add remaining rows for poin
   for (let i = 1; i < datas.poin.length; i++) {
     bodyData.push([
-      // { content: "", styles: { halign: "center" } },
-      // { content: "", styles: { halign: "center" } },
       {
         content: datas.poin[i].observasi,
         styles: {
@@ -284,10 +289,15 @@ function ReviewKCIC() {
     (doc as any).autoTable({
       startY: startY,
       head: [["No", "Langkah Kerja", "Poin Observasi", "Penilaian"]],
+      headStyles: {fillColor: [74, 73, 72], lineColor: [0,0,0], textColor: [255, 255, 255]},
       body: bodyData,
       theme: "grid",
       styles: {
         fontSize: 12,
+        textColor: [0, 0, 0],
+        // border line width
+        lineWidth: 0.3,
+        lineColor: [0, 0, 0],
       },
       didDrawCell: (data: any) => {
         const { row, column, cell } = data;
@@ -306,7 +316,7 @@ function ReviewKCIC() {
             if (langkahKerja) {
               console.log("langkahKerja", cell.width);
               // const textPos = cell.textPos;
-              doc.setDrawColor(255, 0, 0);
+              doc.setDrawColor(0, 0, 0);
               doc.setLineWidth(1);
               for (let i = 0; i < numberOfLines; i++) {
                 //get content width
@@ -318,7 +328,7 @@ function ReviewKCIC() {
             const observasi = datas.poin[data.row.index].disable;
             if (observasi) {
               // const textPos = cell.textPos;
-              doc.setDrawColor(255, 0, 0);
+              doc.setDrawColor(0, 0, 0);
               doc.setLineWidth(1);
               for (let i = 0; i < numberOfLines; i++) {
                 //get content width
@@ -333,33 +343,41 @@ function ReviewKCIC() {
 
     // Calculate the average nilai
     let totalNilai = 0;
+    let totalPoin = 0;
     for (let i = 0; i < datas.poin.length; i++) {
-      totalNilai += datas.poin[i].nilai;
+      if (datas.poin[i].disable) {
+        continue;
+      }
+      else {
+        totalPoin++;
+        totalNilai += datas.poin[i].nilai;
+      }
     }
-    const averageNilai = Math.floor( totalNilai * 10 / datas.poin.length) / 10;
+    let averageNilai = Math.floor( totalNilai * 10 / totalPoin) / 10;
+    if (totalPoin == 0){
+      averageNilai = 0;
+    }
     nilaiUnit += averageNilai;
+  
 
     // Add the "Rata-Rata Langkah Kerja" row
     (doc as any).autoTable({
       startY: (doc as any).lastAutoTable.finalY,
       body: [
         [
-          { content: "Rata-Rata Langkah Kerja " + datas.no + " :", colSpan: 3 },
-          { content: averageNilai, styles: { halign: "center" } }
+          { content: "Rata-Rata Langkah Kerja " + datas.no + " :"},
+          { content: averageNilai}
         ]
       ],
       theme: "grid",
       styles: {
         fontSize: 12,
+        textColor: [0, 0, 0],
         fillColor: [220, 220, 220], // Gray background color
+        lineWidth: 0.3,
+        lineColor: [0, 0, 0],
       },
     });
-    }
-
-    const addPoin = (poin: any, startY: number) => {
-      doc.setFontSize(12);
-      doc.text(poin.nama, 14, startY);
-      doc.text(poin.nilai, 120, startY);
     }
 
     // Add header to the first page
@@ -370,6 +388,7 @@ function ReviewKCIC() {
     autoTable(doc,{
       startY: 45,
       head: [['No', 'Data Diri', 'Keterangan']],
+      headStyles: {fillColor: [74, 73, 72], textColor: [255, 255, 255]},
       body: [
         [1, "Nama Crew", json.nama_crew],
         [2, "Kedudukan", json.kedudukan],
@@ -381,10 +400,18 @@ function ReviewKCIC() {
         [8, "Keterangan", json.keterangan]
       ],
       theme: "grid",
+      styles: {
+        textColor: [0, 0, 0],
+        lineColor: [0, 0, 0],
+        lineWidth: 0.3,
+      },
     });
     doc.addPage();
-    doc.text('Penilaian', 16, 20);
-    let startY = 25;
+    doc.setFontSize(20);
+    // (doc as any).setFontStyle('bold')
+    doc.text('Penilaian', 14, 20);
+    // (doc as any).setFontStyle('normal')
+    let startY = 30;
     doc.setFontSize(14);
     json.penilaian.forEach((unit: any,index: number) => {
       nilaiUnit = 0
@@ -394,50 +421,68 @@ function ReviewKCIC() {
       }
       addUnit(unit, startY);
       startY += 10;
+      totalData = 0;
       unit.data.forEach((data: any) => {
         addData(data, startY);
         startY = (doc as any).lastAutoTable.finalY + 5;  
       });
-      nilaiAkhir += nilaiUnit;
-      const averageUnit = nilaiUnit / unit.data.length;
+      let averageUnit = nilaiUnit / totalData;
+      if (totalData == 0){
+        averageUnit = 0;
+        }
+      nilaiAkhir += averageUnit;
       autoTable(doc, {
         startY: (doc as any).lastAutoTable.finalY,
           body: [
             [
-              { content: "Rata-Rata Unit " + unit.unit + " :", colSpan: 3 },
-              { content: averageUnit, styles: { halign: "center" } }
+              { content: "Rata-Rata Unit " + unit.unit + " :         " },
+              { content: averageUnit}
             ]
           ],
           theme: "grid",
           styles: {
             fontSize: 12,
+            textColor: [0, 0, 0],
             fillColor: [220, 220, 220], // Gray background color
+            lineWidth: 0.3,
+            lineColor: [0, 0, 0],
           },
       })
     });
-    const averageAkhir = nilaiAkhir / json.penilaian.length
+    let averageAkhir = nilaiAkhir / totalUnit;
+    if (totalUnit == 0){
+      averageAkhir = 0;
+    }
+    // convert average akhir to 2 decimal
+    averageAkhir = Math.floor(averageAkhir * 10) / 10;
     const averageTotal = (averageAkhir + json.nilai_akhir) / 2;
     doc.addPage();
+    doc.setFontSize(20);
+    doc.text('Rata-Rata Total Penilaian', 14, 20);
+    doc.setFontSize(14);
     autoTable(doc,{
-      startY: 20,
+      startY: 30,
       body: [
         [
-          { content: "Rata-Rata total penilaian manual ",colSpan: 2 },
-          { content: averageAkhir, styles: { halign: "center" } }
+          { content: "Rata-Rata total penilaian manual "},
+          { content: averageAkhir}
         ],
         [
-          { content: "Rata-Rata total penilaian simulasi ",colSpan: 2 },
-          { content: json.nilai_akhir, styles: { halign: "center" } }
+          { content: "Rata-Rata total penilaian simulasi "},
+          { content: json.nilai_akhir}
         ],
         [
-          { content: "Rata-Rata total penilaian total ",colSpan: 2 },
-          { content: averageTotal, styles: { halign: "center" } }
+          { content: "Rata-Rata total penilaian total "},
+          { content: averageTotal}
         ]
       ],
       theme: "grid",
       styles: {
         fontSize: 12,
         fillColor: [220, 220, 220], // Gray background color
+        textColor: [0, 0, 0],
+        lineWidth: 0.3,
+        lineColor: [0, 0, 0],
       },
     })
     doc.save('data.pdf');
