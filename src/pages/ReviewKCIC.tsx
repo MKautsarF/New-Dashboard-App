@@ -39,11 +39,12 @@ import {
 import dayjs from "dayjs";
 import { useSettings } from "../context/settings";
 import { useAuth } from "../context/auth";
-import { EditNoteRounded, EditNoteSharp, Stop } from "@mui/icons-material";
+import { EditNoteRounded, EditNoteSharp, Stop, WrapText } from "@mui/icons-material";
 // const fs = require("fs");
 // import { default as mrtjson } from "C:/Train Simulator/Data/MockJSON_MRT.json";
 import fs from "fs";
 import { start } from "repl";
+import { wrap } from "module";
 
 interface ToastData {
   severity: AlertColor;
@@ -58,6 +59,7 @@ function useQuery() {
 
 function ReviewKCIC() {
   const query = useQuery();
+  const ExcelJS = require("exceljs");
   const navigate = useNavigate();
   const { instructor } = useAuth();
   const { settings } = useSettings();
@@ -177,6 +179,7 @@ function ReviewKCIC() {
       
       // console.log(json)
       generatePDF(jsonToWrite);
+      generateExcel(jsonToWrite);
       // Save file to local
       const fileName = "KCIC_" + getFilenameSafeDateString(new Date());
 
@@ -486,6 +489,157 @@ function ReviewKCIC() {
       },
     })
     doc.save('data.pdf');
+  };
+
+  async function generateExcel(json: any) {
+    try {
+      let totalData = 0;
+      let totalUnit = 0;
+      let nilaiAkhir = 0;
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet("Tasks Data", {
+        pageSetup: { paperSize: 9, orientation: "landscape", }, 
+        headerFooter:{firstHeader: "Hello Exceljs", firstFooter: "Hello World"},
+      });
+      
+      let rowIndex = 2;
+      
+      // Add header to the first page
+      worksheet.mergeCells('A1:G1');
+      
+      worksheet.getCell('A1').value = 'Hasil Simulasi Penilaian KRL';
+      worksheet.getCell('A1').alignment = { horizontal: 'center' };
+      worksheet.getCell('A1').font = { bold: true, size: 20 };
+      
+      worksheet.mergeCells('A3:G3');
+      worksheet.getCell('A3').value = 'Data Diri';
+      worksheet.getCell('A3').font = { bold: true, size: 16 };
+      
+      worksheet.addTable({
+        name: 'DataDiri',
+        ref: 'C4',
+        headerRow: true,
+        totalsRow: false,
+        style: {
+          theme: 'TableStyleLight8',
+          showRowStripes: false,
+        },
+        columns: [
+          {name: 'No', filterButton: false},
+          {name: 'Data Diri', filterButton: false},
+          {name: 'Keterangan', filterButton: false},
+        ],
+        rows: [
+          [1, 'Nama Crew', json.nama_crew],
+          [2, 'Kedudukan', json.kedudukan],
+          [3, 'Usia', json.usia],
+          [4, 'Kode Kedinasan', json.kode_kedinasan],
+          [5, 'No KA', json.no_ka],
+          [6, 'Lintas', json.lintas],
+          [7, 'Nama Instruktur', json.nama_instruktur],
+          [8, 'Keterangan', json.keterangan],
+        ],
+      });
+      
+      const table1 = worksheet.getTable('DataDiri');
+      table1.totalsRow = false;
+      table1.commit();
+      
+      rowIndex = worksheet.actualRowCount + 3;
+      const startRef = 'A' + rowIndex;
+      worksheet.mergeCells(startRef + ':G' + rowIndex);
+      worksheet.getCell(startRef).value = 'Penilaian';
+      worksheet.getCell(startRef).font = { bold: true, size: 16 };
+      worksheet.getCell(startRef).alignment = { horizontal: 'center' };
+      
+      rowIndex += 2;
+      
+      worksheet.columns.forEach((column:any) => {
+        column.width = 30;
+        column.alignment = { horizontal: 'center' };
+      });
+      for (let i = 0; i < json.penilaian.length; i++) {
+        let totalRow = 0
+        let unit = json.penilaian[i];
+        const bodyData = [];
+        const startRef = 'A' + rowIndex;
+        worksheet.mergeCells(startRef + ':G' + rowIndex);
+        worksheet.getCell(startRef).value = 'Unit Kompetensi ' + unit.unit;
+        worksheet.getCell(startRef).font = { bold: true, size: 14 };
+        worksheet.getCell(startRef).alignment = { horizontal: 'center' };
+        rowIndex += 2;
+        // let startIndex = 0;
+        for (let j = 0; j < unit.data.length; j++) {
+          let data = unit.data[j];
+          bodyData.push([
+            data.no, data.langkah_kerja, data.bobot, data.poin[0].observasi, data.poin[0].nilai, data.poin[0].disable, data.poin[0].bobot
+          ]);
+          totalRow++;
+          for (let i = 1; i < data.poin.length; i++) {
+            totalRow++;
+            // startIndex++;
+            bodyData.push([
+              "","","", data.poin[i].observasi, data.poin[i].nilai, data.poin[i].disable, data.poin[i].bobot
+            ]);
+          }
+        };
+        worksheet.addTable({
+          name: 'Data' +i.toString(),
+          ref: 'A' + rowIndex,
+          headerRow: true,
+          totalsRow: false,
+          style: {
+            theme: 'TableStyleLight8',
+            showRowStripes: false,
+          },
+          columns: [
+            { name: 'No', filterButton: false },
+            { name: 'Langkah Kerja', filterButton: false },
+            { name: 'Bobot Langkah Kerja', filterButton: false},
+            { name: 'Poin Observasi', filterButton: false },
+            { name: 'Penilaian', filterButton: false , totalsRowFunction: 'average'},
+            { name: 'disable', filterButton: false},
+            { name: 'bobot Poin', filterButton: false}
+          ],
+          rows: bodyData,
+        });
+        worksheet.eachRow({ includeEmpty: false }, (row:any, rowNumber:any) => {
+          const currentCell = row._cells;
+          if (rowNumber >= rowIndex && rowNumber < rowIndex + totalRow + 1) {
+            currentCell.forEach((singleCell: any) => {
+              const cellAddress = singleCell._address;
+              worksheet.getCell(cellAddress).alignment = {wrapText: true};
+            });
+          }
+        });
+        let indexborder = rowIndex;
+        for (let i = 0; i < unit.data.length; i++) {
+          indexborder += unit.data[i].poin.length;
+          worksheet.getRow(indexborder).eachCell((cell:any) => {
+            cell.border = {
+              bottom: {style:'thick'},
+            };
+          });
+        }
+        rowIndex += totalRow + 2
+
+      };
+    
+      // worksheet.getColumn(0).width = 5;
+        
+      const buf = await workbook.xlsx.writeBuffer()
+      const dir = "C:/Train Simulator/Data/penilaian/Excel";
+      const fileName = "KCIC_" + getFilenameSafeDateString(new Date());
+
+      if (!fs.existsSync(dir)) {
+        await fs.mkdirSync(dir, { recursive: true });
+      }
+      fs.writeFileSync(`${dir}/${fileName}.xlsx`, buf);
+      
+    }
+    catch (err) {
+      console.log(err);
+    }
   };
 
   const handleClose = (

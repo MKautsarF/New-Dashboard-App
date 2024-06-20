@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+
 // import { default as mrtjson } from '@/static/MockJSON_MRT.json';
 import Container from "../components/Container";
 import LangkahKerja from "../components/LangkahKerja";
@@ -56,6 +57,7 @@ function useQuery() {
 
 function ReviewLRT() {
   const query = useQuery();
+  const ExcelJS = require("exceljs");
   const navigate = useNavigate();
   const { instructor } = useAuth();
   const { settings } = useSettings();
