@@ -171,19 +171,15 @@ function ReviewKCIC() {
           });
         });
       });
-      // console.log('penilaian done');
 
       // nilai skor akhir
       jsonToWrite.nilai_akhir = realTimeNilai < 0 ? 0 : realTimeNilai;
 
-      
-      // console.log(json)
       generatePDF(jsonToWrite);
       generateExcel(jsonToWrite);
       // Save file to local
       const fileName = "KCIC_" + getFilenameSafeDateString(new Date());
 
-      console.log("tes");
       const dir = "C:/Train Simulator/Data/penilaian";
 
       if (!fs.existsSync(dir)) {
@@ -196,7 +192,6 @@ function ReviewKCIC() {
       );
 
       // // Hit C# API for score pdf result generation
-      // console.log('tes');
       // const res = await processFile(fileName, 'on');
       // const resExcel = await processFileExcel(fileName, 'on');
       // setToastData({
@@ -204,7 +199,6 @@ function ReviewKCIC() {
       //   msg: `Successfuly saved scores as ${fileName}.pdf!`,
       // });
       // setOpen(true);
-      // console.log('tes');
 
       // open pdf in dekstop
       // navigate(`/finish?filename=${fileName}`);
@@ -310,14 +304,12 @@ function ReviewKCIC() {
         const textLines = doc.splitTextToSize(cellContent, cellWidth);
         const numberOfLines = textLines.length;
 
-        console.log(`Number of lines in cell: ${numberOfLines}`);
         
         if (data.row.section === "body") {
           // Check if the content of langkah_kerja or poin.observasi/nilai contains "line-through"
           if (column.index <= 1 && data.row.index === 0) {
             const langkahKerja = datas.disable
             if (langkahKerja) {
-              console.log("langkahKerja", cell.width);
               // const textPos = cell.textPos;
               doc.setDrawColor(0, 0, 0);
               doc.setLineWidth(1);
@@ -384,7 +376,7 @@ function ReviewKCIC() {
     }
 
     // Add header to the first page
-    addHeader(doc, 'Hasil Simulasi Penilaian' + json.train_type);
+    addHeader(doc, 'Hasil Simulasi Penilaian ' + json.train_type);
     let totalScore = 0;
     doc.setFontSize(16);
     doc.text('Data Diri', 14, 40);
@@ -488,7 +480,23 @@ function ReviewKCIC() {
         lineColor: [0, 0, 0],
       },
     })
-    doc.save('data.pdf');
+    const fileName = 'KCIC_' + getFilenameSafeDateString(new Date()) + '.pdf';
+    const dir = 'C:/Train Simulator/Data/penilaian/PDF';
+
+
+    if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+    }
+
+
+    const pdfBuffer = doc.output('arraybuffer');
+
+
+    fs.writeFileSync(`${dir}/${fileName}`, Buffer.from(pdfBuffer));
+
+
+    return `${fileName} saved successfully.`;
+
   };
 
   async function generateExcel(json: any) {
@@ -507,7 +515,7 @@ function ReviewKCIC() {
       // Add header to the first page
       worksheet.mergeCells('A1:G1');
       
-      worksheet.getCell('A1').value = 'Hasil Simulasi Penilaian KRL';
+      worksheet.getCell('A1').value = 'Hasil Simulasi Penilaian ' + json.train_type;
       worksheet.getCell('A1').alignment = { horizontal: 'center' };
       worksheet.getCell('A1').font = { bold: true, size: 20 };
       

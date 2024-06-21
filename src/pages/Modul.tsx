@@ -24,13 +24,13 @@ function Modul() {
   const [isHovered, setIsHovered] = useState(false);
   const [isHovered2, setIsHovered2] = useState(false);
 
-  const handleNormal = () => {
+  const handleEksplorasi = () => {
     navigate(`/FifthPage?type=${trainType}`);
 
     if (trainType === "lrt") {
-      localStorage.setItem("valueSettingsLRT", "Normal");
+      localStorage.setItem("valueSettingsLRT", "Eksplorasi");
     } else if (trainType === "kcic") {
-      localStorage.setItem("valueSettingsKCIC", "Normal");
+      localStorage.setItem("valueSettingsKCIC", "Eksplorasi");
     }
   };
 
@@ -75,10 +75,10 @@ function Modul() {
                 e.currentTarget.style.transform = "scale(1)";
                 setIsHovered(false);
               }}
-              onClick={handleNormal} // Call handleNext when clicked
+              onClick={handleEksplorasi} // Call handleNext when clicked
             >
               <EditNote style={{ fontSize: 75 }} />
-              <h1>Normal</h1>
+              <h1>Eksplorasi</h1>
             </div>
           </div>
 

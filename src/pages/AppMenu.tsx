@@ -111,7 +111,7 @@ function AppMenu() {
       await getSubmissionList(1, 5, selectedPeserta.id);
       console.log("getting log for user: " + selectedPeserta.id);
 
-      navigate("/userlog");
+      navigate("/FourthPage/UserLog");
     } catch (e) {
       console.error(e);
     } finally {
@@ -223,8 +223,8 @@ function AppMenu() {
 
   const [selectedValue, setSelectedValue] = useState("Default");
   const [selectedValue2, setSelectedValue2] = useState("Default");
-  const [selectedValue3, setSelectedValue3] = useState("normal");
-  const [selectedValue4, setSelectedValue4] = useState("normal");
+  const [selectedValue3, setSelectedValue3] = useState("Eksplorasi");
+  const [selectedValue4, setSelectedValue4] = useState("Eksplorasi");
 
   useEffect(() => {
     // Retrieve the last selected value from localStorage

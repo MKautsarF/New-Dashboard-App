@@ -119,7 +119,6 @@ function EditKCIC() {
         judulIndex++;
       });
 
-      // console.log(sourceKCIC);
 
       fs.writeFileSync(jsonPath, JSON.stringify(jsonToWrite, null, 2));
     } catch (e) {

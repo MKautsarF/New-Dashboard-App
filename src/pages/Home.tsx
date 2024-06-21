@@ -18,8 +18,8 @@ function App() {
         <div className="gap-2  pt-4 flex flex-col items-center justify-center h-full">
           {/* <img src="\src\static\newLogo.jpg" alt="Logo" /> */}
           <Logo />
-          <h1>Dashboard App</h1>
-          <p>a Simulation Dashboard App Template</p>
+          <h1>KCIC LRT Launcher</h1>
+          <p>a simulation launcher for KCIC LRT</p>
         </div>
         <div className="flex flex-col gap-4 justify-center p-12">
           <Button

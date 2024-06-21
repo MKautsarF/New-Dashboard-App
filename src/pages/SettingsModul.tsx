@@ -88,7 +88,7 @@ function SettingsModul() {
                   <Button
                     variant="outlined"
                     onClick={() => {
-                      handleClick("Normal");
+                      handleClick("Eksplorasi");
                     }}
                     sx={{
                       color: "#00a6fb",
@@ -101,11 +101,11 @@ function SettingsModul() {
                       },
                     }}
                   >
-                    Normal
+                    Eksplorasi
                   </Button>
                   <Button
                     variant="text"
-                    onClick={() => handleClick("Normal")} // Reset checkbox state on clicking Default button
+                    onClick={() => handleClick("Eksplorasi")} // Reset checkbox state on clicking Default button
                     sx={{
                       color: "#00a6fb",
                       padding: "12px ",
@@ -113,7 +113,7 @@ function SettingsModul() {
                       borderColor: "#00a6fb",
                     }}
                   >
-                    {checkedLRT === "Normal" ? (
+                    {checkedLRT === "Eksplorasi" ? (
                       <CheckBox />
                     ) : (
                       <CheckBoxOutlineBlank />
@@ -429,7 +429,7 @@ function SettingsModul() {
                   <Button
                     variant="outlined"
                     onClick={() => {
-                      handleClick("Normal");
+                      handleClick("Eksplorasi");
                     }}
                     sx={{
                       color: "#00a6fb",
@@ -442,11 +442,11 @@ function SettingsModul() {
                       },
                     }}
                   >
-                    Normal
+                    Eksplorasi
                   </Button>
                   <Button
                     variant="text"
-                    onClick={() => handleClick("Normal")} // Reset checkbox state on clicking Default button
+                    onClick={() => handleClick("Eksplorasi")} // Reset checkbox state on clicking Default button
                     sx={{
                       color: "#00a6fb",
                       padding: "12px ",
@@ -454,7 +454,7 @@ function SettingsModul() {
                       borderColor: "#00a6fb",
                     }}
                   >
-                    {checkedKCIC === "Normal" ? (
+                    {checkedKCIC === "Eksplorasi" ? (
                       <CheckBox />
                     ) : (
                       <CheckBoxOutlineBlank />

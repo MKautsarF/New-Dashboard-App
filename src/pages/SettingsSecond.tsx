@@ -31,8 +31,8 @@ function SettingsSecond() {
   const [isLoading, setIsLoading] = useState(false);
   const { settings, setSettings } = useSettings();
 
-  const [selectedValue3, setSelectedValue3] = useState("normal");
-  const [selectedValue4, setSelectedValue4] = useState("normal");
+  const [selectedValue3, setSelectedValue3] = useState("Eksplorasi");
+  const [selectedValue4, setSelectedValue4] = useState("Eksplorasi");
   const [completion, setComplition] = useState(3);
 
   const handlePrev = () => {
