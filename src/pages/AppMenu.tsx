@@ -980,6 +980,8 @@ function AppMenu() {
                       borderColor: "#00a6fb",
                       backgroundColor: "#ffffff",
                       fontSize: "1rem", // Adjust the font size as needed
+                      overflow: "hidden", // Hide the overflow content
+                      textOverflow: "ellipsis", // Display ellipsis for overflow content
                       "&:hover": {
                         borderColor: "#ffffff",
                         color: "#ffffff",
@@ -987,7 +989,7 @@ function AppMenu() {
                       },
                     }}
                     startIcon={<Settings className="text-3xl" />}
-                    className="flex items-center"
+                    className="flex items-center max-w-[200px]"
                   >
                     {selectedValue3}
                   </Button>
@@ -1025,7 +1027,10 @@ function AppMenu() {
                       color: "#00a6fb",
                       borderColor: "#00a6fb",
                       backgroundColor: "#ffffff",
+                      maxWidth: "200px", // Set the maximum width
                       fontSize: "1rem", // Adjust the font size as needed
+                      overflow: "hidden", // Hide the overflow content
+                      textOverflow: "ellipsis", // Display ellipsis for overflow content
                       "&:hover": {
                         borderColor: "#ffffff",
                         color: "#ffffff",
@@ -1071,8 +1076,11 @@ function AppMenu() {
                     sx={{
                       color: "#00a6fb",
                       borderColor: "#00a6fb",
+                      maxWidth: "200px", // Set the maximum width
                       backgroundColor: "#ffffff",
                       fontSize: "1rem", // Adjust the font size as needed
+                      overflow: "hidden", // Hide the overflow content
+                      textOverflow: "ellipsis", // Display ellipsis for overflow content
                       "&:hover": {
                         borderColor: "#ffffff",
                         color: "#ffffff",

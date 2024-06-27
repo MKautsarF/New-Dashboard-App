@@ -51,6 +51,19 @@ interface ToastData {
   msg: string;
 }
 
+interface TableRow {
+  content: string | number;
+  rowSpan?: number;
+  colSpan?: number;
+  styles?: {
+    textDecoration?: string;
+    halign?: 'center';
+    fillColor?: [number, number, number];
+    [key: string]: any;
+  };
+}
+
+
 function useQuery() {
   const { search } = useLocation();
 
@@ -224,166 +237,234 @@ function ReviewKCIC() {
 
   const generatePDF = (json: any) => {
     const doc = new jsPDF();
+
+
     let nilaiAkhir = 0;
     let nilaiUnit = 0;
     let totalUnit = 0;
     let totalData = 0;
+    let nilaiData = 0;
+
+
     const addHeader = (doc: any, title: any) => {
       doc.setFontSize(20);
-      doc.text(title, doc.internal.pageSize.getWidth() / 2, 10, { align: 'center' });
+      doc.text(title, doc.internal.pageSize.getWidth() / 2, 15, { align: 'center' });
       doc.setFontSize(12);
       doc.setLineWidth(0.5);
-      doc.line(10, 25, doc.internal.pageSize.getWidth() - 10, 25); // Horizontal line
-      doc.text('Mulai: ' + json.waktu_mulai, 14, 30);
-      doc.text('Selesai: ' + json.waktu_selesai, 60, 30);
-      doc.text('Durasi: ' +json.durasi, 110, 30);
-      doc.text('Tanggal: ' + json.tanggal, 160, 30);
+      doc.text('Mulai: ' + json.waktu_mulai, 11, 27);
+      doc.text('Selesai: ' + json.waktu_selesai, 60, 27);
+      doc.text('Durasi: ' +json.durasi, 110, 27);
+      doc.text('Tanggal: ' + json.tanggal, 160, 27);
+      doc.line(10, 30, doc.internal.pageSize.getWidth() - 10, 30); // Horizontal line
     };
-
+   
     const addUnit = (unit: any, startY: number) => {
-      //find last y
-      if (!unit.disable){
+      // let nilaiUnit = 0;
+
+
+      if (!unit.disable) {
         totalUnit++;
       }
       doc.setFontSize(16);
       doc.text('Unit Kompetensi ' + unit.unit, 14, startY);
       doc.setFontSize(12);
       doc.text(unit.judul, 14, startY + 5);
-    }
+   
+      // Initialize body data for the entire unit
+      const unitBodyData: TableRow[][] = [];
+   
+      // Iterate through each data in the unit and add rows to unitBodyData
+      let currentY = startY + 15;
+      unit.data.forEach((datas: any) => {
+        const { bodyData, rataRataRow } = addData(datas);
+        unitBodyData.push(...bodyData);
+        unitBodyData.push(rataRataRow); // Add rata-rata langkah kerja row
+        nilaiData = 0;
+      });
 
-    const addData = (datas: any, startY: number) => {
-      const bodyData = [];
+
+   
+      // Calculate the average nilai for the unit
+      let rataRataUnit = nilaiUnit / totalData;
+      if (totalData == 0){
+        rataRataUnit = 0;
+      }
+      nilaiAkhir += rataRataUnit;
+
+      const rataRataUnitRow: TableRow[] = [
+        { content: "Rata-rata Unit " + unit.unit, colSpan: 3, styles: { fillColor: [220, 220, 220], fontStyle: 'bold' }},
+        { content: rataRataUnit.toFixed(2), styles: { fillColor: [220, 220, 220], fontStyle: 'bold' }}
+      ];
+   
+      // Add rata-rata unit row to unitBodyData
+      unitBodyData.push(rataRataUnitRow);
+   
+      // Add the combined table for the unit
+      (doc as any).autoTable({
+        startY: currentY,
+        head: [["No", "Langkah Kerja", "Poin Observasi", "Penilaian"]],
+        headStyles: { fillColor: [74, 73, 72], lineColor: [0, 0, 0], textColor: [255, 255, 255] },
+        body: unitBodyData,
+        theme: "grid",
+        styles: {
+          fontSize: 12,
+          textColor: [0, 0, 0],
+          lineWidth: 0.3,
+          lineColor: [0, 0, 0],
+          cellPadding: {right: 5, top: 2, bottom: 2, left: 2}
+        },
+   
+        didDrawCell: (data: any) => {
+          const { row, column, cell } = data;
+          const cellContent = cell.text.join(' ');
+          const cellWidth = cell.width - 5;
+          const textLines = doc.splitTextToSize(cellContent, cellWidth);
+          const numberOfLines = textLines.length;
+
+          
+          // Calculate rowIndex and poinIndex
+          let currentDataIndex = 0;
+          let currentRowCount = 0;
+          for (let i = 0; i < unit.data.length; i++) {
+            currentRowCount += unit.data[i].poin.length + 1; // Add 1 for the rata-rata langkah kerja row
+            if (data.row.index < currentRowCount) {
+              currentDataIndex = i;
+              break;   
+            }
+          }
+          const rowIndex = currentDataIndex;
+          const poinIndex = data.row.index - (currentRowCount - (unit.data[rowIndex].poin.length + 1)) + 1;
+          
+          // Check if it's within the body section and meets your condition
+          if (data.row.section === "body") {
+            // Check if the content of langkah_kerja or poin.observasi/nilai contains "line-through"
+            if (column.index == 3){
+              const rataRataCell = data.table.body[data.row.index].cells[0];
+              console.log("rataRataCell: ", rataRataCell);
+              // check RatarataCel is not defined
+              if (rataRataCell != undefined){
+                // check if the cell.text contains "Rata-rata"....
+                if (rataRataCell.text[0] = "R") {
+                  const langkahKerja = unit.data[rowIndex]?.disable;
+                  if (langkahKerja) {
+                    console.log("yang ini yg rata row: ", data.row.index, "column: ", data.column.index, "cell: ", cellContent, "numberOfLines: ", numberOfLines)
+                    doc.setDrawColor(0, 0, 0);
+                    doc.setLineWidth(1);
+                    for (let i = 0; i < numberOfLines; i++) {
+                      const linewidth = doc.getTextWidth(textLines[i]);
+                      doc.line(cell.x + 1, cell.y + 4 + (i * 5), cell.x + linewidth + 3, cell.y + 4 + (i * 5));
+                    }
+                  }
+                
+                }
+              }
+            }
+            if (column.index <= 1 ) {
+              const langkahKerja = unit.data[rowIndex]?.disable;
+              if (langkahKerja) {
+                    console.log("row: ", data.row.index, "column: ", data.column.index, "cell: ", cellContent, "numberOfLines: ", numberOfLines)
+                      doc.setDrawColor(0, 0, 0);
+                      doc.setLineWidth(1);
+                      for (let i = 0; i < numberOfLines; i++) {
+                          const linewidth = doc.getTextWidth(textLines[i]);
+                          doc.line(cell.x + 1, cell.y + 4 + (i * 5), cell.x + linewidth + 3, cell.y + 4 + (i * 5));
+                      }
+                  }
+              } else if (column.index === 2 || column.index === 3) {
+                  const observasi = unit.data[rowIndex]?.poin?.[poinIndex - 1]?.disable; // Adjust poinIndex for rata-rata row
+                  if (observasi) {
+                      doc.setDrawColor(0, 0, 0);
+                      doc.setLineWidth(1);
+                      for (let i = 0; i < numberOfLines; i++) {
+                          const linewidth = doc.getTextWidth(textLines[i]);
+                          doc.line(cell.x + 1, cell.y + 4 + (i * 5), cell.x + linewidth + 3, cell.y + 4 + (i * 5));
+                      }
+                  }
+              }
+          }
+        }
+      })
+    };
+   
+    const addData = (datas: any): { bodyData: TableRow[][]; rataRataRow: TableRow[] } => {
+      const bodyData: TableRow[][] = [];
+
+
       if (!datas.disable) {
         totalData++;
       }
+   
+      // Add the first row with rowspan
+      bodyData.push([
+        { content: datas.no + ".", rowSpan: datas.poin.length},
+        { content: datas.langkah_kerja, rowSpan: datas.poin.length },
+        { content: datas.poin[0].observasi },
+        { content: datas.poin[0].nilai.toString() }
+      ]);
 
-  // Add the first row with rowspan
-  bodyData.push([
-    { content: datas.no + ".", rowSpan: datas.poin.length },
-    { content: datas.langkah_kerja, rowSpan: datas.poin.length, styles: { textDecoration: datas.disable ? "line-through" : "none" } },
-    { content: datas.poin[0].observasi, styles: { textDecoration: datas.poin[0].disable ? "line-through" : "none" } },
-    { content: datas.poin[0].nilai.toString(), styles: { textDecoration: datas.poin[0].disable ? "line-through" : "none" } }
-  ]);
 
-  // Add remaining rows for poin
-  for (let i = 1; i < datas.poin.length; i++) {
-    bodyData.push([
-      {
-        content: datas.poin[i].observasi,
-        styles: {
-          textDecoration: datas.poin[i].disable ? "line-through" : "none"
-        }
-      },
-      {
-        content: datas.poin[i].nilai.toString(),
-        styles: {
-          textDecoration: datas.poin[i].disable ? "line-through" : "none"
-        }
-      }
-    ]);
-  }
-      // Add the main table for each data item
-    (doc as any).autoTable({
-      startY: startY,
-      head: [["No", "Langkah Kerja", "Poin Observasi", "Penilaian"]],
-      headStyles: {fillColor: [74, 73, 72], lineColor: [0,0,0], textColor: [255, 255, 255]},
-      body: bodyData,
-      theme: "grid",
-      styles: {
-        fontSize: 12,
-        textColor: [0, 0, 0],
-        // border line width
-        lineWidth: 0.3,
-        lineColor: [0, 0, 0],
-      },
-      didDrawCell: (data: any) => {
-        const { row, column, cell } = data;
+      let totalPoin = 0;
 
-        const cellContent = cell.text.join(' ');
-        const cellWidth = cell.width;
-        const textLines = doc.splitTextToSize(cellContent, cellWidth);
-        const numberOfLines = textLines.length;
 
-        
-        if (data.row.section === "body") {
-          // Check if the content of langkah_kerja or poin.observasi/nilai contains "line-through"
-          if (column.index <= 1 && data.row.index === 0) {
-            const langkahKerja = datas.disable
-            if (langkahKerja) {
-              // const textPos = cell.textPos;
-              doc.setDrawColor(0, 0, 0);
-              doc.setLineWidth(1);
-              for (let i = 0; i < numberOfLines; i++) {
-                //get content width
-                const linewidth = doc.getTextWidth(textLines[i])
-                doc.line(cell.x + 1, cell.y + 4 + (i * 5), cell.x + linewidth + 1, cell.y + 4 + (i * 5));
-              }
-            }
-          } else if ((column.index === 2 || column.index === 3)) {
-            const observasi = datas.poin[data.row.index].disable;
-            if (observasi) {
-              // const textPos = cell.textPos;
-              doc.setDrawColor(0, 0, 0);
-              doc.setLineWidth(1);
-              for (let i = 0; i < numberOfLines; i++) {
-                //get content width
-                const linewidth = doc.getTextWidth(textLines[i])
-                doc.line(cell.x + 1, cell.y + 4 + (i * 5), cell.x + linewidth + 1, cell.y + 4 + (i * 5));
-              }
-            }
-          }
-        }
-      }
-    });
-
-    // Calculate the average nilai
-    let totalNilai = 0;
-    let totalPoin = 0;
-    for (let i = 0; i < datas.poin.length; i++) {
-      if (datas.poin[i].disable) {
-        continue;
-      }
-      else {
+      if (!datas.poin[0].disable) {
+        nilaiData+=datas.poin[0].nilai;
         totalPoin++;
-        totalNilai += datas.poin[i].nilai;
       }
-    }
-    let averageNilai = Math.floor( totalNilai * 10 / totalPoin) / 10;
-    if (totalPoin == 0){
-      averageNilai = 0;
-    }
-    nilaiUnit += averageNilai;
-  
+   
+      // Add remaining rows for poin
+      for (let i = 1; i < datas.poin.length; i++) {
+        if (!datas.poin[i].disable) {
+          nilaiData+=datas.poin[i].nilai;
+          totalPoin++
+        }
 
-    // Add the "Rata-Rata Langkah Kerja" row
-    (doc as any).autoTable({
-      startY: (doc as any).lastAutoTable.finalY,
-      body: [
-        [
-          { content: "Rata-Rata Langkah Kerja " + datas.no + " :"},
-          { content: averageNilai}
-        ]
-      ],
-      theme: "grid",
-      styles: {
-        fontSize: 12,
-        textColor: [0, 0, 0],
-        fillColor: [220, 220, 220], // Gray background color
-        lineWidth: 0.3,
-        lineColor: [0, 0, 0],
-      },
-    });
-    }
+
+        bodyData.push([
+          { content: datas.poin[i].observasi },
+          { content: datas.poin[i].nilai.toString() }
+        ]);
+      }
+
+
+      let averageNilai = nilaiData / totalPoin;
+      if (totalPoin == 0){
+        averageNilai = 0;
+      }
+ 
+
+
+      nilaiUnit += averageNilai;
+   
+      // Create the "Rata-Rata Langkah Kerja" row
+      const rataRataRow: TableRow[] = [
+        { content: "Rata-rata Langkah Kerja " + datas.no, colSpan: 3, styles: { fillColor: [220, 220, 220] } },
+        { content: averageNilai.toFixed(2), styles: { fillColor: [220, 220, 220] } }
+      ];
+   
+      return { bodyData, rataRataRow };
+    };
+
 
     // Add header to the first page
     addHeader(doc, 'Hasil Simulasi Penilaian ' + json.train_type);
     let totalScore = 0;
     doc.setFontSize(16);
-    doc.text('Data Diri', 14, 40);
-    autoTable(doc,{
+    doc.text('Overview', 14, 40);
+
+
+    const mergedRowSimulasi = [
+      { content: 'Simulasi', colSpan: 3, styles: { halign: 'center', fillColor: [220, 220, 220] } }
+    ];
+
+
+    const mergedRowPeserta = [
+      { content: 'Peserta', colSpan: 3, styles: { halign: 'center', fillColor: [220, 220, 220] } }
+    ];
+ 
+    autoTable(doc, {
       startY: 45,
-      head: [['No', 'Data Diri', 'Keterangan']],
-      headStyles: {fillColor: [74, 73, 72], textColor: [255, 255, 255]},
+      head: [['No', 'Overview', 'Keterangan']],
+      headStyles: { fillColor: [74, 73, 72], textColor: [255, 255, 255] },
       body: [
         [1, "Nama Crew", json.nama_crew],
         [2, "Kedudukan", json.kedudukan],
@@ -399,8 +480,16 @@ function ReviewKCIC() {
         textColor: [0, 0, 0],
         lineColor: [0, 0, 0],
         lineWidth: 0.3,
+        fontSize: 12,
       },
+      columnStyles: {
+        0: { cellWidth: 15 },
+        1: { cellWidth: 60 },
+        2: { cellWidth: doc.internal.pageSize.getWidth() - 103 }
+      }
     });
+
+
     doc.addPage();
     doc.setFontSize(20);
     // (doc as any).setFontStyle('bold')
@@ -408,78 +497,60 @@ function ReviewKCIC() {
     // (doc as any).setFontStyle('normal')
     let startY = 30;
     doc.setFontSize(14);
-    json.penilaian.forEach((unit: any,index: number) => {
-      nilaiUnit = 0
+   
+    json.penilaian.forEach((unit: any, index: number) => {
       if (index > 0) {
         doc.addPage();
         startY = 20;
       }
+ 
       addUnit(unit, startY);
-      startY += 10;
+      nilaiUnit = 0;
       totalData = 0;
-      unit.data.forEach((data: any) => {
-        addData(data, startY);
-        startY = (doc as any).lastAutoTable.finalY + 5;  
-      });
-      let averageUnit = nilaiUnit / totalData;
-      if (totalData == 0){
-        averageUnit = 0;
-        }
-      nilaiAkhir += averageUnit;
-      autoTable(doc, {
-        startY: (doc as any).lastAutoTable.finalY,
-          body: [
-            [
-              { content: "Rata-Rata Unit " + unit.unit + " :         " },
-              { content: averageUnit}
-            ]
-          ],
-          theme: "grid",
-          styles: {
-            fontSize: 12,
-            textColor: [0, 0, 0],
-            fillColor: [220, 220, 220], // Gray background color
-            lineWidth: 0.3,
-            lineColor: [0, 0, 0],
-          },
-      })
+      startY += 10;
+ 
+      startY = (doc as any).lastAutoTable.finalY + 10; // Adjust the spacing as needed
     });
+
+
     let averageAkhir = nilaiAkhir / totalUnit;
     if (totalUnit == 0){
       averageAkhir = 0;
     }
+   
     // convert average akhir to 2 decimal
     averageAkhir = Math.floor(averageAkhir * 10) / 10;
     const averageTotal = (averageAkhir + json.nilai_akhir) / 2;
     doc.addPage();
     doc.setFontSize(20);
-    doc.text('Rata-Rata Total Penilaian', 14, 20);
+    doc.text('Rata-rata Total Penilaian', 14, 20);
     doc.setFontSize(14);
     autoTable(doc,{
       startY: 30,
       body: [
         [
-          { content: "Rata-Rata total penilaian manual "},
-          { content: averageAkhir}
+          { content: "Rata-rata Total Penilaian Manual "},
+          { content: averageAkhir.toFixed(2)}
         ],
         [
-          { content: "Rata-Rata total penilaian simulasi "},
+          { content: "Rata-rata Total Penilaian Simulasi "},
           { content: json.nilai_akhir}
         ],
         [
-          { content: "Rata-Rata total penilaian total "},
-          { content: averageTotal}
+          { content: "Rata-rata Total Penilaian Keseluruhan "},
+          { content: averageTotal.toFixed(2)}
         ]
       ],
       theme: "grid",
       styles: {
         fontSize: 12,
-        fillColor: [220, 220, 220], // Gray background color
+        fillColor: [220, 220, 220],
         textColor: [0, 0, 0],
         lineWidth: 0.3,
         lineColor: [0, 0, 0],
       },
     })
+    // Save PDF file using fs
     const fileName = 'KCIC_' + getFilenameSafeDateString(new Date()) + '.pdf';
     const dir = 'C:/Train Simulator/Data/penilaian/PDF';
 
@@ -496,8 +567,8 @@ function ReviewKCIC() {
 
 
     return `${fileName} saved successfully.`;
-
   };
+
 
   async function generateExcel(json: any) {
     try {
