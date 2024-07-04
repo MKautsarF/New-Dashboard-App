@@ -61,7 +61,7 @@ function SettingsLRT() {
               <Button
                 variant="outlined"
                 onClick={() => {
-                  handleClick("Normal");
+                  handleClick("Eksplorasi");
                 }}
                 sx={{
                   color: "#00a6fb",
@@ -74,11 +74,11 @@ function SettingsLRT() {
                   },
                 }}
               >
-                Normal
+                Eksplorasi
               </Button>
               <Button
                 variant="text"
-                onClick={() => handleClick("Normal")} // Reset checkbox state on clicking Default button
+                onClick={() => handleClick("Eksplorasi")} // Reset checkbox state on clicking Default button
                 sx={{
                   color: "#00a6fb",
                   padding: "12px ",
@@ -86,7 +86,7 @@ function SettingsLRT() {
                   borderColor: "#00a6fb",
                 }}
               >
-                {checked === "Normal" ? <CheckBox /> : <CheckBoxOutlineBlank />}
+                {checked === "Eksplorasi" ? <CheckBox /> : <CheckBoxOutlineBlank />}
               </Button>
             </div>
             {/* Turn On button */}

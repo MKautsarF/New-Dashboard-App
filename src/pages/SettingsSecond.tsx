@@ -31,8 +31,9 @@ function SettingsSecond() {
   const [isLoading, setIsLoading] = useState(false);
   const { settings, setSettings } = useSettings();
 
-  const [selectedValue3, setSelectedValue3] = useState("normal");
-  const [selectedValue4, setSelectedValue4] = useState("normal");
+  const [selectedValue3, setSelectedValue3] = useState("Eksplorasi");
+  const [selectedValue4, setSelectedValue4] = useState("Eksplorasi");
+  const [completion, setComplition] = useState(3);
 
   const handlePrev = () => {
     // navigate("/FifthPage?type=lrt");
@@ -258,10 +259,13 @@ function SettingsSecond() {
                   <Button
                     variant="outlined"
                     onClick={() => {
+                      if (completion < 1) {
+                        return;
+                      }
                       handleClick("Menjalankan Kereta");
                     }}
                     sx={{
-                      color: "#00a6fb",
+                      color: completion < 1 ? "#747875": "#00a6fb",
                       backgroundColor: "#f3f3f4",
                       padding: "12px 48px",
                       fontSize: "1rem",
@@ -269,18 +273,26 @@ function SettingsSecond() {
                         color: "#f3f3f4",
                         backgroundColor: "#00a6fb",
                       },
+                      opacity: completion < 1 ? 0.5 : 1, // disable button if completion < 1
+                      pointerEvents: completion < 1 ? "none" : "auto", // disable button if completion < 1
                     }}
                   >
                     Menjalankan Kereta
                   </Button>
                   <Button
                     variant="text"
-                    onClick={() => handleClick("Menjalankan Kereta")} // Reset checkbox state on clicking Default button
+                    onClick={() =>{ 
+                      if (completion < 1) {
+                        return;
+                      }
+                      handleClick("Menjalankan Kereta")}} // Reset checkbox state on clicking Default button
                     sx={{
-                      color: "#00a6fb",
+                      color: completion < 1 ? "#747875": "#00a6fb",
                       padding: "12px ",
                       fontSize: "1rem",
                       borderColor: "#00a6fb",
+                      opacity: completion < 1 ? 0.5 : 1, // disable button if completion < 1
+                      pointerEvents: completion < 1 ? "none" : "auto", // disable button if completion < 1
                     }}
                   >
                     {checkedLRT === "Menjalankan Kereta" ? (
@@ -295,10 +307,13 @@ function SettingsSecond() {
                   <Button
                     variant="outlined"
                     onClick={() => {
+                      if (completion < 2) {
+                        return;
+                      }
                       handleClick("Mematikan Kereta");
                     }}
                     sx={{
-                      color: "#00a6fb",
+                      color: completion < 2 ? "#747875": "#00a6fb",
                       backgroundColor: "#f3f3f4",
                       padding: "12px 48px",
                       fontSize: "1rem",
@@ -306,18 +321,26 @@ function SettingsSecond() {
                         color: "#f3f3f4",
                         backgroundColor: "#00a6fb",
                       },
+                      opacity: completion < 2 ? 0.5 : 1, // disable button if completion < 2
+                      pointerEvents: completion < 2 ? "none" : "auto", // disable button if completion < 2
                     }}
                   >
                     Mematikan Kereta
                   </Button>
                   <Button
                     variant="text"
-                    onClick={() => handleClick("Mematikan Kereta")} // Reset checkbox state on clicking Default button
+                    onClick={() => {
+                      if (completion < 2) {
+                        return;
+                      }
+                      handleClick("Mematikan Kereta")}} // Reset checkbox state on clicking Default button
                     sx={{
-                      color: "#00a6fb",
+                      color: completion < 2 ? "#747875": "#00a6fb",
                       padding: "12px ",
                       fontSize: "1rem",
                       borderColor: "#00a6fb",
+                      opacity: completion < 2 ? 0.5 : 1, // disable button if completion < 2
+                      pointerEvents: completion < 2 ? "none" : "auto", // disable button if completion < 2
                     }}
                   >
                     {checkedLRT === "Mematikan Kereta" ? (
@@ -332,10 +355,13 @@ function SettingsSecond() {
                   <Button
                     variant="outlined"
                     onClick={() => {
+                      if (completion < 3) {
+                        return;
+                      }
                       handleClick("Keluar dari Depo");
                     }}
                     sx={{
-                      color: "#00a6fb",
+                      color: completion < 3 ? "#747875": "#00a6fb",
                       backgroundColor: "#f3f3f4",
                       padding: "12px 48px",
                       fontSize: "1rem",
@@ -343,18 +369,26 @@ function SettingsSecond() {
                         color: "#f3f3f4",
                         backgroundColor: "#00a6fb",
                       },
+                      opacity: completion < 3 ? 0.5 : 1, // disable button if completion < 3
+                      pointerEvents: completion < 3 ? "none" : "auto", // disable button if completion < 3
                     }}
                   >
                     Keluar dari Depo
                   </Button>
                   <Button
                     variant="text"
-                    onClick={() => handleClick("Keluar dari Depo")} // Reset checkbox state on clicking Default button
+                    onClick={() => {
+                      if (completion < 3) {
+                        return;
+                      }
+                      handleClick("Keluar dari Depo")}} // Reset checkbox state on clicking Default button
                     sx={{
-                      color: "#00a6fb",
+                      color: completion < 3 ? "#747875": "#00a6fb",
                       padding: "12px ",
                       fontSize: "1rem",
                       borderColor: "#00a6fb",
+                      opacity: completion < 3 ? 0.5 : 1, // disable button if completion < 3
+                      pointerEvents: completion < 3 ? "none" : "auto", // disable button if completion < 3
                     }}
                   >
                     {checkedLRT === "Keluar dari Depo" ? (
@@ -369,10 +403,13 @@ function SettingsSecond() {
                   <Button
                     variant="outlined"
                     onClick={() => {
+                      if (completion < 4) {
+                        return;
+                      }
                       handleClick("Masuk ke Depo");
                     }}
                     sx={{
-                      color: "#00a6fb",
+                      color: completion < 4 ? "#747875": "#00a6fb",
                       backgroundColor: "#f3f3f4",
                       padding: "12px 48px",
                       fontSize: "1rem",
@@ -380,6 +417,8 @@ function SettingsSecond() {
                         color: "#f3f3f4",
                         backgroundColor: "#00a6fb",
                       },
+                      opacity: completion < 4 ? 0.5 : 1, // disable button if completion < 4
+                      pointerEvents: completion < 4 ? "none" : "auto", // disable button if completion < 4
                     }}
                   >
                     Masuk ke Depo
@@ -388,10 +427,12 @@ function SettingsSecond() {
                     variant="text"
                     onClick={() => handleClick("Masuk ke Depo")} // Reset checkbox state on clicking Default button
                     sx={{
-                      color: "#00a6fb",
+                      color: completion < 4 ? "#747875": "#00a6fb",
                       padding: "12px ",
                       fontSize: "1rem",
                       borderColor: "#00a6fb",
+                      opacity: completion < 4 ? 0.5 : 1, // disable button if completion < 4
+                      pointerEvents: completion < 4 ? "none" : "auto", // disable button if completion < 4
                     }}
                   >
                     {checkedLRT === "Masuk ke Depo" ? (
@@ -406,10 +447,13 @@ function SettingsSecond() {
                   <Button
                     variant="outlined"
                     onClick={() => {
+                      if (completion < 5) {
+                        return;
+                      }
                       handleClick("Pindah Jalur");
                     }}
                     sx={{
-                      color: "#00a6fb",
+                      color: completion < 5 ? "#747875": "#00a6fb",
                       backgroundColor: "#f3f3f4",
                       padding: "12px 48px",
                       fontSize: "1rem",
@@ -417,6 +461,8 @@ function SettingsSecond() {
                         color: "#f3f3f4",
                         backgroundColor: "#00a6fb",
                       },
+                      opacity: completion < 5 ? 0.5 : 1, // disable button if completion < 5
+                      pointerEvents: completion < 5 ? "none" : "auto", // disable button if completion < 5
                     }}
                   >
                     Pindah Jalur
@@ -425,10 +471,12 @@ function SettingsSecond() {
                     variant="text"
                     onClick={() => handleClick("Pindah Jalur")} // Reset checkbox state on clicking Default button
                     sx={{
-                      color: "#00a6fb",
+                      color: completion < 5 ? "#747875": "#00a6fb",
                       padding: "12px ",
                       fontSize: "1rem",
                       borderColor: "#00a6fb",
+                      opacity: completion < 5 ? 0.5 : 1, // disable button if completion < 5
+                      pointerEvents: completion < 5 ? "none" : "auto", // disable button if completion < 5
                     }}
                   >
                     {checkedLRT === "Pindah Jalur" ? (
@@ -480,10 +528,13 @@ function SettingsSecond() {
                   <Button
                     variant="outlined"
                     onClick={() => {
+                      if (completion < 6) {
+                        return;
+                      }
                       handleClick("Kereta Anjlok");
                     }}
                     sx={{
-                      color: "#00a6fb",
+                      color: completion < 6 ? "#747875": "#00a6fb",
                       backgroundColor: "#f3f3f4",
                       padding: "12px 48px",
                       fontSize: "1rem",
@@ -491,6 +542,8 @@ function SettingsSecond() {
                         color: "#f3f3f4",
                         backgroundColor: "#00a6fb",
                       },
+                      opacity: completion < 6 ? 0.5 : 1, // disable button if completion < 6
+                      pointerEvents: completion < 6 ? "none" : "auto", // disable button if completion < 6
                     }}
                   >
                     Kereta Anjlok
@@ -499,10 +552,12 @@ function SettingsSecond() {
                     variant="text"
                     onClick={() => handleClick("Kereta Anjlok")} // Reset checkbox state on clicking Default button
                     sx={{
-                      color: "#00a6fb",
+                      color: completion < 6 ? "#747875": "#00a6fb",
                       padding: "12px ",
                       fontSize: "1rem",
                       borderColor: "#00a6fb",
+                      opacity: completion < 6 ? 0.5 : 1, // disable button if completion < 6
+                      pointerEvents: completion < 6 ? "none" : "auto", // disable button if completion < 6
                     }}
                   >
                     {checkedLRT === "Kereta Anjlok" ? (
@@ -599,10 +654,13 @@ function SettingsSecond() {
                   <Button
                     variant="outlined"
                     onClick={() => {
+                      if (completion < 1) {
+                        return;
+                      }
                       handleClick("Menjalankan Kereta");
                     }}
                     sx={{
-                      color: "#00a6fb",
+                      color: completion < 1 ? "#747875": "#00a6fb",
                       backgroundColor: "#f3f3f4",
                       padding: "12px 48px",
                       fontSize: "1rem",
@@ -610,6 +668,8 @@ function SettingsSecond() {
                         color: "#f3f3f4",
                         backgroundColor: "#00a6fb",
                       },
+                      opacity: completion < 1 ? 0.5 : 1, // disable button if completion < 1
+                      pointerEvents: completion < 1 ? "none" : "auto", // disable button if completion < 1
                     }}
                   >
                     Menjalankan Kereta
@@ -618,10 +678,12 @@ function SettingsSecond() {
                     variant="text"
                     onClick={() => handleClick("Menjalankan Kereta")} // Reset checkbox state on clicking Default button
                     sx={{
-                      color: "#00a6fb",
+                      color: completion < 1 ? "#747875": "#00a6fb",
                       padding: "12px ",
                       fontSize: "1rem",
                       borderColor: "#00a6fb",
+                      opacity: completion < 1 ? 0.5 : 1, // disable button if completion < 1
+                      pointerEvents: completion < 1 ? "none" : "auto", // disable button if completion < 1
                     }}
                   >
                     {checkedKCIC === "Menjalankan Kereta" ? (
@@ -636,10 +698,13 @@ function SettingsSecond() {
                   <Button
                     variant="outlined"
                     onClick={() => {
+                      if (completion < 2) {
+                        return;
+                      }
                       handleClick("Mematikan Kereta");
                     }}
                     sx={{
-                      color: "#00a6fb",
+                      color: completion < 2 ? "#747875": "#00a6fb",
                       backgroundColor: "#f3f3f4",
                       padding: "12px 48px",
                       fontSize: "1rem",
@@ -647,6 +712,8 @@ function SettingsSecond() {
                         color: "#f3f3f4",
                         backgroundColor: "#00a6fb",
                       },
+                      opacity: completion < 2 ? 0.5 : 1, // disable button if completion < 2
+                      pointerEvents: completion < 2 ? "none" : "auto", // disable button if completion < 2
                     }}
                   >
                     Mematikan Kereta
@@ -655,10 +722,12 @@ function SettingsSecond() {
                     variant="text"
                     onClick={() => handleClick("Mematikan Kereta")} // Reset checkbox state on clicking Default button
                     sx={{
-                      color: "#00a6fb",
+                      color: completion < 2 ? "#747875": "#00a6fb",
                       padding: "12px ",
                       fontSize: "1rem",
                       borderColor: "#00a6fb",
+                      opacity: completion < 2 ? 0.5 : 1, // disable button if completion < 2
+                      pointerEvents: completion < 2 ? "none" : "auto", // disable button if completion < 2
                     }}
                   >
                     {checkedKCIC === "Mematikan Kereta" ? (
@@ -673,10 +742,13 @@ function SettingsSecond() {
                   <Button
                     variant="outlined"
                     onClick={() => {
+                      if (completion < 3) {
+                        return;
+                      }
                       handleClick("Keluar dari Depo");
                     }}
                     sx={{
-                      color: "#00a6fb",
+                      color: completion < 3 ? "#747875": "#00a6fb",
                       backgroundColor: "#f3f3f4",
                       padding: "12px 48px",
                       fontSize: "1rem",
@@ -684,6 +756,8 @@ function SettingsSecond() {
                         color: "#f3f3f4",
                         backgroundColor: "#00a6fb",
                       },
+                      opacity: completion < 3 ? 0.5 : 1, // disable button if completion < 3
+                      pointerEvents: completion < 3 ? "none" : "auto", // disable button if completion < 3
                     }}
                   >
                     Keluar dari Depo
@@ -692,10 +766,12 @@ function SettingsSecond() {
                     variant="text"
                     onClick={() => handleClick("Keluar dari Depo")} // Reset checkbox state on clicking Default button
                     sx={{
-                      color: "#00a6fb",
+                      color: completion < 3 ? "#747875": "#00a6fb",
                       padding: "12px ",
                       fontSize: "1rem",
                       borderColor: "#00a6fb",
+                      opacity: completion < 3 ? 0.5 : 1, // disable button if completion < 3
+                      pointerEvents: completion < 3 ? "none" : "auto", // disable button if completion < 3
                     }}
                   >
                     {checkedKCIC === "Keluar dari Depo" ? (
@@ -710,10 +786,13 @@ function SettingsSecond() {
                   <Button
                     variant="outlined"
                     onClick={() => {
+                      if (completion < 4) {
+                        return;
+                      }
                       handleClick("Masuk ke Depo");
                     }}
                     sx={{
-                      color: "#00a6fb",
+                      color: completion < 4 ? "#747875": "#00a6fb",
                       backgroundColor: "#f3f3f4",
                       padding: "12px 48px",
                       fontSize: "1rem",
@@ -721,6 +800,8 @@ function SettingsSecond() {
                         color: "#f3f3f4",
                         backgroundColor: "#00a6fb",
                       },
+                      opacity: completion < 4 ? 0.5 : 1, // disable button if completion < 4
+                      pointerEvents: completion < 4 ? "none" : "auto", // disable button if completion < 4
                     }}
                   >
                     Masuk ke Depo
@@ -729,10 +810,12 @@ function SettingsSecond() {
                     variant="text"
                     onClick={() => handleClick("Masuk ke Depo")} // Reset checkbox state on clicking Default button
                     sx={{
-                      color: "#00a6fb",
+                      color: completion < 4 ? "#747875": "#00a6fb",
                       padding: "12px ",
                       fontSize: "1rem",
                       borderColor: "#00a6fb",
+                      opacity: completion < 4 ? 0.5 : 1, // disable button if completion < 4
+                      pointerEvents: completion < 4 ? "none" : "auto", // disable button if completion < 4
                     }}
                   >
                     {checkedKCIC === "Masuk ke Depo" ? (
@@ -747,10 +830,13 @@ function SettingsSecond() {
                   <Button
                     variant="outlined"
                     onClick={() => {
+                      if (completion < 5) {
+                        return;
+                      }
                       handleClick("Pindah Jalur");
                     }}
                     sx={{
-                      color: "#00a6fb",
+                      color: completion < 5 ? "#747875": "#00a6fb",
                       backgroundColor: "#f3f3f4",
                       padding: "12px 48px",
                       fontSize: "1rem",
@@ -758,6 +844,8 @@ function SettingsSecond() {
                         color: "#f3f3f4",
                         backgroundColor: "#00a6fb",
                       },
+                      opacity: completion < 5 ? 0.5 : 1, // disable button if completion < 5
+                      pointerEvents: completion < 5 ? "none" : "auto", // disable button if completion < 5
                     }}
                   >
                     Pindah Jalur
@@ -766,10 +854,12 @@ function SettingsSecond() {
                     variant="text"
                     onClick={() => handleClick("Pindah Jalur")} // Reset checkbox state on clicking Default button
                     sx={{
-                      color: "#00a6fb",
+                      color: completion < 5 ? "#747875": "#00a6fb",
                       padding: "12px ",
                       fontSize: "1rem",
                       borderColor: "#00a6fb",
+                      opacity: completion < 5 ? 0.5 : 1, // disable button if completion < 5
+                      pointerEvents: completion < 5 ? "none" : "auto", // disable button if completion < 5
                     }}
                   >
                     {checkedKCIC === "Pindah Jalur" ? (
@@ -821,10 +911,13 @@ function SettingsSecond() {
                   <Button
                     variant="outlined"
                     onClick={() => {
+                      if (completion < 6) {
+                        return;
+                      }
                       handleClick("Kereta Anjlok");
                     }}
                     sx={{
-                      color: "#00a6fb",
+                      color: completion < 6 ? "#747875": "#00a6fb",
                       backgroundColor: "#f3f3f4",
                       padding: "12px 48px",
                       fontSize: "1rem",
@@ -832,6 +925,8 @@ function SettingsSecond() {
                         color: "#f3f3f4",
                         backgroundColor: "#00a6fb",
                       },
+                      opacity: completion < 6 ? 0.5 : 1, // disable button if completion < 6
+                      pointerEvents: completion < 6 ? "none" : "auto", // disable button if completion < 6
                     }}
                   >
                     Kereta Anjlok
@@ -840,10 +935,12 @@ function SettingsSecond() {
                     variant="text"
                     onClick={() => handleClick("Kereta Anjlok")} // Reset checkbox state on clicking Default button
                     sx={{
-                      color: "#00a6fb",
+                      color: completion < 6 ? "#747875": "#00a6fb",
                       padding: "12px ",
                       fontSize: "1rem",
                       borderColor: "#00a6fb",
+                      opacity: completion < 6 ? 0.5 : 1, // disable button if completion < 6
+                      pointerEvents: completion < 6 ? "none" : "auto", // disable button if completion < 6
                     }}
                   >
                     {checkedKCIC === "Kereta Anjlok" ? (

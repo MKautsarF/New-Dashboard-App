@@ -44,6 +44,7 @@ interface RowData {
   id: string;
   name: string;
   nip: string;
+  complition: number;
 }
 
 function useQuery() {
@@ -65,6 +66,7 @@ function Database() {
     id: "",
     name: "",
     nip: "",
+    complition: 3,
   });
   const [isLoading, setIsLoading] = useState(false);
 
@@ -79,6 +81,7 @@ function Database() {
   const [nama, setNama] = useState("");
   const [email, setEmail] = useState("");
   const [nip, setNip] = useState("");
+  const [complition, setComplition] = useState(0);
   const [code, setCode] = useState("");
   const [position, setPosition] = useState("");
   const [birthDate, setBirthDate] = useState<Dayjs | null>(null);
@@ -102,6 +105,7 @@ function Database() {
     nip: "",
     born: "",
     position: "",
+    complition: 2,
   });
   const [newBirthDate, setNewBirthDate] = useState<Dayjs | null>(null);
 
@@ -136,10 +140,11 @@ function Database() {
       currentPeserta.id = selectedPeserta.id;
       currentPeserta.name = selectedPeserta.name;
       currentPeserta.nip = selectedPeserta.nip;
+      currentPeserta.complition = selectedPeserta.complition;
       await getSubmissionList(1, 5, selectedPeserta.id);
       console.log("getting log for user: " + selectedPeserta.id);
 
-      navigate("/userlog");
+      navigate("/FourthPage/UserLog");
     } catch (e) {
       console.error(e);
     } finally {
@@ -158,6 +163,7 @@ function Database() {
           name: userData.name,
           nip: userData.username,
           bio: userData.bio,
+          complition: 2,
         },
       });
 
@@ -225,6 +231,7 @@ function Database() {
             id: res.id,
             name: res.name,
             nip: res.username,
+            complition: 3,
           },
         ].concat(rows)
       );
@@ -273,6 +280,7 @@ function Database() {
         id: data.id,
         name: data.name,
         nip: data.username,
+        complition: 3,
       }));
 
       setRows(resRows);
@@ -325,6 +333,7 @@ function Database() {
           id: data.id,
           name: data.name,
           nip: data.username,
+          complition: 3,
         }));
         setRows(resRows);
         setTotalData(res.total);
@@ -352,17 +361,17 @@ function Database() {
           </h1>
 
           {/* Tabel */}
-          <div className="flex flex-col h-full w-full gap-4">
+          <div className="flex flex-col h-full w-full gap-1">
             {/* Search bar */}
             <Box
               component="form"
               onSubmit={handleSubmit}
-              className="flex gap-4 w-full "
+              className="flex gap-4 w-full mb-3"
             >
               <Button
                 type="button"
                 variant="contained"
-                // className="my-4"
+                className="h-[56px]"
                 onClick={() => handleDaftar()}
                 startIcon={<PersonAdd />}
                 sx={{
@@ -397,7 +406,7 @@ function Database() {
               <Button
                 type="submit"
                 variant="outlined"
-                className="w-20 "
+                className="w-20 h-[56px]"
                 sx={{
                   color: "#00a6fb",
                   backgroundColor: "#ffffff",
@@ -418,13 +427,15 @@ function Database() {
               <Table stickyHeader aria-label="Tabel Peserta">
                 <colgroup>
                   <col width="50%" />
-                  <col width="30%" />
+                  <col width="20%" />
+                  <col width="10%" />
                   <col width="20%" />
                 </colgroup>
                 <TableHead>
                   <TableRow>
                     <TableCell>Nama</TableCell>
                     <TableCell>NIP</TableCell>
+                    <TableCell>Complition</TableCell>
                     <TableCell></TableCell>
                   </TableRow>
                 </TableHead>
@@ -443,6 +454,7 @@ function Database() {
                       >
                         <TableCell>{row.name}</TableCell>
                         <TableCell>{row.nip}</TableCell>
+                        <TableCell>{row.complition}/7</TableCell>
                         <TableCell align="right">
                           <div className="flex gap-2">
                             <Button
@@ -454,6 +466,7 @@ function Database() {
                                   id: row.id,
                                   name: row.name,
                                   nip: row.nip,
+                                  complition: row.complition,
                                 });
                               }}
                               sx={{
@@ -487,13 +500,14 @@ function Database() {
                               variant={
                                 selectedPeserta.nip === row.nip
                                   ? "outlined"
-                                  : "text"
+                                  : "text"  
                               }
                               onClick={() =>
                                 setSelectedPeserta({
                                   id: row.id,
                                   name: row.name,
                                   nip: row.nip,
+                                  complition: row.complition,
                                 })
                               }
                               className="w-20 ml-2"
@@ -632,6 +646,9 @@ function Database() {
                 nip: peserta.bio === null ? "" : peserta.bio.officialCode,
                 born: peserta.bio === null ? "" : peserta.bio.born,
                 position: peserta.bio === null ? "" : peserta.bio.position,
+                // complition: peserta.complition === null ? 3 : peserta.complition,
+                // testing
+                complition: 3,
               });
               setNewBirthDate(
                 peserta.bio === null ? null : dayjs(peserta.bio.born)

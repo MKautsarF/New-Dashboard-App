@@ -12,6 +12,7 @@ import {
 } from "@mui/material";
 import { AddBox, Delete, Visibility, VisibilityOff } from "@mui/icons-material";
 import Container from "@/components/Container";
+import ConfirmationModal from "@/components/ConfirmationModal";
 // import { default as sourceLRT } from "C:/Train Simulator/Data/MockJSON_KRL.json";
 import { flushSync } from "react-dom";
 import fs from "fs";
@@ -29,6 +30,7 @@ function useQuery() {
 
 function EditLRT() {
   // const jsonPath = "C:/Train Simulator/Data/MockJSON_MRT.json";
+  const [modalOpen, setModalOpen] = useState(false);
   const query = useQuery();
 
   const settingsType = query.get("type");
@@ -133,6 +135,19 @@ function EditLRT() {
   useEffect(() => {
     setJsonToWrite(jsonToWrite);
   }, [jsonToWrite]);
+
+  const handleModalOpen = () => {
+    setModalOpen(true);
+  }
+
+  const handleModalClose = () => {
+    setModalOpen(false);
+  }
+
+  const handleConfirm = () => {
+    document.getElementById('penilaian-form')?.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+    setModalOpen(false);
+  }
 
   return (
     <>
@@ -516,10 +531,8 @@ function EditLRT() {
                 </Button>
                 <Button
                   variant="text"
-                  type="submit"
-                  form="penilaian-form"
                   onClick={() => {
-                    handleSubmit;
+                    handleModalOpen();
                   }}
                   sx={{
                     color: "#00a6fb",
@@ -533,6 +546,13 @@ function EditLRT() {
               </div>
             </div>
           </div>
+          <ConfirmationModal
+            open={modalOpen}
+            onClose={handleModalClose}
+            onConfirm={handleConfirm}
+            type="edit"
+            item=""
+          />
         </div>
 
         <footer ref={bottom}></footer>

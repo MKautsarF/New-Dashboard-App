@@ -45,8 +45,8 @@ function Simulation() {
             <div
               className="box gap-6 flex "
               style={{
-                height: "250px",
-                width: "750px",
+                height: "200px",
+                width: "700px",
                 transition: "transform 0.3s",
                 color: isHovered ? "#f3f3f4" : "#000000",
                 borderColor: isHovered ? "transparent" : "rgba(0, 0, 0, 0.2)",
@@ -76,8 +76,8 @@ function Simulation() {
             <div
               className="box gap-6 flex "
               style={{
-                height: "250px",
-                width: "750px",
+                height: "200px",
+                width: "700px",
                 transition: "transform 0.3s",
                 color: isHovered2 ? "#f3f3f4" : "#000000",
                 borderColor: isHovered2 ? "transparent" : "rgba(0, 0, 0, 0.2)",

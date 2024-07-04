@@ -111,7 +111,7 @@ function AppMenu() {
       await getSubmissionList(1, 5, selectedPeserta.id);
       console.log("getting log for user: " + selectedPeserta.id);
 
-      navigate("/userlog");
+      navigate("/FourthPage/UserLog");
     } catch (e) {
       console.error(e);
     } finally {
@@ -223,8 +223,8 @@ function AppMenu() {
 
   const [selectedValue, setSelectedValue] = useState("Default");
   const [selectedValue2, setSelectedValue2] = useState("Default");
-  const [selectedValue3, setSelectedValue3] = useState("normal");
-  const [selectedValue4, setSelectedValue4] = useState("normal");
+  const [selectedValue3, setSelectedValue3] = useState("Eksplorasi");
+  const [selectedValue4, setSelectedValue4] = useState("Eksplorasi");
 
   useEffect(() => {
     // Retrieve the last selected value from localStorage
@@ -912,7 +912,7 @@ function AppMenu() {
           <div className="flex flex-grow">
             <div className="relative flex flex-grow">
               <div
-                className="box gap-6 flex flex-col flex-grow"
+                className="box gap-6 flex flex-col flex-grow px-5"
                 style={{ backgroundColor: "#ffffff" }}
                 onMouseEnter={() => handleMouseEnter(5)}
                 onMouseLeave={handleMouseLeave}
@@ -960,7 +960,7 @@ function AppMenu() {
           <div className="flex flex-grow">
             <div className="relative flex flex-grow">
               <div
-                className="box gap-6 flex flex-col flex-grow"
+                className="box gap-6 flex flex-col flex-grow px-5"
                 style={{ backgroundColor: "#ffffff" }}
                 onMouseEnter={() => handleMouseEnter(6)}
                 onMouseLeave={handleMouseLeave}
@@ -980,6 +980,8 @@ function AppMenu() {
                       borderColor: "#00a6fb",
                       backgroundColor: "#ffffff",
                       fontSize: "1rem", // Adjust the font size as needed
+                      overflow: "hidden", // Hide the overflow content
+                      textOverflow: "ellipsis", // Display ellipsis for overflow content
                       "&:hover": {
                         borderColor: "#ffffff",
                         color: "#ffffff",
@@ -987,7 +989,7 @@ function AppMenu() {
                       },
                     }}
                     startIcon={<Settings className="text-3xl" />}
-                    className="flex items-center"
+                    className="flex items-center max-w-[200px]"
                   >
                     {selectedValue3}
                   </Button>
@@ -1007,7 +1009,7 @@ function AppMenu() {
           <div className="flex flex-grow">
             <div className="relative flex flex-grow">
               <div
-                className="box gap-6 flex flex-col flex-grow"
+                className="box gap-6 flex flex-col flex-grow px-5"
                 style={{ backgroundColor: "#ffffff" }}
                 onMouseEnter={() => handleMouseEnter(3)}
                 onMouseLeave={handleMouseLeave}
@@ -1025,7 +1027,10 @@ function AppMenu() {
                       color: "#00a6fb",
                       borderColor: "#00a6fb",
                       backgroundColor: "#ffffff",
+                      maxWidth: "200px", // Set the maximum width
                       fontSize: "1rem", // Adjust the font size as needed
+                      overflow: "hidden", // Hide the overflow content
+                      textOverflow: "ellipsis", // Display ellipsis for overflow content
                       "&:hover": {
                         borderColor: "#ffffff",
                         color: "#ffffff",
@@ -1071,8 +1076,11 @@ function AppMenu() {
                     sx={{
                       color: "#00a6fb",
                       borderColor: "#00a6fb",
+                      maxWidth: "200px", // Set the maximum width
                       backgroundColor: "#ffffff",
                       fontSize: "1rem", // Adjust the font size as needed
+                      overflow: "hidden", // Hide the overflow content
+                      textOverflow: "ellipsis", // Display ellipsis for overflow content
                       "&:hover": {
                         borderColor: "#ffffff",
                         color: "#ffffff",

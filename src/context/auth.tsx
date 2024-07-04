@@ -145,6 +145,7 @@ export const currentPeserta = {
   id: '',
   name: '',
   nip: '',
+  complition: 0,
 };
 
 export const currentSubmission = {

@@ -139,7 +139,7 @@ function Settings() {
       speed_buzzer: settings.useSpeedBuzzer,
       speed_limit: settings.speedLimit,
       status: "play",
-      module: "Normal",
+      module: "Eksplorasi",
     };
 
     console.log(payload);
@@ -180,9 +180,9 @@ function Settings() {
 
     // assign module
     if (trainType === "lrt") {
-      localStorage.setItem("valueSettingsLRT", "Normal");
+      localStorage.setItem("valueSettingsLRT", "Eksplorasi");
     } else if (trainType === "kcic") {
-      localStorage.setItem("valueSettingsKCIC", "Normal");
+      localStorage.setItem("valueSettingsKCIC", "Eksplorasi");
     }
   }, [settings]);
 
