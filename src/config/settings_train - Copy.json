@@ -1,0 +1,83 @@
+{
+  "kcic": {
+    "jenis": [
+      "6 Rangkaian Kereta",
+      "8 Rangkaian Kereta",
+      "10 Rangkaian Kereta",
+      "12 Rangkaian Kereta"
+    ],
+    "rute": {
+      "Halim Line": {
+        "Halim": ["Karawang", "Padalarang", "Tegal Luar", "Tegal Luar Depot"],
+        "Tegal Luar Depot": ["Tegal Luar", "Padalarang", "Karawang", "Halim"]
+      }
+    },
+    "score": ["Default"]
+  },
+  "lrt": {
+    "jenis": ["12 Rangkaian Kereta"],
+    "rute": {
+      "Jati Mulya Line": {
+        "Jati Mulya": [
+          "Bekasi Barat",
+          "Cikunir 2",
+          "Cikunir 1",
+          "Jati Bening Baru",
+          "Halim",
+          "Cawang",
+          "Ciliwung",
+          "Cikoko",
+          "Pancoran",
+          "Kuningan",
+          "Rasuna Said",
+          "Setiabudi",
+          "Dukuh Atas"
+        ],
+        "Dukuh Atas": [
+          "Setiabudi",
+          "Rasuna Said",
+          "Kuningan",
+          "Pancoran",
+          "Cikoko",
+          "Ciliwung",
+          "Cawang",
+          "Halim",
+          "Jati Bening Baru",
+          "Cikunir 1",
+          "Cikunir 2",
+          "Bekasi Barat",
+          "Jati Mulya"
+        ]
+      },
+      "Harjamukti Line": {
+        "Harjamukti": [
+          "Ciracas",
+          "Kampung Rambutan",
+          "TMII",
+          "Cawang",
+          "Ciliwung",
+          "Cikoko",
+          "Pancoran",
+          "Kuningan",
+          "Rasuna Said",
+          "Setiabudi",
+          "Dukuh Atas"
+        ],
+        "Dukuh Atas": [
+          "Setiabudi",
+          "Rasuna Said",
+          "Kuningan",
+          "Pancoran",
+          "Cikoko",
+          "Ciliwung",
+          "Cawang",
+          "TMII",
+          "Kampung Rambutan",
+          "Ciracas",
+          "Harjamukti"
+        ]
+      }
+    },
+    "score": ["Default"]
+  }
+}

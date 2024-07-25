@@ -287,37 +287,56 @@ function AppMenu() {
   };
 
   const handleConfirmationYes = async () => {
+    // set trainee data
+    const userData = await getUserById(selectedPeserta.id);
+    setSettings({
+      ...settings,
+      trainee: {
+        name: userData.name,
+        nip: userData.username,
+        bio: userData.bio,
+        complition: 2,
+      },
+    });
+
+    let type = settings.kereta || "6 Rangkaian";
+    let time = "12"; // settings.waktu
+    let weather = settings.statusHujan;
+    let fogValue = settings.fog;
+    let stasiunAsal = settings.stasiunAsal || "Harjamukti";
+    let stasiunTujuan = settings.stasiunTujuan || "TMII";
+
     const payload = {
       // module: modul,
       train_type: "LRT",
       train: {
-        weight: "72",
-        type: "12 Rangkaian Kereta",
+        weight: settings.berat.toString(),
+        type: type,
       },
-      time: "12",
+      time: time, // ganti
       weather: [
         {
-          value: "Cerah",
+          value: weather,
           location: [0, 0],
           name: "rain",
         },
         {
-          value: 0,
+          value: fogValue,
           location: [0, 0],
           name: "fog",
         },
       ],
       route: {
         start: {
-          name: "Harjamukti",
+          name: stasiunAsal,
         },
         finish: {
-          name: "TMII",
+          name: stasiunTujuan,
         },
       },
       motion_base: false,
       speed_buzzer: false,
-      speed_limit: 70,
+      speed_limit: settings.speedLimit,
       status: "play",
       module: `${selectedValue3}`,
     };
@@ -352,34 +371,53 @@ function AppMenu() {
   };
 
   const handleConfirmationYesKcic = async () => {
-    let weather = "";
-    let fogValue = 0;
+    let type = settings.kereta || "6 Rangkaian";
+    let time = "12"; // settings.waktu
+    let weather = settings.statusHujan;
+    let fogValue = settings.fog;
+    let stasiunAsal = settings.stasiunAsal || "Halim";
+    let stasiunTujuan = settings.stasiunTujuan || "Padalarang";
 
-    // section untuk mengganti payload tergantung dg module
-    const payloadDictionary: { [key: string]: () => void } = {
-      "Menyalakan Kereta": () => {
-        weather = "Ringan";
-        fogValue = 100;
-      },
-      "Menjalankan Kereta": () => {
-        weather = "Sedang";
-        fogValue = 200;
-      },
-    };
+    // // section untuk mengganti payload tergantung dg module
+    // const payloadDictionary: { [key: string]: () => void } = {
+    //   "Menyalakan Kereta": () => {
+    //     weather = "Ringan";
+    //     fogValue = 100;
+    //   },
+    //   "Menjalankan Kereta": () => {
+    //     weather = "Sedang";
+    //     fogValue = 200;
+    //   },
+    // };
 
-    // Run the function corresponding to the selected value of selectedValue4
-    if (payloadDictionary[selectedValue4 as keyof typeof payloadDictionary]) {
-      payloadDictionary[selectedValue4 as keyof typeof payloadDictionary](); // This line executes the function to set the weather
-    }
+    // // Run the function corresponding to the selected value of selectedValue4
+    // if (payloadDictionary[selectedValue4 as keyof typeof payloadDictionary]) {
+    //   payloadDictionary[selectedValue4 as keyof typeof payloadDictionary](); // This line executes the function to set the weather
+    // }
+
+    // set trainee data
+    const userData = await getUserById(selectedPeserta.id);
+    setSettings({
+      ...settings,
+      trainee: {
+        name: userData.name,
+        nip: userData.username,
+        bio: userData.bio,
+        complition: 2,
+      },
+    });
+
+    currentPeserta.id = userData.id; // owner id for use in submission
+
     // make dictionary to swap values in the payload depending on the selectedvalue4 (module)
     const payload = {
       // module: modul,
       train_type: "KCIC",
       train: {
-        weight: "72",
-        type: "12 Rangkaian Kereta",
+        weight: settings.berat.toString(),
+        type: type,
       },
-      time: "12",
+      time: time, // ganti
       weather: [
         {
           value: weather,
@@ -394,19 +432,20 @@ function AppMenu() {
       ],
       route: {
         start: {
-          name: "Harjamukti",
+          name: stasiunAsal,
         },
         finish: {
-          name: "TMII",
+          name: stasiunTujuan,
         },
       },
       motion_base: false,
       speed_buzzer: false,
-      speed_limit: 70,
+      speed_limit: settings.speedLimit,
       status: "play",
       module: `${selectedValue4}`,
     };
 
+    console.log(userData);
     console.log(payload);
 
     try {

@@ -29,6 +29,23 @@ interface Settings {
   trainee: Trainee | null;
 }
 
+interface SettingsKCIC {
+  berat: number;
+  kereta: string;
+  line: string;
+  score: string;
+  stasiunAsal: string;
+  stasiunTujuan: string;
+  statusHujan: string;
+  fog: number;
+  jarakPandang: number;
+  useMotionBase: boolean;
+  useSpeedBuzzer: boolean;
+  speedLimit: number;
+  waktu: Dayjs;
+  trainee: Trainee | null;
+}
+
 // Define the shape of your context
 interface SettingsContextType {
   settings: Settings;
