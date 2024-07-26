@@ -1,9 +1,10 @@
-import { default as dashboardJson } from "./dashboard-config.json";
+// import { default as dashboardJson } from "./dashboard-config.json";
+import { default as dashboardJson } from "./dashboard-config - Copy.json";
 
 // export const config = JSON.parse(JSON.stringify(dashboardJson));
 import * as fs from "fs";
 
-const dashboardPath = "C:/Train Simulator/Data/dashboard-config.json";
+const dashboardPath = "C:/Train Simulator/Data/dashboard-config - Copy.json";
 
 // Function to read the JSON file dynamically
 function readDashboardConfig(): any {
@@ -11,9 +12,7 @@ function readDashboardConfig(): any {
     // Check if the file exists
     if (fs.existsSync(dashboardPath)) {
       const rawData = fs.readFileSync(dashboardPath, "utf-8");
-      console.log(
-        'Success reading "C:/Train Simulator/Data/dashboard-config.json"'
-      );
+      console.log(`Success reading ${dashboardPath}`);
       return JSON.parse(rawData);
     } else {
       console.log("File does not exist, creating from default config...");

@@ -37,7 +37,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
 import App from "./app";
-import { SettingsProvider } from "./context/settings";
+import { SettingsProvider, SettingsProviderKCIC } from "./context/settings";
 
 const rootElement = document.getElementById("root");
 const root = createRoot(rootElement);
@@ -72,7 +72,9 @@ root.render(
     <ThemeProvider theme={theme}>
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <SettingsProvider>
-          <App />
+          <SettingsProviderKCIC>
+            <App />
+          </SettingsProviderKCIC>
         </SettingsProvider>
       </LocalizationProvider>
     </ThemeProvider>

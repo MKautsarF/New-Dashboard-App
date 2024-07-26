@@ -37,7 +37,7 @@ import {
   socketClients,
 } from "@/socket";
 import dayjs from "dayjs";
-import { useSettings } from "../context/settings";
+import { useSettings, useSettingsKCIC } from "../context/settings";
 import { useAuth } from "../context/auth";
 import { EditNoteRounded, EditNoteSharp, Stop } from "@mui/icons-material";
 // const fs = require("fs");

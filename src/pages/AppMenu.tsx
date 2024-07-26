@@ -37,7 +37,10 @@ import { getSubmissionList } from "../services/submission.services";
 import { currentPeserta } from "../context/auth";
 import dayjs, { Dayjs } from "dayjs";
 import SearchIcon from "@mui/icons-material/Search";
-import { useSettings } from "../context/settings";
+import {
+  useSettings as useLRTSettings,
+  useSettingsKCIC as useKCICSettings,
+} from "../context/settings";
 import { sendTextToClients } from "@/socket";
 
 import lrtPng from "@/static/lrt.png";
@@ -49,7 +52,10 @@ function AppMenu() {
 
   const navigate = useNavigate();
 
-  const { settings, setSettings } = useSettings();
+  const { settings: LRTSettings, setSettings: setLRTSettings } =
+    useLRTSettings();
+  const { settingsKCIC: KCICSettings, setSettingsKCIC: setKCICSettings } =
+    useKCICSettings();
 
   const handlePrev = () => {
     navigate("/FirstPage");
@@ -287,10 +293,11 @@ function AppMenu() {
   };
 
   const handleConfirmationYes = async () => {
+    // const { settings, setSettings } = useLRTSettings();
     // set trainee data
     const userData = await getUserById(selectedPeserta.id);
-    setSettings({
-      ...settings,
+    setLRTSettings({
+      ...LRTSettings,
       trainee: {
         name: userData.name,
         nip: userData.username,
@@ -299,18 +306,18 @@ function AppMenu() {
       },
     });
 
-    let type = settings.kereta || "6 Rangkaian";
+    let type = LRTSettings.kereta || "6 Rangkaian";
     let time = "12"; // settings.waktu
-    let weather = settings.statusHujan;
-    let fogValue = settings.fog;
-    let stasiunAsal = settings.stasiunAsal || "Harjamukti";
-    let stasiunTujuan = settings.stasiunTujuan || "TMII";
+    let weather = LRTSettings.statusHujan;
+    let fogValue = LRTSettings.fog;
+    let stasiunAsal = LRTSettings.stasiunAsal || "Harjamukti";
+    let stasiunTujuan = LRTSettings.stasiunTujuan || "TMII";
 
     const payload = {
       // module: modul,
       train_type: "LRT",
       train: {
-        weight: settings.berat.toString(),
+        weight: LRTSettings.berat.toString(),
         type: type,
       },
       time: time, // ganti
@@ -336,7 +343,7 @@ function AppMenu() {
       },
       motion_base: false,
       speed_buzzer: false,
-      speed_limit: settings.speedLimit,
+      speed_limit: LRTSettings.speedLimit,
       status: "play",
       module: `${selectedValue3}`,
     };
@@ -371,12 +378,14 @@ function AppMenu() {
   };
 
   const handleConfirmationYesKcic = async () => {
-    let type = settings.kereta || "6 Rangkaian";
+    // const { settings, setSettings } = useSettingsKCIC();
+
+    let type = KCICSettings.kereta || "6 Rangkaian";
     let time = "12"; // settings.waktu
-    let weather = settings.statusHujan;
-    let fogValue = settings.fog;
-    let stasiunAsal = settings.stasiunAsal || "Halim";
-    let stasiunTujuan = settings.stasiunTujuan || "Padalarang";
+    let weather = KCICSettings.statusHujan;
+    let fogValue = KCICSettings.fog;
+    let stasiunAsal = KCICSettings.stasiunAsal || "Halim";
+    let stasiunTujuan = KCICSettings.stasiunTujuan || "Padalarang";
 
     // // section untuk mengganti payload tergantung dg module
     // const payloadDictionary: { [key: string]: () => void } = {
@@ -397,8 +406,8 @@ function AppMenu() {
 
     // set trainee data
     const userData = await getUserById(selectedPeserta.id);
-    setSettings({
-      ...settings,
+    setKCICSettings({
+      ...KCICSettings,
       trainee: {
         name: userData.name,
         nip: userData.username,
@@ -414,7 +423,7 @@ function AppMenu() {
       // module: modul,
       train_type: "KCIC",
       train: {
-        weight: settings.berat.toString(),
+        weight: KCICSettings.berat.toString(),
         type: type,
       },
       time: time, // ganti
@@ -440,7 +449,7 @@ function AppMenu() {
       },
       motion_base: false,
       speed_buzzer: false,
-      speed_limit: settings.speedLimit,
+      speed_limit: KCICSettings.speedLimit,
       status: "play",
       module: `${selectedValue4}`,
     };

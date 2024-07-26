@@ -37,7 +37,7 @@ import {
   socketClients,
 } from "@/socket";
 import dayjs from "dayjs";
-import { useSettings } from "../context/settings";
+import { useSettings, useSettingsKCIC } from "../context/settings";
 import { useAuth } from "../context/auth";
 import {
   EditNoteRounded,
@@ -79,7 +79,7 @@ function ReviewKCIC() {
   const ExcelJS = require("exceljs");
   const navigate = useNavigate();
   const { instructor } = useAuth();
-  const { settings } = useSettings();
+  const { settingsKCIC } = useSettingsKCIC();
   // const [json, setJson] = useState<any>(null);
 
   const [simulation, setSimulation] = useState(true);
@@ -149,22 +149,25 @@ function ReviewKCIC() {
       jsonToWrite.tanggal = startTime.format("DD/MM/YYYY");
 
       // * Crew data
-      jsonToWrite.nama_crew = settings.trainee.name;
+      jsonToWrite.nama_crew = settingsKCIC.trainee.name;
       jsonToWrite.kedudukan =
-        (settings.trainee.bio && settings.trainee.bio.position) || "";
+        (settingsKCIC.trainee.bio && settingsKCIC.trainee.bio.position) || "";
       jsonToWrite.usia = `${
-        settings.trainee.bio && settings.trainee.bio.born
-          ? Math.abs(dayjs(settings.trainee.bio.born).diff(dayjs(), "years"))
+        settingsKCIC.trainee.bio && settingsKCIC.trainee.bio.born
+          ? Math.abs(
+              dayjs(settingsKCIC.trainee.bio.born).diff(dayjs(), "years")
+            )
           : "-"
       } tahun`;
       jsonToWrite.kode_kedinasan =
-        (settings.trainee.bio && settings.trainee.bio.officialCode) || "";
+        (settingsKCIC.trainee.bio && settingsKCIC.trainee.bio.officialCode) ||
+        "";
 
       // * Train data
       jsonToWrite.train_type = "KCIC";
       jsonToWrite.no_ka = "";
       jsonToWrite.lintas =
-        settings.stasiunAsal + " - " + settings.stasiunTujuan;
+        settingsKCIC.stasiunAsal + " - " + settingsKCIC.stasiunTujuan;
 
       // * Instructor data
       jsonToWrite.nama_instruktur = instructor.name;
