@@ -58,37 +58,6 @@ function Modul() {
                 height: "250px",
                 width: "750px",
                 transition: "transform 0.3s",
-                color: isHovered ? "#f3f3f4" : "#000000",
-                borderColor: isHovered ? "transparent" : "rgba(0, 0, 0, 0.2)",
-                backgroundColor: isHovered ? "#00a6fb" : "#f3f3f4",
-                boxShadow: isHovered
-                  ? "0 0 10px rgba(0, 0, 0, 0.5)"
-                  : "0 0 10px rgba(0, 0, 0, 0.25)",
-                cursor: isHovered ? "pointer" : "default",
-                borderRadius: "10px",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = "scale(1.1)";
-                setIsHovered(true);
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = "scale(1)";
-                setIsHovered(false);
-              }}
-              onClick={handleEksplorasi} // Call handleNext when clicked
-            >
-              <EditNote style={{ fontSize: 75 }} />
-              <h1>Eksplorasi</h1>
-            </div>
-          </div>
-
-          <div className="flex flex-col pl-8 pb-8 pr-8 justify-center items-center">
-            <div
-              className="box gap-6 flex "
-              style={{
-                height: "250px",
-                width: "750px",
-                transition: "transform 0.3s",
                 color: isHovered2 ? "#f3f3f4" : "#000000",
                 borderColor: isHovered2 ? "transparent" : "rgba(0, 0, 0, 0.2)",
                 backgroundColor: isHovered2 ? "#00a6fb" : "#f3f3f4",
@@ -110,6 +79,36 @@ function Modul() {
             >
               <School style={{ fontSize: 75 }} />
               <h1>Learning</h1>
+            </div>
+          </div>
+          <div className="flex flex-col pl-8 pb-8 pr-8 justify-center items-center">
+            <div
+              className="box gap-6 flex "
+              style={{
+                height: "250px",
+                width: "750px",
+                transition: "transform 0.3s",
+                color: isHovered ? "#f3f3f4" : "#000000",
+                borderColor: isHovered ? "transparent" : "rgba(0, 0, 0, 0.2)",
+                backgroundColor: isHovered ? "#00a6fb" : "#f3f3f4",
+                boxShadow: isHovered
+                  ? "0 0 10px rgba(0, 0, 0, 0.5)"
+                  : "0 0 10px rgba(0, 0, 0, 0.25)",
+                cursor: isHovered ? "pointer" : "default",
+                borderRadius: "10px",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = "scale(1.1)";
+                setIsHovered(true);
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = "scale(1)";
+                setIsHovered(false);
+              }}
+              onClick={handleEksplorasi} // Call handleNext when clicked
+            >
+              <EditNote style={{ fontSize: 75 }} />
+              <h1>Eksplorasi</h1>
             </div>
           </div>
         </div>
