@@ -108,6 +108,7 @@ const InstructorList = () => {
 
   const [deletePrompt, setDeletePrompt] = useState(false);
   const [passwordPrompt, setPasswordPrompt] = useState(false);
+  const [reload, setReload] = useState(false);
 
   const [showPassword, setShowPassword] = useState(false);
   // const [inputError, setInputError] = useState(false);
@@ -384,6 +385,7 @@ const InstructorList = () => {
 
       setEditPrompt(false);
       toast.success("Data peserta berhasil diubah", { position: "top-center" });
+      setReload(!reload);
     } catch (e) {
       const errMsg = e.response.data.errorMessage;
       toast.error(errMsg, { position: "top-center" });
@@ -395,14 +397,15 @@ const InstructorList = () => {
       try {
         setIsLoading(true);
         const res = await getInstructorList(page, 5);
+        console.log('tes', res.results)
 
         const resRows: RowData[] = [];
         for (let entry of res.results) {
-          const user = await getUserByIdAsAdmin(entry.id);
           const row: RowData = {
-            id: user.id,
-            name: user.name,
-            nip: user.bio === null ? "" : user.bio.officialCode,
+            id: entry.id,
+            name: entry.name,
+            nip: entry.bio.nip, 
+            // nip: entry.username
           };
           console.log(row);
 
@@ -427,7 +430,7 @@ const InstructorList = () => {
     }
 
     getRows(page);
-  }, [page]);
+  }, [page, reload]);
 
   return (
     <Container w={1000} h={700}>
@@ -631,7 +634,7 @@ const InstructorList = () => {
                               });
                               setDeletePrompt(true);
 
-                              console.log(row.name);
+                              // console.log(row.name);
                             }}
                           >
                             <Delete />

@@ -95,6 +95,8 @@ const TraineeList = () => {
   const [page, setPage] = useState(1);
 
   const [deletePrompt, setDeletePrompt] = useState(false);
+  const [reload, setReload] = useState(false);
+
 
   const [editPrompt, setEditPrompt] = useState(false);
   const [detailPeserta, setDetailPeserta] = useState({
@@ -336,6 +338,7 @@ const TraineeList = () => {
 
       setEditPrompt(false);
       toast.success("Data peserta berhasil diubah", { position: "top-center" });
+      setReload(!reload);
     } catch (e) {
       const errMsg = e.response.data.errorMessage;
       toast.error(errMsg, { position: "top-center" });
@@ -350,7 +353,8 @@ const TraineeList = () => {
         const resRows = res.results.map((data: any) => ({
           id: data.id,
           name: data.name,
-          nip: data.username,
+          nip: data.bio.nip,
+          //nip: data.username  
         }));
         setRows(resRows);
         setTotalData(res.total);
@@ -362,7 +366,7 @@ const TraineeList = () => {
     }
 
     getRows(page);
-  }, [page]);
+  }, [page, reload]);
 
   return (
     <Container w={1000} h={700}>

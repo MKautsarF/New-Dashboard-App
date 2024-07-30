@@ -7,7 +7,7 @@ import { Title } from "@mui/icons-material";
 
 const Logo = () => {
   return (
-    <div className="flex gap-2 items-center justify-center ml-4">
+    <div className="flex gap-2 items-center justify-center">
       {/* <img src={mot} alt="MoT Logo" width={100} height={117} /> */}
       {/* <img src={bptp} alt="BPTP Logo" width={158} height={158} /> */}
       <img src={newlogo} alt="New Logo" height={130} />

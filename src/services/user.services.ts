@@ -2,7 +2,7 @@ import services from '.';
 
 export const createUser = async (payload: any) => {
   // try {
-  const res = await services.post('/instructor/user', payload);
+  const res = await services.post('/instructor/user-account', payload);
 
   return res.data;
   // } catch (e) {
@@ -18,7 +18,7 @@ export const getUsers = async (
   nip_query: string = ''
 ) => {
   const res = await services.get(
-    `/instructor/user?page=${page}&size=${size}&isActive=true${
+    `/instructor/user-account?page=${page}&size=${size}&isActive=true${
       nip_query === '' ? '' : `&username:likeLower=${nip_query}`
     }`
   );
@@ -27,13 +27,13 @@ export const getUsers = async (
 };
 
 export const getUserById = async (id: string) => {
-  const res = await services.get(`/instructor/user/${id}`);
+  const res = await services.get(`/instructor/user-account/${id}`);
 
   return res.data;
 };
 
 export const updateUserById = async (id: string, payload: any) => {
-  const res = await services.put(`/instructor/user/${id}`, payload);
+  const res = await services.put(`/instructor/user-account/${id}`, payload);
 
   return res.data;
 };
@@ -42,7 +42,8 @@ export const updateUserById = async (id: string, payload: any) => {
 /// FOR ADMIN
 
 export const createUserAsAdmin = async (payload: any) => {
-  const res = await services.post('/admin/user', payload);
+  console.log("payload", payload)
+  const res = await services.post('/admin/user-account', payload);
 
   return res.data;
 };
@@ -54,7 +55,7 @@ export const getUsersAsAdmin = async (
   nip_query: string = ''
 ) => {
   const res = await services.get(
-    `/admin/user/by-scope/trainee?page=${page}&size=${size}&isActive=true${
+    `/admin/user-account/scope/trainee?page=${page}&size=${size}&isActive=true${
       nip_query === '' ? '' : `&bio.officialCode=${nip_query}`
     }`
   );
@@ -68,37 +69,43 @@ export const getInstructorList = async (
   size: number = 5,
   nip_query: string = ''
 ) => {
-  const res = await services.get(
-    `/admin/user/by-scope/instructor?page=${page}&size=${size}&isActive=true${
-      nip_query === '' ? '' : `&bio.officialCode=${nip_query}`
-    }`
-  );
-
-  return res.data;
+  try {
+    console.log(`Fetching instructor list from page ${page}, size ${size}, nip_query: ${nip_query}`);
+    const res = await services.get(
+      `/admin/user-account/scope/instructor?page=${page}&size=${size}&isActive=true${
+        nip_query === '' ? '' : `&bio.officialCode=${nip_query}`
+      }`
+    );
+    console.log('Response data:', res.data);
+    return res.data;
+  } catch (error) {
+    console.error('Error fetching instructor list:', error);
+    throw error; // Re-throw the error after logging
+  }
 };
 
+
 export const getUserByIdAsAdmin = async (id: string) => {
-  const res = await services.get(`/admin/user/${id}`);
+  const res = await services.get(`/admin/user-account/${id}`);
 
   return res.data;
 };
 
 export const updateUserByIdAsAdmin = async (id: string, payload: any) => {
-  const res = await services.put(`/admin/user/${id}`, payload);
+  const res = await services.put(`/admin/user-account/${id}`, payload);
 
   return res.data;
 };
 
 export const deactivateUserById = async (id: string) => {
-  const res = await services.put(`/admin/user/${id}/change-status`, {
-    isActive: false,
+  const res = await services.delete(`/admin/user-account/${id}`, {
   });
 
   return res.data;
 };
 
 export const activateUserById = async (id: string) => {
-  const res = await services.put(`/admin/user/${id}/change-status`, {
+  const res = await services.put(`/admin/user-account/${id}/activate`, {
     isActive: true,
   });
 
@@ -108,7 +115,7 @@ export const activateUserById = async (id: string) => {
 export const updateUserPasswordById = async (id: string, password: string) => {
   const payload = { newPassword: password };
 
-  const res = await services.put(`/admin/user/${id}/change-password`, payload);
+  const res = await services.put(`/admin/user-account/${id}/change-password`, payload);
 
   return res.data;
 };
