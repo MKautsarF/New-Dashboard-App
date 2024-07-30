@@ -22,7 +22,7 @@ import {
   DialogContent,
   DialogActions,
 } from "@mui/material";
-import { getUsers, getUserById } from "../services/user.services";
+import { getUsers, getUserById, updateUserById } from "../services/user.services";
 import Container from "@/components/Container";
 import {
   Train,
@@ -42,13 +42,16 @@ import {
   useSettingsKCIC as useKCICSettings,
 } from "../context/settings";
 import { sendTextToClients } from "@/socket";
-
+import { DatePicker } from "@mui/x-date-pickers";
 import lrtPng from "@/static/lrt.png";
 import kcicPng from "@/static/kcic.png";
+import { toast } from "react-toastify";
+
 
 function AppMenu() {
   const [settingsAnchorEl, setSettingsAnchorEl] = useState(null);
   const [scoringAnchorEl, setScoringAnchorEl] = useState(null);
+  const [reload, setReload] = useState(false);
 
   const navigate = useNavigate();
 
@@ -111,17 +114,50 @@ function AppMenu() {
     setPageLoading(true);
 
     try {
-      currentPeserta.id = selectedPeserta.id;
-      currentPeserta.name = selectedPeserta.name;
-      currentPeserta.nip = selectedPeserta.nip;
-      await getSubmissionList(1, 5, selectedPeserta.id);
-      console.log("getting log for user: " + selectedPeserta.id);
+        // currentPeserta.id = selectedPeserta.id;
+        // currentPeserta.name = selectedPeserta.name;
+        // currentPeserta.nip = selectedPeserta.nip;
+        // await getSubmissionList(1, 5, selectedPeserta.id);
+        // console.log("getting log for user: " + selectedPeserta.id);
 
-      navigate("/FourthPage/UserLog");
+        navigate(`/FourthPage/UserLog?id=${detailId}`);
     } catch (e) {
-      console.error(e);
+        console.error(e);
     } finally {
-      setPageLoading(false);
+        setPageLoading(false);
+    }
+  };
+
+
+  const handleEditPeserta = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+
+    const newName = formData.get("new-name") as string;
+    const newEmail = formData.get("new-email") as string;
+    const newNIP = formData.get("new-nip") as string;
+    const newPosition = formData.get("new-position") as string;
+
+    const payload = {
+      name: newName,
+      username: newNIP,
+      email: newEmail,
+      bio: {
+        officialCode: newNIP,
+        born: newBirthDate.format("YYYY-MM-DD"),
+        position: newPosition,
+      },
+    };
+
+    try {
+      const res = await updateUserById(detailId, payload);
+
+      setEditPrompt(false);
+      toast.success("Data peserta berhasil diubah", { position: "top-center" });
+      setReload(!reload);
+    } catch (e) {
+      const errMsg = e.response.data.errorMessage;
+      toast.error(errMsg, { position: "top-center" });
     }
   };
 
@@ -200,7 +236,7 @@ function AppMenu() {
     }
 
     getRows(page);
-  }, [page]);
+  }, [page, reload]);
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage + 1);
@@ -787,11 +823,11 @@ function AppMenu() {
                               variant="text"
                               onClick={() => {
                                 setDetailId(row.id), setDetailOpen(true);
-                                setSelectedPeserta({
-                                  id: row.id,
-                                  name: row.name,
-                                  nip: row.nip,
-                                });
+                                // setSelectedPeserta({
+                                //   id: row.id,
+                                //   name: row.name,
+                                //   nip: row.nip,
+                                // });
                               }}
                               sx={{
                                 color: "#00a6fb",
@@ -839,8 +875,6 @@ function AppMenu() {
                             </Button>
                           </div>
                         </TableCell>
-                        {/* <TableCell align="right">
-                  </TableCell> */}
                       </TableRow>
                     ))}
                   </TableBody>
@@ -1179,6 +1213,91 @@ function AppMenu() {
             Log Out
           </Button>
         </div>
+
+        {/* Edit Peserta Prompt */}
+        <Dialog open={editPrompt} onClose={() => setEditPrompt(false)}>
+          <DialogTitle className="min-w-[400px]">Edit Detail Peserta</DialogTitle>
+          <DialogContent className="m-2 max-w-[400px]">
+            <form id="edit" onSubmit={handleEditPeserta}>
+              <TextField
+                className="my-4"
+                id="new-name"
+                label="Nama"
+                name="new-name"
+                variant="standard"
+                fullWidth
+                defaultValue={detailPeserta.name}
+              />
+              <TextField
+                className="my-4"
+                id="new-email"
+                label="Email"
+                name="new-email"
+                variant="standard"
+                fullWidth
+                defaultValue={detailPeserta.email}
+              />
+              <TextField
+                className="my-4"
+                id="new-nip"
+                label="NIP"
+                name="new-nip"
+                variant="standard"
+                fullWidth
+                defaultValue={detailPeserta.nip}
+              />
+              <div className="my-4 flex gap-4 items-center">
+                <TextField
+                  className="w-1/2"
+                  id="new-position"
+                  label="Kedudukan"
+                  name="new-position"
+                  variant="standard"
+                  fullWidth
+                  defaultValue={detailPeserta.position}
+                />
+                <DatePicker
+                  className="w-1/2"
+                  label="Tanggal Lahir"
+                  value={newBirthDate}
+                  format="DD/MM/YYYY"
+                  onChange={(date) => setNewBirthDate(date)}
+                  // defaultValue={dayjs(detailPeserta.born)}
+                />
+              </div>
+            </form>
+          </DialogContent>
+          <DialogActions className="mb-2 flex justify-between">
+            <Button
+              className="mx-2"
+              onClick={() => setEditPrompt(false)}
+              color="error"
+            >
+              Batal
+            </Button>
+
+            <Button
+              className="mx-2"
+              type="submit"
+              form="edit"
+              variant="contained"
+              // color="success"
+              sx={{
+                color: "#ffffff",
+                // borderColor: "#ffffff",
+                backgroundColor: "#1aaffb",
+                "&:hover": {
+                  borderColor: "#00a6fb",
+                  color: "#ffffff",
+                  // backgroundColor: "#1aaffb",
+                  // backgroundColor: "rgba(0, 166, 251, 0.4)", // Lower opacity blue color
+                },
+              }}
+            >
+              Simpan
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Container>
     </>
   );

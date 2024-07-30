@@ -1,12 +1,27 @@
 import { useState } from "react";
 // import "../App.css";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@mui/material";
+import { Button, Dialog, DialogActions, DialogContent, } from "@mui/material";
 import Container from "../components/Container";
 import Logo from "@/components/Logo";
+import { sendTextToClients } from '@/socket';
 
 function App() {
   const navigate = useNavigate();
+  const [exitPrompt, setExitPrompt] = useState(false);
+
+  function offApp() {
+    // TODO: close other apps and shutdown all pc (IOS 1 & 2, IG)
+    try {
+      // standbyCCTV('config', 'off');
+      // processFile('config', 'off');
+      window.close();
+
+      sendTextToClients(JSON.stringify({ status: 'exit' }));
+    } catch (error) {
+      console.error(error);
+    }
+  }
 
   const handleNext = () => {
     navigate("/FirstPage");
@@ -54,11 +69,33 @@ function App() {
                 backgroundColor: "#ffffff",
               },
             }}
+            onClick={() => {
+              setExitPrompt(true);
+            }}
           >
             Exit
           </Button>
         </div>
       </Container>
+
+      {/* Exit prompt */}
+      <Dialog open={exitPrompt} onClose={() => setExitPrompt(false)}>
+        <DialogContent className="min-w-[260px]">
+          Keluar Aplikasi?
+        </DialogContent>
+        <DialogActions className="flex mb-2 justify-between">
+          <Button
+            className="mx-2"
+            onClick={() => setExitPrompt(false)}
+            color="error"
+          >
+            Tidak
+          </Button>
+          <Button className="mx-2" onClick={() => offApp()} variant="contained">
+            Ya
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 }
