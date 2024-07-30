@@ -110,8 +110,8 @@ function Settings() {
       // train_type: "KRL",
       train: {
         weight: settings.berat.toString(),
-        // type: settings.kereta,
-        type: rangkaianKereta,
+        type: settings.kereta,
+        // type: rangkaianKereta,
       },
       time: Number(settings.waktu.format("HH")),
       weather: [

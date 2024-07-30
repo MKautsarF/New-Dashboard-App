@@ -467,7 +467,7 @@ function AppMenu() {
       setIsLoading(false);
     }
     // Handle the confirmation action, navigate or perform other actions
-    navigate(`/Fifthpage/kcic?type=${selectedValue}`);
+    navigate(`/Fifthpage/kcic?type=${selectedValue2}`);
     // Close the confirmation popup
     setConfirmationOpenKcic(false);
   };

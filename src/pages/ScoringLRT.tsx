@@ -54,14 +54,9 @@ function ScoringLRT() {
       // exclude the lrt_ and .json from scoreArray
       // const scoreArray = jsonData["lrt"] && jsonData["lrt"]["score"];
       if (scoreArray) {
-        setVal(
-          scoreArray
-            .slice(1)
-            .map((item: string) =>
-              item.replace("lrt_", "").replace(".json", "")
-            )
-        ); // Assuming the first element is not needed
+        setVal(scoreArray.slice(1).map((item: string) => item.replace('lrt_', '').replace('.json', ''))); // Assuming the first element is not needed
       }
+      
     });
 
     const storedCheckedItem = localStorage.getItem("checkedItem2");
@@ -135,102 +130,53 @@ function ScoringLRT() {
     });
   };
 
-  //   const handleRename = (i: number, newName: string) => {
-  //     const renamedVal = [...val];
-  //     renamedVal[i] = newName;
-  //     setVal(renamedVal);
-  //     localStorage.setItem("scoringLRTVal", JSON.stringify(renamedVal));
-
-  //     // Rename the JSON file
-  //     const sourceFilePath = `C:/Train Simulator/Data/lrt_New Settings ${i + 1}.json`;
-  //     const destinationFileName = `lrt_${newName}.json`;
-  //     const destinationFilePath = path.join(
-  //       "C:/Train Simulator/Data",
-  //       destinationFileName
-
-  //       );
-  //     const settingPath = "C:/Train Simulator/Data/settings_train.json";
-  //     fs.readFile(settingPath, "utf8", (err: any, settingsData: any) => {
-  //       if (err) {
-  //         console.error("Error reading settings file:", err);
-  //         return;
-  //       }
-
-  //     // Parse the JSON content
-  //     const settings = JSON.parse(settingsData);
-  //     settings.lrt.score[i + 1] = destinationFileName;
-  //     fs.writeFile(
-  //       settingPath,
-  //       JSON.stringify(settings, null, 2),
-  //       (err: any) => {
-  //         if (err) {
-  //           console.error("Error writing settings file:", err);
-  //           return;
-  //         }
-  //         console.log("settings_train.json updated.");
-  //       }
-  //     );
-  //   }
-  // );
-
-  //   fs.rename(sourceFilePath, destinationFilePath, (err: any) => {
-  //     if (err) {
-  //       console.error("Error renaming file:", err);
-  //       return;
-  //       }
-  //       console.log(`File renamed to ${destinationFileName}`);
-  //       });
-  //       };
-
   const handleRename = (i: number, newName: string) => {
     const renamedVal = [...val];
     renamedVal[i] = newName;
     setVal(renamedVal);
-    localStorage.setItem("scoringKCICVal", JSON.stringify(renamedVal));
-
-    // Assuming you have a way to get the original file name or the current file name
-    const currentFileName = `kcic_${val[i]}.json`;
-    const destinationFileName = `kcic_${newName}.json`;
-    const sourceFilePath = path.join(
-      "C:/Train Simulator/Data",
-      currentFileName
-    );
+    localStorage.setItem("scoringLRTVal", JSON.stringify(renamedVal));
+    
+    // Rename the JSON file
+    const sourceFilePath = `C:/Train Simulator/Data/lrt_New Settings ${i + 1}.json`;
+    const destinationFileName = `lrt_${newName}.json`;
     const destinationFilePath = path.join(
       "C:/Train Simulator/Data",
       destinationFileName
-    );
-    const settingPath = "C:/Train Simulator/Data/settings_train.json";
 
+      );
+    const settingPath = "C:/Train Simulator/Data/settings_train.json";
     fs.readFile(settingPath, "utf8", (err: any, settingsData: any) => {
       if (err) {
         console.error("Error reading settings file:", err);
         return;
       }
-
-      // Parse the JSON content
-      const settings = JSON.parse(settingsData);
-      settings.kcic.score[i + 1] = destinationFileName; // Assuming i + 1 is the correct index
-      fs.writeFile(
-        settingPath,
-        JSON.stringify(settings, null, 2),
-        (err: any) => {
-          if (err) {
-            console.error("Error writing settings file:", err);
-            return;
-          }
-          console.log("settings_train.json updated.");
+        
+    // Parse the JSON content
+    const settings = JSON.parse(settingsData);
+    settings.lrt.score[i + 1] = destinationFileName;
+    fs.writeFile(
+      settingPath,
+      JSON.stringify(settings, null, 2),
+      (err: any) => {
+        if (err) {
+          console.error("Error writing settings file:", err);
+          return;
         }
-      );
-    });
+        console.log("settings_train.json updated.");
+      }
+    );
+  }
+);
 
-    fs.rename(sourceFilePath, destinationFilePath, (err: any) => {
-      if (err) {
-        console.error("Error renaming file:", err);
-        return;
+
+  fs.rename(sourceFilePath, destinationFilePath, (err: any) => {
+    if (err) {
+      console.error("Error renaming file:", err);
+      return;
       }
       console.log(`File renamed to ${destinationFileName}`);
-    });
-  };
+      });
+      };
 
   const handleDelete = (i: any) => {
     const deletVal = [...val];
@@ -339,7 +285,7 @@ function ScoringLRT() {
     setModalItem(val[index]);
     setModalIndex(index);
     setModalOpen(true);
-  };
+  }
   const handleSave = (index: number) => {
     const updatedVal = [...val];
     updatedVal[index] = newName;
@@ -348,13 +294,13 @@ function ScoringLRT() {
     localStorage.setItem("scoringLRTVal", JSON.stringify(updatedVal));
     setEditingIndex(null);
     setNewName("");
-  };
+    };
   const handleConfirm = () => {
-    if (modalType === "delete" && modalIndex !== null) {
+    if (modalType === 'delete' && modalIndex !== null) {
       handleDelete(modalIndex);
     }
     handleModalClose();
-  };
+  }
 
   return (
     <>
@@ -427,90 +373,90 @@ function ScoringLRT() {
               </Button>
             </div>
             {val.map((data, i) => (
-              <div key={i}>
+          <div key={i}>
+            <Button
+              variant="text"
+              onClick={() => handleModalOpen("delete", i)}
+              sx={{
+                color: "#df2935",
+                padding: "12px ",
+                fontSize: "1rem",
+                borderColor: "#df2935",
+                "&:hover": {
+                  color: "#f58c86",
+                  borderColor: "#f58c86",
+                },
+              }}
+            >
+              <Delete sx={{ fontSize: "1.75rem" }} />
+            </Button>
+            {editingIndex === i ? (
+              <>
+                <input
+                  type="text"
+                  value={newName}
+                  onChange={(e) => setNewName(e.target.value)}
+                  className="border-b-2 border-gray-300 w-48 h-10 text-lg"
+                />
                 <Button
-                  variant="text"
-                  onClick={() => handleModalOpen("delete", i)}
-                  sx={{
-                    color: "#df2935",
-                    padding: "12px ",
-                    fontSize: "1rem",
-                    borderColor: "#df2935",
-                    "&:hover": {
-                      color: "#f58c86",
-                      borderColor: "#f58c86",
-                    },
-                  }}
-                >
-                  <Delete sx={{ fontSize: "1.75rem" }} />
-                </Button>
-                {editingIndex === i ? (
-                  <>
-                    <input
-                      type="text"
-                      value={newName}
-                      onChange={(e) => setNewName(e.target.value)}
-                      className="border-b-2 border-gray-300 w-48 h-10 text-lg"
-                    />
-                    <Button
-                      onClick={() => handleSave(i)}
-                      sx={{
-                        color: "#00a6fb",
-                        padding: "12px",
-                        fontSize: "1rem",
-                        borderColor: "#00a6fb",
-                      }}
-                    >
-                      <Save sx={{ fontSize: "1.75rem" }} />
-                    </Button>
-                  </>
-                ) : (
-                  <Button
-                    onClick={() => handleEdit(i)}
-                    sx={{
-                      color: "#00a6fb",
-                      padding: "12px",
-                      fontSize: "1rem",
-                      borderColor: "#00a6fb",
-                    }}
-                  >
-                    <Edit sx={{ fontSize: "1.75rem" }} />
-                  </Button>
-                )}
-                <Button
-                  variant="outlined"
-                  onClick={() => navigate(`/Sixthpage/lrt/edit/?type=${data}`)}
+                  onClick={() => handleSave(i)}
                   sx={{
                     color: "#00a6fb",
-                    backgroundColor: "#f3f3f4",
-                    padding: "12px 48px",
-                    fontSize: "1rem",
-                    "&:hover": {
-                      color: "#f3f3f4",
-                      backgroundColor: "#00a6fb",
-                    },
-                  }}
-                >
-                  {data}
-                </Button>
-                <Button
-                  variant="text"
-                  onClick={() => handleClick(i)}
-                  sx={{
-                    color: "#00a6fb",
-                    padding: "12px ",
+                    padding: "12px",
                     fontSize: "1rem",
                     borderColor: "#00a6fb",
                   }}
                 >
-                  {checkedItem2 === i ? (
-                    <CheckBox sx={{ fontSize: "1.75rem" }} />
-                  ) : (
-                    <CheckBoxOutlineBlank sx={{ fontSize: "1.75rem" }} />
-                  )}
+                  <Save sx={{ fontSize: "1.75rem" }} />
                 </Button>
-              </div>
-            ))}
+              </>
+            ) : (
+              <Button
+                onClick={() => handleEdit(i)}
+                sx={{
+                  color: "#00a6fb",
+                  padding: "12px",
+                  fontSize: "1rem",
+                  borderColor: "#00a6fb",
+                }}
+              >
+                <Edit sx={{ fontSize: "1.75rem" }} />
+              </Button>
+            )}
+            <Button
+              variant="outlined"
+              onClick={() => navigate(`/Sixthpage/lrt/edit/?type=${data}`)}
+              sx={{
+                color: "#00a6fb",
+                backgroundColor: "#f3f3f4",
+                padding: "12px 48px",
+                fontSize: "1rem",
+                "&:hover": {
+                  color: "#f3f3f4",
+                  backgroundColor: "#00a6fb",
+                },
+              }}
+            >
+              {data}
+            </Button>
+            <Button
+              variant="text"
+              onClick={() => handleClick(i)}
+              sx={{
+                color: "#00a6fb",
+                padding: "12px ",
+                fontSize: "1rem",
+                borderColor: "#00a6fb",
+              }}
+            >
+              {checkedItem2 === i ? (
+                <CheckBox sx={{ fontSize: "1.75rem" }} />
+              ) : (
+                <CheckBoxOutlineBlank sx={{ fontSize: "1.75rem" }} />
+              )}
+            </Button>
+          </div>
+        ))}
           </div>
         </div>
 

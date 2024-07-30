@@ -32,11 +32,7 @@ import {
   getUserById,
   updateUserById,
 } from "../services/user.services";
-// import { useSettings } from "../context/settings";
-import {
-  useSettings as useLRTSettings,
-  useSettingsKCIC as useKCICSettings,
-} from "../context/settings";
+import { useSettings } from "../context/settings";
 import FullPageLoading from "../components/FullPageLoading";
 import TraineeDetail from "../components/TraineeDetail";
 import dayjs, { Dayjs } from "dayjs";
@@ -63,13 +59,7 @@ function Database() {
 
   const trainType = query.get("type") as "kcic" | "lrt";
   const { logout } = useAuth();
-
-  // const { settings, setSettings } = useSettings();
-
-  const { settings: LRTSettings, setSettings: setLRTSettings } =
-    useLRTSettings();
-  const { settingsKCIC: KCICSettings, setSettingsKCIC: setKCICSettings } =
-    useKCICSettings();
+  const { settings, setSettings } = useSettings();
 
   const [open, setOpen] = useState(false);
   const [selectedPeserta, setSelectedPeserta] = useState({
@@ -167,17 +157,8 @@ function Database() {
 
     try {
       const userData = await getUserById(selectedPeserta.id);
-      setKCICSettings({
-        ...KCICSettings,
-        trainee: {
-          name: userData.name,
-          nip: userData.username,
-          bio: userData.bio,
-          complition: 2,
-        },
-      });
-      setLRTSettings({
-        ...LRTSettings,
+      setSettings({
+        ...settings,
         trainee: {
           name: userData.name,
           nip: userData.username,
@@ -519,7 +500,7 @@ function Database() {
                               variant={
                                 selectedPeserta.nip === row.nip
                                   ? "outlined"
-                                  : "text"
+                                  : "text"  
                               }
                               onClick={() =>
                                 setSelectedPeserta({
