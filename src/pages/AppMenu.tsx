@@ -46,11 +46,16 @@ import { DatePicker } from "@mui/x-date-pickers";
 import lrtPng from "@/static/lrt.png";
 import kcicPng from "@/static/kcic.png";
 import { toast } from "react-toastify";
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 
 
 function AppMenu() {
-  const [settingsAnchorEl, setSettingsAnchorEl] = useState(null);
-  const [scoringAnchorEl, setScoringAnchorEl] = useState(null);
+  const [settingsAnchorEl, setSettingsAnchorEl] = useState<null | HTMLElement>(null);
+  const isSettingsMenuOpen = Boolean(settingsAnchorEl);
+  const [scoringAnchorEl, setScoringAnchorEl] = useState<null | HTMLElement>(null);
+  const isScoringMenuOpen = Boolean(scoringAnchorEl);
+
   const [reload, setReload] = useState(false);
 
   const navigate = useNavigate();
@@ -70,7 +75,7 @@ function AppMenu() {
     navigate("/ThirdPage");
   };
   const handleDatabase = () => {
-    navigate("/FourthPage");
+    navigate("/FourthPage", { state: { fromAppMenu: true } });
   };
   // const handleSettings = () => {
   //   navigate("/FifthPage");
@@ -161,11 +166,24 @@ function AppMenu() {
     }
   };
 
-  const handleSettingsClick = (event: any) => {
-    setSettingsAnchorEl(event.currentTarget);
+  // const handleSettingsClick = (event: any) => {
+  //   setSettingsAnchorEl(event.currentTarget);
+  // };
+  
+  const handleSettingsClick = (event: React.MouseEvent<HTMLElement>) => {
+    if (isSettingsMenuOpen) {
+      setSettingsAnchorEl(null);
+    } else {
+      setSettingsAnchorEl(event.currentTarget);
+    }
   };
-  const handleScoringClick = (event: any) => {
-    setScoringAnchorEl(event.currentTarget);
+
+  const handleScoringClick = (event: React.MouseEvent<HTMLElement>) => {
+    if (isScoringMenuOpen) {
+      setScoringAnchorEl(null);
+    } else {
+      setScoringAnchorEl(event.currentTarget);
+    }
   };
 
   const handleSettingsClose = () => {
@@ -559,7 +577,7 @@ function AppMenu() {
                 },
               }}
             >
-              Settings
+              Settings {isSettingsMenuOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />}
             </Button>
             <Menu
               anchorEl={settingsAnchorEl}
@@ -592,7 +610,7 @@ function AppMenu() {
                 },
               }}
             >
-              Scoring
+              Scoring {isScoringMenuOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />}
             </Button>
             <Menu
               anchorEl={scoringAnchorEl}
@@ -785,7 +803,7 @@ function AppMenu() {
         {/* Second Box  */}
         <div className="flex gap-4 justify-center pr-8 pl-8 pt-8 w-full">
           {/* Box 1 */}
-          <div className="box flex-grow gap-6 flex flex-col">
+          <div className="box flex-grow gap-4 flex flex-col">
             {/* tabel preview */}
             <TableContainer component={Paper}>
               <Table stickyHeader aria-label="Tabel Peserta">
@@ -796,8 +814,8 @@ function AppMenu() {
                 </colgroup>
                 <TableHead>
                   <TableRow>
-                    <TableCell>Nama</TableCell>
-                    <TableCell>NIP</TableCell>
+                    <TableCell sx={{ fontWeight: 'bold', fontSize: "17px" }}>Nama Peserta</TableCell>
+                    <TableCell sx={{ fontWeight: 'bold', fontSize: "17px" }}>NIP Peserta</TableCell>
                     <TableCell></TableCell>
                   </TableRow>
                 </TableHead>
@@ -863,11 +881,9 @@ function AppMenu() {
                                   : "text"
                               }
                               onClick={() =>
-                                setSelectedPeserta({
-                                  id: row.id,
-                                  name: row.name,
-                                  nip: row.nip,
-                                })
+                                setSelectedPeserta(prevState => 
+                                  prevState.nip === row.nip ? { id: "", name: "", nip: "" } : { id: row.id, name: row.name, nip: row.nip }
+                                )
                               }
                               className="w-20 ml-2"
                             >
@@ -885,15 +901,15 @@ function AppMenu() {
                 )}
               </Table>
             </TableContainer>
-            <div className="flex flex-wrap mb-8 gap-4 ">
+            <div className="flex mb-4 gap-4">
               <Box
                 component="form"
                 onSubmit={handleSubmit}
-                className="flex gap-4 items-stretch "
+                className="flex gap-4 items-stretch"
               >
                 <TextField
                   id="input-with-icon-textfield"
-                  fullWidth
+                  className="w-[400px]"
                   name="query"
                   placeholder="Cari berdasarkan NIP"
                   InputProps={{
@@ -925,7 +941,7 @@ function AppMenu() {
               <Button
                 variant="outlined"
                 onClick={() => {
-                  navigate("/FourthPage"); // ganti type = defaultnya, ambil dari const
+                  navigate("/FourthPage", { state: { fromAppMenu: true } }); // ganti type = defaultnya, ambil dari const
                 }}
                 sx={{
                   color: "#00a6fb",

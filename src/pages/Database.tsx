@@ -59,7 +59,9 @@ function useQuery() {
 
 function Database() {
   const navigate = useNavigate();
-  const query = useQuery();
+  const query = useQuery(); 
+  const location = useLocation();
+  const fromAppMenu = location.state?.fromAppMenu || false;
 
   const trainType = query.get("type") as "kcic" | "lrt";
   const { logout } = useAuth();
@@ -137,8 +139,13 @@ function Database() {
   };
 
   const handlePrev = () => {
-    navigate("/ThirdPage");
+    if (fromAppMenu) {
+        navigate(-1);
+    } else {
+        navigate("/ThirdPage");
+    }
   };
+
   const handleNext = () => {
     navigate("/");
   };
