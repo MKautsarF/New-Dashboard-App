@@ -95,9 +95,9 @@ function UserLog() {
             <div className="p-8">
                 <h1 className="text-2xl font-bold text-center">User Log</h1>
                 <div className="flex justify-between flex-start gap-4 mt-4">
-                    <div className="ml-[50px] flex-col items-center justify-center w-[300px]">
+                    <div className="flex-col items-center justify-center w-[300px]">
                         <h2>User</h2>
-                        <div>
+                        <div className="mt-2">
                             <Typography>Nama: {userLog?.name}</Typography>
                             <Typography>NIP: {userLog?.username}</Typography>
                             <Typography>Kedudukan: {userLog?.bio.position}</Typography>
@@ -141,8 +141,8 @@ function UserLog() {
                                 </colgroup>
                                 <TableHead>
                                     <TableRow>
-                                        <TableCell><b>Judul Modul</b></TableCell>
-                                        <TableCell align="right"><b>Nilai</b></TableCell>
+                                        <TableCell><h3>Judul Modul</h3></TableCell>
+                                        <TableCell align="right"><h3>Nilai</h3></TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
@@ -157,7 +157,7 @@ function UserLog() {
                         </TableContainer>
                     </div>
                 </div>
-                <div className="flex gap-4 justify-between pl-8 pb-8 pr-8 w-full mt-[50px]">
+                <div className="flex w-full mt-[100px]">
                     <Button
                         type="button"
                         color="error"
@@ -179,28 +179,6 @@ function UserLog() {
                         Back
                     </Button>
                 </div>
-            </div>
-            <div className="flex gap-4 justify-between pl-8 pb-8 pr-8 w-full mt-[50px]">
-                <Button
-                    type="button"
-                    color="error"
-                    variant="outlined"
-                    sx={{
-                        color: "#df2935",
-                        borderColor: "#df2935",
-                        backgroundColor: "#ffffff",
-                        "&:hover": {
-                            borderColor: "#df2935",
-                            backgroundColor: "#df2935",
-                            color: "#ffffff",
-                        },
-                    }}
-                    onClick={() => {
-                        handlePrev();
-                    }}
-                >
-                    Back
-                </Button>
             </div>
         </Container>
     );

@@ -1,6 +1,6 @@
-import React, { useMemo, useState } from 'react';
+import { useState, useMemo, useRef, useEffect } from "react";
 import Container from '@/components/Container';
-import { Button } from '@mui/material';
+import { Button, Menu, MenuItem } from "@mui/material";
 import LogoWithText from '@/components/LogoWithText';
 import {
   Article,
@@ -17,101 +17,76 @@ import {
   finishSubmissionById,
   getSubmissionLogByFileIndex,
   uploadSubmission,
-  // uploadSubmissionById,
 } from '@/services/submission.services';
 import { currentSubmission } from '@/context/auth';
 import { config } from '@/config';
 import fs from 'fs';
 import FileSaver from 'file-saver';
 import FullPageLoading from '@/components/FullPageLoading';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+
 
 function useQuery() {
   const { search } = useLocation();
-
   return useMemo(() => new URLSearchParams(search), [search]);
 }
 
 const FinishKCIC: React.FC = () => {
   const navigate = useNavigate();
-
   const [pageLoading, setPageLoading] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const query = useQuery();
-  const filePath = `C:/Train Simulator/Data/penilaian/PDF/${query.get(
-    'filename'
-  )}.pdf`;
-
-  const jsonPath = `C:/Train Simulator/Data/penilaian/${query.get(
-    'filename'
-  )}.json`;
-
-  const [isPlaying, setIsPlaying] = useState(false);
-
-  // const handleReplay = () => {
-  //   const payload =
-  //     "data|" +
-  //     JSON.stringify({
-  //       status: "replay-start",
-  //     });
-  // };
+  const filePathPDF = `C:/Train Simulator/Data/penilaian/PDF/${query.get('filename')}.pdf`;
+  const filePathExcel = `C:/Train Simulator/Data/penilaian/Excel/${query.get('filename')}.xlsx`;
+  const jsonPath = `C:/Train Simulator/Data/penilaian/${query.get('filename')}.json`;
 
   const handlePlay = () => {
-    // const payload = {
-    //   status: isPlaying ? 'video-stop' : 'video-play',
-    //   source: 'local',
-    // };
     const payload = {
       status: 'video-play',
       source: 'local',
     };
     sendTextToClients(JSON.stringify(payload));
-    // setIsPlaying(!isPlaying);
   };
 
-  function handleBackward() {
+  const handleBackward = () => {
     const payload = {
       status: 'video-backward',
       source: 'local',
     };
     sendTextToClients(JSON.stringify(payload));
-  }
+  };
 
-  function handleForward() {
+  const handleForward = () => {
     const payload = {
       status: 'video-forward',
       source: 'local',
     };
     sendTextToClients(JSON.stringify(payload));
-  }
-
-  const handleLihatNilai = () => {
-    try {
-      shell.openPath(filePath);
-    } catch (e) {
-      console.error(e);
-    }
   };
 
-  // const readStreamVideo = async (path: string) => {
-  //   const stream = fs.createReadStream(path, 'binary');
-  //   let data = '';
-  //   stream.on('data', (chunk) => {
-  //     data += chunk.toString();
-  //   });
-  //   stream.on('end', () => {
-  //     console.log('stream end');
-  //   });
-  //   const blob = new Blob([data], { type: 'video/mp4' });
-  //   console.log('create blob');
+  const handleLihatNilai = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(anchorEl ? null : event.currentTarget);
+  };
 
-  //   const file = new File([blob], path);
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
 
-  //   return file;
-  // };
+  const handleOpenPDF = () => {
+    shell.openPath(filePathPDF);
+    handleClose();
+  };
+
+  const handleOpenExcel = () => {
+    shell.openPath(filePathExcel);
+    handleClose();
+  };
 
   const handleUploadFinish = async () => {
     setPageLoading(true);
-
     try {
       const payload = {
         status: 'video-finish',
@@ -127,17 +102,15 @@ const FinishKCIC: React.FC = () => {
       const jsonFile = new File([jsonBlob], jsonPath);
       console.log('json read');
 
-      const pdf = fs.readFileSync(filePath, 'binary');
+      const pdf = fs.readFileSync(filePathPDF, 'binary');
       const pdfBlob = new Blob([pdf], { type: 'application/pdf' });
-      const pdfFile = new File([pdfBlob], filePath);
+      const pdfFile = new File([pdfBlob], filePathPDF);
       console.log('pdf read');
 
-      // const pdfFile = await readStreamPdf(filePath);
-
-      // const videoPath = `${config.VIDEO_SOURCE}`;
-      // // const videoPath = "C:/Users/ROG STRIX Z790/Videos/Replay.mp4";
-      // const videoFile = await readStreamVideo(videoPath);
-      // console.log("video read");
+      const excel = fs.readFileSync(filePathExcel, 'binary');
+      const excelBlob = new Blob([excel], { type: 'application/vnd.ms-excel' });
+      const excelFile = new File([excelBlob], filePathExcel);
+      console.log('excel read');
 
       const jsonRes = await uploadSubmission(
         `/instructor/submission/${currentSubmission.id}/log`,
@@ -155,13 +128,13 @@ const FinishKCIC: React.FC = () => {
       );
       console.log('pdf uploaded');
 
-      // const videoRes = await uploadSubmission(
-      //   `/instructor/submission/${currentSubmission.id}/log`,
-      //   videoFile,
-      //   "file",
-      //   { tag: "video" }
-      // );
-      // console.log("video uploaded");
+      const excelRes = await uploadSubmission(
+        `/instructor/submission/${currentSubmission.id}/log`,
+        excelFile,
+        'file',
+        { tag: 'excel' }
+      );
+      console.log('excel uploaded');
     } catch (e) {
       console.error(e);
     } finally {
@@ -169,6 +142,9 @@ const FinishKCIC: React.FC = () => {
       navigate('/SecondPage');
     }
   };
+
+  const open = Boolean(anchorEl);
+  const id = open ? 'lihat-nilai-menu' : undefined;
 
   return (
     <Container w={800}>
@@ -184,9 +160,30 @@ const FinishKCIC: React.FC = () => {
             className="text-lg"
             startIcon={<Article />}
             onClick={handleLihatNilai}
+            aria-controls={open ? 'lihat-nilai-menu' : undefined}
+            aria-haspopup="true"
+            aria-expanded={open ? 'true' : undefined}
+            endIcon={open ? <ExpandLessIcon /> : <ExpandMoreIcon />}
           >
             Lihat Penilaian
           </Button>
+          <Menu
+            id={id}
+            anchorEl={anchorEl}
+            open={open}
+            onClose={handleClose}
+            MenuListProps={{
+              'aria-labelledby': 'lihat-nilai-button',
+            }}
+            sx={{
+              '& .MuiPaper-root': {
+                width: "236px",
+              },
+            }}
+          >
+            <MenuItem onClick={handleOpenPDF}>PDF</MenuItem>
+            <MenuItem onClick={handleOpenExcel}>Excel</MenuItem>
+          </Menu>
           <Button
             variant="contained"
             className="text-lg"

@@ -8,11 +8,11 @@
     ],
     "rute": {
       "Halim Line": {
-        "Halim": ["Karawang", "Padalarang", "Tegal Luar", "Tegal Luar Depot"],
-        "Karawang": ["Tegal Luar Depot", "Tegal Luar", "Padalarang", "Halim"],
-        "Padalarang": ["Tegal Luar Depot", "Tegal Luar", "Karawang", "Halim"],
-        "Tegal Luar": ["Tegal Luar Depot", "Padalarang", "Karawang", "Halim"],
-        "Tegal Luar Depot": ["Tegal Luar", "Padalarang", "Karawang", "Halim"]
+        "Halim": ["Karawang", "Padalarang", "Tegalluar", "Joint Workshop Tegalluar"],
+        "Karawang": ["Joint Workshop Tegalluar", "Tegalluar", "Padalarang", "Halim"],
+        "Padalarang": ["Joint Workshop Tegalluar", "Tegalluar", "Karawang", "Halim"],
+        "Tegalluar": ["Joint Workshop Tegalluar", "Padalarang", "Karawang", "Halim"],
+        "Joint Workshop Tegalluar": ["Tegalluar", "Padalarang", "Karawang", "Halim"]
       }
     },
     "score": ["Default"]

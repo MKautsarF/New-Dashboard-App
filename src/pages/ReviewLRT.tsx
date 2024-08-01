@@ -149,7 +149,8 @@ function ReviewLRT() {
           : "-"
       } tahun`;
       jsonToWrite.kode_kedinasan =
-        (settings.trainee.bio && settings.trainee.bio.identityNumber) || "";
+        settings.trainee.nip ||
+        "";
 
       // * Train data
       jsonToWrite.train_type = "LRT";
@@ -513,9 +514,9 @@ function ReviewLRT() {
       headStyles: { fillColor: [74, 73, 72], textColor: [255, 255, 255] },
       body: [
         [1, "Nama Crew", json.nama_crew],
-        [2, "Kedudukan", json.kedudukan],
-        [3, "Usia", json.usia],
-        [4, "Kode Kedinasan", json.kode_kedinasan],
+        [2, "NIP", json.kode_kedinasan],
+        [3, "Kedudukan", json.kedudukan],
+        [4, "Usia", json.usia],
         [5, "No KA", json.no_ka],
         [6, "Lintas", json.lintas],
         [7, "Nama Instruktur", json.nama_instruktur],
@@ -653,9 +654,9 @@ function ReviewLRT() {
         ],
         rows: [
           [1, "Nama Crew", json.nama_crew],
-          [2, "Kedudukan", json.kedudukan],
-          [3, "Usia", json.usia],
-          [4, "Kode Kedinasan", json.kode_kedinasan],
+          [2, "NIP", json.kode_kedinasan],
+          [3, "Kedudukan", json.kedudukan],
+          [4, "Usia", json.usia],
           [5, "No KA", json.no_ka],
           [6, "Lintas", json.lintas],
           [7, "Nama Instruktur", json.nama_instruktur],
