@@ -179,36 +179,31 @@ function UserLog() {
                         Back
                     </Button>
                 </div>
-
             </div>
-          </div>
-        </div>
-        <div className="flex gap-4 justify-between pl-8 pb-8 pr-8 w-full mt-[50px]">
-          <Button
-            type="button"
-            color="error"
-            variant="outlined"
-            // className="bottom-0 mt-4"
-            sx={{
-              color: "#df2935",
-              borderColor: "#df2935",
-              backgroundColor: "#ffffff",
-              "&:hover": {
-                borderColor: "#df2935",
-                backgroundColor: "#df2935",
-                color: "#ffffff",
-              },
-            }}
-            onClick={() => {
-              handlePrev();
-            }}
-          >
-            Back
-          </Button>
-        </div>
-      </div>
-    </Container>
-  );
+            <div className="flex gap-4 justify-between pl-8 pb-8 pr-8 w-full mt-[50px]">
+                <Button
+                    type="button"
+                    color="error"
+                    variant="outlined"
+                    sx={{
+                        color: "#df2935",
+                        borderColor: "#df2935",
+                        backgroundColor: "#ffffff",
+                        "&:hover": {
+                            borderColor: "#df2935",
+                            backgroundColor: "#df2935",
+                            color: "#ffffff",
+                        },
+                    }}
+                    onClick={() => {
+                        handlePrev();
+                    }}
+                >
+                    Back
+                </Button>
+            </div>
+        </Container>
+    );
 }
 
 export default UserLog;

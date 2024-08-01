@@ -116,7 +116,6 @@ function Simulation() {
               "&:hover": {
                 borderColor: "#df2935",
                 backgroundColor: "#df2935",
-                // backgroundColor: "rgba(223, 41, 53, 0.4)", // Lower opacity red color
                 color: "#ffffff",
               },
             }}

@@ -149,7 +149,7 @@ function ReviewLRT() {
           : "-"
       } tahun`;
       jsonToWrite.kode_kedinasan =
-        (settings.trainee.bio && settings.trainee.bio.officialCode) || "";
+        (settings.trainee.bio && settings.trainee.bio.identityNumber) || "";
 
       // * Train data
       jsonToWrite.train_type = "LRT";
@@ -215,7 +215,7 @@ function ReviewLRT() {
       // open pdf in dekstop
       // navigate(`/finish?filename=${fileName}`);
 
-      navigate(`/SecondPage`);
+      navigate(`/finishLRT?filename=${fileName}`);
 
       // shell.openPath(`C:/Train Simulator/Data/penilaian/PDF/${fileName}.pdf`);
     } catch (e) {

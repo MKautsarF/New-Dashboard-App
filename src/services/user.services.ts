@@ -70,7 +70,6 @@ export const getInstructorList = async (
   nip_query: string = ''
 ) => {
   try {
-    console.log(`Fetching instructor list from page ${page}, size ${size}, nip_query: ${nip_query}`);
     const res = await services.get(
       `/admin/user-account/scope/instructor?page=${page}&size=${size}&isActive=true${
         nip_query === '' ? '' : `&bio.officialCode=${nip_query}`

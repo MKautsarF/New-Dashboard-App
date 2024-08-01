@@ -36,23 +36,27 @@ function Login() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-
+  
     // Get form data based on input names
     const username = formData.get("username") as string;
     const password = formData.get("password") as string;
-    // navigate("/SecondPage");
+  
+    // Check if any field is empty
     if (username === "" || password === "") {
       setInputError(true);
       setOpen(true);
       setErrorMsg("Field cannot be empty.");
       return;
     }
-
+  
+    // Log the payload to ensure it is correct
+    console.log("Payload:", { username, password });
+  
     setIsLoading(true);
-
+  
     try {
       await login(username, password);
-
+  
       if (username === "admin") {
         currentInstructor.isAdmin = true;
         navigate("/admin");
@@ -69,6 +73,7 @@ function Login() {
       setIsLoading(false);
     }
   };
+  
 
   const handleClose = (
     event: React.SyntheticEvent | Event,

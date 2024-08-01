@@ -242,7 +242,7 @@ function Database() {
       email: email,
       password: "P@ssword!23",
       bio: {
-        officialCode: nip,
+        identityNumber: nip,
         born: birthDate.format("YYYY-MM-DD"),
         position: position,
       },
@@ -333,7 +333,7 @@ function Database() {
       username: newNIP,
       email: newEmail,
       bio: {
-        officialCode: newNIP,
+        identityNumber: newNIP,
         born: newBirthDate.format("YYYY-MM-DD"),
         position: newPosition,
       },
@@ -669,7 +669,7 @@ function Database() {
                 username: peserta.username,
                 name: peserta.name,
                 email: peserta.email,
-                nip: peserta.bio === null ? "" : peserta.bio.officialCode,
+                nip: peserta.bio === null ? "" : peserta.bio.identityNumber,
                 born: peserta.bio === null ? "" : peserta.bio.born,
                 position: peserta.bio === null ? "" : peserta.bio.position,
                 // complition: peserta.complition === null ? 3 : peserta.complition,

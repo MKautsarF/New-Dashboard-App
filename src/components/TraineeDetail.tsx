@@ -39,7 +39,6 @@ const TraineeDetail: React.FC<TraineeDetailProps> = ({
   isOpen,
   handleClose,
   handleLog,
-  // handleHapus,
   handleEdit,
 }) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -48,8 +47,6 @@ const TraineeDetail: React.FC<TraineeDetailProps> = ({
   useEffect(() => {
     async function fetchDetail() {
       setIsLoading(true);
-
-      // console.log(currentInstructor.isAdmin);
 
       try {
         let detailData: any;
@@ -66,8 +63,7 @@ const TraineeDetail: React.FC<TraineeDetailProps> = ({
           name: detailData.name,
           nip: detailData.bio.officialCode,
           bio: detailData.bio,
-          // floor completion to 1 decimal
-          completion: Math.round(3/7 * 100 * 10) / 10,
+          completion: Math.round(4/7 * 100 * 10) / 10,
         });
       } catch (error) {
         console.error(error);

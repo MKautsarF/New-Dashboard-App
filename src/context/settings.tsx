@@ -7,7 +7,7 @@ interface Trainee {
   bio: {
     position: string;
     born: string;
-    officialCode: string;
+    identityNumber: string;
   };
   complition: number;
 }

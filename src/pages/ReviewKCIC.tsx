@@ -160,7 +160,7 @@ function ReviewKCIC() {
           : "-"
       } tahun`;
       jsonToWrite.kode_kedinasan =
-        (settingsKCIC.trainee.bio && settingsKCIC.trainee.bio.officialCode) ||
+        (settingsKCIC.trainee.bio && settingsKCIC.trainee.bio.identityNumber) ||
         "";
 
       // * Train data
@@ -211,7 +211,7 @@ function ReviewKCIC() {
         JSON.stringify(jsonToWrite, null, 2)
       );
 
-      navigate(`/SecondPage`);
+      navigate(`/finishKCIC?filename=${fileName}`);
     } catch (e) {
       console.error(e);
       setToastData({

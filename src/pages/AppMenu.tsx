@@ -51,8 +51,6 @@ import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 
 
 function AppMenu() {
-  const [settingsAnchorEl, setSettingsAnchorEl] = useState<null | HTMLElement>(null);
-  const isSettingsMenuOpen = Boolean(settingsAnchorEl);
   const [scoringAnchorEl, setScoringAnchorEl] = useState<null | HTMLElement>(null);
   const isScoringMenuOpen = Boolean(scoringAnchorEl);
 
@@ -77,12 +75,6 @@ function AppMenu() {
   const handleDatabase = () => {
     navigate("/FourthPage", { state: { fromAppMenu: true } });
   };
-  // const handleSettings = () => {
-  //   navigate("/FifthPage");
-  // };
-  // const handleScoring = () => {
-  //   navigate("/SixthPage");
-  // };
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -119,12 +111,6 @@ function AppMenu() {
     setPageLoading(true);
 
     try {
-        // currentPeserta.id = selectedPeserta.id;
-        // currentPeserta.name = selectedPeserta.name;
-        // currentPeserta.nip = selectedPeserta.nip;
-        // await getSubmissionList(1, 5, selectedPeserta.id);
-        // console.log("getting log for user: " + selectedPeserta.id);
-
         navigate(`/FourthPage/UserLog?id=${detailId}`);
     } catch (e) {
         console.error(e);
@@ -148,7 +134,7 @@ function AppMenu() {
       username: newNIP,
       email: newEmail,
       bio: {
-        officialCode: newNIP,
+        identityNumber: newNIP,
         born: newBirthDate.format("YYYY-MM-DD"),
         position: newPosition,
       },
@@ -166,18 +152,6 @@ function AppMenu() {
     }
   };
 
-  // const handleSettingsClick = (event: any) => {
-  //   setSettingsAnchorEl(event.currentTarget);
-  // };
-  
-  const handleSettingsClick = (event: React.MouseEvent<HTMLElement>) => {
-    if (isSettingsMenuOpen) {
-      setSettingsAnchorEl(null);
-    } else {
-      setSettingsAnchorEl(event.currentTarget);
-    }
-  };
-
   const handleScoringClick = (event: React.MouseEvent<HTMLElement>) => {
     if (isScoringMenuOpen) {
       setScoringAnchorEl(null);
@@ -186,18 +160,10 @@ function AppMenu() {
     }
   };
 
-  const handleSettingsClose = () => {
-    setSettingsAnchorEl(null);
-  };
-
   const handleScoringClose = () => {
     setScoringAnchorEl(null);
   };
 
-  const handleSettingsOptionClick = (type: any) => {
-    navigate(`/FifthPage?type=${type}`);
-    handleSettingsClose();
-  };
 
   const handleScoringOptionClick = (type: any) => {
     navigate(`/SixthPage/${type}`);
@@ -309,26 +275,15 @@ function AppMenu() {
     }
   }, []);
 
-  // const [isKcicSelected, setIsKcicSelected] = useState(false);
-  // const [isLrtSelected, setIsLrtSelected] = useState(false);
   const [isSelected, setIsSelected] = useState(false);
 
   // Handle Select button click
   const handleSelectButtonClick = () => {
-    // if (selectedPeserta.id !== "") {
-    //   if (selectedValue === "KCIC") {
-    //     setIsKcicSelected(true);
-    //   } else if (selectedValue === "LRT") {
-    //     setIsLrtSelected(true);
-    //   }
-    // }
     setIsSelected(true);
   };
 
   // Effect to reset button selection state when the table data changes
   useEffect(() => {
-    // setIsKcicSelected(false);
-    // setIsLrtSelected(false);
     setIsSelected(false);
   }, [rows]);
 
@@ -347,8 +302,6 @@ function AppMenu() {
   };
 
   const handleConfirmationYes = async () => {
-    // const { settings, setSettings } = useLRTSettings();
-    // set trainee data
     const userData = await getUserById(selectedPeserta.id);
     setLRTSettings({
       ...LRTSettings,
@@ -441,23 +394,6 @@ function AppMenu() {
     let stasiunAsal = KCICSettings.stasiunAsal || "Halim";
     let stasiunTujuan = KCICSettings.stasiunTujuan || "Padalarang";
 
-    // // section untuk mengganti payload tergantung dg module
-    // const payloadDictionary: { [key: string]: () => void } = {
-    //   "Menyalakan Kereta": () => {
-    //     weather = "Ringan";
-    //     fogValue = 100;
-    //   },
-    //   "Menjalankan Kereta": () => {
-    //     weather = "Sedang";
-    //     fogValue = 200;
-    //   },
-    // };
-
-    // // Run the function corresponding to the selected value of selectedValue4
-    // if (payloadDictionary[selectedValue4 as keyof typeof payloadDictionary]) {
-    //   payloadDictionary[selectedValue4 as keyof typeof payloadDictionary](); // This line executes the function to set the weather
-    // }
-
     // set trainee data
     const userData = await getUserById(selectedPeserta.id);
     setKCICSettings({
@@ -542,7 +478,6 @@ function AppMenu() {
                 "&:hover": {
                   borderColor: "#00a6fb",
                   color: "#00a6fb",
-                  // backgroundColor: "#00a6fb",
                 },
               }}
             >
@@ -557,46 +492,11 @@ function AppMenu() {
                 "&:hover": {
                   borderColor: "#00a6fb",
                   color: "#00a6fb",
-                  // backgroundColor: "#00a6fb",
                 },
               }}
             >
               Database
             </Button>
-            <Button
-              variant="outlined"
-              onClick={handleSettingsClick}
-              disabled={!selectedPeserta.id || isSelected}
-              sx={{
-                color: "#f3f3f4",
-                borderColor: "#f3f3f4",
-                "&:hover": {
-                  borderColor: "#00a6fb",
-                  color: "#00a6fb",
-                  // backgroundColor: "#00a6fb",
-                },
-              }}
-            >
-              Settings {isSettingsMenuOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-            </Button>
-            <Menu
-              anchorEl={settingsAnchorEl}
-              open={Boolean(settingsAnchorEl)}
-              onClose={handleSettingsClose}
-              PaperProps={{
-                style: {
-                  width: settingsAnchorEl ? settingsAnchorEl.clientWidth : null,
-                },
-              }}
-            >
-              <MenuItem onClick={() => handleSettingsOptionClick("kcic")}>
-                KCIC
-              </MenuItem>
-              <MenuItem onClick={() => handleSettingsOptionClick("lrt")}>
-                LRT
-              </MenuItem>
-            </Menu>
-
             <Button
               variant="outlined"
               onClick={handleScoringClick}
@@ -986,7 +886,7 @@ function AppMenu() {
                     username: peserta.username,
                     name: peserta.name,
                     email: peserta.email,
-                    nip: peserta.bio === null ? "" : peserta.bio.officialCode,
+                    nip: peserta.bio === null ? "" : peserta.bio.identityNumber,
                     born: peserta.bio === null ? "" : peserta.bio.born,
                     position: peserta.bio === null ? "" : peserta.bio.position,
                   });

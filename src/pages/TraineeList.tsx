@@ -83,14 +83,7 @@ const TraineeList = () => {
   const [position, setPosition] = useState("");
   const [birthDate, setBirthDate] = useState<Dayjs | null>(null);
 
-  const [rows, setRows] = useState<RowData[]>([
-    // Local testing purposes
-    // {
-    //   id: "123",
-    //   name: "Dummy user",
-    //   nip: "123456",
-    // },
-  ]);
+  const [rows, setRows] = useState<RowData[]>([]);
   const [totalData, setTotalData] = useState(0);
   const [page, setPage] = useState(1);
 
@@ -178,31 +171,6 @@ const TraineeList = () => {
     }
   };
 
-  // const handleStart = async () => {
-  //   setPageLoading(true);
-
-  //   try {
-  //     const userData = await getUserByIdAsAdmin(selectedPeserta.id);
-  //     setSettings({
-  //       ...settings,
-  //       trainee: {
-  //         name: userData.name,
-  //         nip: userData.username,
-  //         bio: userData.bio,
-  //       },
-  //     });
-
-  //     currentPeserta.id = userData.id; // owner id for use in submission
-  //     // console.log(currentPeserta);
-
-  //     navigate("/option");
-  //   } catch (e) {
-  //     console.error(e);
-  //   } finally {
-  //     setPageLoading(false);
-  //   }
-  // };
-
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage + 1);
   };
@@ -275,13 +243,6 @@ const TraineeList = () => {
       );
     } finally {
       setPageLoading(false);
-      // setOpen(false);
-      // setNama('');
-      // setNip('');
-      // setEmail('');
-      // setCode('');
-      // setPosition('');
-      // setBirthDate(null);
     }
   };
 
@@ -350,11 +311,12 @@ const TraineeList = () => {
       try {
         setIsLoading(true);
         const res = await getUsersAsAdmin(page, 5);
+        console.log('API Response:', res);
+
         const resRows = res.results.map((data: any) => ({
           id: data.id,
           name: data.name,
-          nip: data.bio.nip,
-          //nip: data.username  
+          nip: data.username,
         }));
         setRows(resRows);
         setTotalData(res.total);
@@ -370,10 +332,6 @@ const TraineeList = () => {
 
   return (
     <Container w={1000} h={700}>
-      {/* <div className="w-1/3 absolute -translate-y-full py-4">
-        <Logo />
-      </div> */}
-
       <div className="flex flex-col p-6 h-full">
         {/* Search bar */}
         <Box
@@ -445,8 +403,8 @@ const TraineeList = () => {
             </colgroup>
             <TableHead>
               <TableRow>
-                <TableCell>Nama</TableCell>
-                <TableCell>NIP</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', fontSize: "17px" }}>Nama</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', fontSize: "17px" }}>NIP</TableCell>
                 <TableCell></TableCell>
               </TableRow>
             </TableHead>
@@ -467,24 +425,8 @@ const TraineeList = () => {
                     <TableCell>{row.nip}</TableCell>
                     <TableCell align="right">
                       <div className="flex gap-4 justify-end">
-                        {/* <Button
-                          type="button"
-                          variant="outlined"
-                          onClick={() => {
-                            setDetailId(row.id), setDetailOpen(true);
-                            setSelectedPeserta({
-                              id: row.id,
-                              name: row.name,
-                              nip: row.nip,
-                            });
-                            handleGetUserDetail();
-                          }}
-                        >
-                          Detail
-                        </Button> */}
                         <Tooltip title="Detail User" placement="top">
                           <IconButton
-                            // color="primary"
                             size="small"
                             onClick={() => {
                               setDetailId(row.id), setDetailOpen(true);
@@ -501,7 +443,6 @@ const TraineeList = () => {
                         </Tooltip>
                         <Tooltip title="Edit User" placement="top">
                           <IconButton
-                            // color="primary"
                             size="small"
                             onClick={async () => {
                               setSelectedPeserta({
@@ -542,7 +483,6 @@ const TraineeList = () => {
                         </Tooltip>
                         <Tooltip title="Hapus User" placement="top">
                           <IconButton
-                            // color="error"
                             size="small"
                             onClick={() => {
                               setSelectedPeserta({
@@ -560,8 +500,6 @@ const TraineeList = () => {
                         </Tooltip>
                       </div>
                     </TableCell>
-                    {/* <TableCell align="right">
-                  </TableCell> */}
                   </TableRow>
                 ))}
               </TableBody>
@@ -573,7 +511,6 @@ const TraineeList = () => {
           </Table>
         </TableContainer>
         <TablePagination
-          // rowsPerPageOptions={[5, 10, 25]}
           component="div"
           count={totalData}
           rowsPerPage={5}
@@ -581,7 +518,6 @@ const TraineeList = () => {
           onPageChange={handleChangePage}
           rowsPerPageOptions={[5]}
           className="overflow-hidden mt-auto"
-          // onRowsPerPageChange={handleChangeRowsPerPage}
         />
 
         {/* Navigation */}
@@ -590,7 +526,6 @@ const TraineeList = () => {
             type="button"
             color="error"
             variant="outlined"
-            // className="bottom-0 mt-4"
             sx={{
               color: "#df2935",
               borderColor: "#df2935",
@@ -635,7 +570,6 @@ const TraineeList = () => {
             onChange={(e) => setEmail(e.target.value)}
           />
           <TextField
-            // className="w-1/2"
             margin="normal"
             id="nip"
             label="NIP"
@@ -645,28 +579,6 @@ const TraineeList = () => {
             value={nip}
             onChange={(e) => setNip(e.target.value)}
           />
-          {/* <div className="flex gap-4">
-            <TextField
-              className="w-1/2"
-              margin="normal"
-              id="nip"
-              label="NIP"
-              type="text"
-              variant="standard"
-              value={nip}
-              onChange={(e) => setNip(e.target.value)}
-            />
-            <TextField
-              className="w-1/2"
-              margin="normal"
-              id="code"
-              label="Kode Kedinasan"
-              type="text"
-              variant="standard"
-              value={code}
-              onChange={(e) => setCode(e.target.value)}
-            />
-          </div> */}
           <div className="flex gap-4 items-center">
             <TextField
               className="w-1/2"
@@ -702,10 +614,6 @@ const TraineeList = () => {
         handleClose={() => setDetailOpen(false)}
         handleLog={() => {}}
         handleEdit={() => {}}
-        // handleHapus={() => {
-        //   setDetailOpen(false);
-        //   handleHapusUser();
-        // }}
       />
 
       {/* Delete User prompt */}
@@ -779,7 +687,6 @@ const TraineeList = () => {
                 value={newBirthDate}
                 format="DD/MM/YYYY"
                 onChange={(date) => setNewBirthDate(date)}
-                // defaultValue={dayjs(detailPeserta.born)}
               />
             </div>
           </form>
@@ -798,16 +705,12 @@ const TraineeList = () => {
             type="submit"
             form="edit"
             variant="contained"
-            // color="success"
             sx={{
               color: "#ffffff",
-              // borderColor: "#ffffff",
               backgroundColor: "#1aaffb",
               "&:hover": {
                 borderColor: "#00a6fb",
                 color: "#ffffff",
-                // backgroundColor: "#1aaffb",
-                // backgroundColor: "rgba(0, 166, 251, 0.4)", // Lower opacity blue color
               },
             }}
           >

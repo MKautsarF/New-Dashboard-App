@@ -57,10 +57,23 @@ function Settings() {
   const navigate = useNavigate();
   const { settings, setSettings } = useSettings();
   const query = useQuery();
-
   const trainType = query.get("type") as "kcic" | "lrt";
-
   const trainSource = sourceSettings[trainType];
+
+  type StationMapping = {
+    [key: string]: string;
+  };
+  
+  const stationMapping: StationMapping = {
+    "Tegalluar": "Tegal Luar",
+    "Joint Workshop Tegalluar": "Tegal Luar Depot",
+    "Karawang": "Karawang",
+    "Padalarang": "Padalarang",
+    "Halim": "Halim",
+  };
+
+  const getDisplayStationName = (station: any) => stationMapping[station] || station;
+  const getPayloadStationName = (displayName: any) => Object.keys(stationMapping).find(key => stationMapping[key] === displayName) || displayName;
 
   const handleSliderChange = (event: Event, newValue: number) => {
     const fogDistance =
@@ -83,7 +96,6 @@ function Settings() {
         false;
 
   const handlePrev = () => {
-    // navigate("/ThirdPage");
     navigate(`/Modul?type=${trainType}`);
   };
   const handleNext = () => {
@@ -97,12 +109,6 @@ function Settings() {
   const handleMulai = async () => {
     let startStation = "";
     let finishStation = "";
-
-    // Assign start and finish stations based on the selected line
-    // if (settings.line === "Jati Mulya Line") {
-    //   startStation = "Harjamukti";
-    //   finishStation = "TMII";
-    // }
 
     const payload = {
       // module: modul,
@@ -128,12 +134,10 @@ function Settings() {
       ],
       route: {
         start: {
-          name: settings.stasiunAsal,
-          // name: startStation,
+          name: getPayloadStationName(settings.stasiunAsal),
         },
         finish: {
-          name: settings.stasiunTujuan,
-          // name: finishStation,
+          name: getPayloadStationName(settings.stasiunTujuan),
         },
       },
       motion_base: settings.useMotionBase,
@@ -143,28 +147,11 @@ function Settings() {
       module: "Eksplorasi",
     };
 
-    console.log(payload);
+    console.log("payload", payload);
 
     try {
       setIsLoading(true);
-
-      // console.log(currentPeserta.id);
-
-      // ganti submission, penyebab error
-      // const submission = {
-      //   owner: currentPeserta.id,
-      //   train: payload.train_type,
-      //   setting: payload,
-      // };
-      // const res = await createSubmission(submission);
-      // currentSubmission.id = res.id;
-
-      // setCurrentSubmission(res.id);
-
       sendTextToClients(JSON.stringify(payload, null, 2));
-      // console.log(payload);
-
-      // await loadCctv();
     } catch (error) {
       console.error(error);
     } finally {
@@ -175,10 +162,6 @@ function Settings() {
 
   useEffect(() => {
     setSettings(settings);
-    // console.log("Motion: " + settings.useMotionBase);
-    // console.log("Buzzer: " + settings.useSpeedBuzzer);
-    // console.log("Limit: " + settings.speedLimit);
-
     // assign module
     if (trainType === "lrt") {
       localStorage.setItem("valueSettingsLRT", "Eksplorasi");
@@ -219,24 +202,6 @@ function Settings() {
             {/* Setting Simulasi */}
           </h1>
 
-          {/* Modul */}
-          {/* <div className="w-full my-2 flex items-center p-2">
-            <MenuBook className="my-[0.5px] mr-2 text-gray-600" />
-            <FormControl fullWidth>
-              <InputLabel id="modul-label-id">Modul</InputLabel>
-              <Select
-                labelId="modul-label-id"
-                label="Modul"
-                value={modul}
-                onChange={(e) => setModul(e.target.value)}
-                // style={{ backgroundColor: "#f3f3f4" }}
-              >
-                <MenuItem value="Learning">Learning</MenuItem>
-                <MenuItem value="Testing">Testing</MenuItem>
-              </Select>
-            </FormControl>
-          </div> */}
-
           {/* Berat */}
           <div className="w-1/2 my-2 flex items-end mb-6 p-2">
             <Scale className="my-[0.5px] mr-2 text-gray-600" />
@@ -263,35 +228,6 @@ function Settings() {
             <p>ton</p>
             <div></div>
           </div>
-
-          {/* Jenis Kereta */}
-          {/* <div className="w-1/2 my-2 flex items-center p-2">
-            <Train className="my-[0.5px] mr-2 text-gray-600" />
-            <FormControl fullWidth>
-              <InputLabel id="kereta-label-id">Jenis Kereta</InputLabel>
-              <Select
-                labelId="kereta-label-id"
-                label="Jenis Kereta"
-                // style={{ backgroundColor: "#f3f3f4" }}
-                value={settings.kereta}
-                onChange={(e) =>
-                  setSettings({
-                    ...settings,
-                    kereta: e.target.value,
-                  })
-                }
-              >
-                {trainSource.jenis.map((type: any, idx: any) => (
-                  <MenuItem
-                    key={idx}
-                    value={type.split(" ").slice(0, 2).join(" ")}
-                  >
-                    {type}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </div> */}
 
           {/* Line Kereta */}
           <div className="w-1/2 my-2 flex items-center p-2">
@@ -344,13 +280,11 @@ function Settings() {
               >
                 {settings.line &&
                   trainSource.rute[settings.line] &&
-                  Object.keys(trainSource.rute[settings.line]).map(
-                    (station, idx) => (
-                      <MenuItem key={idx} value={station}>
-                        {station}
-                      </MenuItem>
-                    )
-                  )}
+                  Object.keys(trainSource.rute[settings.line]).map((station, idx) => (
+                    <MenuItem key={idx} value={station}>
+                      {getDisplayStationName(station)}
+                    </MenuItem>
+                  ))}
               </Select>
             </FormControl>
           </div>
@@ -379,13 +313,11 @@ function Settings() {
               >
                 {settings.stasiunAsal &&
                   trainSource.rute[settings.line]?.[settings.stasiunAsal] &&
-                  trainSource.rute[settings.line][settings.stasiunAsal].map(
-                    (destination: any, idx: any) => (
-                      <MenuItem key={idx} value={destination}>
-                        {destination}
-                      </MenuItem>
-                    )
-                  )}
+                  trainSource.rute[settings.line][settings.stasiunAsal].map((destination: any, idx: any) => (
+                    <MenuItem key={idx} value={destination}>
+                      {getDisplayStationName(destination)}
+                    </MenuItem>
+                  ))}
               </Select>
             </FormControl>
           </div>
@@ -398,7 +330,6 @@ function Settings() {
               <Select
                 labelId="status-hujan-label-id"
                 label="Status Hujan"
-                // style={{ backgroundColor: "#f3f3f4" }}
                 value={settings.statusHujan}
                 onChange={(e) =>
                   setSettings({
@@ -431,8 +362,6 @@ function Settings() {
               className="flex-grow"
               timeSteps={{ minutes: 60 }}
             />
-            {/* <div className="custom-time-picker-wrapper ">
-            </div> */}
           </div>
 
           {/* Fog Slider */}
@@ -559,16 +488,6 @@ function Settings() {
             Back
           </Button>
           <div className="flex gap-4 pr-8">
-            {/* <Button
-              variant="outlined"
-              startIcon={<EditNote />}
-              onClick={() => {
-                navigate("/FifthPage/edit/lrt");
-              }}
-            >
-              Pengaturan: Default
-            </Button> */}
-
             <Button
               variant="outlined"
               startIcon={<EditNote />}
@@ -602,7 +521,6 @@ function Settings() {
               disabled={!canContinue}
               onClick={() => {
                 handleMulai();
-                // handleNext();
               }}
               sx={{
                 color: "#f3f3f4",

@@ -169,9 +169,10 @@ const InstructorList = () => {
 
     try {
       const res = await deactivateUserById(selectedPeserta.id);
-      console.log("deactivated user: " + res.id);
+      // console.log("deactivated user: " + res.id);
 
       setRows(rows.filter((row) => row.id !== res.id));
+      setReload(!reload);
     } catch (e) {
       console.error(e);
     } finally {
@@ -228,7 +229,7 @@ const InstructorList = () => {
       scope: "instructor",
       password: password,
       bio: {
-        officialCode: nip,
+        identityNumber: nip,
         born: birthDate.format("YYYY-MM-DD"),
         position: position,
       },
@@ -242,7 +243,7 @@ const InstructorList = () => {
           {
             id: res.id,
             name: res.name,
-            nip: res.bio.officialCode,
+            nip: res.bio.identityNumber,
           },
         ].concat(rows)
       );
@@ -267,15 +268,6 @@ const InstructorList = () => {
       );
     } finally {
       setPageLoading(false);
-      // setOpen(false);
-      // setNama('');
-      // setNip('');
-      // setUsername('');
-      // setEmail('');
-      // setPassword('');
-      // setCode('');
-      // setPosition('');
-      // setBirthDate(null);
     }
   };
 
@@ -298,17 +290,11 @@ const InstructorList = () => {
         const row: RowData = {
           id: user.id,
           name: user.name,
-          nip: user.bio === null ? "" : user.bio.officialCode,
+          nip: user.bio === null ? "" : user.bio.identityNumber,
         };
-        console.log(row);
+        // console.log(row);
         resRows.push(row);
       }
-
-      // const resRows = res.results.map((data: any) => ({
-      //   id: data.id,
-      //   name: data.name,
-      //   nip: data.username,
-      // }));
 
       setRows(resRows);
       setTotalData(res.total);
@@ -374,11 +360,13 @@ const InstructorList = () => {
       username: newUsername,
       email: newEmail,
       bio: {
-        officialCode: newNIP,
+        identityNumber: newNIP,
         born: newBirthDate.format("YYYY-MM-DD"),
         position: newPosition,
       },
     };
+
+    console.log("payload edit:", payload)
 
     try {
       const res = await updateUserByIdAsAdmin(selectedPeserta.id, payload);
@@ -397,28 +385,19 @@ const InstructorList = () => {
       try {
         setIsLoading(true);
         const res = await getInstructorList(page, 5);
-        console.log('tes', res.results)
+        // console.log('tes', res.results)
 
         const resRows: RowData[] = [];
         for (let entry of res.results) {
           const row: RowData = {
             id: entry.id,
             name: entry.name,
-            nip: entry.bio.nip, 
-            // nip: entry.username
+            nip: entry.bio.identityNumber? entry.bio.identityNumber : " ", 
           };
-          console.log(row);
+          // console.log("row", row);
 
           resRows.push(row);
         }
-
-        // const resRows = res.results.map((data: any) => {
-        //   return {
-        //     id: data.id,
-        //     name: data.name,
-        //     nip: data.username,
-        //   };
-        // });
 
         setRows(resRows);
         setTotalData(res.total);
@@ -434,9 +413,6 @@ const InstructorList = () => {
 
   return (
     <Container w={1000} h={700}>
-      {/* <div className="w-1/3 absolute -translate-y-full py-4">
-        <Logo />
-      </div> */}
 
       <div className="flex flex-col p-6 h-full gap-4">
         {/* Search bar */}
@@ -448,7 +424,6 @@ const InstructorList = () => {
           <Button
             type="button"
             variant="contained"
-            // className="my-4"
             onClick={() => handleDaftar()}
             startIcon={<PersonAdd />}
             sx={{
@@ -509,8 +484,8 @@ const InstructorList = () => {
             </colgroup>
             <TableHead>
               <TableRow>
-                <TableCell>Nama</TableCell>
-                <TableCell>NIP</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', fontSize: "17px" }}>Nama</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', fontSize: "17px" }}>NIP</TableCell>
                 <TableCell></TableCell>
               </TableRow>
             </TableHead>
@@ -531,21 +506,6 @@ const InstructorList = () => {
                     <TableCell>{row.nip}</TableCell>
                     <TableCell align="right">
                       <div className="flex gap-4 justify-end">
-                        {/* <Button
-                          type="button"
-                          variant="outlined"
-                          onClick={() => {
-                            setDetailId(row.id), setDetailOpen(true);
-                            setSelectedPeserta({
-                              id: row.id,
-                              name: row.name,
-                              nip: row.nip,
-                            });
-                            handleGetUserDetail();
-                          }}
-                        >
-                          Detail
-                        </Button> */}
                         <Tooltip title="Detail User" placement="top">
                           <IconButton
                             // color="primary"
@@ -575,6 +535,7 @@ const InstructorList = () => {
                               });
 
                               const peserta = await getUserByIdAsAdmin(row.id);
+                              console.log("Peserta edit:", peserta)
                               setDetailPeserta({
                                 username: peserta.username,
                                 name: peserta.name,
@@ -582,7 +543,7 @@ const InstructorList = () => {
                                 nip:
                                   peserta.bio === null
                                     ? ""
-                                    : peserta.bio.officialCode,
+                                    : peserta.bio.identityNumber,
                                 born:
                                   peserta.bio === null ? "" : peserta.bio.born,
                                 position:
@@ -633,8 +594,7 @@ const InstructorList = () => {
                                 nip: row.nip,
                               });
                               setDeletePrompt(true);
-
-                              // console.log(row.name);
+                              setReload(!reload); 
                             }}
                           >
                             <Delete />
@@ -642,8 +602,6 @@ const InstructorList = () => {
                         </Tooltip>
                       </div>
                     </TableCell>
-                    {/* <TableCell align="right">
-                  </TableCell> */}
                   </TableRow>
                 ))}
               </TableBody>
@@ -655,7 +613,6 @@ const InstructorList = () => {
           </Table>
         </TableContainer>
         <TablePagination
-          // rowsPerPageOptions={[5, 10, 25]}
           component="div"
           count={totalData}
           rowsPerPage={5}
@@ -663,7 +620,6 @@ const InstructorList = () => {
           onPageChange={handleChangePage}
           rowsPerPageOptions={[5]}
           className="overflow-hidden mt-auto"
-          // onRowsPerPageChange={handleChangeRowsPerPage}
         />
 
         {/* Navigation */}
@@ -672,7 +628,6 @@ const InstructorList = () => {
             type="button"
             color="error"
             variant="outlined"
-            // className="bottom-0 mt-4"
             sx={{
               color: "#df2935",
               borderColor: "#df2935",
@@ -792,10 +747,6 @@ const InstructorList = () => {
         handleClose={() => setDetailOpen(false)}
         handleLog={() => {}}
         handleEdit={() => {}}
-        // handleHapus={() => {
-        //   setDetailOpen(false);
-        //   handleHapusUser();
-        // }}
       />
 
       {/* Delete User prompt */}
@@ -832,12 +783,9 @@ const InstructorList = () => {
             <TextField
               label="Password baru"
               name="password"
-              // required
               variant="standard"
               fullWidth
               type={showPassword ? "text" : "password"}
-              // error={inputError}
-              // onFocus={() => setInputError(false)}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
@@ -864,16 +812,12 @@ const InstructorList = () => {
             type="submit"
             form="new-password"
             variant="contained"
-            // color="success"
             sx={{
               color: "#ffffff",
-              // borderColor: "#ffffff",
               backgroundColor: "#1aaffb",
               "&:hover": {
                 borderColor: "#00a6fb",
                 color: "#ffffff",
-                // backgroundColor: "#00a6fb",
-                // backgroundColor: "rgba(0, 166, 251, 0.4)", // Lower opacity blue color
               },
             }}
           >
@@ -939,7 +883,6 @@ const InstructorList = () => {
                 value={newBirthDate}
                 format="DD/MM/YYYY"
                 onChange={(date) => setNewBirthDate(date)}
-                // defaultValue={dayjs(detailPeserta.born)}
               />
             </div>
           </form>
@@ -958,16 +901,12 @@ const InstructorList = () => {
             type="submit"
             form="edit"
             variant="contained"
-            // color="success"
             sx={{
               color: "#ffffff",
-              // borderColor: "#ffffff",
               backgroundColor: "#1aaffb",
               "&:hover": {
                 borderColor: "#00a6fb",
                 color: "#ffffff",
-                // backgroundColor: "#00a6fb",
-                // backgroundColor: "rgba(0, 166, 251, 0.4)", // Lower opacity blue color
               },
             }}
           >
