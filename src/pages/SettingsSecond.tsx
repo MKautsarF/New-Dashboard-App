@@ -6,6 +6,8 @@ import { NavigateNext } from "@mui/icons-material";
 import { useSettings } from "../context/settings";
 import { sendTextToClients } from "@/socket";
 import ButtonSettings from "@/components/ButtonSettings";
+import { getCourseByInstructor } from "@/services/course.services";
+import { getPayloadFromCourse } from "@/services/course.services";
 
 function useQuery() {
   const { search } = useLocation();
@@ -21,94 +23,86 @@ function SettingsSecond() {
 
   const [selectedValue3, setSelectedValue3] = useState<string>("");
   const [selectedValue4, setSelectedValue4] = useState<string>("");
-  const [completion, setCompletion] = useState(3);
+  const [completion, setCompletion] = useState(7);
   const [activeButton, setActiveButton] = useState<string | null>(null);
 
   const [checkedLRT, setCheckedLRT] = useState<string | null>(null);
   const [checkedKCIC, setCheckedKCIC] = useState<string | null>(null);
 
+  const [lrtButtons, setLrtButtons] = useState<any[]>([]);
+  const [kcicButtons, setKcicButtons] = useState<any[]>([]);
+  const [coursesData, setCoursesData] = useState<any[]>([]);
+  const [selectedCourse, setSelectedCourse] = useState<any | null>(null);
+
+  const [payload, setPayload] = useState<any>({});
+
   const handlePrev = () => {
     navigate(`/Modul?type=${trainType}`);
   };
 
+
   const handleClick = (buttonName: string) => {
     console.log(`Currently pressed: ${buttonName}`);
+  
+    const selectedCourse = coursesData.find((course: any) => course.title === buttonName);
+    setSelectedCourse(selectedCourse || null);
+  
     if (trainType === "lrt") {
-      if (checkedLRT === buttonName) {
-        setCheckedLRT(null);
-        localStorage.removeItem("valueSettingsLRT");
-        setSelectedValue3("");
-        setActiveButton(null);
-      } else {
-        setCheckedLRT(buttonName);
-        localStorage.setItem("valueSettingsLRT", buttonName);
-        setSelectedValue3(buttonName);
-        setCheckedKCIC(null); // Ensure KCIC buttons are not selected
-      }
+      setCheckedLRT(buttonName);
+      setSelectedValue3(buttonName);
+      setCheckedKCIC(null);
     } else if (trainType === "kcic") {
-      if (checkedKCIC === buttonName) {
-        setCheckedKCIC(null);
-        localStorage.removeItem("valueSettingsKCIC");
-        setSelectedValue4("");
-        setActiveButton(null);
-      } else {
-        setCheckedKCIC(buttonName);
-        localStorage.setItem("valueSettingsKCIC", buttonName);
-        setSelectedValue4(buttonName);
-        setCheckedLRT(null); // Ensure LRT buttons are not selected
-      }
+      setCheckedKCIC(buttonName);
+      setSelectedValue4(buttonName);
+      setCheckedLRT(null);
     }
   };
 
   useEffect(() => {
-    const lastCheckedItemLRT = localStorage.getItem("valueSettingsLRT");
-    if (lastCheckedItemLRT) {
-      setCheckedLRT(lastCheckedItemLRT);
-      setSelectedValue3(lastCheckedItemLRT);
-    }
+    const fetchData = async () => {
+      try {
+        const { results } = await getCourseByInstructor();
 
-    const lastCheckedItemKCIC = localStorage.getItem("valueSettingsKCIC");
-    if (lastCheckedItemKCIC) {
-      setCheckedKCIC(lastCheckedItemKCIC);
-      setSelectedValue4(lastCheckedItemKCIC);
-    }
-  }, []);
-
-  const payload = useMemo(() => {
-    return {
-      train_type: trainType.toUpperCase(),
-      train: {
-        weight: "30",
-        type: "6 Rangkaian",
-      },
-      time: 12,
-      weather: [
-        {
-          value: "Cerah",
-          location: [0, 0],
-          name: "rain",
-        },
-        {
-          value: 0,
-          location: [0, 0],
-          name: "fog",
-        },
-      ],
-      route: {
-        start: {
-          name: "Harjamukti",
-        },
-        finish: {
-          name: "TMII",
-        },
-      },
-      motion_base: false,
-      speed_buzzer: true,
-      speed_limit: 70,
-      status: "play",
-      module: trainType === "kcic" ? selectedValue4 : selectedValue3,
+        
+  
+        results.sort((a: any, b: any) => a.level - b.level);
+  
+        const lrtData = results.filter((course: any) => course.description === "LRT")
+          .map((course: any) => ({
+            title: course.title,
+            requiredCompletion: course.level // Assuming level as requiredCompletion
+          }));
+        const kcicData = results.filter((course: any) => course.description === "KCIC")
+          .map((course: any) => ({
+            title: course.title,
+            requiredCompletion: course.level // Assuming level as requiredCompletion
+          }));
+  
+        setLrtButtons(lrtData);
+        setKcicButtons(kcicData);
+        setCoursesData(results);
+      } catch (error) {
+        console.error("Failed to fetch course data:", error);
+      }
     };
-  }, [selectedValue3, selectedValue4, trainType]);
+  
+    fetchData();
+  }, []); 
+
+  useEffect(() => {
+    const fetchPayload = async () => {
+      if (selectedCourse && selectedCourse.id) {
+        try {
+          const payloadData = await getPayloadFromCourse(selectedCourse.id);
+          setPayload(payloadData);
+        } catch (error) {
+          console.error("Failed to fetch payload data:", error);
+        }
+      }
+    };
+
+    fetchPayload();
+  }, [selectedCourse]);
 
   useEffect(() => {
     console.log("Payload updated:", payload);
@@ -127,26 +121,6 @@ function SettingsSecond() {
     }
   };
 
-  const lrtButtons = [
-    "Menyalakan Kereta",
-    "Menjalankan Kereta",
-    "Mematikan Kereta",
-    "Keluar dari Depo",
-    "Masuk ke Depo",
-    "Pindah Jalur",
-    "Kereta Anjlok",
-  ];
-
-  const kcicButtons = [
-    "Menyalakan Kereta",
-    "Menjalankan Kereta",
-    "Mematikan Kereta",
-    "Keluar dari Depo",
-    "Masuk ke Depo",
-    "Pindah Jalur",
-    "Kereta Anjlok",
-  ];
-
   return (
     <>
       <Container w={900}>
@@ -156,36 +130,36 @@ function SettingsSecond() {
               Pengaturan Kereta {trainType.toUpperCase()}
             </h1>
             <p style={{ fontSize: "1.25rem" }}>
-              Pilih setelan kereta yang akan digunakan:
+              Pilih pembelajaran kereta yang akan digunakan:
             </p>
           </div>
 
           <div className="flex flex-col pl-8 gap-4 pr-8 justify-center items-center">
             {/* Buttons for LRT */}
             {trainType === "lrt" &&
-              lrtButtons.map((buttonName) => (
+              lrtButtons.map((button) => (
                 <ButtonSettings
-                  key={buttonName}
-                  buttonName={buttonName}
+                  key={button.title}
+                  buttonName={button.title}
                   completion={completion}
                   onClick={handleClick}
                   checkedValue={checkedLRT}
                   activeButton={activeButton}
-                  setActiveButton={setActiveButton}
+                  requiredCompletion={button.requiredCompletion} // Pass requiredCompletion here
                 />
               ))}
 
             {/* Buttons for KCIC */}
             {trainType === "kcic" &&
-              kcicButtons.map((buttonName) => (
+              kcicButtons.map((button) => (
                 <ButtonSettings
-                  key={buttonName}
-                  buttonName={buttonName}
+                  key={button.title}
+                  buttonName={button.title}
                   completion={completion}
                   onClick={handleClick}
                   checkedValue={checkedKCIC}
                   activeButton={activeButton}
-                  setActiveButton={setActiveButton}
+                  requiredCompletion={button.requiredCompletion} // Pass requiredCompletion here
                 />
               ))}
           </div>
@@ -212,7 +186,7 @@ function SettingsSecond() {
           >
             Back
           </Button>
-          {payload.module ? (
+          {payload.module_name ? (
             <Button
               type="button"
               variant="outlined"

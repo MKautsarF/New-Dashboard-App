@@ -54,6 +54,9 @@ function AppMenu() {
   const [scoringAnchorEl, setScoringAnchorEl] = useState<null | HTMLElement>(null);
   const isScoringMenuOpen = Boolean(scoringAnchorEl);
 
+  const [learningAnchorEl, setLearningAnchorEl] = useState<null | HTMLElement>(null);
+  const isLearningMenuOpen = Boolean(scoringAnchorEl);
+
   const [reload, setReload] = useState(false);
 
   const navigate = useNavigate();
@@ -169,6 +172,25 @@ function AppMenu() {
     navigate(`/SixthPage/${type}`);
     handleScoringClose();
   };
+
+  const handleLearningClick = (event: React.MouseEvent<HTMLElement>) => {
+    if (isLearningMenuOpen) {
+      setLearningAnchorEl(null);
+    } else {
+      setLearningAnchorEl(event.currentTarget);
+    }
+  };
+
+  const handleLearningClose = () => {
+    setLearningAnchorEl(null);
+  };
+
+
+  const handleLearningOptionClick = (type: any) => {
+    navigate(`/FifthPage/modul/${type}`);
+    handleLearningClose();
+  };
+
 
   // Detail peserta
   const [detailOpen, setDetailOpen] = useState(false);
@@ -481,7 +503,7 @@ function AppMenu() {
                 },
               }}
             >
-              Simulation
+              Simulasi
             </Button>
             <Button
               variant="outlined"
@@ -495,8 +517,39 @@ function AppMenu() {
                 },
               }}
             >
-              Database
+              Peserta
             </Button>
+            <Button
+              variant="outlined"
+              onClick={handleLearningClick}
+              sx={{
+                color: "#f3f3f4",
+                borderColor: "#f3f3f4",
+                "&:hover": {
+                  borderColor: "#00a6fb",
+                  color: "#00a6fb",
+                },
+              }}
+            >
+              Pembelajaran {isLearningMenuOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+            </Button>
+            <Menu
+              anchorEl={learningAnchorEl}
+              open={Boolean(learningAnchorEl)}
+              onClose={handleLearningClose}
+              PaperProps={{
+                style: {
+                  width: learningAnchorEl ? learningAnchorEl.clientWidth : null,
+                },
+              }}
+            >
+              <MenuItem onClick={() => handleLearningOptionClick("kcic")}>
+                KCIC
+              </MenuItem>
+              <MenuItem onClick={() => handleLearningOptionClick("lrt")}>
+                LRT
+              </MenuItem>
+            </Menu>
             <Button
               variant="outlined"
               onClick={handleScoringClick}
@@ -506,11 +559,10 @@ function AppMenu() {
                 "&:hover": {
                   borderColor: "#00a6fb",
                   color: "#00a6fb",
-                  // backgroundColor: "#00a6fb",
                 },
               }}
             >
-              Scoring {isScoringMenuOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+              Penilaian {isScoringMenuOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />}
             </Button>
             <Menu
               anchorEl={scoringAnchorEl}
@@ -609,8 +661,7 @@ function AppMenu() {
               {hoveredBox === 1 && (
                 <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-center py-2">
                   <p className="text-white">
-                    Mengoperasikan kereta KCIC secara langsung dengan setelan
-                    kereta standar dan setelan penilaian {selectedValue}.
+                    Mengoperasikan eksplorasi kereta KCIC.
                   </p>
                 </div>
               )}
@@ -691,8 +742,7 @@ function AppMenu() {
               {hoveredBox === 2 && (
                 <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-center py-2">
                   <p className="text-white">
-                    Mengoperasikan kereta LRT secara langsung dengan setelan
-                    kereta standar dan setelan penilaian {selectedValue2}.
+                    Mengoperasikan eksplorasi kereta LRT.
                   </p>
                 </div>
               )}
@@ -900,206 +950,6 @@ function AppMenu() {
                 //   handleHapusUser();
                 // }}
               />
-            </div>
-          </div>
-        </div>
-
-        {/* Third Box  */}
-        <div className="flex gap-4 justify-center pr-8 pl-8 pt-8 w-full">
-          {/* box 1 */}
-          <div className="flex flex-grow">
-            <div className="relative flex flex-grow">
-              <div
-                className="box gap-6 flex flex-col flex-grow px-5"
-                style={{ backgroundColor: "#ffffff" }}
-                onMouseEnter={() => handleMouseEnter(5)}
-                onMouseLeave={handleMouseLeave}
-              >
-                <h1 style={{ fontSize: "2rem" }}>Settings KCIC</h1>
-                <div className="flex gap-4 items-center">
-                  <p>Presets:</p>
-
-                  <Button
-                    variant="outlined"
-                    // disabled={!selectedPeserta.id || isSelected}
-                    onClick={() => {
-                      // navigate("/Fifthpage?type=kcic");
-                      navigate("/FifthPage/modul/edit?type=kcic");
-                    }}
-                    sx={{
-                      color: "#00a6fb",
-                      borderColor: "#00a6fb",
-                      backgroundColor: "#ffffff",
-                      fontSize: "1rem", // Adjust the font size as needed
-                      "&:hover": {
-                        borderColor: "#ffffff",
-                        color: "#ffffff",
-                        backgroundColor: "#00a6fb",
-                      },
-                    }}
-                    startIcon={<Settings className="text-3xl" />}
-                    className="flex items-center"
-                  >
-                    {selectedValue4}
-                  </Button>
-                </div>
-              </div>
-              {hoveredBox === 5 && (
-                <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-center py-2">
-                  <p className="text-white pr-2 pl-2">
-                    Menggunakan setelan {selectedValue4} untuk pengaturan KCIC
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* box 2 */}
-          <div className="flex flex-grow">
-            <div className="relative flex flex-grow">
-              <div
-                className="box gap-6 flex flex-col flex-grow px-5"
-                style={{ backgroundColor: "#ffffff" }}
-                onMouseEnter={() => handleMouseEnter(6)}
-                onMouseLeave={handleMouseLeave}
-              >
-                <h1 style={{ fontSize: "2rem" }}>Settings LRT</h1>
-                <div className="flex gap-4 items-center">
-                  <p>Presets:</p>
-
-                  <Button
-                    variant="outlined"
-                    // disabled={!selectedPeserta.id || isSelected}
-                    onClick={() => {
-                      navigate("/FifthPage/modul/edit?type=lrt");
-                    }}
-                    sx={{
-                      color: "#00a6fb",
-                      borderColor: "#00a6fb",
-                      backgroundColor: "#ffffff",
-                      fontSize: "1rem", // Adjust the font size as needed
-                      overflow: "hidden", // Hide the overflow content
-                      textOverflow: "ellipsis", // Display ellipsis for overflow content
-                      "&:hover": {
-                        borderColor: "#ffffff",
-                        color: "#ffffff",
-                        backgroundColor: "#00a6fb",
-                      },
-                    }}
-                    startIcon={<Settings className="text-3xl" />}
-                    className="flex items-center max-w-[200px]"
-                  >
-                    {selectedValue3}
-                  </Button>
-                </div>
-              </div>
-              {hoveredBox === 6 && (
-                <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-center py-2">
-                  <p className="text-white pr-2 pl-2">
-                    Menggunakan setelan {selectedValue3} untuk pengaturan LRT
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* box 3 */}
-          <div className="flex flex-grow">
-            <div className="relative flex flex-grow">
-              <div
-                className="box gap-6 flex flex-col flex-grow px-5"
-                style={{ backgroundColor: "#ffffff" }}
-                onMouseEnter={() => handleMouseEnter(3)}
-                onMouseLeave={handleMouseLeave}
-              >
-                <h1 style={{ fontSize: "2rem" }}>Scoring KCIC</h1>
-                <div className="flex gap-4 items-center">
-                  <p>Presets:</p>
-
-                  <Button
-                    variant="outlined"
-                    onClick={() => {
-                      navigate("/Sixthpage/kcic?type=default"); // ganti type = defaultnya, ambil dari const
-                    }}
-                    sx={{
-                      color: "#00a6fb",
-                      borderColor: "#00a6fb",
-                      backgroundColor: "#ffffff",
-                      maxWidth: "200px", // Set the maximum width
-                      fontSize: "1rem", // Adjust the font size as needed
-                      overflow: "hidden", // Hide the overflow content
-                      textOverflow: "ellipsis", // Display ellipsis for overflow content
-                      "&:hover": {
-                        borderColor: "#ffffff",
-                        color: "#ffffff",
-                        backgroundColor: "#00a6fb",
-                      },
-                    }}
-                    startIcon={<Settings className="text-3xl" />}
-                    className="flex items-center"
-                  >
-                    {/*Default ganti default,  ambil dari const  */}
-                    {selectedValue}
-                  </Button>
-                </div>
-              </div>
-              {hoveredBox === 3 && (
-                <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-center py-2">
-                  <p className="text-white">
-                    Menggunakan setelan {selectedValue} untuk penilaian KCIC
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* box 4 */}
-          <div className="flex flex-grow">
-            <div className="relative flex flex-grow">
-              <div
-                className="box gap-6 flex flex-col flex-grow"
-                style={{ backgroundColor: "#ffffff" }}
-                onMouseEnter={() => handleMouseEnter(4)}
-                onMouseLeave={handleMouseLeave}
-              >
-                <h1 style={{ fontSize: "2rem" }}>Scoring LRT</h1>
-                <div className="flex gap-4 items-center">
-                  <p>Presets:</p>
-
-                  <Button
-                    variant="outlined"
-                    onClick={() => {
-                      navigate("/Sixthpage/lrt?type=default"); // ganti type = defaultnya, ambil dari const
-                    }}
-                    sx={{
-                      color: "#00a6fb",
-                      borderColor: "#00a6fb",
-                      maxWidth: "200px", // Set the maximum width
-                      backgroundColor: "#ffffff",
-                      fontSize: "1rem", // Adjust the font size as needed
-                      overflow: "hidden", // Hide the overflow content
-                      textOverflow: "ellipsis", // Display ellipsis for overflow content
-                      "&:hover": {
-                        borderColor: "#ffffff",
-                        color: "#ffffff",
-                        backgroundColor: "#00a6fb",
-                      },
-                    }}
-                    startIcon={<Settings className="text-3xl" />}
-                    className="flex items-center"
-                  >
-                    {selectedValue2}
-                  </Button>
-                </div>
-              </div>
-              {hoveredBox === 4 && (
-                <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-center py-2">
-                  <p className="text-white">
-                    {/* Menggunakan setelan {settings.score} untuk penilaian LRT */}
-                    Menggunakan setelan {selectedValue2} untuk penilaian LRT
-                  </p>
-                </div>
-              )}
             </div>
           </div>
         </div>

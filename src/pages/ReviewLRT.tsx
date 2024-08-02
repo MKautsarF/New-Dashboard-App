@@ -188,7 +188,7 @@ function ReviewLRT() {
       generateExcel(jsonToWrite);
 
       // Save file to local
-      const fileName = "KCIC_" + getFilenameSafeDateString(new Date());
+      const fileName = "LRT_" + getFilenameSafeDateString(new Date());
 
       console.log("tes");
       const dir = "C:/Train Simulator/Data/penilaian";

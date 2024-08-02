@@ -14,7 +14,8 @@ import EighthPage from "./pages/EditKCIC";
 import NinthPage from "./pages/EditLRT";
 import TenthPage from "./pages/ReviewKCIC";
 import EleventhPage from "./pages/ReviewLRT";
-import TwelvethPage from "./pages/SettingsModul";
+import TwelvethPageKCIC from "./pages/SettingsModulKCIC";
+import TwelvethPageLRT from "./pages/SettingsModulLRT";
 import ThirteenPage from "./pages/EditSettingsLRT"; // not used
 import FourteenPage from "./pages/Modul";
 import Fiveteen from "./pages/SettingsSecond";
@@ -90,8 +91,12 @@ const routerData = [
     element: <EleventhPage />,
   },
   {
-    path: "/FifthPage/modul/edit",
-    element: <TwelvethPage />,
+    path: "/FifthPage/modul/kcic",
+    element: <TwelvethPageKCIC />,
+  },
+  {
+    path: "/FifthPage/modul/lrt",
+    element: <TwelvethPageLRT />,
   },
   {
     path: "/FifthPage/edit/lrt/config",

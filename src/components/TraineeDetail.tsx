@@ -55,13 +55,13 @@ const TraineeDetail: React.FC<TraineeDetailProps> = ({
         } else {
           detailData = await getUserById(id);
         }
-        console.log(detailData);
+        console.log("data",detailData);
 
         userId = detailData.id;
 
         setData({
           name: detailData.name,
-          nip: detailData.bio.officialCode,
+          nip: detailData.bio.identityNumber,
           bio: detailData.bio,
           completion: Math.round(4/7 * 100 * 10) / 10,
         });
