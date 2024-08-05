@@ -14,6 +14,20 @@ export const createUser = async (payload: any) => {
 
 export const getUsers = async (
   page: number = 1,
+  size: number = 4,
+  nip_query: string = ''
+) => {
+  const res = await services.get(
+    `/instructor/user-account?page=${page}&size=${size}&isActive=true${
+      nip_query === '' ? '' : `&username:likeLower=${nip_query}`
+    }`
+  );
+
+  return res.data;
+};
+
+export const getUsersDatabase = async (
+  page: number = 1,
   size: number = 5,
   nip_query: string = ''
 ) => {

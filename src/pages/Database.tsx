@@ -28,7 +28,7 @@ import { useAuth, currentPeserta, currentInstructor } from "../context/auth";
 import {
   createUser,
   // deleteUserById,
-  getUsers,
+  getUsersDatabase,
   getUserById,
   updateUserById,
 } from "../services/user.services";
@@ -98,14 +98,7 @@ function Database() {
   const [position, setPosition] = useState("");
   const [birthDate, setBirthDate] = useState<Dayjs | null>(null);
 
-  const [rows, setRows] = useState<RowData[]>([
-    // Local testing purposes
-    // {
-    //   id: "123",
-    //   name: "Dummy user",
-    //   nip: "123456",
-    // },
-  ]);
+  const [rows, setRows] = useState<RowData[]>([]);
   const [totalData, setTotalData] = useState(0);
   const [page, setPage] = useState(1);
 
@@ -280,13 +273,6 @@ function Database() {
       );
     } finally {
       setPageLoading(false);
-      // setOpen(false);
-      // setNama('');
-      // setNip('');
-      // setEmail('');
-      // setCode('');
-      // setPosition('');
-      // setBirthDate(null);
     }
   };
 
@@ -301,7 +287,7 @@ function Database() {
     const query = data.get("query") as string;
 
     try {
-      const res = await getUsers(1, 5, query);
+      const res = await getUsersDatabase(1, 5, query);
       const resRows = res.results.map((data: any) => ({
         id: data.id,
         name: data.name,
@@ -354,7 +340,7 @@ function Database() {
     async function getRows(page: number) {
       try {
         setIsLoading(true);
-        const res = await getUsers(page, 5);
+        const res = await getUsersDatabase(page, 5);
         const resRows = res.results.map((data: any) => ({
           id: data.id,
           name: data.name,
@@ -382,7 +368,7 @@ function Database() {
             className="w-full text-center my-4"
             style={{ fontSize: "1.75rem", fontWeight: "bold" }}
           >
-            Database
+            List Peserta
             {/* Setting Simulasi */}
           </h1>
 
@@ -783,7 +769,7 @@ function Database() {
               handlePrev();
             }}
           >
-            Back
+            Kembali
           </Button>
           {selectedPeserta.nip !== "" && (
             <Button

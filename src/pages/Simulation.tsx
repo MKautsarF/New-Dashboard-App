@@ -123,7 +123,7 @@ function Simulation() {
               handlePrev();
             }}
           >
-            Back
+            Kembali
           </Button>
         </div>
       </Container>

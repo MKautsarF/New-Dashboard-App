@@ -1,22 +1,19 @@
 import { useState, useEffect, useMemo } from "react";
-// import "../App.css";
+import { Location } from 'react-router-dom';
 import { useNavigate, useLocation } from "react-router-dom";
 import { TimePicker } from "@mui/x-date-pickers";
 import Container from "@/components/Container";
 import {
   Scale,
-  Train,
   PlaceOutlined,
   PlaceRounded,
   Visibility,
   AccessTime,
-  NavigateBefore,
   NavigateNext,
   CloudOutlined,
   ZoomOutMap,
   NotificationsActive,
   EditNote,
-  MenuBook,
   Route,
 } from "@mui/icons-material";
 import {
@@ -33,11 +30,6 @@ import {
   TextField,
 } from "@mui/material";
 import { useSettings } from "@/context/settings";
-import { default as sourceSettings } from "@/config/settings_train.json";
-import { readFile, readFileSync } from "original-fs";
-import { parse } from "postcss";
-import { createSubmission } from "@/services/submission.services";
-import { currentSubmission, currentPeserta } from "@/context/auth";
 import { sendTextToClients } from "@/socket";
 import FullPageLoading from "@/components/FullPageLoading";
 import fs from "fs";
@@ -46,6 +38,14 @@ function useQuery() {
   const { search } = useLocation();
 
   return useMemo(() => new URLSearchParams(search), [search]);
+}
+
+interface CustomLocationState {
+  from?: string;
+}
+
+interface CustomLocation extends Location {
+  state: CustomLocationState;
 }
 
 function Settings() {
@@ -59,6 +59,7 @@ function Settings() {
   const query = useQuery();
   const trainType = query.get("type") as "kcic" | "lrt";
   const trainSource = sourceSettings[trainType];
+  const location = useLocation() as CustomLocation;
 
   type StationMapping = {
     [key: string]: string;
@@ -95,12 +96,15 @@ function Settings() {
         // && settings.kereta
         false;
 
-  const handlePrev = () => {
-    navigate(`/Modul?type=${trainType}`);
-  };
-  const handleNext = () => {
-    navigate(`/FifthPage/${trainType}`);
-  };
+        const handlePrev = () => {
+          if (location.state?.from === 'startClickKcic') {
+            navigate(`/SecondPage`);
+          } else if (location.state?.from === 'startClickLrt') {
+            navigate(`/SecondPage`);
+          } else {
+            navigate(`/Modul?type=${trainType}`);
+          }
+        };
 
   const [modul, setModul] = useState("Testing");
   const rangkaianKereta = "6 Rangkaian";
@@ -482,7 +486,7 @@ function Settings() {
               handlePrev();
             }}
           >
-            Back
+            Kembali
           </Button>
           <div className="flex gap-4 pr-8">
             <Button

@@ -108,13 +108,6 @@ function ReviewKCIC() {
 
   const startTime = useMemo(() => dayjs(), []);
 
-  // async function loadCctv() {
-  //   try {
-  //     await standbyCCTV("config", "standby");
-  //   } catch (error) {
-  //     console.error(error);
-  //   }
-  // }
 
   const handleFinish = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -124,9 +117,6 @@ function ReviewKCIC() {
     try {
       setIsLoading(true);
       const endTime = dayjs();
-
-      // reset CCTV mode
-      // await loadCctv();
 
       // Get input data from form
       const data = new FormData(currentTarget);

@@ -159,7 +159,7 @@ function Login() {
               handlePrev();
             }}
           >
-            Back
+            Kembali
           </Button>
         </form>
       </Container>

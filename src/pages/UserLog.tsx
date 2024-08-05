@@ -176,7 +176,7 @@ function UserLog() {
                             handlePrev();
                         }}
                     >
-                        Back
+                        Kembali
                     </Button>
                 </div>
             </div>

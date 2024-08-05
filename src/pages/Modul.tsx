@@ -133,7 +133,7 @@ function Modul() {
               handlePrev();
             }}
           >
-            Back
+            Kembali
           </Button>
         </div>
       </Container>

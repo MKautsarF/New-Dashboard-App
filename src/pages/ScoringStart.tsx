@@ -14,7 +14,7 @@ function useQuery() {
   return useMemo(() => new URLSearchParams(search), [search]);
 }
 
-function SettingsSecond() {
+function ScoringStart() {
   const query = useQuery();
   const trainType = query.get("type") as "kcic" | "lrt";
   const navigate = useNavigate();
@@ -37,7 +37,7 @@ function SettingsSecond() {
   const [payload, setPayload] = useState<any>({});
 
   const handlePrev = () => {
-    navigate(`/Modul?type=${trainType}`);
+    navigate(-1);
   };
 
 
@@ -108,16 +108,16 @@ function SettingsSecond() {
     console.log("Payload updated:", payload);
   }, [payload]);
 
-  const handleLanjut = async () => {
+  const handleStart = async () => {
     try {
       console.log("sent payload:", payload);
       setIsLoading(true);
-      // sendTextToClients(JSON.stringify(payload, null, 2));
+      sendTextToClients(JSON.stringify(payload, null, 2));
     } catch (error) {
       console.error(error);
     } finally {
       setIsLoading(false);
-      navigate(`/scoringStart?type=${trainType}`);
+      navigate(`/FifthPage/${trainType}?type=${settings.score}`);
     }
   };
 
@@ -127,7 +127,7 @@ function SettingsSecond() {
         <div className="flex flex-col gap-4 w-full">
           <div className="flex flex-col text-left gap-4 p-8 ">
             <h1 style={{ fontSize: "1.75rem", fontWeight: "bold" }}>
-              Pengaturan Kereta {trainType.toUpperCase()}
+              Modul Penilaian Kereta {trainType.toUpperCase()}
             </h1>
             <p style={{ fontSize: "1.25rem" }}>
               Pilih pembelajaran kereta yang akan digunakan:
@@ -191,7 +191,7 @@ function SettingsSecond() {
               type="button"
               variant="outlined"
               endIcon={<NavigateNext className="text-[17px]"/>}
-              onClick={handleLanjut}
+              onClick={handleStart}
               className="bottom-0 mt-4"
               sx={{
                 color: "#f3f3f4",
@@ -205,7 +205,7 @@ function SettingsSecond() {
                 },
               }}
             >
-              Lanjut
+              Mulai
             </Button>
           ) : null}
         </div>
@@ -214,4 +214,4 @@ function SettingsSecond() {
   );
 }
 
-export default SettingsSecond;
+export default ScoringStart;

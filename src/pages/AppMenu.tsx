@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-// import "../App.css";
+import { useState, useEffect, useMemo } from "react";
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import { useNavigate } from "react-router-dom";
 import {
   Button,
@@ -27,21 +27,11 @@ import Container from "@/components/Container";
 import {
   Train,
   DirectionsRailway,
-  Settings,
-  Money,
   PeopleAlt,
-  Warning,
 } from "@mui/icons-material";
 import TraineeDetail from "../components/TraineeDetail";
-import { getSubmissionList } from "../services/submission.services";
-import { currentPeserta } from "../context/auth";
 import dayjs, { Dayjs } from "dayjs";
 import SearchIcon from "@mui/icons-material/Search";
-import {
-  useSettings as useLRTSettings,
-  useSettingsKCIC as useKCICSettings,
-} from "../context/settings";
-import { sendTextToClients } from "@/socket";
 import { DatePicker } from "@mui/x-date-pickers";
 import lrtPng from "@/static/lrt.png";
 import kcicPng from "@/static/kcic.png";
@@ -49,22 +39,16 @@ import { toast } from "react-toastify";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 
-
 function AppMenu() {
   const [scoringAnchorEl, setScoringAnchorEl] = useState<null | HTMLElement>(null);
   const isScoringMenuOpen = Boolean(scoringAnchorEl);
 
   const [learningAnchorEl, setLearningAnchorEl] = useState<null | HTMLElement>(null);
-  const isLearningMenuOpen = Boolean(scoringAnchorEl);
+  const isLearningMenuOpen = Boolean(learningAnchorEl);
 
   const [reload, setReload] = useState(false);
 
   const navigate = useNavigate();
-
-  const { settings: LRTSettings, setSettings: setLRTSettings } =
-    useLRTSettings();
-  const { settingsKCIC: KCICSettings, setSettingsKCIC: setKCICSettings } =
-    useKCICSettings();
 
   const handlePrev = () => {
     navigate("/FirstPage");
@@ -204,14 +188,7 @@ function AppMenu() {
     nip: string;
   }
 
-  const [rows, setRows] = useState<RowData[]>([
-    // Local testing purposes
-    // {
-    //   id: "123",
-    //   name: "Dummy user",
-    //   nip: "123456",
-    // },
-  ]);
+  const [rows, setRows] = useState<RowData[]>([]);
 
   const [selectedPeserta, setSelectedPeserta] = useState({
     id: "",
@@ -226,7 +203,7 @@ function AppMenu() {
     async function getRows(page: number) {
       try {
         setIsLoading(true);
-        const res = await getUsers(page, 5);
+        const res = await getUsers(page, 4);
         const resRows = res.results.map((data: any) => ({
           id: data.id,
           name: data.name,
@@ -309,188 +286,24 @@ function AppMenu() {
     setIsSelected(false);
   }, [rows]);
 
-  const [isConfirmationOpen, setConfirmationOpen] = useState(false);
-
-  const [modul, setModul] = useState("Testing");
 
   const handleStartClick = () => {
-    // Show the confirmation popup
-    setConfirmationOpen(true);
+    const trainType = "lrt"; // Define your trainType here
+    navigate(`/FifthPage?type=${trainType}`, { state: { from: 'startClickLrt' } });
   };
-
-  const handleConfirmationClose = () => {
-    // Close the confirmation popup
-    setConfirmationOpen(false);
-  };
-
-  const handleConfirmationYes = async () => {
-    const userData = await getUserById(selectedPeserta.id);
-    setLRTSettings({
-      ...LRTSettings,
-      trainee: {
-        name: userData.name,
-        nip: userData.username,
-        bio: userData.bio,
-        complition: 2,
-      },
-    });
-
-    let type = LRTSettings.kereta || "6 Rangkaian";
-    let time = "12"; // settings.waktu
-    let weather = LRTSettings.statusHujan;
-    let fogValue = LRTSettings.fog;
-    let stasiunAsal = LRTSettings.stasiunAsal || "Harjamukti";
-    let stasiunTujuan = LRTSettings.stasiunTujuan || "TMII";
-
-    const payload = {
-      // module: modul,
-      train_type: "LRT",
-      train: {
-        weight: LRTSettings.berat.toString(),
-        type: type,
-      },
-      time: time, // ganti
-      weather: [
-        {
-          value: weather,
-          location: [0, 0],
-          name: "rain",
-        },
-        {
-          value: fogValue,
-          location: [0, 0],
-          name: "fog",
-        },
-      ],
-      route: {
-        start: {
-          name: stasiunAsal,
-        },
-        finish: {
-          name: stasiunTujuan,
-        },
-      },
-      motion_base: false,
-      speed_buzzer: false,
-      speed_limit: LRTSettings.speedLimit,
-      status: "play",
-      module: `${selectedValue3}`,
-    };
-
-    console.log(payload);
-
-    try {
-      setIsLoading(true);
-
-      sendTextToClients(JSON.stringify(payload, null, 2));
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setIsLoading(false);
-    }
-    // Handle the confirmation action, navigate or perform other actions
-    navigate(`/Fifthpage/lrt?type=${selectedValue2}`);
-    // Close the confirmation popup
-    setConfirmationOpen(false);
-  };
-
-  const [isConfirmationOpenKcic, setConfirmationOpenKcic] = useState(false);
 
   const handleStartClickKcic = () => {
-    // Show the confirmation popup
-    setConfirmationOpenKcic(true);
-  };
-
-  const handleConfirmationCloseKcic = () => {
-    // Close the confirmation popup
-    setConfirmationOpenKcic(false);
-  };
-
-  const handleConfirmationYesKcic = async () => {
-    // const { settings, setSettings } = useSettingsKCIC();
-
-    let type = KCICSettings.kereta || "6 Rangkaian";
-    let time = "12"; // settings.waktu
-    let weather = KCICSettings.statusHujan;
-    let fogValue = KCICSettings.fog;
-    let stasiunAsal = KCICSettings.stasiunAsal || "Halim";
-    let stasiunTujuan = KCICSettings.stasiunTujuan || "Padalarang";
-
-    // set trainee data
-    const userData = await getUserById(selectedPeserta.id);
-    setKCICSettings({
-      ...KCICSettings,
-      trainee: {
-        name: userData.name,
-        nip: userData.username,
-        bio: userData.bio,
-        complition: 2,
-      },
-    });
-
-    currentPeserta.id = userData.id; // owner id for use in submission
-
-    // make dictionary to swap values in the payload depending on the selectedvalue4 (module)
-    const payload = {
-      // module: modul,
-      train_type: "KCIC",
-      train: {
-        weight: KCICSettings.berat.toString(),
-        type: type,
-      },
-      time: time, // ganti
-      weather: [
-        {
-          value: weather,
-          location: [0, 0],
-          name: "rain",
-        },
-        {
-          value: fogValue,
-          location: [0, 0],
-          name: "fog",
-        },
-      ],
-      route: {
-        start: {
-          name: stasiunAsal,
-        },
-        finish: {
-          name: stasiunTujuan,
-        },
-      },
-      motion_base: false,
-      speed_buzzer: false,
-      speed_limit: KCICSettings.speedLimit,
-      status: "play",
-      module: `${selectedValue4}`,
-    };
-
-    console.log(userData);
-    console.log(payload);
-
-    try {
-      setIsLoading(true);
-
-      sendTextToClients(JSON.stringify(payload, null, 2));
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setIsLoading(false);
-    }
-    // Handle the confirmation action, navigate or perform other actions
-    navigate(`/Fifthpage/kcic?type=${selectedValue}`);
-    // Close the confirmation popup
-    setConfirmationOpenKcic(false);
-  };
+    const trainType = "kcic"; // Define your trainType here
+    navigate(`/FifthPage?type=${trainType}`, { state: { from: 'startClickKcic' } });
+  };  
 
   return (
     <>
       <Container w={1500}>
         {/* Header  */}
-        <header className="header ">
-          <h2 className="p-4">Menu</h2>
-          <nav className="flex gap-4 p-4">
+        <header className="header">
+          <h2 className="p-3">Menu</h2>
+          <nav className="flex gap-4 p-3">
             <Button
               variant="outlined"
               onClick={handleSimulation}
@@ -503,7 +316,7 @@ function AppMenu() {
                 },
               }}
             >
-              Simulasi
+              <PlayArrowIcon className="mr-2 ml-[-6px] text-[17px]"/> Mulai Simulasi
             </Button>
             <Button
               variant="outlined"
@@ -517,7 +330,7 @@ function AppMenu() {
                 },
               }}
             >
-              Peserta
+              <PeopleAlt className=" flex mr-2 ml-[-3px] text-[17px]"/> Peserta
             </Button>
             <Button
               variant="outlined"
@@ -584,8 +397,7 @@ function AppMenu() {
           </nav>
         </header>
         {/* First Box  */}
-        <div className="flex gap-4 justify-center pr-8 pl-8 pt-8 w-full">
-          {/* <img className="h-auto max-w-full rounded-lg" src={lrtPng} /> */}
+        <div className="flex gap-4 justify-center pr-8 pl-8 pt-4 w-full">
 
           {/* box 1 */}
           <div className="flex flex-grow">
@@ -605,9 +417,6 @@ function AppMenu() {
                 <h1 className="text-white ">KCIC</h1>
                 <Button
                   variant="outlined"
-                  // onClick={() => {
-                  //   navigate(`/Fifthpage/kcic?type=${selectedValue}`);
-                  // }}
                   onClick={handleStartClickKcic}
                   disabled={!selectedPeserta.id || isSelected}
                   sx={{
@@ -624,39 +433,8 @@ function AppMenu() {
                   startIcon={<Train className="text-3xl" />}
                   className="flex items-center"
                 >
-                  Start
+                  Mulai
                 </Button>
-                <Dialog
-                  open={isConfirmationOpenKcic}
-                  onClose={handleConfirmationCloseKcic}
-                >
-                  <DialogTitle
-                    sx={{
-                      fontWeight: "bold",
-                      display: "flex",
-                      alignItems: "center",
-                    }}
-                  >
-                    <Warning sx={{ mr: 1 }} color="warning" /> Konfirmasi
-                  </DialogTitle>
-                  <DialogContent>
-                    Apakah yakin untuk langsung menjalankan simulasi KCIC?
-                  </DialogContent>
-                  <DialogActions>
-                    <Button
-                      onClick={handleConfirmationCloseKcic}
-                      sx={{ color: "#df2935" }}
-                    >
-                      No
-                    </Button>
-                    <Button
-                      onClick={handleConfirmationYesKcic}
-                      sx={{ color: "#00a6fb" }}
-                    >
-                      Yes
-                    </Button>
-                  </DialogActions>
-                </Dialog>
               </div>
               {hoveredBox === 1 && (
                 <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-center py-2">
@@ -686,9 +464,6 @@ function AppMenu() {
                 {/* {selectedValue2} */}
                 <Button
                   variant="outlined"
-                  // onClick={() => {
-                  //   navigate(`/Fifthpage/lrt?type=${selectedValue2}`);
-                  // }}
                   onClick={handleStartClick}
                   disabled={!selectedPeserta.id || isSelected}
                   sx={{
@@ -705,39 +480,8 @@ function AppMenu() {
                   startIcon={<DirectionsRailway className="text-3xl" />}
                   className="flex items-center"
                 >
-                  Start
+                  Mulai
                 </Button>
-                <Dialog
-                  open={isConfirmationOpen}
-                  onClose={handleConfirmationClose}
-                >
-                  <DialogTitle
-                    sx={{
-                      fontWeight: "bold",
-                      display: "flex",
-                      alignItems: "center",
-                    }}
-                  >
-                    <Warning sx={{ mr: 1 }} color="warning" /> Konfirmasi
-                  </DialogTitle>
-                  <DialogContent>
-                    Apakah yakin untuk langsung menjalankan simulasi LRT?
-                  </DialogContent>
-                  <DialogActions>
-                    <Button
-                      onClick={handleConfirmationClose}
-                      sx={{ color: "#df2935" }}
-                    >
-                      No
-                    </Button>
-                    <Button
-                      onClick={handleConfirmationYes}
-                      sx={{ color: "#00a6fb" }}
-                    >
-                      Yes
-                    </Button>
-                  </DialogActions>
-                </Dialog>
               </div>
               {hoveredBox === 2 && (
                 <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-center py-2">
@@ -751,9 +495,46 @@ function AppMenu() {
         </div>
 
         {/* Second Box  */}
-        <div className="flex gap-4 justify-center pr-8 pl-8 pt-8 w-full">
+        <div className="flex px-8 pt-4 pb-1 w-full">
           {/* Box 1 */}
-          <div className="box flex-grow gap-4 flex flex-col">
+          <div className="flex-grow flex flex-col">
+            <div className="flex items-center justify-center p-2">
+              <Box
+                component="form"
+                onSubmit={handleSubmit}
+                className="flex gap-4 items-stretch"
+              >
+                <TextField
+                  id="input-with-icon-textfield"
+                  className="w-[450px]"
+                  name="query"
+                  placeholder="Cari Peserta untuk Eksplorasi berdasarkan NIP"
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <SearchIcon />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+                <Button
+                  type="submit"
+                  variant="outlined"
+                  sx={{
+                    color: "#00a6fb",
+                    backgroundColor: "#ffffff",
+                    borderColor: "#00a6fb",
+                    "&:hover": {
+                      borderColor: "#00a6fb",
+                      color: "#ffffff",
+                      backgroundColor: "#00a6fb",
+                    },
+                  }}
+                >
+                  Cari
+                </Button>
+              </Box>
+            </div>
             {/* tabel preview */}
             <TableContainer component={Paper}>
               <Table stickyHeader aria-label="Tabel Peserta">
@@ -791,11 +572,6 @@ function AppMenu() {
                               variant="text"
                               onClick={() => {
                                 setDetailId(row.id), setDetailOpen(true);
-                                // setSelectedPeserta({
-                                //   id: row.id,
-                                //   name: row.name,
-                                //   nip: row.nip,
-                                // });
                               }}
                               sx={{
                                 color: "#00a6fb",
@@ -837,12 +613,18 @@ function AppMenu() {
                               }
                               className="w-20 ml-2"
                             >
-                              Select
+                              Pilih
                             </Button>
                           </div>
                         </TableCell>
                       </TableRow>
                     ))}
+                    {rows.length < 4 &&
+                      Array.from({ length: 4 - rows.length }).map((_, index) => (
+                        <TableRow key={`empty-${index}`} sx={{ height: 53 }}>
+                          <TableCell colSpan={3} />
+                        </TableRow>
+                      ))}
                   </TableBody>
                 ) : (
                   <p className=" w-full top-1/3 left-0 flex justify-center">
@@ -851,75 +633,15 @@ function AppMenu() {
                 )}
               </Table>
             </TableContainer>
-            <div className="flex mb-4 gap-4">
-              <Box
-                component="form"
-                onSubmit={handleSubmit}
-                className="flex gap-4 items-stretch"
-              >
-                <TextField
-                  id="input-with-icon-textfield"
-                  className="w-[400px]"
-                  name="query"
-                  placeholder="Cari berdasarkan NIP"
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <SearchIcon />
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-                <Button
-                  type="submit"
-                  variant="outlined"
-                  sx={{
-                    color: "#00a6fb",
-                    backgroundColor: "#ffffff",
-                    borderColor: "#00a6fb",
-                    "&:hover": {
-                      borderColor: "#00a6fb",
-                      color: "#ffffff",
-                      backgroundColor: "#00a6fb",
-                    },
-                  }}
-                  // className=" bg-white text-blue-600 hover:bg-blue-600 hover:text-white border-solid border-blue-600"
-                >
-                  Find
-                </Button>
-              </Box>
-              <Button
-                variant="outlined"
-                onClick={() => {
-                  navigate("/FourthPage", { state: { fromAppMenu: true } }); // ganti type = defaultnya, ambil dari const
-                }}
-                sx={{
-                  color: "#00a6fb",
-                  borderColor: "#00a6fb",
-                  backgroundColor: "#ffffff",
-                  fontSize: "1rem", // Adjust the font size as needed
-                  "&:hover": {
-                    borderColor: "#ffffff",
-                    color: "#ffffff",
-                    backgroundColor: "#00a6fb",
-                  },
-                }}
-                startIcon={<PeopleAlt className="text-3xl" />}
-                className="flex items-center"
-              >
-                Details
-              </Button>
-
+            <div className="flex gap-4 items-center justify-end mt-2">
               <TablePagination
-                // rowsPerPageOptions={[5, 10, 25]}
                 component="div"
                 count={totalData}
-                rowsPerPage={5}
+                rowsPerPage={4}
                 page={page - 1}
                 onPageChange={handleChangePage}
-                rowsPerPageOptions={[5]}
+                rowsPerPageOptions={[4]}
                 className="overflow-hidden mt-auto"
-                // onRowsPerPageChange={handleChangeRowsPerPage}
               />
               {/* Detail peserta */}
               <TraineeDetail
@@ -945,17 +667,14 @@ function AppMenu() {
                   );
                   setEditPrompt(true);
                 }}
-                // handleHapus={() => {
-                //   setDetailOpen(false);
-                //   handleHapusUser();
-                // }}
+
               />
             </div>
           </div>
         </div>
 
         {/* nav */}
-        <div className="flex gap-4 justify-start p-8 w-full">
+        <div className="flex justify-start px-8 pb-8 pt-2 w-full">
           <Button
             type="button"
             color="error"
@@ -968,7 +687,6 @@ function AppMenu() {
               "&:hover": {
                 borderColor: "#df2935",
                 backgroundColor: "#df2935",
-                // backgroundColor: "rgba(223, 41, 53, 0.4)", // Lower opacity red color
                 color: "#ffffff",
               },
             }}
@@ -1028,7 +746,6 @@ function AppMenu() {
                   value={newBirthDate}
                   format="DD/MM/YYYY"
                   onChange={(date) => setNewBirthDate(date)}
-                  // defaultValue={dayjs(detailPeserta.born)}
                 />
               </div>
             </form>
@@ -1055,8 +772,6 @@ function AppMenu() {
                 "&:hover": {
                   borderColor: "#00a6fb",
                   color: "#ffffff",
-                  // backgroundColor: "#1aaffb",
-                  // backgroundColor: "rgba(0, 166, 251, 0.4)", // Lower opacity blue color
                 },
               }}
             >

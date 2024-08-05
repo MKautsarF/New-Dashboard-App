@@ -25,6 +25,7 @@ import Trainee from "./pages/TraineeList";
 import UserLog from "./pages/UserLog";
 import FinishKCIC from "./pages/FinishKCIC";
 import FinishLRT from "./pages/FinishLRT";
+import ScoringStart from "./pages/ScoringStart";
 
 import { ToastContainer } from "react-toastify";
 import "./index.css";
@@ -127,6 +128,10 @@ const routerData = [
     element: <FinishKCIC />,
   },
   {
+    path: "/scoringStart",
+    element: <ScoringStart />,
+  },
+  {
     path: "/finishLRT",
     element: <FinishLRT />,
   },
@@ -140,30 +145,6 @@ const router = createHashRouter(
   }))
 );
 
-// ReactDOM.createRoot(document.getElementById("root")!).render(
-//   // <React.StrictMode>
-//   //   <App />
-//   // </React.StrictMode>
-//   <React.StrictMode>
-//     {/* <AuthProvider> */}
-//     <SettingsProvider>
-//       <LocalizationProvider dateAdapter={AdapterDayjs}>
-//         {/* <AuthProvider> */}
-//         <RouterProvider router={router} />
-//         {/* </AuthProvider> */}
-//       </LocalizationProvider>
-//     </SettingsProvider>
-//     {/* </AuthProvider> */}
-//   </React.StrictMode>
-// );
-
-// // Remove Preload scripts loading
-// postMessage({ payload: "removeLoading" }, "*");
-
-// // Use contextBridge
-// window.ipcRenderer.on("main-process-message", (_event, message) => {
-//   console.log(message);
-// });
 const App = () => {
   // Add a beforeunload event listener to handle when the entire application is closing
   useEffect(() => {}, []);
