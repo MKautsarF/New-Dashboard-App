@@ -4,6 +4,7 @@ import { Button } from "@mui/material";
 import Container from "@/components/Container";
 import ButtonSettings from "@/components/ButtonSettings";
 import { getCourseByInstructor } from "@/services/course.services";
+import FirstPageIcon from '@mui/icons-material/FirstPage';
 
 function useQuery() {
   const { search } = useLocation();

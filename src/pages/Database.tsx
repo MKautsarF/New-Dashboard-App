@@ -43,6 +43,7 @@ import dayjs, { Dayjs } from "dayjs";
 import { DatePicker } from "@mui/x-date-pickers";
 import { toast } from "react-toastify";
 import { getSubmissionList } from "../services/submission.services";
+import FirstPageIcon from '@mui/icons-material/FirstPage';
 
 interface RowData {
   id: string;
@@ -186,8 +187,9 @@ function Database() {
         },
       });
 
-      currentPeserta.id = userData.id; // owner id for use in submission
-      // console.log(currentPeserta);
+      currentPeserta.id = userData.id;
+      localStorage.setItem('selectedPesertaId', selectedPeserta.id);
+
       const nextPage =
         // trainType === "kcic" ? "/FifthPage?type=kcic" : "/FifthPage?type=lrt";
         trainType === "kcic" ? "/Modul?type=kcic" : "/Modul?type=lrt";
@@ -524,12 +526,10 @@ function Database() {
                               }
                               className="w-20 ml-2"
                             >
-                              Select
+                              Pilih
                             </Button>
                           </div>
                         </TableCell>
-                        {/* <TableCell align="right">
-                  </TableCell> */}
                       </TableRow>
                     ))}
                   </TableBody>
@@ -541,7 +541,6 @@ function Database() {
               </Table>
             </TableContainer>
             <TablePagination
-              // rowsPerPageOptions={[5, 10, 25]}
               component="div"
               count={totalData}
               rowsPerPage={5}
@@ -549,7 +548,6 @@ function Database() {
               onPageChange={handleChangePage}
               rowsPerPageOptions={[5]}
               className="overflow-hidden mt-auto"
-              // onRowsPerPageChange={handleChangeRowsPerPage}
             />
           </div>
 
@@ -590,28 +588,6 @@ function Database() {
                 value={nip}
                 onChange={(e) => setNip(e.target.value)}
               />
-              {/* <div className="flex gap-4">
-            <TextField
-              className="w-1/2"
-              margin="normal"
-              id="nip"
-              label="NIP"
-              type="text"
-              variant="standard"
-              value={nip}
-              onChange={(e) => setNip(e.target.value)}
-            />
-            <TextField
-              className="w-1/2"
-              margin="normal"
-              id="code"
-              label="Kode Kedinasan"
-              type="text"
-              variant="standard"
-              value={code}
-              onChange={(e) => setCode(e.target.value)}
-            />
-          </div> */}
               <div className="flex gap-4 items-center">
                 <TextField
                   className="w-1/2"
@@ -658,8 +634,6 @@ function Database() {
                 nip: peserta.bio === null ? "" : peserta.bio.identityNumber,
                 born: peserta.bio === null ? "" : peserta.bio.born,
                 position: peserta.bio === null ? "" : peserta.bio.position,
-                // complition: peserta.complition === null ? 3 : peserta.complition,
-                // testing
                 complition: 3,
               });
               setNewBirthDate(
@@ -667,10 +641,6 @@ function Database() {
               );
               setEditPrompt(true);
             }}
-            // handleHapus={() => {
-            //   setDetailOpen(false);
-            //   handleHapusUser();
-            // }}
           />
           {/* Edit Peserta Prompt */}
           <Dialog open={editPrompt} onClose={() => setEditPrompt(false)}>
@@ -750,47 +720,71 @@ function Database() {
         </div>
         {/* nav */}
         <div className="flex gap-4 justify-between pl-8 pb-8 pr-8 w-full">
-          <Button
-            type="button"
-            color="error"
-            variant="outlined"
-            // className="bottom-0 mt-4"
-            sx={{
-              color: "#df2935",
-              borderColor: "#df2935",
-              backgroundColor: "#ffffff",
-              "&:hover": {
-                borderColor: "#df2935",
-                backgroundColor: "#df2935",
-                color: "#ffffff",
-              },
-            }}
-            onClick={() => {
-              handlePrev();
-            }}
-          >
-            Kembali
-          </Button>
-          {selectedPeserta.nip !== "" && (
+          <div className="w-1/2 space-x-2">
             <Button
               type="button"
+              color="error"
               variant="outlined"
-              // className="bg-white text-blue-500 hover:bg-blue-500 hover:text-white ml-auto"
-              onClick={() => handleStart()}
+              // className="bottom-0 mt-4"
               sx={{
-                color: "#00a6fb",
+                color: "#df2935",
+                borderColor: "#df2935",
                 backgroundColor: "#ffffff",
-                borderColor: "#00a6fb",
                 "&:hover": {
-                  borderColor: "#00a6fb",
+                  borderColor: "#df2935",
+                  backgroundColor: "#df2935",
                   color: "#ffffff",
-                  backgroundColor: "#00a6fb",
                 },
               }}
+              onClick={() => {
+                navigate("/SecondPage");
+              }}
             >
-              Lanjut ({selectedPeserta.name}) {trainType}
+              <FirstPageIcon className="mr-2 ml-[-2px] text-xl text-opacity-80"/> Kembali ke Menu
             </Button>
-          )}
+            <Button
+              type="button"
+              color="error"
+              variant="outlined"
+              // className="bottom-0 mt-4"
+              sx={{
+                color: "#df2935",
+                borderColor: "#df2935",
+                backgroundColor: "#ffffff",
+                "&:hover": {
+                  borderColor: "#df2935",
+                  backgroundColor: "#df2935",
+                  color: "#ffffff",
+                },
+              }}
+              onClick={() => {
+                handlePrev();
+              }}
+            >
+              Kembali
+            </Button>
+          </div>
+          <div className="w-1/2 flex items-center justify-end">
+            {selectedPeserta.nip !== "" && (
+              <Button
+                type="button"
+                variant="outlined"
+                onClick={() => handleStart()}
+                sx={{
+                  color: "#00a6fb",
+                  backgroundColor: "#ffffff",
+                  borderColor: "#00a6fb",
+                  "&:hover": {
+                    borderColor: "#00a6fb",
+                    color: "#ffffff",
+                    backgroundColor: "#00a6fb",
+                  },
+                }}
+              >
+                Lanjut ({selectedPeserta.name}) {trainType}
+              </Button>
+            )}
+          </div>
         </div>
         <FullPageLoading loading={pageLoading} />
       </Container>

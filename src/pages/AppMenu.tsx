@@ -21,12 +21,14 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  DialogContentText,
 } from "@mui/material";
 import {
   getUsers,
   getUserById,
   updateUserById,
 } from "../services/user.services";
+import { useAuth } from '@/context/auth';
 import Container from "@/components/Container";
 import { Train, DirectionsRailway, PeopleAlt } from "@mui/icons-material";
 import TraineeDetail from "../components/TraineeDetail";
@@ -60,6 +62,10 @@ function AppMenu() {
   const handleNext = () => {
     navigate("/");
   };
+
+  const { logout } = useAuth();
+
+  
   const handleSimulation = () => {
     navigate("/ThirdPage");
   };
@@ -149,6 +155,11 @@ function AppMenu() {
       setScoringAnchorEl(event.currentTarget);
     }
   };
+
+  const [logoutOpen, setLogoutOpen] = useState(false);
+
+  const handleLogoutOpen = () => setLogoutOpen(true);
+  const handleLogoutClose = () => setLogoutOpen(false);
 
   const handleScoringClose = () => {
     setScoringAnchorEl(null);
@@ -298,6 +309,11 @@ function AppMenu() {
     navigate(`/FifthPage?type=${trainType}`, {
       state: { from: "startClickKcic" },
     });
+  };
+
+  const handleConfirmLogout = () => {
+    logout();
+    navigate('/');
   };
 
   return (
@@ -706,11 +722,9 @@ function AppMenu() {
                 color: "#ffffff",
               },
             }}
-            onClick={() => {
-              handlePrev();
-            }}
+            onClick={handleLogoutOpen}
           >
-            Log Out
+            Logout
           </Button>
         </div>
 
@@ -794,6 +808,29 @@ function AppMenu() {
               }}
             >
               Simpan
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* Logout Confirmation Dialog */}
+        <Dialog
+          open={logoutOpen}
+          onClose={handleLogoutClose}
+          aria-labelledby="logout-dialog-title"
+          aria-describedby="logout-dialog-description"
+        >
+          <DialogTitle id="logout-dialog-title">Konfirmasi Logout</DialogTitle>
+          <DialogContent>
+            <DialogContentText id="logout-dialog-description">
+              Apakah Anda yakin ingin logout?
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions className="p-4">
+            <Button onClick={handleConfirmLogout} variant="outlined" color="error">
+              Logout
+            </Button>
+            <Button onClick={handleLogoutClose} variant="contained" color="primary">
+              Batal
             </Button>
           </DialogActions>
         </Dialog>

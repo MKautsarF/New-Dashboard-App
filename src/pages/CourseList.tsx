@@ -1,14 +1,13 @@
 import {
   Add,
   Delete,
-  LockReset,
-  NavigateBefore,
-  PersonAdd,
-  Info,
-  VisibilityOff,
-  Visibility,
   EditNote,
+  Info,
+  BookmarkAdd,
+  Visibility,
+  AccessTime
 } from "@mui/icons-material";
+import { TimePicker } from "@mui/x-date-pickers";
 import {
   Box,
   Button,
@@ -29,8 +28,12 @@ import {
   CircularProgress,
   IconButton,
   Tooltip,
-  Snackbar,
-  Alert,
+  Select, 
+  MenuItem, 
+  FormControl, 
+  InputLabel,
+  Slider,
+  Input
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import Logo from "@/components/Logo";
@@ -50,9 +53,13 @@ import dayjs, { Dayjs } from "dayjs";
 import { DatePicker } from "@mui/x-date-pickers";
 import { toast } from "react-toastify";
 import { getSubmissionList } from "@/services/submission.services";
+import { createCourseAsAdmin } from "@/services/course.services";
+import Checkbox from '@mui/material/Checkbox';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import fs from "fs";
 
 interface RowData {
-  id: number;
+  id: string;
   title: string;
   description: string;
   filename: string;
@@ -60,47 +67,129 @@ interface RowData {
 
 const CourseList = () => {
   const navigate = useNavigate();
-  const { logout } = useAuth();
-  const { settings, setSettings } = useSettings();
+
+  const sourceSettingsPath =
+    "C:/Train Simulator/Data/settings_train - Copy.json";
+  const sourceSettingsRead = fs.readFileSync(sourceSettingsPath, "utf-8");
+  const sourceSettings = JSON.parse(sourceSettingsRead);
+
+  type StationMapping = {
+    [key: string]: string;
+  };
+  
+  const stationMapping: StationMapping = {
+    "Tegalluar": "Tegal Luar",
+    "Joint Workshop Tegalluar": "Tegal Luar Depot",
+    "Karawang": "Karawang",
+    "Padalarang": "Padalarang",
+    "Halim": "Halim",
+  };
+
+  const getDisplayStationName = (station: any) => stationMapping[station] || station;
+  const getPayloadStationName = (displayName: any) => Object.keys(stationMapping).find(key => stationMapping[key] === displayName) || displayName;
 
   const [open, setOpen] = useState(false);
-  const [selectedPeserta, setSelectedPeserta] = useState({
-    id: "",
-    name: "",
-    nip: "",
-  });
-  const [isLoading, setIsLoading] = useState(false);
 
-  // Detail peserta
-  const [detailOpen, setDetailOpen] = useState(false);
-  const [detailId, setDetailId] = useState("");
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const [isLoading, setIsLoading] = useState(false);
 
   // Full page loading
   const [pageLoading, setPageLoading] = useState(false);
 
-  // Register Purposes
-  const [nama, setNama] = useState("");
-  const [email, setEmail] = useState("");
-
-  const [nip, setNip] = useState("");
-  const [username, setUsername] = useState("");
-
-  const [code, setCode] = useState("");
-  const [password, setPassword] = useState("");
-
-  const [position, setPosition] = useState("");
-  const [birthDate, setBirthDate] = useState<Dayjs | null>(null);
-
-  const [rows, setRows] = useState<RowData[]>([
-    // Local testing purposes
-    // {
-    //   id: "123",
-    //   name: "Dummy user",
-    //   nip: "123456",
-    // },
-  ]);
+  const [rows, setRows] = useState<RowData[]>([]);
   const [totalData, setTotalData] = useState(0);
   const [page, setPage] = useState(1);
+  
+  const [moduleName, setModuleName] = useState("");
+  const [train, setTrain] = useState("");
+  const [trainLine, setTrainLine] = useState("");
+  const [trainLines, setTrainLines] = useState([]);
+  const [trainWeight, setTrainWeight] = useState("");
+  const [trainType, setTrainType] = useState("");
+  const [time, setTime] = useState(null);
+  const [startStation, setStartStation] = useState("");
+  const [finishStation, setFinishStation] = useState("");
+  const [startStations, setStartStations] = useState([]);
+  const [finishStations, setFinishStations] = useState([]);
+  const [rainStatus, setRainStatus] = useState("");
+  const [fog, setFog] = useState(0);
+  const [jarakPandang, setJarakPandang] = useState(0);
+  const [motionBase, setMotionBase] = useState(false);
+  const [speedBuzzer, setSpeedBuzzer] = useState(false);
+  const [speedLimit, setSpeedLimit] = useState("");
+  const [error, setError] = useState('');
+  const [isAddButtonEnabled, setIsAddButtonEnabled] = useState(false);
+
+  const handleSliderChange = (event: Event, newValue: number | number[]) => {
+    if (typeof newValue === 'number') {
+      const fogDistance =
+        newValue >= 0.5 ? Math.round(Math.pow(newValue / 100, -0.914) * 50.6) : 0;
+      setFog(Math.round(newValue));
+      setJarakPandang(fogDistance);
+    }
+  };
+
+  useEffect(() => {
+    // Update the train lines based on the selected train type
+    if (train) {
+      setTrainLines(Object.keys(sourceSettings[train].rute));
+    } else {
+      setTrainLines([]);
+    }
+  }, [train]);
+
+  useEffect(() => {
+    if (train && trainLine) {
+      setStartStations(Object.keys(sourceSettings[train].rute[trainLine]));
+    } else {
+      setStartStations([]);
+    }
+  }, [train, trainLine]);
+
+  useEffect(() => {
+    if (train && trainLine && startStation) {
+      setFinishStations(sourceSettings[train].rute[trainLine][startStation]);
+    } else {
+      setFinishStations([]);
+    }
+  }, [train, trainLine, startStation]);
+
+  const validateForm = () => {
+    if (!moduleName || !train || !trainWeight || !trainLine || !startStation || !finishStation || !rainStatus || !time || (speedBuzzer && !speedLimit)) {
+      setIsAddButtonEnabled(false);
+    } else {
+      setIsAddButtonEnabled(true);
+    }
+  };
+
+  useEffect(() => {
+    validateForm();
+  }, [moduleName, train, trainWeight, trainLine, startStation, finishStation, rainStatus, time, speedLimit, speedBuzzer]);
+
+  const handleMotionBaseChange = (event: any) => {
+    setMotionBase(event.target.checked);
+    validateForm();
+  };
+
+  const handleSpeedBuzzerChange = (event: any) => {
+    setSpeedBuzzer(event.target.checked);
+    setSpeedLimit(''); // Reset speedLimit when speedBuzzer changes
+    validateForm();
+  };
+
+  const handleSpeedLimitChange = (event: any) => {
+    setSpeedLimit(event.target.value);
+    // Validate speed limit if speed buzzer is checked
+    if (speedBuzzer && event.target.value.trim() === '') {
+      setError('Speed Limit is required when Speed Buzzer is enabled.');
+    } else {
+      setError('');
+    }
+  };
+
 
   const [deletePrompt, setDeletePrompt] = useState(false);
   const [passwordPrompt, setPasswordPrompt] = useState(false);
@@ -116,9 +205,8 @@ const CourseList = () => {
   // console.log(currentInstructor.isAdmin);
   currentInstructor.isInstructor = true;
 
-  const handleLogout = () => {
-    logout();
-    navigate("/");
+  const handleDaftar = () => {
+    setOpen(true);
   };
 
   const handleKembali = () => {
@@ -129,6 +217,84 @@ const CourseList = () => {
     setPage(newPage + 1);
     // setPage(newPage);
   };
+
+  const validateRegister = (): boolean => {
+    return (
+      moduleName !== "" &&
+      train !== "" &&
+      trainWeight !== "" &&
+      trainType !== "" &&
+      time !== "" &&
+      startStation !== "" &&
+      finishStation !== "" &&
+      motionBase !== null &&
+      speedBuzzer !== null &&
+      speedLimit !== ""
+    );
+  };
+
+  const handleRegister = async () => {
+    const isValid = validateRegister();
+
+    if (!isValid) {
+      toast.error("Input registrasi tidak boleh kosong!", {
+        position: "top-center",
+      });
+      return;
+    }
+
+    const payload = {
+      moduleName: moduleName,
+      train: train,
+      trainWeight: trainWeight,
+      trainType: trainType,
+      time: time,
+      startStation: startStation,
+      finishStation: finishStation,
+      motionBase: motionBase,
+      speedBuzzer: speedBuzzer,
+      speedLimit: speedLimit,
+      status: "play"
+    };
+
+    try {
+      setPageLoading(true);
+      const res = await createCourseAsAdmin(payload);
+      // setRows(
+      //   [
+      //     {
+      //       id: res.id,
+      //       name: res.name,
+      //       nip: res.bio.identityNumber,
+      //     },
+      //   ].concat(rows)
+      // );
+      setPage(1);
+
+      setPageLoading(false);
+      setOpen(false);
+      setModuleName("");
+      setTrain("");
+      setTrainWeight("");
+      setTrainType("6 Rangkaian");
+      setTime("");
+      setStartStation("");
+      setFinishStation("");
+      setMotionBase(null);
+      setSpeedBuzzer(null);
+      setSpeedLimit("");
+    } catch (e) {
+      const errMsg = e.response.data.errorMessage;
+      console.error(e);
+      toast.error(
+        "Nama modul sudah terdapat di database, mohon gunakan inputan yang berbeda",
+        { position: "top-center" }
+      );
+    } finally {
+      setPageLoading(false);
+    }
+  };
+
 
   const handleViewFile = async (id: number) => {
     try {
@@ -184,7 +350,8 @@ const CourseList = () => {
           <Button
             type="button"
             variant="contained"
-            startIcon={<PersonAdd />}
+            onClick={() => handleDaftar()}
+            startIcon={<BookmarkAdd className="text-2xl" />}
             sx={{
               color: "#ffffff",
               backgroundColor: "#00a6fb",
@@ -196,7 +363,7 @@ const CourseList = () => {
               },
             }}
           >
-            Daftar Baru
+            Tambah Baru
           </Button>
           <TextField
             id="input-with-icon-textfield"
@@ -234,7 +401,7 @@ const CourseList = () => {
         </Box>
 
         {/* tabel preview */}
-        <TableContainer className="mb-8" component={Paper}>
+        <TableContainer className="mt-5" component={Paper}>
           <Table stickyHeader aria-label="Tabel Peserta">
             <colgroup>
               <col width="45%" />
@@ -249,9 +416,7 @@ const CourseList = () => {
                 <TableCell sx={{ fontWeight: "bold", fontSize: "17px" }}>
                   Tipe Kereta
                 </TableCell>
-                <TableCell sx={{ fontWeight: "bold", fontSize: "17px" }}>
-                  Test
-                </TableCell>
+                <TableCell></TableCell>
               </TableRow>
             </TableHead>
             {isLoading ? (
@@ -270,13 +435,81 @@ const CourseList = () => {
                     <TableCell>{row.title}</TableCell>
                     <TableCell>{row.description}</TableCell>
                     <TableCell>
-                      <Button
-                        variant="outlined"
-                        color="primary"
-                        onClick={() => handleViewFile(row.id)} // Pass the id to the function
-                      >
-                        View File
-                      </Button>
+                      <div className="flex gap-4 justify-end">
+                        <Tooltip title="Konfigurasi Modul Pembelajaran" placement="top">
+                          <IconButton
+                            size="small"
+                            // onClick={() => {
+                            //   setDetailId(row.id), setDetailOpen(true);
+                            //   setSelectedPeserta({
+                            //     id: row.id,
+                            //     name: row.name,
+                            //     nip: row.nip,
+                            //   });
+                            //   handleGetUserDetail();
+                            // }}
+                          >
+                            <Info />
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Edit Modul Pembelajaran" placement="top">
+                          <IconButton
+                            size="small"
+                            // onClick={async () => {
+                            //   setSelectedPeserta({
+                            //     id: row.id,
+                            //     name: row.name,
+                            //     nip: row.nip,
+                            //   });
+
+                            //   const peserta = await getUserByIdAsAdmin(row.id);
+                            //   setDetailPeserta({
+                            //     username: peserta.username,
+                            //     name: peserta.name,
+                            //     email: peserta.email,
+                            //     nip:
+                            //       peserta.bio === null
+                            //         ? ""
+                            //         : peserta.bio.officialCode,
+                            //     born:
+                            //       peserta.bio === null ? "" : peserta.bio.born,
+                            //     position:
+                            //       peserta.bio === null
+                            //         ? ""
+                            //         : peserta.bio.position,
+                            //   });
+                            //   setNewBirthDate(
+                            //     peserta.bio === null
+                            //       ? null
+                            //       : dayjs(peserta.bio.born)
+                            //   );
+
+                            //   setEditPrompt(true);
+
+                            //   console.log(row.name);
+                            // }}
+                          >
+                            <EditNote />
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Hapus Modul Pembelajaran" placement="top">
+                          <IconButton
+                            size="small"
+                            // onClick={() => {
+                            //   setSelectedPeserta({
+                            //     id: row.id,
+                            //     name: row.name,
+                            //     nip: row.nip,
+                            //   });
+                            //   setDeletePrompt(true);
+
+                            //   console.log(row.name);
+                            // }}
+                          >
+                            <Delete />
+                          </IconButton>
+                        </Tooltip>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -293,7 +526,6 @@ const CourseList = () => {
           count={totalData}
           rowsPerPage={5}
           page={page - 1}
-          // page={page}
           onPageChange={handleChangePage}
           rowsPerPageOptions={[5]}
           className="overflow-hidden mt-auto"
@@ -321,6 +553,207 @@ const CourseList = () => {
           </Button>
         </div>
       </div>
+
+      {/* pop up registrasi */}
+      <Dialog open={open} onClose={handleClose}>
+        <DialogTitle className="px-8 pt-4">Tambah Modul Pembelajaran Baru</DialogTitle>
+        <DialogContent className="w-[600px] px-8">
+          <DialogContentText>Penambahan Modul Pembelajaran</DialogContentText>
+          <TextField
+            autoFocus
+            margin="normal"
+            id="modulName"
+            label={<span>Nama Modul Pembelajaran <span style={{ color: 'red' }}>*</span></span>}
+            type="text"
+            fullWidth
+            variant="standard"
+            value={moduleName}
+            onChange={(e) => setModuleName(e.target.value)}
+          />
+          <FormControl fullWidth variant="standard" margin="normal">
+            <InputLabel id="train-label">Jenis Kereta <span style={{ color: 'red' }}>*</span></InputLabel>
+            <Select
+              labelId="train-label"
+              id="train"
+              value={train}
+              onChange={(e) => {
+                setTrain(e.target.value);
+                setTrainLine(''); // Reset trainLine when train changes
+                setStartStation(''); // Reset startStation when train changes
+                setFinishStation(''); // Reset finishStation when train changes
+              }}
+            >
+              {Object.keys(sourceSettings).map((key) => (
+                <MenuItem key={key} value={key}>{key.toUpperCase()}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <TextField
+            margin="normal"
+            id="Spesifikasi Kereta"
+            label={<span>Berat Kereta <span style={{ color: 'red' }}>*</span></span>}
+            type="text"
+            fullWidth
+            variant="standard"
+            value={trainWeight}
+            onChange={(e) => setTrainWeight(e.target.value)}
+          />
+          
+          <FormControl fullWidth variant="standard" margin="normal" disabled={!train}>
+            <InputLabel id="train-label">Line Kereta <span style={{ color: 'red' }}>*</span></InputLabel>
+            <Select
+              labelId="train-line-label"
+              id="train-line"
+              value={trainLine}
+              onChange={(e) => {
+                setTrainLine(e.target.value);
+                setStartStation(''); // Reset startStation when trainLine changes
+                setFinishStation(''); // Reset finishStation when trainLine changes
+              }}
+              label="Line Kereta"
+            >
+              {trainLines.map((line) => (
+                <MenuItem key={line} value={line}>{line}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <FormControl fullWidth variant="standard" margin="normal" disabled={!trainLine}>
+            <InputLabel id="train-label">Stasiun Awal <span style={{ color: 'red' }}>*</span></InputLabel>
+            <Select
+              labelId="start-station-label"
+              id="start-station"
+              value={getDisplayStationName(startStation)}
+              onChange={(e) => {
+                setStartStation(getPayloadStationName(e.target.value));
+                setFinishStation(''); // Reset finishStation when startStation changes
+              }}
+              label="Stasiun Awal"
+            >
+              {startStations.map((station) => (
+                <MenuItem key={station} value={getDisplayStationName(station)}>{getDisplayStationName(station)}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <FormControl fullWidth variant="standard" margin="normal" disabled={!startStation}>
+            <InputLabel id="train-label">Stasiun Akhir <span style={{ color: 'red' }}>*</span></InputLabel>
+            <Select
+              labelId="finish-station-label"
+              id="finish-station"
+              value={getDisplayStationName(finishStation)}
+              onChange={(e) => setFinishStation(getPayloadStationName(e.target.value))}
+              label="Stasiun Akhir"
+            >
+              {finishStations.map((station) => (
+                <MenuItem key={station} value={getDisplayStationName(station)}>{getDisplayStationName(station)}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <FormControl fullWidth variant="standard" margin="normal">
+            <InputLabel id="train-label">Status Hujan <span style={{ color: 'red' }}>*</span></InputLabel>
+            <Select
+              labelId="rain-status"
+              id="rainStatus"
+              value={rainStatus}
+              onChange={(e) => {
+                setRainStatus(e.target.value);
+              }}
+              label="Status Hujan"
+            >
+                <MenuItem value="Cerah">Cerah</MenuItem>
+                <MenuItem value="Ringan">Ringan</MenuItem>
+                <MenuItem value="Sedang">Sedang</MenuItem>
+                <MenuItem value="Deras">Deras</MenuItem>
+            </Select>
+          </FormControl>
+          <div className="mb-2 mt-8 flex items-center w-full">
+            <TimePicker
+              label={<span>Waktu <span style={{ color: 'red' }}>*</span></span>}
+              ampm={false}
+              value={time}
+              onChange={(newWaktu) => setTime(newWaktu)}
+              className="flex-grow"
+              timeSteps={{ minutes: 60 }}
+            />
+          </div>
+          <div className="flex items-center justify-center mt-4 space-x-4">
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={motionBase}
+                  onChange={handleMotionBaseChange}
+                  name="motionBase"
+                />
+              }
+              label="Motion Base"
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={speedBuzzer}
+                  onChange={handleSpeedBuzzerChange}
+                  name="speedBuzzer"
+                />
+              }
+              label="Speed Buzzer"
+            />
+          </div>
+          <div className="flex items-center mt-5">Jarak Pandang</div>
+          <div className="flex items-center mt-3 gap-3">
+            <Visibility className="my-[0.5px] mr-2 text-gray-600" />
+            <div className="flex-grow">
+              <Slider
+                className="flex-grow"
+                min={0}
+                max={100}
+                step={0.25}
+                value={fog}
+                onChange={handleSliderChange}
+              />
+            </div>
+            <Input
+              value={jarakPandang}
+              readOnly
+              className="w-28"
+              size="small"
+              onFocus={(e) => e.target.select()}
+              endAdornment={
+                <InputAdornment
+                  position="start"
+                  className={`${
+                    jarakPandang !== 0 ? "text-base" : "text-xs"
+                  }`}
+                >
+                  {jarakPandang !== 0 ? "meter" : "Tidak berkabut"}
+                </InputAdornment>
+              }
+            />
+          </div>
+          <TextField
+            margin="normal"
+            id="Speed Limit"
+            label={
+              <span>
+                Speed Limit (km/h) {speedBuzzer && <span style={{ color: 'red' }}>*</span>}
+              </span>
+            }
+            type="text"
+            fullWidth
+            variant="standard"
+            value={speedLimit}
+            onChange={handleSpeedLimitChange}
+            error={!!error}
+            helperText={error}
+            disabled={!speedBuzzer}
+          />
+        </DialogContent>
+        <DialogActions className="px-8 pb-4">
+          <Button onClick={handleClose} color="error">
+            Kembali
+          </Button>
+          <Button disabled={!isAddButtonEnabled}>Tambah</Button>
+          {/* <Button onClick={handleRegister} disabled={!isAddButtonEnabled}>Tambah</Button> */}
+        </DialogActions>
+      </Dialog>
 
       <FullPageLoading loading={pageLoading} />
     </Container>

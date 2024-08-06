@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@mui/material";
 import Container from "@/components/Container";
 import { EditNote, School } from "@mui/icons-material";
+import FirstPageIcon from '@mui/icons-material/FirstPage';
 
 function useQuery() {
   const { search } = useLocation();
@@ -112,7 +113,7 @@ function Modul() {
             </div>
           </div>
         </div>
-        <div className="flex gap-4 justify-start pl-8 pb-8 w-full">
+        <div className="flex gap-2 justify-start pl-8 pb-8 w-full">
           <Button
             type="button"
             color="error"
@@ -125,7 +126,27 @@ function Modul() {
               "&:hover": {
                 borderColor: "#df2935",
                 backgroundColor: "#df2935",
-                // backgroundColor: "rgba(223, 41, 53, 0.4)", // Lower opacity red color
+                color: "#ffffff",
+              },
+            }}
+            onClick={() => {
+              navigate("/SecondPage");
+            }}
+          >
+            <FirstPageIcon className="mr-2 ml-[-2px] text-xl text-opacity-80"/> Kembali ke Menu
+          </Button>
+          <Button
+            type="button"
+            color="error"
+            variant="outlined"
+            className="bottom-0 mt-4"
+            sx={{
+              color: "#df2935",
+              borderColor: "#df2935",
+              backgroundColor: "#ffffff",
+              "&:hover": {
+                borderColor: "#df2935",
+                backgroundColor: "#df2935",
                 color: "#ffffff",
               },
             }}

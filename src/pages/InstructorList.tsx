@@ -1,8 +1,6 @@
 import {
-  Add,
   Delete,
   LockReset,
-  NavigateBefore,
   PersonAdd,
   Info,
   VisibilityOff,
@@ -44,7 +42,6 @@ import {
   deactivateUserById,
   getInstructorList,
   getUserByIdAsAdmin,
-  getUsersAsAdmin,
   updateUserByIdAsAdmin,
   updateUserPasswordById,
 } from "@/services/user.services";
@@ -95,14 +92,7 @@ const InstructorList = () => {
   const [position, setPosition] = useState("");
   const [birthDate, setBirthDate] = useState<Dayjs | null>(null);
 
-  const [rows, setRows] = useState<RowData[]>([
-    // Local testing purposes
-    // {
-    //   id: "123",
-    //   name: "Dummy user",
-    //   nip: "123456",
-    // },
-  ]);
+  const [rows, setRows] = useState<RowData[]>([]);
   const [totalData, setTotalData] = useState(0);
   const [page, setPage] = useState(1);
 
@@ -111,9 +101,6 @@ const InstructorList = () => {
   const [reload, setReload] = useState(false);
 
   const [showPassword, setShowPassword] = useState(false);
-  // const [inputError, setInputError] = useState(false);
-  // const [errorMsg, setErrorMsg] = useState('');
-
   const [editPrompt, setEditPrompt] = useState(false);
   const [detailPeserta, setDetailPeserta] = useState({
     username: "",
@@ -126,7 +113,6 @@ const InstructorList = () => {
   const [newBirthDate, setNewBirthDate] = useState<Dayjs | null>(null);
 
   currentInstructor.isAdmin = true;
-  // console.log(currentInstructor.isAdmin);
   currentInstructor.isInstructor = true;
 
   const handleClose = () => {
@@ -169,7 +155,6 @@ const InstructorList = () => {
 
     try {
       const res = await deactivateUserById(selectedPeserta.id);
-      // console.log("deactivated user: " + res.id);
 
       setRows(rows.filter((row) => row.id !== res.id));
       setReload(!reload);
@@ -206,7 +191,6 @@ const InstructorList = () => {
       nip !== "" &&
       username !== "" &&
       password !== "" &&
-      // code !== '' &&
       birthDate !== null &&
       position !== ""
     );
@@ -238,6 +222,8 @@ const InstructorList = () => {
     try {
       setPageLoading(true);
       const res = await createUserAsAdmin(payload);
+
+      console.log("res", res)
       setRows(
         [
           {
@@ -475,7 +461,7 @@ const InstructorList = () => {
         </Box>
 
         {/* tabel preview */}
-        <TableContainer className="mb-8" component={Paper}>
+        <TableContainer className="mt-5" component={Paper}>
           <Table stickyHeader aria-label="Tabel Peserta">
             <colgroup>
               <col width="45%" />

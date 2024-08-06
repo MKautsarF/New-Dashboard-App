@@ -149,6 +149,7 @@ const TraineeList = () => {
       console.log("deactivated user: " + res.id);
 
       setRows(rows.filter((row) => row.id !== res.id));
+      setReload(!reload);
     } catch (e) {
       console.error(e);
     } finally {
@@ -342,7 +343,6 @@ const TraineeList = () => {
           <Button
             type="button"
             variant="contained"
-            // className="my-4"
             onClick={() => handleDaftar()}
             startIcon={<PersonAdd />}
             sx={{
@@ -394,7 +394,7 @@ const TraineeList = () => {
         </Box>
 
         {/* tabel preview */}
-        <TableContainer className="mb-8" component={Paper}>
+        <TableContainer className="mt-5" component={Paper}>
           <Table stickyHeader aria-label="Tabel Peserta">
             <colgroup>
               <col width="45%" />

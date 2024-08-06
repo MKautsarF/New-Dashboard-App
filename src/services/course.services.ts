@@ -28,6 +28,13 @@ export const getCourseListbyAdmin = async (page: number, size: number) => {
   }
 };
 
+export const createCourseAsAdmin = async (payload: any) => {
+  console.log("payload", payload)
+  const res = await services.post('/admin/course', payload);
+
+  return res.data;
+};
+
 // PUBLIC
 
 export const downloadCourse = async (id: number) => {

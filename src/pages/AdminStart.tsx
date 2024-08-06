@@ -1,5 +1,12 @@
 import { ManageAccounts, Groups, School } from "@mui/icons-material";
-import { Button } from "@mui/material";
+import { 
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+ } from "@mui/material";
 import React, { useState } from "react";
 import Logo from "@/components/Logo";
 import { useNavigate } from "react-router-dom";
@@ -28,29 +35,31 @@ const AdminStart = () => {
     navigate("/admin/courselist");
   };
 
-  const handleLogout = () => {
+  const [logoutOpen, setLogoutOpen] = useState(false);
+
+  const handleLogoutOpen = () => setLogoutOpen(true);
+  const handleLogoutClose = () => setLogoutOpen(false);
+
+  const handleConfirmLogout = () => {
     logout();
+    navigate('/');
   };
 
   return (
     <Container w={800}>
-      {/* <div className="w-1/3 absolute -translate-y-full py-4">
-        <Logo />
-      </div> */}
-
       <div className="p-6">
-        <h4 className="py-3 mb-2">{"Halo, " + instructor.name + "."}</h4>
+        <h4 className="pt-3 mb-2">{"Halo, " + instructor.name + "."}</h4>
         <div className="flex flex-col">
-          <p className="mb-5">
-            Pilih kategori peserta yang ingin dipersunting:{" "}
+          <p className="mb-4">
+            Pilih kategori peserta atau kursus yang ingin dipersunting:{" "}
           </p>
-          <div className="border-0 border-solid flex space-x-10 justify-center items-center">
+          <div className="border-0 border-solid flex space-x-4 mt-4 justify-center items-center">
             <Button
               variant="contained"
               type="button"
               onClick={() => handleInstruktur()}
               className="w-1/2 p-5 text-2xl bg-gray-400 "
-              startIcon={<ManageAccounts className="text-3xl" />}
+              startIcon={<ManageAccounts className="text-3xl mr-2 ml-[-7px]" />}
               sx={{
                 "&:hover": {
                   backgroundColor: "#1aaffb !important",
@@ -64,7 +73,7 @@ const AdminStart = () => {
               type="button"
               onClick={() => handlePeserta()}
               className="w-1/2 p-5 text-2xl bg-gray-400 "
-              startIcon={<Groups className="text-3xl" />}
+              startIcon={<Groups className="text-3xl mr-2 ml-[-7px]" />}
               sx={{
                 "&:hover": {
                   backgroundColor: "#1aaffb !important",
@@ -78,14 +87,14 @@ const AdminStart = () => {
               type="button"
               onClick={() => handleCourse()}
               className="w-1/2 p-5 text-2xl bg-gray-400 "
-              startIcon={<School className="text-3xl" />}
+              startIcon={<School className="text-3xl mr-2 ml-[-7px]" />}
               sx={{
                 "&:hover": {
                   backgroundColor: "#1aaffb !important",
                 },
               }}
             >
-              Course
+              Kursus
             </Button>
           </div>
         </div>
@@ -95,15 +104,14 @@ const AdminStart = () => {
             type="button"
             color="error"
             variant="outlined"
-            // startIcon={<NavigateBefore />}
-            onClick={() => handleLogout()}
+            onClick={handleLogoutOpen}
             sx={{
               color: "#df2935",
               borderColor: "#df2935",
+              backgroundColor: "#ffffff",
               "&:hover": {
                 borderColor: "#df2935",
                 backgroundColor: "#df2935",
-                // backgroundColor: "rgba(223, 41, 53, 0.4)", // Lower opacity red color
                 color: "#ffffff",
               },
             }}
@@ -112,6 +120,29 @@ const AdminStart = () => {
           </Button>
         </div>
       </div>
+
+      {/* Logout Confirmation Dialog */}
+      <Dialog
+          open={logoutOpen}
+          onClose={handleLogoutClose}
+          aria-labelledby="logout-dialog-title"
+          aria-describedby="logout-dialog-description"
+        >
+          <DialogTitle id="logout-dialog-title">Konfirmasi Logout</DialogTitle>
+          <DialogContent>
+            <DialogContentText id="logout-dialog-description">
+              Apakah Anda yakin ingin logout?
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions className="p-4">
+            <Button onClick={handleConfirmLogout} variant="outlined" color="error">
+              Logout
+            </Button>
+            <Button onClick={handleLogoutClose} variant="contained" color="primary">
+              Batal
+            </Button>
+          </DialogActions>
+        </Dialog>
     </Container>
   );
 };

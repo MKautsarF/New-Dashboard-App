@@ -32,6 +32,7 @@ import {
 import { useSettings } from "@/context/settings";
 import { sendTextToClients } from "@/socket";
 import FullPageLoading from "@/components/FullPageLoading";
+import { useAuth } from '@/context/auth';
 import fs from "fs";
 
 function useQuery() {
@@ -113,8 +114,10 @@ function Settings() {
   const handleMulai = async () => {
     let startStation = "";
     let finishStation = "";
+    const selectedPesertaId = localStorage.getItem('selectedPesertaId');
 
     const payload = {
+      id_user: selectedPesertaId,
       train_type: trainType.toUpperCase(),
       train: {
         weight: settings.berat.toString(),
@@ -535,7 +538,7 @@ function Settings() {
                 },
               }}
             >
-              Start
+              Mulai
             </Button>
           </div>
         </div>

@@ -8,6 +8,7 @@ import { sendTextToClients } from "@/socket";
 import ButtonSettings from "@/components/ButtonSettings";
 import { getCourseByInstructor } from "@/services/course.services";
 import { getPayloadFromCourse } from "@/services/course.services";
+import FirstPageIcon from '@mui/icons-material/FirstPage';
 
 function useQuery() {
   const { search } = useLocation();
@@ -91,10 +92,15 @@ function ScoringStart() {
 
   useEffect(() => {
     const fetchPayload = async () => {
+      const selectedPesertaId = localStorage.getItem('selectedPesertaId');
       if (selectedCourse && selectedCourse.id) {
         try {
           const payloadData = await getPayloadFromCourse(selectedCourse.id);
-          setPayload(payloadData);
+          const payloadWithPesertaId = {
+            ...payloadData,
+            id_user: selectedPesertaId,
+          };
+          setPayload(payloadWithPesertaId);
         } catch (error) {
           console.error("Failed to fetch payload data:", error);
         }
@@ -166,48 +172,72 @@ function ScoringStart() {
         </div>
 
         {/* nav */}
-        <div className="flex gap-4 justify-between p-8 w-full">
-          <Button
-            type="button"
-            color="error"
-            variant="outlined"
-            className="bottom-0 mt-4"
-            sx={{
-              color: "#df2935",
-              borderColor: "#df2935",
-              backgroundColor: "#ffffff",
-              "&:hover": {
-                borderColor: "#df2935",
-                backgroundColor: "#df2935",
-                color: "#ffffff",
-              },
-            }}
-            onClick={handlePrev}
-          >
-            Kembali
-          </Button>
-          {payload.module_name ? (
+        <div className="flex gap-4 justify-between p-8 mt-6 w-full">
+          <div className="w-1/2 space-x-2">
             <Button
               type="button"
+              color="error"
               variant="outlined"
-              endIcon={<NavigateNext className="text-[17px]"/>}
-              onClick={handleStart}
-              className="bottom-0 mt-4"
+              // className="bottom-0 mt-4"
               sx={{
-                color: "#f3f3f4",
-                backgroundColor: "#00a6fb",
-                borderColor: "#f3f3f4",
-                fontSize: "1.1rem",
+                color: "#df2935",
+                borderColor: "#df2935",
+                backgroundColor: "#ffffff",
                 "&:hover": {
-                  borderColor: "#4dc1fc",
-                  color: "#f3f3f4",
-                  backgroundColor: "#4dc1fc",
+                  borderColor: "#df2935",
+                  backgroundColor: "#df2935",
+                  color: "#ffffff",
                 },
               }}
+              onClick={() => {
+                navigate("/SecondPage");
+              }}
             >
-              Mulai
+              <FirstPageIcon className="mr-2 ml-[-2px] text-xl text-opacity-80"/> Kembali ke Menu
             </Button>
-          ) : null}
+            <Button
+              type="button"
+              color="error"
+              variant="outlined"
+              // className="bottom-0 mt-4"
+              sx={{
+                color: "#df2935",
+                borderColor: "#df2935",
+                backgroundColor: "#ffffff",
+                "&:hover": {
+                  borderColor: "#df2935",
+                  backgroundColor: "#df2935",
+                  color: "#ffffff",
+                },
+              }}
+              onClick={() => {
+                handlePrev();
+              }}
+            >
+              Kembali
+            </Button>
+          </div>
+          <div className="w-1/2 flex items-center justify-end">
+            {payload.module_name ? (
+              <Button
+                type="button"
+                variant="outlined"
+                onClick={handleStart}
+                sx={{
+                  color: "#00a6fb",
+                  backgroundColor: "#ffffff",
+                  borderColor: "#00a6fb",
+                  "&:hover": {
+                    borderColor: "#00a6fb",
+                    color: "#ffffff",
+                    backgroundColor: "#00a6fb",
+                  },
+                }}
+              >
+                Mulai Simulasi
+              </Button>
+            ) : null}
+          </div>
         </div>
       </Container>
     </>
