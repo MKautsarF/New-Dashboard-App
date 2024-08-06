@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import { useNavigate } from "react-router-dom";
 import {
   Button,
@@ -22,13 +22,13 @@ import {
   DialogContent,
   DialogActions,
 } from "@mui/material";
-import { getUsers, getUserById, updateUserById } from "../services/user.services";
-import Container from "@/components/Container";
 import {
-  Train,
-  DirectionsRailway,
-  PeopleAlt,
-} from "@mui/icons-material";
+  getUsers,
+  getUserById,
+  updateUserById,
+} from "../services/user.services";
+import Container from "@/components/Container";
+import { Train, DirectionsRailway, PeopleAlt } from "@mui/icons-material";
 import TraineeDetail from "../components/TraineeDetail";
 import dayjs, { Dayjs } from "dayjs";
 import SearchIcon from "@mui/icons-material/Search";
@@ -36,14 +36,18 @@ import { DatePicker } from "@mui/x-date-pickers";
 import lrtPng from "@/static/lrt.png";
 import kcicPng from "@/static/kcic.png";
 import { toast } from "react-toastify";
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 
 function AppMenu() {
-  const [scoringAnchorEl, setScoringAnchorEl] = useState<null | HTMLElement>(null);
+  const [scoringAnchorEl, setScoringAnchorEl] = useState<null | HTMLElement>(
+    null
+  );
   const isScoringMenuOpen = Boolean(scoringAnchorEl);
 
-  const [learningAnchorEl, setLearningAnchorEl] = useState<null | HTMLElement>(null);
+  const [learningAnchorEl, setLearningAnchorEl] = useState<null | HTMLElement>(
+    null
+  );
   const isLearningMenuOpen = Boolean(learningAnchorEl);
 
   const [reload, setReload] = useState(false);
@@ -98,14 +102,13 @@ function AppMenu() {
     setPageLoading(true);
 
     try {
-        navigate(`/FourthPage/UserLog?id=${detailId}`);
+      navigate(`/FourthPage/UserLog?id=${detailId}`);
     } catch (e) {
-        console.error(e);
+      console.error(e);
     } finally {
-        setPageLoading(false);
+      setPageLoading(false);
     }
   };
-
 
   const handleEditPeserta = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -151,7 +154,6 @@ function AppMenu() {
     setScoringAnchorEl(null);
   };
 
-
   const handleScoringOptionClick = (type: any) => {
     navigate(`/SixthPage/${type}`);
     handleScoringClose();
@@ -169,12 +171,10 @@ function AppMenu() {
     setLearningAnchorEl(null);
   };
 
-
   const handleLearningOptionClick = (type: any) => {
     navigate(`/FifthPage/modul/${type}`);
     handleLearningClose();
   };
-
 
   // Detail peserta
   const [detailOpen, setDetailOpen] = useState(false);
@@ -286,16 +286,19 @@ function AppMenu() {
     setIsSelected(false);
   }, [rows]);
 
-
   const handleStartClick = () => {
     const trainType = "lrt"; // Define your trainType here
-    navigate(`/FifthPage?type=${trainType}`, { state: { from: 'startClickLrt' } });
+    navigate(`/FifthPage?type=${trainType}`, {
+      state: { from: "startClickLrt" },
+    });
   };
 
   const handleStartClickKcic = () => {
     const trainType = "kcic"; // Define your trainType here
-    navigate(`/FifthPage?type=${trainType}`, { state: { from: 'startClickKcic' } });
-  };  
+    navigate(`/FifthPage?type=${trainType}`, {
+      state: { from: "startClickKcic" },
+    });
+  };
 
   return (
     <>
@@ -316,7 +319,8 @@ function AppMenu() {
                 },
               }}
             >
-              <PlayArrowIcon className="mr-2 ml-[-6px] text-[17px]"/> Mulai Simulasi
+              <PlayArrowIcon className="mr-2 ml-[-6px] text-[17px]" /> Mulai
+              Simulasi
             </Button>
             <Button
               variant="outlined"
@@ -330,7 +334,7 @@ function AppMenu() {
                 },
               }}
             >
-              <PeopleAlt className=" flex mr-2 ml-[-3px] text-[17px]"/> Peserta
+              <PeopleAlt className=" flex mr-2 ml-[-3px] text-[17px]" /> Peserta
             </Button>
             <Button
               variant="outlined"
@@ -344,7 +348,8 @@ function AppMenu() {
                 },
               }}
             >
-              Pembelajaran {isLearningMenuOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+              Pembelajaran{" "}
+              {isLearningMenuOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />}
             </Button>
             <Menu
               anchorEl={learningAnchorEl}
@@ -375,7 +380,8 @@ function AppMenu() {
                 },
               }}
             >
-              Penilaian {isScoringMenuOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+              Penilaian{" "}
+              {isScoringMenuOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />}
             </Button>
             <Menu
               anchorEl={scoringAnchorEl}
@@ -398,7 +404,6 @@ function AppMenu() {
         </header>
         {/* First Box  */}
         <div className="flex gap-4 justify-center pr-8 pl-8 pt-4 w-full">
-
           {/* box 1 */}
           <div className="flex flex-grow">
             <div className="relative flex flex-grow">
@@ -545,8 +550,12 @@ function AppMenu() {
                 </colgroup>
                 <TableHead>
                   <TableRow>
-                    <TableCell sx={{ fontWeight: 'bold', fontSize: "17px" }}>Nama Peserta</TableCell>
-                    <TableCell sx={{ fontWeight: 'bold', fontSize: "17px" }}>NIP Peserta</TableCell>
+                    <TableCell sx={{ fontWeight: "bold", fontSize: "17px" }}>
+                      Nama Peserta
+                    </TableCell>
+                    <TableCell sx={{ fontWeight: "bold", fontSize: "17px" }}>
+                      NIP Peserta
+                    </TableCell>
                     <TableCell></TableCell>
                   </TableRow>
                 </TableHead>
@@ -607,8 +616,14 @@ function AppMenu() {
                                   : "text"
                               }
                               onClick={() =>
-                                setSelectedPeserta(prevState => 
-                                  prevState.nip === row.nip ? { id: "", name: "", nip: "" } : { id: row.id, name: row.name, nip: row.nip }
+                                setSelectedPeserta((prevState) =>
+                                  prevState.nip === row.nip
+                                    ? { id: "", name: "", nip: "" }
+                                    : {
+                                        id: row.id,
+                                        name: row.name,
+                                        nip: row.nip,
+                                      }
                                 )
                               }
                               className="w-20 ml-2"
@@ -620,11 +635,13 @@ function AppMenu() {
                       </TableRow>
                     ))}
                     {rows.length < 4 &&
-                      Array.from({ length: 4 - rows.length }).map((_, index) => (
-                        <TableRow key={`empty-${index}`} sx={{ height: 53 }}>
-                          <TableCell colSpan={3} />
-                        </TableRow>
-                      ))}
+                      Array.from({ length: 4 - rows.length }).map(
+                        (_, index) => (
+                          <TableRow key={`empty-${index}`} sx={{ height: 53 }}>
+                            <TableCell colSpan={3} />
+                          </TableRow>
+                        )
+                      )}
                   </TableBody>
                 ) : (
                   <p className=" w-full top-1/3 left-0 flex justify-center">
@@ -667,7 +684,6 @@ function AppMenu() {
                   );
                   setEditPrompt(true);
                 }}
-
               />
             </div>
           </div>
@@ -700,7 +716,9 @@ function AppMenu() {
 
         {/* Edit Peserta Prompt */}
         <Dialog open={editPrompt} onClose={() => setEditPrompt(false)}>
-          <DialogTitle className="min-w-[400px]">Edit Detail Peserta</DialogTitle>
+          <DialogTitle className="min-w-[400px]">
+            Edit Detail Peserta
+          </DialogTitle>
           <DialogContent className="m-2 max-w-[400px]">
             <form id="edit" onSubmit={handleEditPeserta}>
               <TextField

@@ -1,4 +1,4 @@
-import { ManageAccounts, Groups } from "@mui/icons-material";
+import { ManageAccounts, Groups, School } from "@mui/icons-material";
 import { Button } from "@mui/material";
 import React, { useState } from "react";
 import Logo from "@/components/Logo";
@@ -22,6 +22,10 @@ const AdminStart = () => {
 
   const handleInstruktur = () => {
     navigate("/admin/instructorlist");
+  };
+
+  const handleCourse = () => {
+    navigate("/admin/courselist");
   };
 
   const handleLogout = () => {
@@ -68,6 +72,20 @@ const AdminStart = () => {
               }}
             >
               Peserta
+            </Button>
+            <Button
+              variant="contained"
+              type="button"
+              onClick={() => handleCourse()}
+              className="w-1/2 p-5 text-2xl bg-gray-400 "
+              startIcon={<School className="text-3xl" />}
+              sx={{
+                "&:hover": {
+                  backgroundColor: "#1aaffb !important",
+                },
+              }}
+            >
+              Course
             </Button>
           </div>
         </div>

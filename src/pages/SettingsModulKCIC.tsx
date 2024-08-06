@@ -33,7 +33,7 @@ function SettingsModulKCIC() {
           .filter((course: any) => course.description === "KCIC")
           .map((course: any) => ({
             title: course.title,
-            requiredCompletion: course.level // Assuming level is the requiredCompletion
+            requiredCompletion: course.level, // Assuming level is the requiredCompletion
           }));
 
         setKcicButtons(kcicData);
