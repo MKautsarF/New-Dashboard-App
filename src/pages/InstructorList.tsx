@@ -470,8 +470,8 @@ const InstructorList = () => {
             </colgroup>
             <TableHead>
               <TableRow>
-                <TableCell sx={{ fontWeight: 'bold', fontSize: "17px" }}>Nama</TableCell>
-                <TableCell sx={{ fontWeight: 'bold', fontSize: "17px" }}>NIP</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', fontSize: "17px" }}>Nama Asesor</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', fontSize: "17px" }}>NIP Asesor</TableCell>
                 <TableCell></TableCell>
               </TableRow>
             </TableHead>

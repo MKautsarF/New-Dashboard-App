@@ -17,9 +17,9 @@ export const getPayloadFromCourse = async (id: string) => {
 
 // ADMIN
 
-export const getCourseListbyAdmin = async (page: number, size: number) => {
+export const getScoringListbyAdmin = async (page: number, size: number) => {
   try {
-    const res = await services.get(`/admin/course?page=${page}&size=${size}`);
+    const res = await services.get(`/admin/course-exam?page=${page}&size=${size}`);
 
     return res.data;
   } catch (error) {

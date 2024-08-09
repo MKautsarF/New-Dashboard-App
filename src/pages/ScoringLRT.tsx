@@ -135,52 +135,6 @@ function ScoringLRT() {
     });
   };
 
-  //   const handleRename = (i: number, newName: string) => {
-  //     const renamedVal = [...val];
-  //     renamedVal[i] = newName;
-  //     setVal(renamedVal);
-  //     localStorage.setItem("scoringLRTVal", JSON.stringify(renamedVal));
-
-  //     // Rename the JSON file
-  //     const sourceFilePath = `C:/Train Simulator/Data/lrt_New Settings ${i + 1}.json`;
-  //     const destinationFileName = `lrt_${newName}.json`;
-  //     const destinationFilePath = path.join(
-  //       "C:/Train Simulator/Data",
-  //       destinationFileName
-
-  //       );
-  //     const settingPath = "C:/Train Simulator/Data/settings_train.json";
-  //     fs.readFile(settingPath, "utf8", (err: any, settingsData: any) => {
-  //       if (err) {
-  //         console.error("Error reading settings file:", err);
-  //         return;
-  //       }
-
-  //     // Parse the JSON content
-  //     const settings = JSON.parse(settingsData);
-  //     settings.lrt.score[i + 1] = destinationFileName;
-  //     fs.writeFile(
-  //       settingPath,
-  //       JSON.stringify(settings, null, 2),
-  //       (err: any) => {
-  //         if (err) {
-  //           console.error("Error writing settings file:", err);
-  //           return;
-  //         }
-  //         console.log("settings_train.json updated.");
-  //       }
-  //     );
-  //   }
-  // );
-
-  //   fs.rename(sourceFilePath, destinationFilePath, (err: any) => {
-  //     if (err) {
-  //       console.error("Error renaming file:", err);
-  //       return;
-  //       }
-  //       console.log(`File renamed to ${destinationFileName}`);
-  //       });
-  //       };
 
   const handleRename = (i: number, newName: string) => {
     const renamedVal = [...val];

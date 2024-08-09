@@ -45,7 +45,7 @@ function Modul() {
         <div className="flex flex-col gap-4 w-full">
           <div className="flex flex-col text-left gap-4 p-8 ">
             <h1 style={{ fontSize: "1.75rem", fontWeight: "bold" }}>
-              Modul {trainType.toUpperCase()}
+              Modul {trainType === "kcic" ? "Kereta Cepat" : trainType.toUpperCase()}
             </h1>
             <p style={{ fontSize: "1.25rem" }}>
               Pilih modul yang akan digunakan:
@@ -79,7 +79,7 @@ function Modul() {
               onClick={handleLearning} // Call handleNext when clicked
             >
               <School style={{ fontSize: 75 }} />
-              <h1>Learning</h1>
+              <h1>Pembelajaran</h1>
             </div>
           </div>
           <div className="flex flex-col pl-8 pb-8 pr-8 justify-center items-center">

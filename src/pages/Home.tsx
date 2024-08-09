@@ -33,8 +33,8 @@ function App() {
         <div className="gap-2  pt-4 flex flex-col items-center justify-center h-full">
           {/* <img src="\src\static\newLogo.jpg" alt="Logo" /> */}
           <Logo />
-          <h1>KCIC LRT Launcher</h1>
-          <p>a simulation launcher for KCIC LRT</p>
+          <h1>Kereta Cepat & LRT Launcher</h1>
+          <p>a simulation launcher for Kereta Cepat & LRT</p>
         </div>
         <div className="flex flex-col gap-4 justify-center p-12">
           <Button
@@ -87,11 +87,11 @@ function App() {
           <Button
             className="mx-2"
             onClick={() => setExitPrompt(false)}
-            color="error"
+            color="primary"
           >
             Tidak
           </Button>
-          <Button className="mx-2" onClick={() => offApp()} variant="contained">
+          <Button className="mx-2" onClick={() => offApp()} variant="contained" color="error">
             Ya
           </Button>
         </DialogActions>

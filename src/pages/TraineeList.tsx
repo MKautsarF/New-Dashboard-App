@@ -403,8 +403,8 @@ const TraineeList = () => {
             </colgroup>
             <TableHead>
               <TableRow>
-                <TableCell sx={{ fontWeight: 'bold', fontSize: "17px" }}>Nama</TableCell>
-                <TableCell sx={{ fontWeight: 'bold', fontSize: "17px" }}>NIP</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', fontSize: "17px" }}>Nama Peserta</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', fontSize: "17px" }}>NIP Peserta</TableCell>
                 <TableCell></TableCell>
               </TableRow>
             </TableHead>

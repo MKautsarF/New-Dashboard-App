@@ -335,8 +335,7 @@ function AppMenu() {
                 },
               }}
             >
-              <PlayArrowIcon className="mr-2 ml-[-6px] text-[17px]" /> Mulai
-              Simulasi
+              <PlayArrowIcon className="mr-2 ml-[-6px] text-[17px]" /> Mulai Simulasi
             </Button>
             <Button
               variant="outlined"
@@ -378,7 +377,7 @@ function AppMenu() {
               }}
             >
               <MenuItem onClick={() => handleLearningOptionClick("kcic")}>
-                KCIC
+                Kereta Cepat
               </MenuItem>
               <MenuItem onClick={() => handleLearningOptionClick("lrt")}>
                 LRT
@@ -410,7 +409,7 @@ function AppMenu() {
               }}
             >
               <MenuItem onClick={() => handleScoringOptionClick("kcic")}>
-                KCIC
+                Kereta Cepat
               </MenuItem>
               <MenuItem onClick={() => handleScoringOptionClick("lrt")}>
                 LRT
@@ -435,7 +434,7 @@ function AppMenu() {
                 onMouseLeave={handleMouseLeave}
               >
                 {/* <img className="h-auto max-w-full rounded-lg" src={lrtPng} /> */}
-                <h1 className="text-white ">KCIC</h1>
+                <h1 className="text-white ">Kereta Cepat</h1>
                 <Button
                   variant="outlined"
                   onClick={handleStartClickKcic}
@@ -460,7 +459,7 @@ function AppMenu() {
               {hoveredBox === 1 && (
                 <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-center py-2">
                   <p className="text-white">
-                    Mengoperasikan eksplorasi kereta KCIC.
+                    Mengoperasikan eksplorasi Kereta Cepat.
                   </p>
                 </div>
               )}
@@ -825,11 +824,11 @@ function AppMenu() {
               Apakah Anda yakin ingin logout?
             </DialogContentText>
           </DialogContent>
-          <DialogActions className="p-4">
-            <Button onClick={handleConfirmLogout} variant="outlined" color="error">
+          <DialogActions className="flex mb-2 justify-between">
+            <Button onClick={handleConfirmLogout} color="error" className="mx-2">
               Logout
             </Button>
-            <Button onClick={handleLogoutClose} variant="contained" color="primary">
+            <Button onClick={handleLogoutClose} variant="contained" color="primary" className="mx-2">
               Batal
             </Button>
           </DialogActions>

@@ -31,19 +31,19 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ open, onClose, on
         }}
       >
         <Typography id="modal-modal-title" variant="h6" component="h2">
-          {type === 'delete' ? 'Delete Confirmation' : 'Edit Confirmation'}
+          {type === 'delete' ? 'Konfirmasi Hapus' : 'Konfirmasi Perubahan'}
         </Typography>
         <Typography id="modal-modal-description" sx={{ mt: 2 }}>
           {type === 'delete' 
-            ? `Are you sure you want to delete ${item}?` 
-            : `Are you sure you want to save changes to ${item}?`}
+            ? `Apakah yakin untuk mengapus ${item}?` 
+            : `Apakah yakin untuk melakukan perubahan pada ${item}?`}
         </Typography>
         <Box sx={{ mt: 4, display: 'flex', justifyContent: 'space-between' }}>
-          <Button variant="outlined" color="error" onClick={onClose}>
-            Cancel
+          <Button color="error" onClick={onConfirm}>
+            <b>{type === 'delete' ? 'Hapus' : 'Ubah'}</b>
           </Button>
-          <Button variant="contained" color={type === 'delete' ? 'error' : 'primary'} onClick={onConfirm}>
-            {type === 'delete' ? 'Delete' : 'Save'}
+          <Button variant="contained" color='primary' onClick={onClose}>
+            <b>Batal</b>
           </Button>
         </Box>
       </Box>

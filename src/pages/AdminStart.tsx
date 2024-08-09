@@ -1,4 +1,4 @@
-import { ManageAccounts, Groups, School } from "@mui/icons-material";
+import { ManageAccounts, Groups, School, WorkspacePremium } from "@mui/icons-material";
 import { 
   Button,
   Dialog,
@@ -35,6 +35,10 @@ const AdminStart = () => {
     navigate("/admin/courselist");
   };
 
+  const handleScoring = () => {
+    navigate("/admin/scoringlist");
+  };
+
   const [logoutOpen, setLogoutOpen] = useState(false);
 
   const handleLogoutOpen = () => setLogoutOpen(true);
@@ -47,13 +51,13 @@ const AdminStart = () => {
 
   return (
     <Container w={800}>
-      <div className="p-6">
-        <h4 className="pt-3 mb-2">{"Halo, " + instructor.name + "."}</h4>
+      <div className="p-8">
+        <h4 className="pt-3 mb-2 text-2xl">{"Halo, " + instructor.name + "."}</h4>
         <div className="flex flex-col">
-          <p className="mb-4">
-            Pilih kategori peserta atau kursus yang ingin dipersunting:{" "}
+          <p className="mb-2">
+            Pilih kategori peserta yang ingin dipersunting:
           </p>
-          <div className="border-0 border-solid flex space-x-4 mt-4 justify-center items-center">
+          <div className="border-0 border-solid flex space-x-4 justify-center items-center">
             <Button
               variant="contained"
               type="button"
@@ -82,6 +86,14 @@ const AdminStart = () => {
             >
               Peserta
             </Button>
+          </div>
+        </div>
+
+        <div className="flex flex-col">
+          <p className="mb-2 mt-8">
+            Pilih kategori modul yang ingin dipersunting:
+          </p>
+          <div className="border-0 border-solid flex space-x-4 justify-center items-center">
             <Button
               variant="contained"
               type="button"
@@ -94,7 +106,21 @@ const AdminStart = () => {
                 },
               }}
             >
-              Kursus
+              Pembelajaran
+            </Button>
+            <Button
+              variant="contained"
+              type="button"
+              onClick={() => handleScoring()}
+              className="w-1/2 p-5 text-2xl bg-gray-400 "
+              startIcon={<WorkspacePremium className="text-3xl mr-2 ml-[-7px]" />}
+              sx={{
+                "&:hover": {
+                  backgroundColor: "#1aaffb !important",
+                },
+              }}
+            >
+              Penilaian
             </Button>
           </div>
         </div>
@@ -134,11 +160,11 @@ const AdminStart = () => {
               Apakah Anda yakin ingin logout?
             </DialogContentText>
           </DialogContent>
-          <DialogActions className="p-4">
-            <Button onClick={handleConfirmLogout} variant="outlined" color="error">
+          <DialogActions className="flex mb-2 justify-between">
+            <Button onClick={handleConfirmLogout} color="error" className="mx-2">
               Logout
             </Button>
-            <Button onClick={handleLogoutClose} variant="contained" color="primary">
+            <Button onClick={handleLogoutClose} variant="contained" color="primary" className="mx-2">
               Batal
             </Button>
           </DialogActions>

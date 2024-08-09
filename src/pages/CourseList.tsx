@@ -5,8 +5,8 @@ import {
   Info,
   BookmarkAdd,
   Visibility,
-  AccessTime
 } from "@mui/icons-material";
+import PublishIcon from '@mui/icons-material/Publish';
 import { TimePicker } from "@mui/x-date-pickers";
 import {
   Box,
@@ -31,6 +31,7 @@ import {
   Select, 
   MenuItem, 
   FormControl, 
+  FormHelperText,
   InputLabel,
   Slider,
   Input
@@ -48,12 +49,7 @@ import {
 } from "@/services/course.services";
 import { useSettings } from "@/context/settings";
 import FullPageLoading from "@/components/FullPageLoading";
-import TraineeDetail from "@/components/TraineeDetail";
-import dayjs, { Dayjs } from "dayjs";
-import { DatePicker } from "@mui/x-date-pickers";
-import { toast } from "react-toastify";
-import { getSubmissionList } from "@/services/submission.services";
-import { createCourseAsAdmin } from "@/services/course.services";
+import { createCourseAsAdmin, publishCourseAsAdmin, getPayloadFromCourse, deleteCourseAsAdmin } from "@/services/course.services";
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import fs from "fs";
@@ -63,6 +59,7 @@ interface RowData {
   title: string;
   description: string;
   filename: string;
+  published: boolean;
 }
 
 const CourseList = () => {
@@ -95,6 +92,10 @@ const CourseList = () => {
   };
 
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedModul, setSelectedModul] = useState<{ id: string | null; title: string | null }>({
+    id: null,
+    title: null,
+  });
 
   // Full page loading
   const [pageLoading, setPageLoading] = useState(false);
@@ -102,6 +103,7 @@ const CourseList = () => {
   const [rows, setRows] = useState<RowData[]>([]);
   const [totalData, setTotalData] = useState(0);
   const [page, setPage] = useState(1);
+  const [payload, setPayload] = useState<any>({});
   
   const [moduleName, setModuleName] = useState("");
   const [train, setTrain] = useState("");
@@ -122,6 +124,21 @@ const CourseList = () => {
   const [speedLimit, setSpeedLimit] = useState("");
   const [error, setError] = useState('');
   const [isAddButtonEnabled, setIsAddButtonEnabled] = useState(false);
+
+  const resetForm = () => {
+    setModuleName('');
+    setTrain('');
+    setTrainWeight('');
+    setTrainLine('');
+    setStartStation('');
+    setFinishStation('');
+    setRainStatus('');
+    setTime(null);
+    setMotionBase(false);
+    setSpeedBuzzer(false);
+    setSpeedLimit('');
+    setFog(0);
+  };
 
   const handleSliderChange = (event: Event, newValue: number | number[]) => {
     if (typeof newValue === 'number') {
@@ -184,7 +201,7 @@ const CourseList = () => {
     setSpeedLimit(event.target.value);
     // Validate speed limit if speed buzzer is checked
     if (speedBuzzer && event.target.value.trim() === '') {
-      setError('Speed Limit is required when Speed Buzzer is enabled.');
+      setError('Speed limit perlu diisi ketika speed buzzer terceklis');
     } else {
       setError('');
     }
@@ -205,6 +222,58 @@ const CourseList = () => {
   // console.log(currentInstructor.isAdmin);
   currentInstructor.isInstructor = true;
 
+
+  
+
+  const collectDataAndPrepareFormData = async () => {
+    // Determine the description
+    const description = train.toUpperCase();
+  
+    // Prepare the data object
+    const data = {
+      module_name: moduleName,
+      train_type: train,
+      train: {
+        weight: trainWeight,
+        type: "6 Rangkaian"
+      },
+      time: time,
+      weather: [
+        {
+          value: rainStatus,
+          location: [0, 0],
+          name: "rain"
+        },
+        {
+          value: fog,
+          location: [0, 0],
+          name: "fog"
+        }
+      ],
+      route: {
+        start: {
+          name: getPayloadStationName(startStation)
+        },
+        finish: {
+          name: getPayloadStationName(finishStation)
+        }
+      },
+      motion_base: motionBase,
+      speed_buzzer: speedBuzzer,
+      speed_limit: speedLimit,
+      status: "play"
+    };
+  
+    // Prepare the form data
+    const formData = new FormData();
+    formData.append('file', new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }), 'data.json');
+    formData.append('title', moduleName);
+    formData.append('description', description);
+    // formData.append('level', 1);
+  
+    return formData;
+  };  
+
   const handleDaftar = () => {
     setOpen(true);
   };
@@ -216,106 +285,22 @@ const CourseList = () => {
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage + 1);
     // setPage(newPage);
-  };
-
-  const validateRegister = (): boolean => {
-    return (
-      moduleName !== "" &&
-      train !== "" &&
-      trainWeight !== "" &&
-      trainType !== "" &&
-      time !== "" &&
-      startStation !== "" &&
-      finishStation !== "" &&
-      motionBase !== null &&
-      speedBuzzer !== null &&
-      speedLimit !== ""
-    );
-  };
-
+  };  
+  
   const handleRegister = async () => {
-    const isValid = validateRegister();
-
-    if (!isValid) {
-      toast.error("Input registrasi tidak boleh kosong!", {
-        position: "top-center",
-      });
-      return;
-    }
-
-    const payload = {
-      moduleName: moduleName,
-      train: train,
-      trainWeight: trainWeight,
-      trainType: trainType,
-      time: time,
-      startStation: startStation,
-      finishStation: finishStation,
-      motionBase: motionBase,
-      speedBuzzer: speedBuzzer,
-      speedLimit: speedLimit,
-      status: "play"
-    };
-
     try {
-      setPageLoading(true);
-      const res = await createCourseAsAdmin(payload);
-      // setRows(
-      //   [
-      //     {
-      //       id: res.id,
-      //       name: res.name,
-      //       nip: res.bio.identityNumber,
-      //     },
-      //   ].concat(rows)
-      // );
-      setPage(1);
-
-      setPageLoading(false);
-      setOpen(false);
-      setModuleName("");
-      setTrain("");
-      setTrainWeight("");
-      setTrainType("6 Rangkaian");
-      setTime("");
-      setStartStation("");
-      setFinishStation("");
-      setMotionBase(null);
-      setSpeedBuzzer(null);
-      setSpeedLimit("");
-    } catch (e) {
-      const errMsg = e.response.data.errorMessage;
-      console.error(e);
-      toast.error(
-        "Nama modul sudah terdapat di database, mohon gunakan inputan yang berbeda",
-        { position: "top-center" }
-      );
-    } finally {
-      setPageLoading(false);
-    }
-  };
-
-
-  const handleViewFile = async (id: number) => {
-    try {
-      const response = await downloadCourse(id);
-      console.log(response);
-      // if (!response.ok) {
-      //   throw new Error("Network response was not ok");
-      // }
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.style.display = "none";
-      a.href = url;
-      a.download = `${id}.json`; // You can customize the filename
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
+      const formData = await collectDataAndPrepareFormData();
+      
+      const response = await createCourseAsAdmin(formData);
+      console.log("Upload successful", response);
+      handleClose();
+      resetForm();
+      setReload(!reload);
     } catch (error) {
-      console.error("Failed to download file:", error);
+      console.error("Upload failed", error);
     }
   };
+  
 
   useEffect(() => {
     async function getRows(page: number) {
@@ -328,6 +313,7 @@ const CourseList = () => {
           id: entry.id,
           title: entry.title,
           description: entry.description,
+          published: entry.published,
         }));
 
         setRows(resRows);
@@ -341,6 +327,40 @@ const CourseList = () => {
 
     getRows(page);
   }, [page, reload]);
+
+  const handlePublish = async (id: string) => {
+    try {
+      await publishCourseAsAdmin(id);
+      setReload(!reload);
+    } catch (error) {
+      console.error("Failed to publish the course:", error);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteCourseAsAdmin(id);
+      setReload(!reload);
+    } catch (error) {
+      console.error("Failed to publish the course:", error);
+    }
+  };
+
+  // useEffect(() => {
+  //   const fetchPayload = async () => {
+  //     if (row.id) {
+  //       try {
+  //         const payloadData = await getPayloadFromCourse(row.id);
+  //         setPayload(payloadData);
+  //       } catch (error) {
+  //         console.error("Failed to fetch payload data:", error);
+  //       }
+  //     }
+  //   };
+
+  //   fetchPayload();
+  // }, [row.id]);
+
 
   return (
     <Container w={1000} h={700}>
@@ -404,18 +424,20 @@ const CourseList = () => {
         <TableContainer className="mt-5" component={Paper}>
           <Table stickyHeader aria-label="Tabel Peserta">
             <colgroup>
-              <col width="45%" />
-              <col width="30%" />
-              <col width="25%" />
+              <col width="40%" />
+              <col width="20%" />
+              <col width="20%" />
+              <col width="20%" />
             </colgroup>
             <TableHead>
               <TableRow>
                 <TableCell sx={{ fontWeight: "bold", fontSize: "17px" }}>
-                  Judul
+                  Judul Modul Pembelajaran
                 </TableCell>
                 <TableCell sx={{ fontWeight: "bold", fontSize: "17px" }}>
                   Tipe Kereta
                 </TableCell>
+                <TableCell></TableCell>
                 <TableCell></TableCell>
               </TableRow>
             </TableHead>
@@ -433,7 +455,29 @@ const CourseList = () => {
                     }}
                   >
                     <TableCell>{row.title}</TableCell>
-                    <TableCell>{row.description}</TableCell>
+                    <TableCell>
+                      {row.description === "KCIC" ? "Kereta Cepat" : row.description}
+                    </TableCell>
+                    <TableCell>
+                      {!row.published && (
+                        <Button
+                          variant="contained"
+                          onClick={() => handlePublish(row.id)}
+                          sx={{
+                            color: "#ffffff",
+                            backgroundColor: "#00a6fb",
+                            borderColor: "#00a6fb",
+                            "&:hover": {
+                              borderColor: "#1aaffb",
+                              color: "#ffffff",
+                              backgroundColor: "#1aaffb",
+                            },
+                          }}
+                        >
+                          Publish
+                        </Button>
+                      )}
+                    </TableCell>
                     <TableCell>
                       <div className="flex gap-4 justify-end">
                         <Tooltip title="Konfigurasi Modul Pembelajaran" placement="top">
@@ -492,19 +536,24 @@ const CourseList = () => {
                             <EditNote />
                           </IconButton>
                         </Tooltip>
-                        <Tooltip title="Hapus Modul Pembelajaran" placement="top">
+                        {/* <Tooltip title="Hapus Modul Pembelajaran" placement="top">
                           <IconButton
                             size="small"
-                            // onClick={() => {
-                            //   setSelectedPeserta({
-                            //     id: row.id,
-                            //     name: row.name,
-                            //     nip: row.nip,
-                            //   });
-                            //   setDeletePrompt(true);
-
-                            //   console.log(row.name);
-                            // }}
+                            onClick={() => handleDelete(row.id)}
+                          >
+                            <Delete />
+                          </IconButton>
+                        </Tooltip> */}
+                        <Tooltip title="Hapus User" placement="top">
+                          <IconButton
+                            size="small"
+                            onClick={() => {
+                              setSelectedModul({
+                                id: row.id,
+                                title: row.title,
+                              });
+                              setDeletePrompt(true);
+                            }}
                           >
                             <Delete />
                           </IconButton>
@@ -556,7 +605,7 @@ const CourseList = () => {
 
       {/* pop up registrasi */}
       <Dialog open={open} onClose={handleClose}>
-        <DialogTitle className="px-8 pt-4">Tambah Modul Pembelajaran Baru</DialogTitle>
+        <DialogTitle className="px-8 pt-8">Tambah Modul Pembelajaran Baru</DialogTitle>
         <DialogContent className="w-[600px] px-8">
           <DialogContentText>Penambahan Modul Pembelajaran</DialogContentText>
           <TextField
@@ -569,6 +618,8 @@ const CourseList = () => {
             variant="standard"
             value={moduleName}
             onChange={(e) => setModuleName(e.target.value)}
+            // error={!!errors.moduleName}
+            // helperText={errors.moduleName}
           />
           <FormControl fullWidth variant="standard" margin="normal">
             <InputLabel id="train-label">Jenis Kereta <span style={{ color: 'red' }}>*</span></InputLabel>
@@ -587,6 +638,7 @@ const CourseList = () => {
                 <MenuItem key={key} value={key}>{key.toUpperCase()}</MenuItem>
               ))}
             </Select>
+            {/* <FormHelperText>{errors.train}</FormHelperText> */}
           </FormControl>
           <TextField
             margin="normal"
@@ -597,6 +649,8 @@ const CourseList = () => {
             variant="standard"
             value={trainWeight}
             onChange={(e) => setTrainWeight(e.target.value)}
+            // error={!!errors.trainWeight}
+            // helperText={errors.trainWeight}
           />
           
           <FormControl fullWidth variant="standard" margin="normal" disabled={!train}>
@@ -616,6 +670,7 @@ const CourseList = () => {
                 <MenuItem key={line} value={line}>{line}</MenuItem>
               ))}
             </Select>
+            {/* <FormHelperText>{errors.trainLine}</FormHelperText> */}
           </FormControl>
           <FormControl fullWidth variant="standard" margin="normal" disabled={!trainLine}>
             <InputLabel id="train-label">Stasiun Awal <span style={{ color: 'red' }}>*</span></InputLabel>
@@ -633,6 +688,7 @@ const CourseList = () => {
                 <MenuItem key={station} value={getDisplayStationName(station)}>{getDisplayStationName(station)}</MenuItem>
               ))}
             </Select>
+            {/* <FormHelperText>{errors.startStation}</FormHelperText> */}
           </FormControl>
           <FormControl fullWidth variant="standard" margin="normal" disabled={!startStation}>
             <InputLabel id="train-label">Stasiun Akhir <span style={{ color: 'red' }}>*</span></InputLabel>
@@ -647,6 +703,7 @@ const CourseList = () => {
                 <MenuItem key={station} value={getDisplayStationName(station)}>{getDisplayStationName(station)}</MenuItem>
               ))}
             </Select>
+            {/* <FormHelperText>{errors.finishStation}</FormHelperText> */}
           </FormControl>
           <FormControl fullWidth variant="standard" margin="normal">
             <InputLabel id="train-label">Status Hujan <span style={{ color: 'red' }}>*</span></InputLabel>
@@ -744,14 +801,44 @@ const CourseList = () => {
             error={!!error}
             helperText={error}
             disabled={!speedBuzzer}
+            // error={!!errors.speedLimit}
+            // helperText={errors.speedLimit}
           />
         </DialogContent>
         <DialogActions className="px-8 pb-4">
           <Button onClick={handleClose} color="error">
             Kembali
           </Button>
-          <Button disabled={!isAddButtonEnabled}>Tambah</Button>
-          {/* <Button onClick={handleRegister} disabled={!isAddButtonEnabled}>Tambah</Button> */}
+          <Button onClick={handleRegister} disabled={!isAddButtonEnabled}>Tambah</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Delete Modul prompt */}
+      <Dialog open={deletePrompt} onClose={() => setDeletePrompt(false)}>
+        <DialogContent className="min-w-[260px]">
+          Hapus Modul: <b>{selectedModul.title}</b>?
+        </DialogContent>
+        <DialogActions className="flex mb-2 justify-between">
+          <Button
+            className="mx-2"
+            onClick={() => {
+              if (selectedModul.id) {
+                handleDelete(selectedModul.id);
+              }
+              setDeletePrompt(false);
+            }}
+            color="error"
+          >
+            Hapus
+          </Button>
+          <Button
+            className="mx-2"
+            
+            onClick={() => setDeletePrompt(false)}
+            variant="contained"
+          >
+            Batal
+          </Button>
         </DialogActions>
       </Dialog>
 
