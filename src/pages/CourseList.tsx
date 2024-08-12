@@ -45,7 +45,7 @@ import InputAdornment from "@mui/material/InputAdornment";
 import { useAuth, currentPeserta, currentInstructor } from "@/context/auth";
 import {
   getCourseListbyAdmin,
-  downloadCourse,
+  getCourseDetail
 } from "@/services/course.services";
 import { useSettings } from "@/context/settings";
 import FullPageLoading from "@/components/FullPageLoading";
@@ -53,6 +53,7 @@ import { createCourseAsAdmin, publishCourseAsAdmin, getPayloadFromCourse, delete
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import fs from "fs";
+import { toast } from 'react-toastify';
 
 interface RowData {
   id: string;
@@ -84,8 +85,12 @@ const CourseList = () => {
 
   const getDisplayStationName = (station: any) => stationMapping[station] || station;
   const getPayloadStationName = (displayName: any) => Object.keys(stationMapping).find(key => stationMapping[key] === displayName) || displayName;
+  const getMappedStationName = (stationName: any) => {
+    return stationMapping[stationName] || stationName;
+  };
 
   const [open, setOpen] = useState(false);
+  const [mode, setMode] = useState<'add' | 'edit'>('add');
 
   const handleClose = () => {
     setOpen(false);
@@ -148,31 +153,7 @@ const CourseList = () => {
       setJarakPandang(fogDistance);
     }
   };
-
-  useEffect(() => {
-    // Update the train lines based on the selected train type
-    if (train) {
-      setTrainLines(Object.keys(sourceSettings[train].rute));
-    } else {
-      setTrainLines([]);
-    }
-  }, [train]);
-
-  useEffect(() => {
-    if (train && trainLine) {
-      setStartStations(Object.keys(sourceSettings[train].rute[trainLine]));
-    } else {
-      setStartStations([]);
-    }
-  }, [train, trainLine]);
-
-  useEffect(() => {
-    if (train && trainLine && startStation) {
-      setFinishStations(sourceSettings[train].rute[trainLine][startStation]);
-    } else {
-      setFinishStations([]);
-    }
-  }, [train, trainLine, startStation]);
+  
 
   const validateForm = () => {
     if (!moduleName || !train || !trainWeight || !trainLine || !startStation || !finishStation || !rainStatus || !time || (speedBuzzer && !speedLimit)) {
@@ -209,6 +190,7 @@ const CourseList = () => {
 
 
   const [deletePrompt, setDeletePrompt] = useState(false);
+  const [configPrompt, setConfigPrompt] = useState(false);
   const [passwordPrompt, setPasswordPrompt] = useState(false);
   const [reload, setReload] = useState(false);
 
@@ -250,6 +232,7 @@ const CourseList = () => {
           name: "fog"
         }
       ],
+      train_line: trainLine,
       route: {
         start: {
           name: getPayloadStationName(startStation)
@@ -274,9 +257,11 @@ const CourseList = () => {
     return formData;
   };  
 
+
   const handleDaftar = () => {
+    setMode('add');
     setOpen(true);
-  };
+};
 
   const handleKembali = () => {
     navigate("/admin");
@@ -328,6 +313,25 @@ const CourseList = () => {
     getRows(page);
   }, [page, reload]);
 
+  useEffect(() => {
+    const fetchPayload = async () => {
+      if (selectedModul.id) {
+        try {
+          const payloadData = await getCourseDetail(selectedModul.id);
+          setPayload(payloadData);
+        } catch (error) {
+          console.error("Failed to fetch payload data:", error);
+        }
+      }
+    };
+
+    fetchPayload();
+  }, [selectedModul]);
+
+  useEffect(() => {
+    console.log("Payload updated:", payload);
+  }, [payload]);
+
   const handlePublish = async (id: string) => {
     try {
       await publishCourseAsAdmin(id);
@@ -337,29 +341,90 @@ const CourseList = () => {
     }
   };
 
+
+  const handleEdit = () => {
+    setMode('edit');
+    setOpen(true);
+
+    
+};
+
   const handleDelete = async (id: string) => {
     try {
       await deleteCourseAsAdmin(id);
       setReload(!reload);
     } catch (error) {
       console.error("Failed to publish the course:", error);
+      toast.error("Gagal menghapus modul karena modul ini memiliki modul penilaian", { position: 'top-center' });
     }
   };
 
-  // useEffect(() => {
-  //   const fetchPayload = async () => {
-  //     if (row.id) {
-  //       try {
-  //         const payloadData = await getPayloadFromCourse(row.id);
-  //         setPayload(payloadData);
-  //       } catch (error) {
-  //         console.error("Failed to fetch payload data:", error);
-  //       }
-  //     }
-  //   };
+  useEffect(() => {
+    if (mode === 'edit' && payload) {
+      setModuleName(payload.module_name || '');
+      
+      // Set train-related states
+      setTrain(payload.train_type || '');
+      setTrainWeight(payload.train?.weight || '');
+      setTrainLine(payload.train_line || '');
+      
+      // Set start and finish stations based on the rute structure
+      setStartStation(payload.route?.start?.name || '');
+      setFinishStation(payload.route?.finish?.name || '');
+      
+      // Other settings
+      setRainStatus(payload.weather?.find((item: { name: string, value: string | number }) => item.name === 'rain')?.value || '');
+      setFog(payload.weather?.find((item: { name: string, value: string | number }) => item.name === 'fog')?.value || 0);
+      
+      setTime(payload.time || null);
+      setMotionBase(payload.motion_base || false);
+      setSpeedBuzzer(payload.speed_buzzer || false);
+      setSpeedLimit(payload.speed_limit || '');
+      setJarakPandang(payload.jarak_pandang || 0);
+    } else {
+      // Reset fields for adding new module
+      setModuleName('');
+      setTrain('');
+      setTrainWeight('');
+      setTrainLine('');
+      setStartStation('');
+      setFinishStation('');
+      setRainStatus('');
+      setFog(0);
+      setTime(null);
+      setMotionBase(false);
+      setSpeedBuzzer(false);
+      setSpeedLimit('');
+      setJarakPandang(0);
+    }
+  }, [mode, payload]);
 
-  //   fetchPayload();
-  // }, [row.id]);
+  
+
+  useEffect(() => {
+    // Update the train lines based on the selected train type
+    if (train) {
+      setTrainLines(Object.keys(sourceSettings[train]?.rute || {}));
+    } else {
+      setTrainLines([]);
+    }
+  }, [train]);
+  
+  useEffect(() => {
+    if (train && trainLine) {
+      setStartStations(Object.keys(sourceSettings[train]?.rute[trainLine] || {}));
+    } else {
+      setStartStations([]);
+    }
+  }, [train, trainLine]);
+  
+  useEffect(() => {
+    if (train && trainLine && startStation) {
+      setFinishStations(sourceSettings[train]?.rute[trainLine]?.[startStation] || []);
+    } else {
+      setFinishStations([]);
+    }
+  }, [train, trainLine, startStation]);
 
 
   return (
@@ -370,7 +435,7 @@ const CourseList = () => {
           <Button
             type="button"
             variant="contained"
-            onClick={() => handleDaftar()}
+            onClick={handleDaftar}
             startIcon={<BookmarkAdd className="text-2xl" />}
             sx={{
               color: "#ffffff",
@@ -389,7 +454,7 @@ const CourseList = () => {
             id="input-with-icon-textfield"
             fullWidth
             name="query"
-            placeholder="Cari berdasarkan NIP"
+            placeholder="Cari berdasarkan ..."
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -483,15 +548,13 @@ const CourseList = () => {
                         <Tooltip title="Konfigurasi Modul Pembelajaran" placement="top">
                           <IconButton
                             size="small"
-                            // onClick={() => {
-                            //   setDetailId(row.id), setDetailOpen(true);
-                            //   setSelectedPeserta({
-                            //     id: row.id,
-                            //     name: row.name,
-                            //     nip: row.nip,
-                            //   });
-                            //   handleGetUserDetail();
-                            // }}
+                            onClick={() => {
+                              setSelectedModul({
+                                id: row.id,
+                                title: row.title,
+                              });
+                              setConfigPrompt(true);
+                            }}
                           >
                             <Info />
                           </IconButton>
@@ -499,52 +562,18 @@ const CourseList = () => {
                         <Tooltip title="Edit Modul Pembelajaran" placement="top">
                           <IconButton
                             size="small"
-                            // onClick={async () => {
-                            //   setSelectedPeserta({
-                            //     id: row.id,
-                            //     name: row.name,
-                            //     nip: row.nip,
-                            //   });
-
-                            //   const peserta = await getUserByIdAsAdmin(row.id);
-                            //   setDetailPeserta({
-                            //     username: peserta.username,
-                            //     name: peserta.name,
-                            //     email: peserta.email,
-                            //     nip:
-                            //       peserta.bio === null
-                            //         ? ""
-                            //         : peserta.bio.officialCode,
-                            //     born:
-                            //       peserta.bio === null ? "" : peserta.bio.born,
-                            //     position:
-                            //       peserta.bio === null
-                            //         ? ""
-                            //         : peserta.bio.position,
-                            //   });
-                            //   setNewBirthDate(
-                            //     peserta.bio === null
-                            //       ? null
-                            //       : dayjs(peserta.bio.born)
-                            //   );
-
-                            //   setEditPrompt(true);
-
-                            //   console.log(row.name);
-                            // }}
+                            onClick={() => {
+                              setSelectedModul({
+                                id: row.id,
+                                title: row.title,
+                              });
+                              handleEdit();
+                            }}
                           >
                             <EditNote />
                           </IconButton>
                         </Tooltip>
-                        {/* <Tooltip title="Hapus Modul Pembelajaran" placement="top">
-                          <IconButton
-                            size="small"
-                            onClick={() => handleDelete(row.id)}
-                          >
-                            <Delete />
-                          </IconButton>
-                        </Tooltip> */}
-                        <Tooltip title="Hapus User" placement="top">
+                        <Tooltip title="Hapus Modul Pembelajaran" placement="top">
                           <IconButton
                             size="small"
                             onClick={() => {
@@ -565,7 +594,7 @@ const CourseList = () => {
               </TableBody>
             ) : (
               <p className="absolute w-full top-1/3 left-0 flex justify-center">
-                Data user tidak ditemukan
+                Data modul pembelajaran tidak ditemukan
               </p>
             )}
           </Table>
@@ -603,11 +632,19 @@ const CourseList = () => {
         </div>
       </div>
 
-      {/* pop up registrasi */}
-      <Dialog open={open} onClose={handleClose}>
-        <DialogTitle className="px-8 pt-8">Tambah Modul Pembelajaran Baru</DialogTitle>
+      {/* pop up registrasi dan edit*/}
+      <Dialog open={open} onClose={() => setOpen(false)}>
+        <DialogTitle className="px-8 pt-8">
+          {mode === 'add' 
+            ? 'Tambah Modul Pembelajaran Baru' 
+            : `Edit Modul Pembelajaran - ${payload?.module_name || ''}`}
+        </DialogTitle>
         <DialogContent className="w-[600px] px-8">
-          <DialogContentText>Penambahan Modul Pembelajaran</DialogContentText>
+          <DialogContentText>
+            {mode === 'add' 
+              ? 'Penambahan Modul Pembelajaran' 
+              : `Pengeditan Modul Pembelajaran - ${payload?.module_name || ''}`}
+          </DialogContentText>
           <TextField
             autoFocus
             margin="normal"
@@ -618,8 +655,6 @@ const CourseList = () => {
             variant="standard"
             value={moduleName}
             onChange={(e) => setModuleName(e.target.value)}
-            // error={!!errors.moduleName}
-            // helperText={errors.moduleName}
           />
           <FormControl fullWidth variant="standard" margin="normal">
             <InputLabel id="train-label">Jenis Kereta <span style={{ color: 'red' }}>*</span></InputLabel>
@@ -638,19 +673,16 @@ const CourseList = () => {
                 <MenuItem key={key} value={key}>{key.toUpperCase()}</MenuItem>
               ))}
             </Select>
-            {/* <FormHelperText>{errors.train}</FormHelperText> */}
           </FormControl>
           <TextField
             margin="normal"
             id="Spesifikasi Kereta"
-            label={<span>Berat Kereta <span style={{ color: 'red' }}>*</span></span>}
+            label={<span>Berat Kereta (ton) <span style={{ color: 'red' }}>*</span></span>}
             type="text"
             fullWidth
             variant="standard"
             value={trainWeight}
             onChange={(e) => setTrainWeight(e.target.value)}
-            // error={!!errors.trainWeight}
-            // helperText={errors.trainWeight}
           />
           
           <FormControl fullWidth variant="standard" margin="normal" disabled={!train}>
@@ -670,7 +702,6 @@ const CourseList = () => {
                 <MenuItem key={line} value={line}>{line}</MenuItem>
               ))}
             </Select>
-            {/* <FormHelperText>{errors.trainLine}</FormHelperText> */}
           </FormControl>
           <FormControl fullWidth variant="standard" margin="normal" disabled={!trainLine}>
             <InputLabel id="train-label">Stasiun Awal <span style={{ color: 'red' }}>*</span></InputLabel>
@@ -801,15 +832,45 @@ const CourseList = () => {
             error={!!error}
             helperText={error}
             disabled={!speedBuzzer}
-            // error={!!errors.speedLimit}
-            // helperText={errors.speedLimit}
           />
         </DialogContent>
         <DialogActions className="px-8 pb-4">
-          <Button onClick={handleClose} color="error">
+          <Button onClick={() => setOpen(false)} color="error">
             Kembali
           </Button>
-          <Button onClick={handleRegister} disabled={!isAddButtonEnabled}>Tambah</Button>
+          <Button onClick={handleRegister} disabled={!isAddButtonEnabled}>
+            {mode === 'add' ? 'Tambah' : 'Simpan Perubahan'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Config Modul prompt */}
+      <Dialog open={configPrompt} onClose={() => setConfigPrompt(false)}>
+        <DialogContent className="w-[400px] p-8">
+          <div>
+            <h1 className="text-xl mb-4">Konfigurasi Modul Pembelajaran: <b>{payload?.module_name}</b></h1>
+            <p>Jenis Kereta: <b>{payload?.train_type?.toUpperCase()}</b></p>
+            <p>Berat Kereta: <b>{payload?.train?.weight} ton</b></p>
+            <p>Tipe Kereta: <b>{payload?.train?.type}</b></p>
+            <p>Waktu Simulasi: <b>{new Date(payload?.time).toLocaleString()}</b></p>
+            <p>Status Hujan: <b>{payload?.weather?.[0]?.value}</b></p>
+            <p>Intensitas Kabut: <b>{payload?.weather?.[1]?.value}</b></p>
+            <p>Line Kereta: <b>{payload?.train_line}</b></p>
+            <p>Stasiun Awal: <b>{getMappedStationName(payload?.route?.start?.name)}</b></p>
+            <p>Stasiun Akhir: <b>{getMappedStationName(payload?.route?.finish?.name)}</b></p>
+            <p>Motion Base: <b>{payload?.motion_base ? 'Ya' : 'Tidak'}</b></p>
+            <p>Speed Buzzer: <b>{payload?.speed_buzzer ? 'Ya' : 'Tidak'}</b></p>
+            <p>Speed Limit: <b>{payload?.speed_limit || 'Tidak Ditetapkan'}</b></p>
+          </div>
+        </DialogContent>
+        <DialogActions className="flex mb-2 justify-between">
+          <Button
+            className="mx-2"
+            onClick={() => setConfigPrompt(false)}
+            color="error"
+          >
+            Tutup
+          </Button>
         </DialogActions>
       </Dialog>
 
@@ -821,9 +882,9 @@ const CourseList = () => {
         <DialogActions className="flex mb-2 justify-between">
           <Button
             className="mx-2"
-            onClick={() => {
+            onClick={async () => {
               if (selectedModul.id) {
-                handleDelete(selectedModul.id);
+                await handleDelete(selectedModul.id);
               }
               setDeletePrompt(false);
             }}
@@ -833,7 +894,6 @@ const CourseList = () => {
           </Button>
           <Button
             className="mx-2"
-            
             onClick={() => setDeletePrompt(false)}
             variant="contained"
           >
@@ -841,6 +901,7 @@ const CourseList = () => {
           </Button>
         </DialogActions>
       </Dialog>
+
 
       <FullPageLoading loading={pageLoading} />
     </Container>

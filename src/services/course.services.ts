@@ -62,7 +62,7 @@ export const deleteCourseAsAdmin = async (id: string) => {
 
 // PUBLIC
 
-export const downloadCourse = async (id: number) => {
+export const getCourseDetail = async (id: string) => {
   try {
     console.log(id);
     const res = await services.get(`/public/course/${id}/download`);

@@ -52,8 +52,8 @@ export const publishCourseAsAdmin = async (id: string) => {
   }
 };
 
-export const deleteCourseAsAdmin = async (id: string) => {
-  const res = await services.delete(`/admin/course/${id}`, {
+export const deleteScoringAsAdmin = async (id: string) => {
+  const res = await services.delete(`/admin/course-exam/${id}`, {
   });
 
   return res.data;
@@ -62,10 +62,10 @@ export const deleteCourseAsAdmin = async (id: string) => {
 
 // PUBLIC
 
-export const downloadCourse = async (id: number) => {
+export const getScoringDetail = async (id: number) => {
   try {
     console.log(id);
-    const res = await services.get(`/public/course/${id}/download`);
+    const res = await services.get(`/public/course-exam/${id}/download`);
 
     return res.data;
   } catch (error) {

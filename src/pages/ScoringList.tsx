@@ -45,12 +45,11 @@ import {
   import { useAuth, currentPeserta, currentInstructor } from "@/context/auth";
   import {
     getScoringListbyAdmin,
-    downloadCourse,
+    deleteScoringAsAdmin,
   } from "@/services/scoring.services";
   import { getCourseListbyAdmin } from "@/services/course.services";
   import { useSettings } from "@/context/settings";
   import FullPageLoading from "@/components/FullPageLoading";
-  import { createCourseAsAdmin, publishCourseAsAdmin, getPayloadFromCourse, deleteCourseAsAdmin } from "@/services/course.services";
   import Checkbox from '@mui/material/Checkbox';
   import FormControlLabel from '@mui/material/FormControlLabel';
   import fs from "fs";
@@ -346,18 +345,9 @@ import {
       }, [page, reload]);
       
   
-    const handlePublish = async (id: string) => {
-      try {
-        await publishCourseAsAdmin(id);
-        setReload(!reload);
-      } catch (error) {
-        console.error("Failed to publish the course:", error);
-      }
-    };
-  
     const handleDelete = async (id: string) => {
       try {
-        await deleteCourseAsAdmin(id);
+        await deleteScoringAsAdmin(id);
         setReload(!reload);
       } catch (error) {
         console.error("Failed to publish the course:", error);
@@ -481,7 +471,7 @@ import {
                       <TableCell>{row.courseTitle}</TableCell>
                       <TableCell>
                         <div className="flex gap-4 justify-end">
-                          <Tooltip title="Konfigurasi Modul Pembelajaran" placement="top">
+                          <Tooltip title="Konfigurasi Modul Penilaian" placement="top">
                             <IconButton
                               size="small"
                               // onClick={() => {
@@ -497,7 +487,7 @@ import {
                               <Info />
                             </IconButton>
                           </Tooltip>
-                          <Tooltip title="Edit Modul Pembelajaran" placement="top">
+                          <Tooltip title="Edit Modul Penilaian" placement="top">
                             <IconButton
                               size="small"
                               // onClick={async () => {
@@ -545,7 +535,7 @@ import {
                               <Delete />
                             </IconButton>
                           </Tooltip> */}
-                          <Tooltip title="Hapus User" placement="top">
+                          <Tooltip title="Hapus Modul Penilaian" placement="top">
                             <IconButton
                               size="small"
                               onClick={() => {
@@ -566,7 +556,7 @@ import {
                 </TableBody>
               ) : (
                 <p className="absolute w-full top-1/3 left-0 flex justify-center">
-                  Data user tidak ditemukan
+                  Data modul penilaian tidak ditemukan
                 </p>
               )}
             </Table>
