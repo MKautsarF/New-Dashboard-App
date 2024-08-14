@@ -93,14 +93,17 @@ function ScoringStart() {
   useEffect(() => {
     const fetchPayload = async () => {
       const selectedPesertaId = localStorage.getItem('selectedPesertaId');
+      const moduleName = localStorage.getItem('moduleName');
+      
       if (selectedCourse && selectedCourse.id) {
         try {
           const payloadData = await getPayloadFromCourse(selectedCourse.id);
-          const payloadWithPesertaId = {
+          const payloadAll = {
             ...payloadData,
             id_user: selectedPesertaId,
+            learning_module: moduleName,
           };
-          setPayload(payloadWithPesertaId);
+          setPayload(payloadAll);
         } catch (error) {
           console.error("Failed to fetch payload data:", error);
         }
@@ -133,7 +136,8 @@ function ScoringStart() {
         <div className="flex flex-col gap-4 w-full">
           <div className="flex flex-col text-left gap-4 p-8 ">
             <h1 style={{ fontSize: "1.75rem", fontWeight: "bold" }}>
-              Modul Penilaian Kereta {trainType.toUpperCase()}
+              Modul Penilaian {trainType === "kcic" ? "Kereta Cepat" : trainType.toUpperCase()}
+
             </h1>
             <p style={{ fontSize: "1.25rem" }}>
               Pilih pembelajaran kereta yang akan digunakan:
@@ -151,7 +155,7 @@ function ScoringStart() {
                   onClick={handleClick}
                   checkedValue={checkedLRT}
                   activeButton={activeButton}
-                  requiredCompletion={button.requiredCompletion} // Pass requiredCompletion here
+                  // requiredCompletion={button.requiredCompletion} // Pass requiredCompletion here
                 />
               ))}
 
@@ -165,7 +169,7 @@ function ScoringStart() {
                   onClick={handleClick}
                   checkedValue={checkedKCIC}
                   activeButton={activeButton}
-                  requiredCompletion={button.requiredCompletion} // Pass requiredCompletion here
+                  // requiredCompletion={button.requiredCompletion} // Pass requiredCompletion here
                 />
               ))}
           </div>

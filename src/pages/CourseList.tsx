@@ -5,8 +5,8 @@ import {
   Info,
   BookmarkAdd,
   Visibility,
-  AccessTime
 } from "@mui/icons-material";
+import PublishIcon from '@mui/icons-material/Publish';
 import { TimePicker } from "@mui/x-date-pickers";
 import {
   Box,
@@ -31,6 +31,7 @@ import {
   Select, 
   MenuItem, 
   FormControl, 
+  FormHelperText,
   InputLabel,
   Slider,
   Input
@@ -44,25 +45,22 @@ import InputAdornment from "@mui/material/InputAdornment";
 import { useAuth, currentPeserta, currentInstructor } from "@/context/auth";
 import {
   getCourseListbyAdmin,
-  downloadCourse,
+  getCourseDetail
 } from "@/services/course.services";
 import { useSettings } from "@/context/settings";
 import FullPageLoading from "@/components/FullPageLoading";
-import TraineeDetail from "@/components/TraineeDetail";
-import dayjs, { Dayjs } from "dayjs";
-import { DatePicker } from "@mui/x-date-pickers";
-import { toast } from "react-toastify";
-import { getSubmissionList } from "@/services/submission.services";
-import { createCourseAsAdmin } from "@/services/course.services";
+import { createCourseAsAdmin, publishCourseAsAdmin, getPayloadFromCourse, deleteCourseAsAdmin } from "@/services/course.services";
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import fs from "fs";
+import { toast } from 'react-toastify';
 
 interface RowData {
   id: string;
   title: string;
   description: string;
   filename: string;
+  published: boolean;
 }
 
 const CourseList = () => {
@@ -87,14 +85,22 @@ const CourseList = () => {
 
   const getDisplayStationName = (station: any) => stationMapping[station] || station;
   const getPayloadStationName = (displayName: any) => Object.keys(stationMapping).find(key => stationMapping[key] === displayName) || displayName;
+  const getMappedStationName = (stationName: any) => {
+    return stationMapping[stationName] || stationName;
+  };
 
   const [open, setOpen] = useState(false);
+  const [mode, setMode] = useState<'add' | 'edit'>('add');
 
   const handleClose = () => {
     setOpen(false);
   };
 
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedModul, setSelectedModul] = useState<{ id: string | null; title: string | null }>({
+    id: null,
+    title: null,
+  });
 
   // Full page loading
   const [pageLoading, setPageLoading] = useState(false);
@@ -102,6 +108,7 @@ const CourseList = () => {
   const [rows, setRows] = useState<RowData[]>([]);
   const [totalData, setTotalData] = useState(0);
   const [page, setPage] = useState(1);
+  const [payload, setPayload] = useState<any>({});
   
   const [moduleName, setModuleName] = useState("");
   const [train, setTrain] = useState("");
@@ -123,6 +130,21 @@ const CourseList = () => {
   const [error, setError] = useState('');
   const [isAddButtonEnabled, setIsAddButtonEnabled] = useState(false);
 
+  const resetForm = () => {
+    setModuleName('');
+    setTrain('');
+    setTrainWeight('');
+    setTrainLine('');
+    setStartStation('');
+    setFinishStation('');
+    setRainStatus('');
+    setTime(null);
+    setMotionBase(false);
+    setSpeedBuzzer(false);
+    setSpeedLimit('');
+    setFog(0);
+  };
+
   const handleSliderChange = (event: Event, newValue: number | number[]) => {
     if (typeof newValue === 'number') {
       const fogDistance =
@@ -131,31 +153,7 @@ const CourseList = () => {
       setJarakPandang(fogDistance);
     }
   };
-
-  useEffect(() => {
-    // Update the train lines based on the selected train type
-    if (train) {
-      setTrainLines(Object.keys(sourceSettings[train].rute));
-    } else {
-      setTrainLines([]);
-    }
-  }, [train]);
-
-  useEffect(() => {
-    if (train && trainLine) {
-      setStartStations(Object.keys(sourceSettings[train].rute[trainLine]));
-    } else {
-      setStartStations([]);
-    }
-  }, [train, trainLine]);
-
-  useEffect(() => {
-    if (train && trainLine && startStation) {
-      setFinishStations(sourceSettings[train].rute[trainLine][startStation]);
-    } else {
-      setFinishStations([]);
-    }
-  }, [train, trainLine, startStation]);
+  
 
   const validateForm = () => {
     if (!moduleName || !train || !trainWeight || !trainLine || !startStation || !finishStation || !rainStatus || !time || (speedBuzzer && !speedLimit)) {
@@ -184,7 +182,7 @@ const CourseList = () => {
     setSpeedLimit(event.target.value);
     // Validate speed limit if speed buzzer is checked
     if (speedBuzzer && event.target.value.trim() === '') {
-      setError('Speed Limit is required when Speed Buzzer is enabled.');
+      setError('Speed limit perlu diisi ketika speed buzzer terceklis');
     } else {
       setError('');
     }
@@ -192,6 +190,7 @@ const CourseList = () => {
 
 
   const [deletePrompt, setDeletePrompt] = useState(false);
+  const [configPrompt, setConfigPrompt] = useState(false);
   const [passwordPrompt, setPasswordPrompt] = useState(false);
   const [reload, setReload] = useState(false);
 
@@ -205,9 +204,64 @@ const CourseList = () => {
   // console.log(currentInstructor.isAdmin);
   currentInstructor.isInstructor = true;
 
+
+  
+
+  const collectDataAndPrepareFormData = async () => {
+    // Determine the description
+    const description = train.toUpperCase();
+  
+    // Prepare the data object
+    const data = {
+      module_name: moduleName,
+      train_type: train,
+      train: {
+        weight: trainWeight,
+        type: "6 Rangkaian"
+      },
+      time: time,
+      weather: [
+        {
+          value: rainStatus,
+          location: [0, 0],
+          name: "rain"
+        },
+        {
+          value: fog,
+          location: [0, 0],
+          name: "fog"
+        }
+      ],
+      train_line: trainLine,
+      route: {
+        start: {
+          name: getPayloadStationName(startStation)
+        },
+        finish: {
+          name: getPayloadStationName(finishStation)
+        }
+      },
+      motion_base: motionBase,
+      speed_buzzer: speedBuzzer,
+      speed_limit: speedLimit,
+      status: "play"
+    };
+  
+    // Prepare the form data
+    const formData = new FormData();
+    formData.append('file', new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }), 'data.json');
+    formData.append('title', moduleName);
+    formData.append('description', description);
+    // formData.append('level', 1);
+  
+    return formData;
+  };  
+
+
   const handleDaftar = () => {
+    setMode('add');
     setOpen(true);
-  };
+};
 
   const handleKembali = () => {
     navigate("/admin");
@@ -216,106 +270,22 @@ const CourseList = () => {
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage + 1);
     // setPage(newPage);
-  };
-
-  const validateRegister = (): boolean => {
-    return (
-      moduleName !== "" &&
-      train !== "" &&
-      trainWeight !== "" &&
-      trainType !== "" &&
-      time !== "" &&
-      startStation !== "" &&
-      finishStation !== "" &&
-      motionBase !== null &&
-      speedBuzzer !== null &&
-      speedLimit !== ""
-    );
-  };
-
+  };  
+  
   const handleRegister = async () => {
-    const isValid = validateRegister();
-
-    if (!isValid) {
-      toast.error("Input registrasi tidak boleh kosong!", {
-        position: "top-center",
-      });
-      return;
-    }
-
-    const payload = {
-      moduleName: moduleName,
-      train: train,
-      trainWeight: trainWeight,
-      trainType: trainType,
-      time: time,
-      startStation: startStation,
-      finishStation: finishStation,
-      motionBase: motionBase,
-      speedBuzzer: speedBuzzer,
-      speedLimit: speedLimit,
-      status: "play"
-    };
-
     try {
-      setPageLoading(true);
-      const res = await createCourseAsAdmin(payload);
-      // setRows(
-      //   [
-      //     {
-      //       id: res.id,
-      //       name: res.name,
-      //       nip: res.bio.identityNumber,
-      //     },
-      //   ].concat(rows)
-      // );
-      setPage(1);
-
-      setPageLoading(false);
-      setOpen(false);
-      setModuleName("");
-      setTrain("");
-      setTrainWeight("");
-      setTrainType("6 Rangkaian");
-      setTime("");
-      setStartStation("");
-      setFinishStation("");
-      setMotionBase(null);
-      setSpeedBuzzer(null);
-      setSpeedLimit("");
-    } catch (e) {
-      const errMsg = e.response.data.errorMessage;
-      console.error(e);
-      toast.error(
-        "Nama modul sudah terdapat di database, mohon gunakan inputan yang berbeda",
-        { position: "top-center" }
-      );
-    } finally {
-      setPageLoading(false);
-    }
-  };
-
-
-  const handleViewFile = async (id: number) => {
-    try {
-      const response = await downloadCourse(id);
-      console.log(response);
-      // if (!response.ok) {
-      //   throw new Error("Network response was not ok");
-      // }
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.style.display = "none";
-      a.href = url;
-      a.download = `${id}.json`; // You can customize the filename
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
+      const formData = await collectDataAndPrepareFormData();
+      
+      const response = await createCourseAsAdmin(formData);
+      console.log("Upload successful", response);
+      handleClose();
+      resetForm();
+      setReload(!reload);
     } catch (error) {
-      console.error("Failed to download file:", error);
+      console.error("Upload failed", error);
     }
   };
+  
 
   useEffect(() => {
     async function getRows(page: number) {
@@ -328,6 +298,7 @@ const CourseList = () => {
           id: entry.id,
           title: entry.title,
           description: entry.description,
+          published: entry.published,
         }));
 
         setRows(resRows);
@@ -342,6 +313,120 @@ const CourseList = () => {
     getRows(page);
   }, [page, reload]);
 
+  useEffect(() => {
+    const fetchPayload = async () => {
+      if (selectedModul.id) {
+        try {
+          const payloadData = await getCourseDetail(selectedModul.id);
+          setPayload(payloadData);
+        } catch (error) {
+          console.error("Failed to fetch payload data:", error);
+        }
+      }
+    };
+
+    fetchPayload();
+  }, [selectedModul]);
+
+  useEffect(() => {
+    console.log("Payload updated:", payload);
+  }, [payload]);
+
+  const handlePublish = async (id: string) => {
+    try {
+      await publishCourseAsAdmin(id);
+      setReload(!reload);
+    } catch (error) {
+      console.error("Failed to publish the course:", error);
+    }
+  };
+
+
+  const handleEdit = () => {
+    setMode('edit');
+    setOpen(true);
+
+    
+};
+
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteCourseAsAdmin(id);
+      setReload(!reload);
+    } catch (error) {
+      console.error("Failed to publish the course:", error);
+      toast.error("Gagal menghapus modul karena modul ini memiliki modul penilaian", { position: 'top-center' });
+    }
+  };
+
+  useEffect(() => {
+    if (mode === 'edit' && payload) {
+      setModuleName(payload.module_name || '');
+      
+      // Set train-related states
+      setTrain(payload.train_type || '');
+      setTrainWeight(payload.train?.weight || '');
+      setTrainLine(payload.train_line || '');
+      
+      // Set start and finish stations based on the rute structure
+      setStartStation(payload.route?.start?.name || '');
+      setFinishStation(payload.route?.finish?.name || '');
+      
+      // Other settings
+      setRainStatus(payload.weather?.find((item: { name: string, value: string | number }) => item.name === 'rain')?.value || '');
+      setFog(payload.weather?.find((item: { name: string, value: string | number }) => item.name === 'fog')?.value || 0);
+      
+      setTime(payload.time || null);
+      setMotionBase(payload.motion_base || false);
+      setSpeedBuzzer(payload.speed_buzzer || false);
+      setSpeedLimit(payload.speed_limit || '');
+      setJarakPandang(payload.jarak_pandang || 0);
+    } else {
+      // Reset fields for adding new module
+      setModuleName('');
+      setTrain('');
+      setTrainWeight('');
+      setTrainLine('');
+      setStartStation('');
+      setFinishStation('');
+      setRainStatus('');
+      setFog(0);
+      setTime(null);
+      setMotionBase(false);
+      setSpeedBuzzer(false);
+      setSpeedLimit('');
+      setJarakPandang(0);
+    }
+  }, [mode, payload]);
+
+  
+
+  useEffect(() => {
+    // Update the train lines based on the selected train type
+    if (train) {
+      setTrainLines(Object.keys(sourceSettings[train]?.rute || {}));
+    } else {
+      setTrainLines([]);
+    }
+  }, [train]);
+  
+  useEffect(() => {
+    if (train && trainLine) {
+      setStartStations(Object.keys(sourceSettings[train]?.rute[trainLine] || {}));
+    } else {
+      setStartStations([]);
+    }
+  }, [train, trainLine]);
+  
+  useEffect(() => {
+    if (train && trainLine && startStation) {
+      setFinishStations(sourceSettings[train]?.rute[trainLine]?.[startStation] || []);
+    } else {
+      setFinishStations([]);
+    }
+  }, [train, trainLine, startStation]);
+
+
   return (
     <Container w={1000} h={700}>
       <div className="flex flex-col p-6 h-full gap-4">
@@ -350,7 +435,7 @@ const CourseList = () => {
           <Button
             type="button"
             variant="contained"
-            onClick={() => handleDaftar()}
+            onClick={handleDaftar}
             startIcon={<BookmarkAdd className="text-2xl" />}
             sx={{
               color: "#ffffff",
@@ -369,7 +454,7 @@ const CourseList = () => {
             id="input-with-icon-textfield"
             fullWidth
             name="query"
-            placeholder="Cari berdasarkan NIP"
+            placeholder="Cari berdasarkan ..."
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -404,18 +489,20 @@ const CourseList = () => {
         <TableContainer className="mt-5" component={Paper}>
           <Table stickyHeader aria-label="Tabel Peserta">
             <colgroup>
-              <col width="45%" />
-              <col width="30%" />
-              <col width="25%" />
+              <col width="40%" />
+              <col width="20%" />
+              <col width="20%" />
+              <col width="20%" />
             </colgroup>
             <TableHead>
               <TableRow>
                 <TableCell sx={{ fontWeight: "bold", fontSize: "17px" }}>
-                  Judul
+                  Judul Modul Pembelajaran
                 </TableCell>
                 <TableCell sx={{ fontWeight: "bold", fontSize: "17px" }}>
                   Tipe Kereta
                 </TableCell>
+                <TableCell></TableCell>
                 <TableCell></TableCell>
               </TableRow>
             </TableHead>
@@ -433,21 +520,41 @@ const CourseList = () => {
                     }}
                   >
                     <TableCell>{row.title}</TableCell>
-                    <TableCell>{row.description}</TableCell>
+                    <TableCell>
+                      {row.description === "KCIC" ? "Kereta Cepat" : row.description}
+                    </TableCell>
+                    <TableCell>
+                      {!row.published && (
+                        <Button
+                          variant="contained"
+                          onClick={() => handlePublish(row.id)}
+                          sx={{
+                            color: "#ffffff",
+                            backgroundColor: "#00a6fb",
+                            borderColor: "#00a6fb",
+                            "&:hover": {
+                              borderColor: "#1aaffb",
+                              color: "#ffffff",
+                              backgroundColor: "#1aaffb",
+                            },
+                          }}
+                        >
+                          Publish
+                        </Button>
+                      )}
+                    </TableCell>
                     <TableCell>
                       <div className="flex gap-4 justify-end">
                         <Tooltip title="Konfigurasi Modul Pembelajaran" placement="top">
                           <IconButton
                             size="small"
-                            // onClick={() => {
-                            //   setDetailId(row.id), setDetailOpen(true);
-                            //   setSelectedPeserta({
-                            //     id: row.id,
-                            //     name: row.name,
-                            //     nip: row.nip,
-                            //   });
-                            //   handleGetUserDetail();
-                            // }}
+                            onClick={() => {
+                              setSelectedModul({
+                                id: row.id,
+                                title: row.title,
+                              });
+                              setConfigPrompt(true);
+                            }}
                           >
                             <Info />
                           </IconButton>
@@ -455,39 +562,13 @@ const CourseList = () => {
                         <Tooltip title="Edit Modul Pembelajaran" placement="top">
                           <IconButton
                             size="small"
-                            // onClick={async () => {
-                            //   setSelectedPeserta({
-                            //     id: row.id,
-                            //     name: row.name,
-                            //     nip: row.nip,
-                            //   });
-
-                            //   const peserta = await getUserByIdAsAdmin(row.id);
-                            //   setDetailPeserta({
-                            //     username: peserta.username,
-                            //     name: peserta.name,
-                            //     email: peserta.email,
-                            //     nip:
-                            //       peserta.bio === null
-                            //         ? ""
-                            //         : peserta.bio.officialCode,
-                            //     born:
-                            //       peserta.bio === null ? "" : peserta.bio.born,
-                            //     position:
-                            //       peserta.bio === null
-                            //         ? ""
-                            //         : peserta.bio.position,
-                            //   });
-                            //   setNewBirthDate(
-                            //     peserta.bio === null
-                            //       ? null
-                            //       : dayjs(peserta.bio.born)
-                            //   );
-
-                            //   setEditPrompt(true);
-
-                            //   console.log(row.name);
-                            // }}
+                            onClick={() => {
+                              setSelectedModul({
+                                id: row.id,
+                                title: row.title,
+                              });
+                              handleEdit();
+                            }}
                           >
                             <EditNote />
                           </IconButton>
@@ -495,16 +576,13 @@ const CourseList = () => {
                         <Tooltip title="Hapus Modul Pembelajaran" placement="top">
                           <IconButton
                             size="small"
-                            // onClick={() => {
-                            //   setSelectedPeserta({
-                            //     id: row.id,
-                            //     name: row.name,
-                            //     nip: row.nip,
-                            //   });
-                            //   setDeletePrompt(true);
-
-                            //   console.log(row.name);
-                            // }}
+                            onClick={() => {
+                              setSelectedModul({
+                                id: row.id,
+                                title: row.title,
+                              });
+                              setDeletePrompt(true);
+                            }}
                           >
                             <Delete />
                           </IconButton>
@@ -516,7 +594,7 @@ const CourseList = () => {
               </TableBody>
             ) : (
               <p className="absolute w-full top-1/3 left-0 flex justify-center">
-                Data user tidak ditemukan
+                Data modul pembelajaran tidak ditemukan
               </p>
             )}
           </Table>
@@ -554,11 +632,19 @@ const CourseList = () => {
         </div>
       </div>
 
-      {/* pop up registrasi */}
-      <Dialog open={open} onClose={handleClose}>
-        <DialogTitle className="px-8 pt-4">Tambah Modul Pembelajaran Baru</DialogTitle>
+      {/* pop up registrasi dan edit*/}
+      <Dialog open={open} onClose={() => setOpen(false)}>
+        <DialogTitle className="px-8 pt-8">
+          {mode === 'add' 
+            ? 'Tambah Modul Pembelajaran Baru' 
+            : `Edit Modul Pembelajaran - ${payload?.module_name || ''}`}
+        </DialogTitle>
         <DialogContent className="w-[600px] px-8">
-          <DialogContentText>Penambahan Modul Pembelajaran</DialogContentText>
+          <DialogContentText>
+            {mode === 'add' 
+              ? 'Penambahan Modul Pembelajaran' 
+              : `Pengeditan Modul Pembelajaran - ${payload?.module_name || ''}`}
+          </DialogContentText>
           <TextField
             autoFocus
             margin="normal"
@@ -591,7 +677,7 @@ const CourseList = () => {
           <TextField
             margin="normal"
             id="Spesifikasi Kereta"
-            label={<span>Berat Kereta <span style={{ color: 'red' }}>*</span></span>}
+            label={<span>Berat Kereta (ton) <span style={{ color: 'red' }}>*</span></span>}
             type="text"
             fullWidth
             variant="standard"
@@ -633,6 +719,7 @@ const CourseList = () => {
                 <MenuItem key={station} value={getDisplayStationName(station)}>{getDisplayStationName(station)}</MenuItem>
               ))}
             </Select>
+            {/* <FormHelperText>{errors.startStation}</FormHelperText> */}
           </FormControl>
           <FormControl fullWidth variant="standard" margin="normal" disabled={!startStation}>
             <InputLabel id="train-label">Stasiun Akhir <span style={{ color: 'red' }}>*</span></InputLabel>
@@ -647,6 +734,7 @@ const CourseList = () => {
                 <MenuItem key={station} value={getDisplayStationName(station)}>{getDisplayStationName(station)}</MenuItem>
               ))}
             </Select>
+            {/* <FormHelperText>{errors.finishStation}</FormHelperText> */}
           </FormControl>
           <FormControl fullWidth variant="standard" margin="normal">
             <InputLabel id="train-label">Status Hujan <span style={{ color: 'red' }}>*</span></InputLabel>
@@ -747,13 +835,73 @@ const CourseList = () => {
           />
         </DialogContent>
         <DialogActions className="px-8 pb-4">
-          <Button onClick={handleClose} color="error">
+          <Button onClick={() => setOpen(false)} color="error">
             Kembali
           </Button>
-          <Button disabled={!isAddButtonEnabled}>Tambah</Button>
-          {/* <Button onClick={handleRegister} disabled={!isAddButtonEnabled}>Tambah</Button> */}
+          <Button onClick={handleRegister} disabled={!isAddButtonEnabled}>
+            {mode === 'add' ? 'Tambah' : 'Simpan Perubahan'}
+          </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Config Modul prompt */}
+      <Dialog open={configPrompt} onClose={() => setConfigPrompt(false)}>
+        <DialogContent className="w-[400px] p-8">
+          <div>
+            <h1 className="text-xl mb-4">Konfigurasi Modul Pembelajaran: <b>{payload?.module_name}</b></h1>
+            <p>Jenis Kereta: <b>{payload?.train_type?.toUpperCase()}</b></p>
+            <p>Berat Kereta: <b>{payload?.train?.weight} ton</b></p>
+            <p>Tipe Kereta: <b>{payload?.train?.type}</b></p>
+            <p>Waktu Simulasi: <b>{new Date(payload?.time).toLocaleString()}</b></p>
+            <p>Status Hujan: <b>{payload?.weather?.[0]?.value}</b></p>
+            <p>Intensitas Kabut: <b>{payload?.weather?.[1]?.value}</b></p>
+            <p>Line Kereta: <b>{payload?.train_line}</b></p>
+            <p>Stasiun Awal: <b>{getMappedStationName(payload?.route?.start?.name)}</b></p>
+            <p>Stasiun Akhir: <b>{getMappedStationName(payload?.route?.finish?.name)}</b></p>
+            <p>Motion Base: <b>{payload?.motion_base ? 'Ya' : 'Tidak'}</b></p>
+            <p>Speed Buzzer: <b>{payload?.speed_buzzer ? 'Ya' : 'Tidak'}</b></p>
+            <p>Speed Limit: <b>{payload?.speed_limit || 'Tidak Ditetapkan'}</b></p>
+          </div>
+        </DialogContent>
+        <DialogActions className="flex mb-2 justify-between">
+          <Button
+            className="mx-2"
+            onClick={() => setConfigPrompt(false)}
+            color="error"
+          >
+            Tutup
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Delete Modul prompt */}
+      <Dialog open={deletePrompt} onClose={() => setDeletePrompt(false)}>
+        <DialogContent className="min-w-[260px]">
+          Hapus Modul: <b>{selectedModul.title}</b>?
+        </DialogContent>
+        <DialogActions className="flex mb-2 justify-between">
+          <Button
+            className="mx-2"
+            onClick={async () => {
+              if (selectedModul.id) {
+                await handleDelete(selectedModul.id);
+              }
+              setDeletePrompt(false);
+            }}
+            color="error"
+          >
+            Hapus
+          </Button>
+          <Button
+            className="mx-2"
+            onClick={() => setDeletePrompt(false)}
+            variant="contained"
+          >
+            Batal
+          </Button>
+        </DialogActions>
+      </Dialog>
+
 
       <FullPageLoading loading={pageLoading} />
     </Container>

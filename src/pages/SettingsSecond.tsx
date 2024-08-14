@@ -63,20 +63,20 @@ function SettingsSecond() {
     const fetchData = async () => {
       try {
         const { results } = await getCourseByInstructor();
-
         
-  
-        results.sort((a: any, b: any) => a.level - b.level);
+        // Sort alphabetically by title
+        results.sort((a: any, b: any) => a.title.localeCompare(b.title));
   
         const lrtData = results.filter((course: any) => course.description === "LRT")
           .map((course: any) => ({
             title: course.title,
-            requiredCompletion: course.level // Assuming level as requiredCompletion
+            // requiredCompletion: course.level // Assuming level as requiredCompletion
           }));
+          
         const kcicData = results.filter((course: any) => course.description === "KCIC")
           .map((course: any) => ({
             title: course.title,
-            requiredCompletion: course.level // Assuming level as requiredCompletion
+            // requiredCompletion: course.level // Assuming level as requiredCompletion
           }));
   
         setLrtButtons(lrtData);
@@ -89,6 +89,7 @@ function SettingsSecond() {
   
     fetchData();
   }, []); 
+  
 
   useEffect(() => {
     const fetchPayload = async () => {
@@ -113,6 +114,7 @@ function SettingsSecond() {
     try {
       console.log("sent payload:", payload);
       setIsLoading(true);
+      localStorage.setItem('moduleName', payload.module_name);
       // sendTextToClients(JSON.stringify(payload, null, 2));
     } catch (error) {
       console.error(error);
@@ -128,7 +130,7 @@ function SettingsSecond() {
         <div className="flex flex-col gap-4 w-full">
           <div className="flex flex-col text-left gap-4 p-8 ">
             <h1 style={{ fontSize: "1.75rem", fontWeight: "bold" }}>
-              Pengaturan Kereta {trainType.toUpperCase()}
+              Pengaturan Kereta {trainType === "kcic" ? "Kereta Cepat" : trainType.toUpperCase()}
             </h1>
             <p style={{ fontSize: "1.25rem" }}>
               Pilih pembelajaran kereta yang akan digunakan:
@@ -146,7 +148,7 @@ function SettingsSecond() {
                   onClick={handleClick}
                   checkedValue={checkedLRT}
                   activeButton={activeButton}
-                  requiredCompletion={button.requiredCompletion} // Pass requiredCompletion here
+                  // requiredCompletion={button.requiredCompletion} // Pass requiredCompletion here
                 />
               ))}
 
@@ -160,7 +162,7 @@ function SettingsSecond() {
                   onClick={handleClick}
                   checkedValue={checkedKCIC}
                   activeButton={activeButton}
-                  requiredCompletion={button.requiredCompletion} // Pass requiredCompletion here
+                  // requiredCompletion={button.requiredCompletion} // Pass requiredCompletion here
                 />
               ))}
           </div>

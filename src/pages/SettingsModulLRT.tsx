@@ -66,7 +66,6 @@ function SettingsModulLRT() {
                 key={button.title}
                 buttonName={button.title}
                 completion={completion}
-                requiredCompletion={button.requiredCompletion}
                 checkedValue={null}
                 activeButton={activeButton}
                 sx={{

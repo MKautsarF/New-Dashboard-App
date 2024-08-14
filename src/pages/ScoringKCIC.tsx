@@ -46,11 +46,6 @@ function ScoringKCIC() {
   const [checkedItem, setCheckedItem] = useState(null);
 
   useEffect(() => {
-    // const storedVal = localStorage.getItem("scoringKCICVal");
-    // if (storedVal) {
-    //   setVal(JSON.parse(storedVal));
-    // }
-
     // Read the settings_train.json file
     const settingsFilePath = "C:/Train Simulator/Data/settings_train.json";
     const fs = require("fs");
@@ -146,52 +141,6 @@ function ScoringKCIC() {
     });
   };
 
-  // const handleRename = (i: number, newName: string) => {
-  //   const renamedVal = [...val];
-  //   renamedVal[i] = newName;
-  //   setVal(renamedVal);
-  //   localStorage.setItem("scoringKCICVal", JSON.stringify(renamedVal));
-
-  //   // Rename the JSON file
-  //   const sourceFilePath = `C:/Train Simulator/Data/kcic_New Settings ${
-  //     i + 1
-  //   }.json`; // yang dicari new settings doang
-  //   const destinationFileName = `kcic_${newName}.json`;
-  //   const destinationFilePath = path.join(
-  //     "C:/Train Simulator/Data",
-  //     destinationFileName
-  //   );
-  //   const settingPath = "C:/Train Simulator/Data/settings_train.json";
-  //   fs.readFile(settingPath, "utf8", (err: any, settingsData: any) => {
-  //     if (err) {
-  //       console.error("Error reading settings file:", err);
-  //       return;
-  //     }
-
-  //     // Parse the JSON content
-  //     const settings = JSON.parse(settingsData);
-  //     settings.kcic.score[i + 1] = destinationFileName;
-  //     fs.writeFile(
-  //       settingPath,
-  //       JSON.stringify(settings, null, 2),
-  //       (err: any) => {
-  //         if (err) {
-  //           console.error("Error writing settings file:", err);
-  //           return;
-  //         }
-  //         console.log("settings_train.json updated.");
-  //       }
-  //     );
-  //   });
-
-  //   fs.rename(sourceFilePath, destinationFilePath, (err: any) => {
-  //     if (err) {
-  //       console.error("Error renaming file:", err);
-  //       return;
-  //     }
-  //     console.log(`File renamed to ${destinationFileName}`);
-  //   });
-  // };
 
   const handleRename = (i: number, newName: string) => {
     const renamedVal = [...val];
@@ -361,7 +310,7 @@ function ScoringKCIC() {
           <div className="flex flex-col text-left gap-4 p-8 ">
             {/* {settings.score && <p>Selected Value: {settings.score}</p>} */}
             <h1 style={{ fontSize: "1.75rem", fontWeight: "bold" }}>
-              Pengaturan Penilaian KCIC
+              Pengaturan Penilaian Kereta Cepat
             </h1>
             <p style={{ fontSize: "1.25rem" }}>
               Pilih setelan penilaian yang akan diatur:

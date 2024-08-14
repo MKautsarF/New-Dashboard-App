@@ -27,6 +27,7 @@ import FinishKCIC from "./pages/FinishKCIC";
 import FinishLRT from "./pages/FinishLRT";
 import ScoringStart from "./pages/ScoringStart";
 import Course from "./pages/CourseList";
+import ScoringList from "./pages/ScoringList";
 
 import { ToastContainer } from "react-toastify";
 import "./index.css";
@@ -139,6 +140,10 @@ const routerData = [
   {
     path: "/admin/courselist",
     element: <Course />,
+  },
+  {
+    path: "/admin/scoringlist",
+    element: <ScoringList />,
   },
 ];
 

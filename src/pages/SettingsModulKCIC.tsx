@@ -52,7 +52,7 @@ function SettingsModulKCIC() {
         <div className="flex flex-col gap-4 w-full">
           <div className="flex flex-col text-left gap-4 p-8 ">
             <h1 style={{ fontSize: "1.75rem", fontWeight: "bold" }}>
-              Pengaturan Kereta KCIC
+              Modul Pembelajaran Kereta Cepat
             </h1>
             <p style={{ fontSize: "1.25rem" }}>
               Pembelajaran kereta yang tersedia:
@@ -65,7 +65,6 @@ function SettingsModulKCIC() {
                 key={button.title}
                 buttonName={button.title}
                 completion={completion}
-                requiredCompletion={button.requiredCompletion}
                 checkedValue={null}
                 activeButton={activeButton}
                 sx={{
