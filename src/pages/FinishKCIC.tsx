@@ -94,8 +94,8 @@ const FinishKCIC: React.FC = () => {
       };
       sendTextToClients(JSON.stringify(payload));
 
-      const res = await finishSubmissionById(currentSubmission.id);
-      console.log('finished submission: ' + res.data);
+      // const res = await finishSubmissionById(currentSubmission.id);
+      // console.log('finished submission: ' + res.data);
 
       const json = fs.readFileSync(jsonPath, 'binary');
       const jsonBlob = new Blob([json], { type: 'application/json' });

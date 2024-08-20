@@ -32,11 +32,22 @@ export const deleteSubmissionById = async (id: number) => {
   return res.data;
 };
 
-export const finishSubmissionById = async (id: number) => {
-  const res = await services.put(`/instructor/submission/${id}/finish`);
+export const finishSubmissionById = async (id: number, payload: any) => {
+  console.log("payload", payload);
+  console.log("id", id);
+  const res = await services.put(`/instructor/submission/${id}/finish`, payload);
+  console.log("res", res);
 
-  return res.data;
+  return res;
 };
+export const uploadLogSubmission = async (id: number, formData: FormData) => {
+  const response = await services.post(`/instructor/submission/${id}/log`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return response.data;
+}
 
 export const uploadSubmission = async (
   url: string,
@@ -83,3 +94,18 @@ export const getSubmissionLogByFileIndex = async (
   id: number,
   fileIndex: number
 ) => await services.get(`/instructor/submission/${id}/log/${fileIndex}`);
+
+export const getSubmissionLogByTag = async (
+  id: number,
+  tag: string,
+  page: number = 1,
+  size: number = 1
+) => {
+  const res = await services.get(
+    `/instructor/submission/${id}/log?tag=${tag}&page=${page}&size=${size}`
+  );
+
+  return res.data;
+};
+
+

@@ -7,8 +7,11 @@ import { useSettings } from "../context/settings";
 import { sendTextToClients } from "@/socket";
 import ButtonSettings from "@/components/ButtonSettings";
 import { getCourseByInstructor } from "@/services/course.services";
+import { createSubmission } from "@/services/submission.services";
 import { getPayloadFromCourse } from "@/services/course.services";
+import { getScoringByCourseInstructor } from "@/services/scoring.services";
 import FirstPageIcon from '@mui/icons-material/FirstPage';
+import { set } from "lodash";
 
 function useQuery() {
   const { search } = useLocation();
@@ -18,6 +21,7 @@ function useQuery() {
 function ScoringStart() {
   const query = useQuery();
   const trainType = query.get("type") as "kcic" | "lrt";
+  const courseID = query.get("id");
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const { settings } = useSettings();
@@ -34,6 +38,7 @@ function ScoringStart() {
   const [kcicButtons, setKcicButtons] = useState<any[]>([]);
   const [coursesData, setCoursesData] = useState<any[]>([]);
   const [selectedCourse, setSelectedCourse] = useState<any | null>(null);
+  const [submissionPayload, setSubmissionPayload] = useState<any | null>(null);
 
   const [payload, setPayload] = useState<any>({});
 
@@ -62,25 +67,19 @@ function ScoringStart() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const { results } = await getCourseByInstructor();
+        const { results } = await getScoringByCourseInstructor(courseID, 1, 100);
 
         
+        console.log("Results:", results);
+        // results.sort((a: any, b: any) => a.level - b.level);
   
-        results.sort((a: any, b: any) => a.level - b.level);
+        // const lrtData = results.filter((course: any) => course.description === "LRT")
+        //   .map((course: any) => ({
+        //     title: course.title,
+        //     requiredCompletion: course.level // Assuming level as requiredCompletion
+        //   }));
   
-        const lrtData = results.filter((course: any) => course.description === "LRT")
-          .map((course: any) => ({
-            title: course.title,
-            requiredCompletion: course.level // Assuming level as requiredCompletion
-          }));
-        const kcicData = results.filter((course: any) => course.description === "KCIC")
-          .map((course: any) => ({
-            title: course.title,
-            requiredCompletion: course.level // Assuming level as requiredCompletion
-          }));
-  
-        setLrtButtons(lrtData);
-        setKcicButtons(kcicData);
+        setLrtButtons(results);
         setCoursesData(results);
       } catch (error) {
         console.error("Failed to fetch course data:", error);
@@ -90,6 +89,7 @@ function ScoringStart() {
     fetchData();
   }, []); 
 
+  const [submission, setSubmission] = useState<any>({});
   useEffect(() => {
     const fetchPayload = async () => {
       const selectedPesertaId = localStorage.getItem('selectedPesertaId');
@@ -97,7 +97,16 @@ function ScoringStart() {
       
       if (selectedCourse && selectedCourse.id) {
         try {
-          const payloadData = await getPayloadFromCourse(selectedCourse.id);
+          const payloadData = await getPayloadFromCourse(courseID);
+          const payloadS = {
+            owner : selectedPesertaId,
+            objectType : trainType.toLocaleUpperCase(),
+            courseId : courseID,
+            courseExamId : selectedCourse.id,
+            setting : payloadData
+          }
+          setSubmissionPayload(payloadS);
+          console.log("Payload data:", submissionPayload);
           const payloadAll = {
             ...payloadData,
             id_user: selectedPesertaId,
@@ -119,14 +128,19 @@ function ScoringStart() {
 
   const handleStart = async () => {
     try {
-      console.log("sent payload:", payload);
-      setIsLoading(true);
-      sendTextToClients(JSON.stringify(payload, null, 2));
+
+      const res = await createSubmission(submissionPayload);
+      console.log("Submission created:", res.id);
+      setSubmission(res);
+      navigate(`/FifthPage/${trainType}?type=${settings.score}&submissionId=${res.id}&scoringId=${selectedCourse.id}`);
+      // console.log("sent payload:", payload);
+      // setIsLoading(true);
+      // sendTextToClients(JSON.stringify(payload, null, 2));
     } catch (error) {
       console.error(error);
     } finally {
       setIsLoading(false);
-      navigate(`/FifthPage/${trainType}?type=${settings.score}`);
+      console.log("submissionId:", submission.id);
     }
   };
 

@@ -10,7 +10,7 @@ import FourthPage from "./pages/Database";
 import FifthPage from "./pages/Settings";
 import SixthPage from "./pages/ScoringKCIC";
 import SeventhPage from "./pages/ScoringLRT";
-import EighthPage from "./pages/EditKCIC";
+import Scoring from "./pages/Scoring";
 import NinthPage from "./pages/EditLRT";
 import TenthPage from "./pages/ReviewKCIC";
 import EleventhPage from "./pages/ReviewLRT";
@@ -28,6 +28,7 @@ import FinishLRT from "./pages/FinishLRT";
 import ScoringStart from "./pages/ScoringStart";
 import Course from "./pages/CourseList";
 import ScoringList from "./pages/ScoringList";
+import CourseDetail from "./pages/CourseDetail";
 
 import { ToastContainer } from "react-toastify";
 import "./index.css";
@@ -39,6 +40,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
 // import { AuthProvider } from "./context/auth.js";
 import { AuthProvider } from "./context/auth";
+import path from "path";
 
 const routerData = [
   {
@@ -78,8 +80,8 @@ const routerData = [
     element: <SeventhPage />,
   },
   {
-    path: "/Sixthpage/kcic/edit",
-    element: <EighthPage />,
+    path: "/Scoring",
+    element: <Scoring />,
   },
   {
     path: "/Sixthpage/lrt/edit",
@@ -140,11 +142,15 @@ const routerData = [
   {
     path: "/admin/courselist",
     element: <Course />,
-  },
+  }, 
   {
     path: "/admin/scoringlist",
     element: <ScoringList />,
   },
+  {
+    path: "/admin/scoringlist/coursedetail",
+    element: <CourseDetail />,
+  }
 ];
 
 const router = createHashRouter(

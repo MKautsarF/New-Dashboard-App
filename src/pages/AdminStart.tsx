@@ -32,7 +32,7 @@ const AdminStart = () => {
   };
 
   const handleCourse = () => {
-    navigate("/admin/courselist");
+    navigate("/admin/courselist?role=admin");
   };
 
   const handleScoring = () => {

@@ -61,7 +61,7 @@ const TraineeDetail: React.FC<TraineeDetailProps> = ({
 
         setData({
           name: detailData.name,
-          nip: detailData.bio.identityNumber,
+          nip: detailData.username,
           bio: detailData.bio,
           completion: Math.round(4/7 * 100 * 10) / 10,
         });

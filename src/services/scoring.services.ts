@@ -8,6 +8,11 @@ export const getCourseByInstructor = async () => {
 
   return res.data;
 };
+export const getScoringByCourseInstructor = async (id: string, page: number, size: number) => {
+  const res = await services.get(`/instructor/course-exam/?courseId=${id}`);
+
+  return res.data;
+}
 
 export const getPayloadFromCourse = async (id: string) => {
   const res = await services.get(`/instructor/course/${id}/download`);
@@ -16,6 +21,12 @@ export const getPayloadFromCourse = async (id: string) => {
 };
 
 // ADMIN
+
+export const getScoringByCourse = async (id: string, page: number, size: number) => {
+  const res = await services.get(`/admin/course-exam?courseId=${id}`);
+
+  return res.data;
+}
 
 export const getScoringListbyAdmin = async (page: number, size: number) => {
   try {
@@ -28,9 +39,9 @@ export const getScoringListbyAdmin = async (page: number, size: number) => {
   }
 };
 
-export const createCourseAsAdmin = async (formData: FormData) => {
+export const createScoringAsAdmin = async (formData: FormData) => {
   try {
-    const response = await services.post('/admin/course', formData, {
+    const response = await services.post('/admin/course-exam', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -41,6 +52,20 @@ export const createCourseAsAdmin = async (formData: FormData) => {
     throw error;
   }
 };
+
+export const editScoringAsAdmin = async (id: string, formData: FormData) => {
+  try {
+    const response = await services.put(`/admin/course-exam/${id}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error creating course", error);
+    throw error;
+  }
+}
 
 export const publishCourseAsAdmin = async (id: string) => {
   try {
@@ -62,9 +87,8 @@ export const deleteScoringAsAdmin = async (id: string) => {
 
 // PUBLIC
 
-export const getScoringDetail = async (id: number) => {
+export const getScoringDetail = async (id: string) => {
   try {
-    console.log(id);
     const res = await services.get(`/public/course-exam/${id}/download`);
 
     return res.data;

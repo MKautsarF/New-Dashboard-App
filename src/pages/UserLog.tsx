@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { PieChart } from "@mui/x-charts/PieChart";
 import Container from "@/components/Container";
 import FullPageLoading from "@/components/FullPageLoading";
+import { getSubmissionList } from "@/services/submission.services";
 
 import { 
 
@@ -18,6 +19,7 @@ import {
 
 import { getUserById } from "@/services/user.services";
 import dayjs from "dayjs";
+import { set } from "lodash";
 
 interface UserLog {
     id: string;
@@ -32,6 +34,13 @@ interface UserLog {
     completion?: number;
 }
 
+interface SubmissionProps {
+    id: string;
+    moduleName: string;
+    score: number;
+    status: string;
+}
+
 function UserLog() {
     const [isLoading, setIsLoading] = useState(false);
     const [userLog, setUserLog] = useState<UserLog | null>(null);
@@ -40,6 +49,7 @@ function UserLog() {
     const location = useLocation();
     const query = new URLSearchParams(location.search);
     const userId = query.get('id');
+    const [submissionList, setSubmissionList] = useState<any[]>([]);
     
 
     useEffect(() => {
@@ -47,6 +57,9 @@ function UserLog() {
             setIsLoading(true);
             try {
                 const response = await getUserById(userId)
+                const response2 = await getSubmissionList(1,5,userId)
+                console.log("response2",response2);
+                setSubmissionList(response2.results);
                 setUserLog(response);
             } catch (error) {
                 console.error('Error fetching user log:', error);
@@ -59,6 +72,8 @@ function UserLog() {
             fetchUserLog();
         }
     }, [userId]);
+
+
 
     const modules = [
         { title: "Menyalakan Kereta", scoring: 90 },

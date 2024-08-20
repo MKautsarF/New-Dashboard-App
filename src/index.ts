@@ -21,8 +21,8 @@ const createWindow = (): void => {
       nodeIntegration: true,
       contextIsolation: false,
     },
-    fullscreen: true,
-    frame: false,
+    fullscreen: false,
+    frame: true,
   });
 
   // and load the index.html of the app.

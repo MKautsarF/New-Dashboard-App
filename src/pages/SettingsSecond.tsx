@@ -112,15 +112,13 @@ function SettingsSecond() {
 
   const handleLanjut = async () => {
     try {
-      console.log("sent payload:", payload);
       setIsLoading(true);
       localStorage.setItem('moduleName', payload.module_name);
-      // sendTextToClients(JSON.stringify(payload, null, 2));
     } catch (error) {
       console.error(error);
     } finally {
       setIsLoading(false);
-      navigate(`/scoringStart?type=${trainType}`);
+      navigate(`/scoringStart?type=${trainType}&id=${selectedCourse.id}`);
     }
   };
 

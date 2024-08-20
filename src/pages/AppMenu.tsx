@@ -183,7 +183,7 @@ function AppMenu() {
   };
 
   const handleLearningOptionClick = (type: any) => {
-    navigate(`/FifthPage/modul/${type}`);
+    navigate(`/admin/courselist?role=instructor&type=${type}`);
     handleLearningClose();
   };
 

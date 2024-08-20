@@ -152,10 +152,10 @@ function Database() {
       currentPeserta.name = selectedPeserta.name;
       currentPeserta.nip = selectedPeserta.nip;
       currentPeserta.complition = selectedPeserta.complition;
-      await getSubmissionList(1, 5, selectedPeserta.id);
+      // await getSubmissionList(1, 5, selectedPeserta.id);
       console.log("getting log for user: " + selectedPeserta.id);
 
-      navigate("/FourthPage/UserLog");
+      navigate(`/FourthPage/UserLog?id=${selectedPeserta.id}`);
     } catch (e) {
       console.error(e);
     } finally {
@@ -442,8 +442,14 @@ function Database() {
                 <colgroup>
                   <col width="50%" />
                   <col width="20%" />
-                  <col width="10%" />
-                  <col width="20%" />
+                  {
+                    !fromAppMenu ? 
+                    <col width="10%" /> : <col width="20%" />
+                  }
+                  {
+                    !fromAppMenu ? 
+                    <col width="20%" /> : <col width="10%" />
+                  }
                 </colgroup>
                 <TableHead>
                   <TableRow>
@@ -496,7 +502,7 @@ function Database() {
                             >
                               Detail
                             </Button>
-                            <Button
+                            {!fromAppMenu && (<Button
                               sx={{
                                 color: "#00a6fb",
                                 backgroundColor: "#ffffff",
@@ -527,7 +533,7 @@ function Database() {
                               className="w-20 ml-2"
                             >
                               Pilih
-                            </Button>
+                            </Button>)}
                           </div>
                         </TableCell>
                       </TableRow>

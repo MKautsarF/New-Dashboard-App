@@ -7,7 +7,9 @@ import {
   Visibility,
 } from "@mui/icons-material";
 import PublishIcon from '@mui/icons-material/Publish';
-import { TimePicker } from "@mui/x-date-pickers";
+import Picker from "pickerjs";
+import "pickerjs/dist/picker.css";
+import TimePicker from "../components/TimePicker"
 import {
   Box,
   Button,
@@ -50,10 +52,13 @@ import {
 import { useSettings } from "@/context/settings";
 import FullPageLoading from "@/components/FullPageLoading";
 import { createCourseAsAdmin, publishCourseAsAdmin, getPayloadFromCourse, deleteCourseAsAdmin } from "@/services/course.services";
+import { getCourseByInstructor } from "@/services/course.services";
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import fs from "fs";
 import { toast } from 'react-toastify';
+import { useLocation } from "react-router-dom";
+import { useMemo } from "react";
 
 interface RowData {
   id: string;
@@ -63,6 +68,11 @@ interface RowData {
   published: boolean;
 }
 
+function useQuery() {
+  const { search } = useLocation();
+
+  return useMemo(() => new URLSearchParams(search), [search]);
+}
 const CourseList = () => {
   const navigate = useNavigate();
 
@@ -70,6 +80,9 @@ const CourseList = () => {
     "C:/Train Simulator/Data/settings_train - Copy.json";
   const sourceSettingsRead = fs.readFileSync(sourceSettingsPath, "utf-8");
   const sourceSettings = JSON.parse(sourceSettingsRead);
+
+  const query = useQuery();
+  const role = query.get("role");
 
   type StationMapping = {
     [key: string]: string;
@@ -264,7 +277,8 @@ const CourseList = () => {
 };
 
   const handleKembali = () => {
-    navigate("/admin");
+    if (role === "admin") navigate("/admin");
+    else navigate("/SecondPage");
   };
 
   const handleChangePage = (event: unknown, newPage: number) => {
@@ -291,8 +305,9 @@ const CourseList = () => {
     async function getRows(page: number) {
       try {
         setIsLoading(true);
-        const res = await getCourseListbyAdmin(page, 5);
-        console.log("API Response:", res);
+        if (role === "admin") {
+          const res = await getCourseListbyAdmin(page, 5);
+          console.log("API Response:", res);
 
         const resRows: RowData[] = res.results.map((entry: any) => ({
           id: entry.id,
@@ -303,6 +318,20 @@ const CourseList = () => {
 
         setRows(resRows);
         setTotalData(res.total);
+        } else {
+          const res = await getCourseByInstructor(page, 5);
+          console.log("API Response:", res);
+          const resRows: RowData[] = res.results.map((entry: any) => ({
+            id: entry.id,
+            title: entry.title,
+            description: entry.description,
+            published: entry.published,
+          }));
+  
+          setRows(resRows);
+          setTotalData(res.total);
+        }
+        
       } catch (e) {
         console.error(e);
       } finally {
@@ -553,7 +582,9 @@ const CourseList = () => {
                                 id: row.id,
                                 title: row.title,
                               });
-                              setConfigPrompt(true);
+                              // setConfigPrompt(true);
+                              
+                              navigate(`/admin/scoringlist/coursedetail?id=${row.id}&role=${role}`);
                             }}
                           >
                             <Info />
@@ -753,15 +784,8 @@ const CourseList = () => {
                 <MenuItem value="Deras">Deras</MenuItem>
             </Select>
           </FormControl>
-          <div className="mb-2 mt-8 flex items-center w-full">
-            <TimePicker
-              label={<span>Waktu <span style={{ color: 'red' }}>*</span></span>}
-              ampm={false}
-              value={time}
-              onChange={(newWaktu) => setTime(newWaktu)}
-              className="flex-grow"
-              timeSteps={{ minutes: 60 }}
-            />
+          <div className="mb-2 mt-6 flex items-center w-full">
+          <TimePicker value={time} onChange={setTime} mode={"new"} />
           </div>
           <div className="flex items-center justify-center mt-4 space-x-4">
             <FormControlLabel

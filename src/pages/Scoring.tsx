@@ -16,6 +16,10 @@ import ConfirmationModal from "@/components/ConfirmationModal";
 // import { default as sourceKCIC } from "C:/Train Simulator/Data/MockJSON_MRT.json";
 import { flushSync } from "react-dom";
 import fs from "fs";
+import { createScoringAsAdmin } from "@/services/scoring.services";
+import { editScoringAsAdmin } from "@/services/scoring.services";
+import { getScoringDetail } from "@/services/scoring.services";
+import { get, set } from "lodash";
 
 interface ToastData {
   severity: AlertColor;
@@ -33,16 +37,59 @@ function EditKCIC() {
   const query = useQuery();
 
   const navigate = useNavigate();
-  const settingsType = query.get("type");
+  const type = query.get("type");
+  console.log("type", type);
+  const courseID = query.get("courseID");
+  const train = query.get("train");
+  const mode = query.get("mode");
+  const role = query.get("role");
+  const [scoringData, setScoringData] = useState<any>(null);
 
-  const jsonPath =
-    settingsType === "Default"
-      ? "C:/Train Simulator/Data/MockJSON_MRT.json"
-      : `C:/Train Simulator/Data/kcic_${settingsType}.json`;
+  const jsonPath = "C:/Train Simulator/Data/ModuleTemplate.json"
+  const [json, setJSON] = useState<any>(null);
 
   const rawData = fs.readFileSync(jsonPath, "utf-8");
 
-  const [jsonToWrite, setJsonToWrite] = useState(JSON.parse(rawData));
+  const getModule = async () => {
+    try{
+      const res = await getScoringDetail(type as string);
+      console.log("asd",res.judul_penilaian)
+      return res;
+    }
+    catch (error) {
+      console.error(`Error fetching Scoring list:`, error);
+    }
+  }
+  const [jsonToWrite, setJsonToWrite] = useState(() => {
+    if (type == "default") {
+      return (JSON.parse(rawData));
+    }
+    else {
+      getModule().then((res) => {
+        setJSON(res);
+      })
+      return json;
+    }
+  });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await getScoringDetail(type);
+        console.log("res", res?.judul_penilaian);
+        setJsonToWrite(res);
+        console.log("json", jsonToWrite);
+      } catch (e) {
+        console.error(e);
+      }
+    }; 
+    if (type !== "default")
+    {
+      fetchData();
+    }
+  }
+  , [type]);
+
 
   // const [isLoading, setIsLoading] = useState(false);
   const [open, setOpen] = useState(false);
@@ -52,7 +99,11 @@ function EditKCIC() {
   });
 
   const handlePrev = () => {
-    navigate("/SixthPage/kcic");
+    if (role === "admin") {
+      navigate("/admin/scoringlist/coursedetail?id=" + courseID);
+    } else {
+      navigate("/SixthPage/kcic");
+    }
   };
   const handleNext = () => {
     navigate("/");
@@ -96,7 +147,7 @@ function EditKCIC() {
       let bobotPoinIndex = 0;
       let bobotDataIndex = 0;
 
-      jsonToWrite.penilaian.forEach((penilaian: any, i: number) => {
+      jsonToWrite?.penilaian.forEach((penilaian: any, i: number) => {
         penilaian.judul = judulAll[judulIndex];
         penilaian.unit = i + 1;
 
@@ -119,8 +170,30 @@ function EditKCIC() {
         judulIndex++;
       });
 
+      // const description = train.toUpperCase();
+  
+    // Prepare the data object
+    
+  
+    // Prepare the form data
+    const formData = new FormData();
+    formData.append('file', new Blob([JSON.stringify(jsonToWrite, null, 2)], { type: 'application/json' }), 'data.json');
+    formData.append('courseId', courseID);
+    formData.append('title', jsonToWrite?.judul_penilaian);
+    formData.append('description', train);
+    console.log("form", formData);
 
-      fs.writeFileSync(jsonPath, JSON.stringify(jsonToWrite, null, 2));
+
+    // Create the course
+    if (mode === "new") {
+      await createScoringAsAdmin(formData);
+    } else {
+      await editScoringAsAdmin(type as string, formData);
+    }
+    setToastData({
+      severity: "success",
+      msg: `Successfully saved json.`,
+    });
     } catch (e) {
       console.error(e);
       setToastData({
@@ -131,7 +204,7 @@ function EditKCIC() {
     } finally {
       // handlePrev();
       // setIsLoading(false);
-      navigate("/SixthPage/kcic");
+      navigate("/admin/scoringlist/coursedetail?id=" + courseID);
     }
   };
 
@@ -159,7 +232,7 @@ function EditKCIC() {
               style={{ fontSize: "2rem", fontWeight: "bold" }}
             >
               {/* Penilaian Kereta: {sourceKCIC.train_type} */}
-              Penilaian Kereta: KCIC
+              Penilaian Kereta
               {/* Penilaian Kereta: KCIC */}
               {/* {trainType} */}
               <IconButton
@@ -169,7 +242,7 @@ function EditKCIC() {
                 className="mb-1"
                 onClick={() => {
                   const newNilai = {
-                    unit: jsonToWrite.penilaian.length + 1,
+                    unit: jsonToWrite?.penilaian?.length + 1,
                     judul: "",
                     disable: false,
                     data: new Array<any>(),
@@ -184,15 +257,19 @@ function EditKCIC() {
                 <AddBox fontSize="inherit" />
               </IconButton>
             </h1>
-            <h1
-              className="w-full text-center pr-8 pl-8"
-              style={{ fontSize: "1.75rem", fontWeight: "bold" }}
+            <div className="flex flex-col justify-center items-center">
+            <TextField
+              className="w-1/3 text-center pr-8 pl-8"
+              style={{ fontSize: "2.75rem", fontWeight: "bold" }}
+              // defaultValue={jsonToWrite?.judul_penilaian}
+              value={jsonToWrite?.judul_penilaian}
+              onChange={(e) => {jsonToWrite.judul_penilaian = e.target.value; setJsonToWrite({ ...jsonToWrite });}}
             >
-              ({settingsType})
-            </h1>
+            </TextField>
+            </div>
             <Box component="form" id="penilaian-form" onSubmit={handleSubmit}>
               <div>
-                {jsonToWrite.penilaian.map((nilai: any, i: number) => {
+                {jsonToWrite?.penilaian.map((nilai: any, i: number) => {
                   const { disable: nilaiDisabled } = nilai;
 
                   return (
@@ -527,6 +604,8 @@ function EditKCIC() {
                 >
                   Batal
                 </Button>
+                {
+                  mode === "edit" && (
                 <Button
                   variant="text"
                   // type="submit"
@@ -543,6 +622,28 @@ function EditKCIC() {
                 >
                   Simpan
                 </Button>
+                  )
+                }
+                {
+                  mode === "new" && (
+                    <Button
+                  variant="text"
+                  type="submit"
+                  form="penilaian-form"
+                  // onClick={() => {
+                  //   handleSubmit;
+                  // }}
+                  sx={{
+                    color: "#00a6fb",
+                    "&:hover": {
+                      color: "#00a6fb",
+                    },
+                  }}
+                >
+                  Buat
+                </Button>
+                  )
+                }
               </div>
             </div>
           </div>
@@ -551,7 +652,7 @@ function EditKCIC() {
             onClose={() => setModalOpen(false)}
             onConfirm={handleConfirm}
             type={modalType}
-            item={settingsType}
+            item={type}
           />
         </div>
 

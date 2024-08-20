@@ -39,9 +39,23 @@ const FinishLRT: React.FC = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const query = useQuery();
+  const submissionId = query.get('submissionId');
   const filePathPDF = `C:/Train Simulator/Data/penilaian/PDF/${query.get('filename')}.pdf`;
   const filePathExcel = `C:/Train Simulator/Data/penilaian/Excel/${query.get('filename')}.xlsx`;
   const jsonPath = `C:/Train Simulator/Data/penilaian/${query.get('filename')}.json`;
+
+  useEffect(() => {
+    const fetchSubmission = async () => {
+      try {
+        // const submission = await getSubmissionLog(submissionId);
+        // currentSubmission.set(submission);
+      } catch (e) {
+        console.error(e);
+      }
+    };
+    fetchSubmission();
+  }
+  , []);
 
   const handlePlay = () => {
     const payload = {
@@ -94,8 +108,8 @@ const FinishLRT: React.FC = () => {
       };
       sendTextToClients(JSON.stringify(payload));
 
-      const res = await finishSubmissionById(currentSubmission.id);
-      console.log('finished submission: ' + res.data);
+      // const res = await finishSubmissionById(currentSubmission.id);
+      // console.log('finished submission: ' + res.data);
 
       const json = fs.readFileSync(jsonPath, 'binary');
       const jsonBlob = new Blob([json], { type: 'application/json' });

@@ -39,10 +39,16 @@ import {
 import dayjs from "dayjs";
 import { useSettings, useSettingsKCIC } from "../context/settings";
 import { useAuth } from "../context/auth";
-import { EditNoteRounded, EditNoteSharp, Stop } from "@mui/icons-material";
+import { Assessment, EditNoteRounded, EditNoteSharp, Stop } from "@mui/icons-material";
+import { getScoringDetail } from "@/services/scoring.services";
+import { getUserById } from "@/services/user.services";
+import { uploadLogSubmission } from "@/services/submission.services";
 // const fs = require("fs");
 // import { default as mrtjson } from "C:/Train Simulator/Data/MockJSON_KRL.json";
 import fs from "fs";
+
+import { finishSubmissionById } from "@/services/submission.services";
+import { set } from "lodash";
 
 interface TableRow {
   content: string | number;
@@ -79,12 +85,14 @@ function ReviewLRT() {
   // const mrtjson = JSON.parse(fs.readFileSync(jsonPath, "utf-8"));
 
   const settingsType = query.get("type");
+  const submissionId = query.get("submissionId");
+  console.log("submissionId", submissionId);
   const jsonPath =
     settingsType === "Default"
       ? "C:/Train Simulator/Data/MockJSON_KRL.json"
       : `C:/Train Simulator/Data/lrt_${settingsType}.json`;
 
-  const mrtjson = JSON.parse(fs.readFileSync(jsonPath, "utf-8"));
+  const [json, setJson] = useState<any>();
   const [realTimeNilai, setRealTimeNilai] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [open, setOpen] = useState(false);
@@ -92,12 +100,14 @@ function ReviewLRT() {
     severity: "error",
     msg: "",
   });
+  const scoringID = query.get("scoringId");
 
   // Notes
   const [notes, setNotes] = useState("");
   const [notesOpen, setNotesOpen] = useState(false);
 
   const startTime = useMemo(() => dayjs(), []);
+  const [peserta, setPeserta] = useState<any>();
 
   // async function loadCctv() {
   //   try {
@@ -107,6 +117,26 @@ function ReviewLRT() {
   //   }
   // }
 
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        // setIsLoading(true);
+        const res = await getScoringDetail(scoringID);
+        const res2 = await getUserById(localStorage.getItem('selectedPesertaId'));
+        setJson(res);
+        setPeserta(res2);
+        // console.log("trainee", res2);
+        setIsLoading(false);
+      } catch (error) {
+        console.error(error);
+        setIsLoading(false);
+      }
+    }
+    fetchData();
+  }
+), [];
+  
+
   const handleFinish = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setNotesOpen(false);
@@ -115,58 +145,58 @@ function ReviewLRT() {
     try {
       setIsLoading(true);
       const endTime = dayjs();
-
+      
       // reset CCTV mode
       // await loadCctv();
-
+      
       // Get input data from form
       const data = new FormData(currentTarget);
       const inputValues = data.getAll("penilaian");
-
+      
       // Copy krl json mock template
-      const jsonToWrite = mrtjson;
-
+      const jsonToWrite = json;
+      
       // Write metadata
       // * Time
       jsonToWrite.waktu_mulai = startTime.format("HH.mm");
       jsonToWrite.waktu_selesai = endTime.format("HH.mm");
-
+      
       const diff = endTime.diff(startTime, "second");
       const hours = Math.floor(diff / 3600);
       const minutes = Math.floor((diff % 3600) / 60);
       const seconds = diff % 60;
-
+      
       jsonToWrite.durasi = formatDurationToString(hours, minutes, seconds);
       jsonToWrite.tanggal = startTime.format("DD/MM/YYYY");
-
+      
       // * Crew data
-      jsonToWrite.nama_crew = settings.trainee.name;
+      jsonToWrite.nama_crew = peserta.name;
       jsonToWrite.kedudukan =
-        (settings.trainee.bio && settings.trainee.bio.position) || "";
+      (peserta.bio && peserta.bio.position) || "";
       jsonToWrite.usia = `${
-        settings.trainee.bio && settings.trainee.bio.born
-          ? Math.abs(dayjs(settings.trainee.bio.born).diff(dayjs(), "years"))
-          : "-"
+        peserta.bio && peserta.bio.born
+        ? Math.abs(dayjs(peserta.bio.born).diff(dayjs(), "years"))
+        : "-"
       } tahun`;
       jsonToWrite.kode_kedinasan =
-        settings.trainee.nip ||
-        "";
-
+      peserta.username ||
+      "";
+      
       // * Train data
       jsonToWrite.train_type = "LRT";
       jsonToWrite.no_ka = "";
       jsonToWrite.lintas =
-        settings.stasiunAsal + " - " + settings.stasiunTujuan;
-
+      settings.stasiunAsal + " - " + settings.stasiunTujuan;
+      
       // * Instructor data
       jsonToWrite.nama_instruktur = instructor.name;
-
+      
       // * Notes
       jsonToWrite.keterangan = notes === "" ? "-" : notes;
-
+      
       // Write actual nilai to the copied krl json
       let jsonIdx = 0;
-
+      
       jsonToWrite.penilaian.forEach((penilaian: any, i: number) => {
         // console.log('reading penilaian array');
         penilaian.data.forEach((data: any, j: number) => {
@@ -180,9 +210,12 @@ function ReviewLRT() {
           });
         });
       });
-
+      
       // nilai skor akhir
       jsonToWrite.nilai_akhir = realTimeNilai < 0 ? 0 : realTimeNilai;
+      
+      const res = await finishSubmission(jsonToWrite);
+      
       //generate pdf
       generatePDF(jsonToWrite);
       generateExcel(jsonToWrite);
@@ -190,17 +223,17 @@ function ReviewLRT() {
       // Save file to local
       const fileName = "LRT_" + getFilenameSafeDateString(new Date());
 
-      console.log("tes");
+      // console.log("tes");
       const dir = "C:/Train Simulator/Data/penilaian";
 
-      if (!fs.existsSync(dir)) {
-        await fs.mkdirSync(dir, { recursive: true });
-      }
+      // if (!fs.existsSync(dir)) {
+      //   await fs.mkdirSync(dir, { recursive: true });
+      // }
 
-      fs.writeFileSync(
-        `${dir}/${fileName}.json`,
-        JSON.stringify(jsonToWrite, null, 2)
-      );
+      // fs.writeFileSync(
+      //   `${dir}/${fileName}.json`,
+      //   JSON.stringify(jsonToWrite, null, 2)
+      // );
 
       // // Hit C# API for score pdf result generation
       // console.log('tes');
@@ -216,7 +249,7 @@ function ReviewLRT() {
       // open pdf in dekstop
       // navigate(`/finish?filename=${fileName}`);
 
-      navigate(`/finishLRT?filename=${fileName}`);
+      navigate(`/finishLRT?filename=${fileName}&submissionId=${submissionId}`);
 
       // shell.openPath(`C:/Train Simulator/Data/penilaian/PDF/${fileName}.pdf`);
     } catch (e) {
@@ -232,7 +265,21 @@ function ReviewLRT() {
     }
   };
 
-  const generatePDF = (json: any) => {
+  const finishSubmission = async (jsonToWrite: any) => {
+    try {
+      const payload = {
+        score : Number(jsonToWrite.nilai_akhir),
+        assessment : jsonToWrite.penilaian
+      }
+      const res = await finishSubmissionById(Number(submissionId), payload);
+      console.log("Finish button clicked");   
+      console.log("Submission finished:", res);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  const generatePDF = async (json: any) => {
     const doc = new jsPDF();
 
     let nilaiAkhir = 0;
@@ -597,18 +644,34 @@ function ReviewLRT() {
     });
     // Save PDF file using fs
     const fileName = "LRT_" + getFilenameSafeDateString(new Date()) + ".pdf";
-    const dir = "C:/Train Simulator/Data/penilaian/PDF";
-
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-
+    // put file in penilaian/pdf in this folder project
+    const formData = new FormData();
+    
+    
+    // if (!fs.existsSync(dir)) {
+    //   fs.mkdirSync(dir, { recursive: true });
+    // }
+    
     const pdfBuffer = doc.output("arraybuffer");
+    formData.append('file', new Blob([pdfBuffer], { type: 'application/json' }), 'data.pdf');
+    formData.append('tag', 'pdf');
 
-    fs.writeFileSync(`${dir}/${fileName}`, Buffer.from(pdfBuffer));
+    await uploadPDF(formData);
+
+    // fs.writeFileSync(`${dir}/${fileName}`, Buffer.from(pdfBuffer));
 
     return `${fileName} saved successfully.`;
   };
+
+  async function uploadPDF(formData: FormData) {
+    try {
+      const res = await uploadLogSubmission(Number(submissionId), formData);
+      console.log("PDF uploaded:", res);
+    }
+    catch (error) {
+      console.error(error);
+    }
+  }
 
   async function generateExcel(json: any) {
     try {
@@ -769,13 +832,19 @@ function ReviewLRT() {
       // worksheet.getColumn(0).width = 5;
 
       const buf = await workbook.xlsx.writeBuffer();
-      const dir = "C:/Train Simulator/Data/penilaian/Excel";
-      const fileName = "LRT_" + getFilenameSafeDateString(new Date());
+      const formData = new FormData();
+      formData.append("file", new Blob([buf]), "data.xlsx");
+      formData.append("tag", "xlsx");
+      const res = await uploadLogSubmission(Number(submissionId), formData);
+      console.log("Excel uploaded:", res);
+      
+      // const dir = "C:/Train Simulator/Data/penilaian/Excel";
+      // const fileName = "LRT_" + getFilenameSafeDateString(new Date());
 
-      if (!fs.existsSync(dir)) {
-        await fs.mkdirSync(dir, { recursive: true });
-      }
-      fs.writeFileSync(`${dir}/${fileName}.xlsx`, buf);
+      // if (!fs.existsSync(dir)) {
+      //   await fs.mkdirSync(dir, { recursive: true });
+      // }
+      // fs.writeFileSync(`${dir}/${fileName}.xlsx`, buf);
     } catch (err) {
       console.log(err);
     }
@@ -866,7 +935,7 @@ function ReviewLRT() {
         {/* Looping penilaian */}
         <Box component="form" id="penilaian-form" onSubmit={handleFinish}>
           <div>
-            {mrtjson.penilaian.map((nilai: any, i: number) => (
+            {json?.penilaian.map((nilai: any, i: number) => (
               <section key={nilai.unit} className="pt-8 text-left ">
                 <h2
                   style={{ fontSize: "1.5rem", fontWeight: "bold" }}

@@ -3,8 +3,8 @@ import services from ".";
 
 // INSTRUCTOR
 
-export const getCourseByInstructor = async () => {
-  const res = await services.get(`/instructor/course`);
+export const getCourseByInstructor = async (page: number, size: number) => {
+  const res = await services.get(`/instructor/course?page=${page}&size=${size}`);
 
   return res.data;
 };
@@ -14,6 +14,7 @@ export const getPayloadFromCourse = async (id: string) => {
 
   return res.data;
 };
+
 
 // ADMIN
 
@@ -51,6 +52,20 @@ export const publishCourseAsAdmin = async (id: string) => {
     throw error;
   }
 };
+
+export const editCourseAsAdmin = async (id: string, formData: FormData) => {
+  try {
+    const response = await services.put(`/admin/course/${id}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error editing course", error);
+    throw error;
+  }
+}
 
 export const deleteCourseAsAdmin = async (id: string) => {
   const res = await services.delete(`/admin/course/${id}`, {
