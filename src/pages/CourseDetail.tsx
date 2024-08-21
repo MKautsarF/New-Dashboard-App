@@ -807,7 +807,7 @@ fetchData();
                 ))}
               </TableBody>
             ) : (
-              <p className="absolute w-full top-1/3 left-0 flex justify-center">
+              <p className="absolute w-full top-1/3 right-4/5">
                 Data modul pembelajaran tidak ditemukan
               </p>
             )}

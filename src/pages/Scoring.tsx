@@ -100,7 +100,7 @@ function EditKCIC() {
 
   const handlePrev = () => {
     if (role === "admin") {
-      navigate("/admin/scoringlist/coursedetail?id=" + courseID);
+      navigate("/admin/scoringlist/coursedetail?id=" + courseID+"&role="+ role);
     } else {
       navigate("/SixthPage/kcic");
     }

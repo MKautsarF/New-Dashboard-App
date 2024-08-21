@@ -33,21 +33,29 @@ export const deleteSubmissionById = async (id: number) => {
 };
 
 export const finishSubmissionById = async (id: number, payload: any) => {
-  console.log("payload", payload);
-  console.log("id", id);
-  const res = await services.put(`/instructor/submission/${id}/finish`, payload);
-  console.log("res", res);
+  try{
+    const res = await services.put(`/instructor/submission/${id}/finish`, payload);
+    console.log('finished submission: ' + res.data);
+    return res;
+  }
+  catch(error){
+    console.error('Upload failed:', error.response ? error.response.data : error.message);
+  }
 
-  return res;
 };
 export const uploadLogSubmission = async (id: number, formData: FormData) => {
-  const response = await services.post(`/instructor/submission/${id}/log`, formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  });
-  return response.data;
+  try {
+    const response = await services.post(`/instructor/submission/${id}/log`, formData);
+    return response.data;
+  } catch (error) {
+    console.error('Upload failed:', error.response ? error.response.data : error.message);
+    if (error.response) {
+      console.error('Status:', error.response.status);
+      console.error('Headers:', error.response.headers);
+    }
+  }
 }
+
 
 export const uploadSubmission = async (
   url: string,
@@ -93,7 +101,11 @@ export const getSubmissionLogById = async (
 export const getSubmissionLogByFileIndex = async (
   id: number,
   fileIndex: number
-) => await services.get(`/instructor/submission/${id}/log/${fileIndex}`);
+) => {
+  const res = await services.get(`/instructor/submission/${id}/log/${fileIndex}`, {responseType: 'blob'});
+  return res.data;
+}
+  ;
 
 export const getSubmissionLogByTag = async (
   id: number,

@@ -62,7 +62,7 @@ function SettingsSecond() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const { results } = await getCourseByInstructor();
+        const { results } = await getCourseByInstructor(1, 100);
         
         // Sort alphabetically by title
         results.sort((a: any, b: any) => a.title.localeCompare(b.title));

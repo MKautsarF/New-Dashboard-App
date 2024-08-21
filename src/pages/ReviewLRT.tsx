@@ -81,6 +81,7 @@ function ReviewLRT() {
   const { settings } = useSettings();
 
   const [simulation, setSimulation] = useState(true);
+  const [url, setUrl] = useState<string>("");
   // const jsonPath = "C:/Train Simulator/Data/MockJSON_MRT.json";
   // const mrtjson = JSON.parse(fs.readFileSync(jsonPath, "utf-8"));
 
@@ -214,11 +215,18 @@ function ReviewLRT() {
       // nilai skor akhir
       jsonToWrite.nilai_akhir = realTimeNilai < 0 ? 0 : realTimeNilai;
       
-      const res = await finishSubmission(jsonToWrite);
       
       //generate pdf
-      generatePDF(jsonToWrite);
-      generateExcel(jsonToWrite);
+      let pdfname = null;
+      let excelname = null;
+      await generatePDF(jsonToWrite).then((pdf) => {
+        pdfname = pdf;
+      });
+      console.log("pdf", pdfname);
+      await generateExcel(jsonToWrite).then((excel) => {
+        excelname = excel;
+      });
+      const res = await finishSubmission(jsonToWrite, pdfname, excelname);
 
       // Save file to local
       const fileName = "LRT_" + getFilenameSafeDateString(new Date());
@@ -249,7 +257,7 @@ function ReviewLRT() {
       // open pdf in dekstop
       // navigate(`/finish?filename=${fileName}`);
 
-      navigate(`/finishLRT?filename=${fileName}&submissionId=${submissionId}`);
+      navigate(`/finishLRT?filename=${fileName}&submissionId=${submissionId}&url=${url}`);
 
       // shell.openPath(`C:/Train Simulator/Data/penilaian/PDF/${fileName}.pdf`);
     } catch (e) {
@@ -265,15 +273,31 @@ function ReviewLRT() {
     }
   };
 
-  const finishSubmission = async (jsonToWrite: any) => {
+  const finishSubmission = async (jsonToWrite: any, pdfbuf: any, excelbuf:any) => {
     try {
       const payload = {
         score : Number(jsonToWrite.nilai_akhir),
-        assessment : jsonToWrite.penilaian
+        assessment : jsonToWrite
       }
       const res = await finishSubmissionById(Number(submissionId), payload);
       console.log("Finish button clicked");   
       console.log("Submission finished:", res);
+      const formData = new FormData();
+      console.log("pdfbuf", pdfbuf);
+      // const pdffile = fs.readFileSync("C:/Train Simulator/Data/penilaian/PDF/"+pdfbuf);
+      // console.log("pdffile", pdffile);
+      const blob = new Blob([pdfbuf], { type: 'application/pdf' });  // or any other appropriate MIME type
+      setUrl(URL.createObjectURL(blob));
+      formData.append("file", blob, "data.pdf");
+      formData.append("tag", "pdf");
+      const resPDF = await uploadLogSubmission(Number(submissionId), formData);
+      console.log(resPDF);
+      const blobExcel = new Blob([excelbuf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,' });  // or any other appropriate MIME type
+      const formDataExcel = new FormData();
+      formDataExcel.append("file", blobExcel, "data.xlsx");
+      formDataExcel.append("tag", "xlsx");
+      const resExcel = await uploadLogSubmission(Number(submissionId), formDataExcel);
+      console.log(resExcel);
     } catch (error) {
       console.error(error);
     }
@@ -646,21 +670,33 @@ function ReviewLRT() {
     const fileName = "LRT_" + getFilenameSafeDateString(new Date()) + ".pdf";
     // put file in penilaian/pdf in this folder project
     const formData = new FormData();
+    const dir = "C:/Train Simulator/Data/penilaian/PDF";
     
     
     // if (!fs.existsSync(dir)) {
     //   fs.mkdirSync(dir, { recursive: true });
     // }
     
-    const pdfBuffer = doc.output("arraybuffer");
-    formData.append('file', new Blob([pdfBuffer], { type: 'application/json' }), 'data.pdf');
-    formData.append('tag', 'pdf');
-
-    await uploadPDF(formData);
-
-    // fs.writeFileSync(`${dir}/${fileName}`, Buffer.from(pdfBuffer));
-
-    return `${fileName} saved successfully.`;
+    const pdfBuffer = doc.output("blob");
+    console.log("pdfBuffer", pdfBuffer);
+    return pdfBuffer;
+    // const blob = new Blob([pdfBuffer], { type: 'application/pdf' });  // or any other appropriate MIME type
+    
+    // // Use the Blob as needed, e.g., append to FormData
+    //     formData.append('file', blob, 'data.pdf');
+    //     formData.append('tag', 'pdf');
+    //     console.log(formData)
+    //     try {
+      //       const res = await uploadLogSubmission(Number(submissionId), formData);
+      //       console.log(res)
+      //     }
+      //     catch (error) {
+        //       console.error(error);
+        //     }
+        
+        // fs.writeFileSync(`${dir}/${fileName}`, Buffer.from(pdfBuffer));
+        // return fileName;
+    
   };
 
   async function uploadPDF(formData: FormData) {
@@ -832,11 +868,15 @@ function ReviewLRT() {
       // worksheet.getColumn(0).width = 5;
 
       const buf = await workbook.xlsx.writeBuffer();
-      const formData = new FormData();
-      formData.append("file", new Blob([buf]), "data.xlsx");
-      formData.append("tag", "xlsx");
-      const res = await uploadLogSubmission(Number(submissionId), formData);
-      console.log("Excel uploaded:", res);
+      return buf;
+      // console.log("blob",buf)
+      // const blob = new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+      // console.log("blob", blob)
+      // const formData = new FormData();
+      // formData.append("file", blob, "data.xlsx");
+      // formData.append("tag", "xlsx");
+      // const res = await uploadLogSubmission(Number(submissionId), formData);
+      // console.log("Excel uploaded:", res);
       
       // const dir = "C:/Train Simulator/Data/penilaian/Excel";
       // const fileName = "LRT_" + getFilenameSafeDateString(new Date());
