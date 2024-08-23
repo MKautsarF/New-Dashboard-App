@@ -3,11 +3,12 @@ import services from ".";
 
 // INSTRUCTOR
 
-export const getCourseByInstructor = async () => {
-  const res = await services.get(`/instructor/course`);
+export const getScoringByInstructor = async () => {
+  const res = await services.get(`/instructor/course-exam`);
 
   return res.data;
 };
+
 export const getScoringByCourseInstructor = async (id: string, page: number, size: number) => {
   const res = await services.get(`/instructor/course-exam?courseId=${id}`);
 

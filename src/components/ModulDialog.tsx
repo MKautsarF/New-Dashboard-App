@@ -1,7 +1,8 @@
-import React from 'react';
 import { Dialog, DialogTitle, DialogContent, DialogContentText, TextField, FormControl, InputLabel, Select, MenuItem, DialogActions, Button, Checkbox, FormControlLabel, Slider, InputAdornment, Input } from '@mui/material';
 import Visibility from '@mui/icons-material/Visibility';
 import { TimePicker } from "@mui/x-date-pickers";
+import React, { useState, useEffect } from 'react';
+import dayjs from 'dayjs';
 
 
 interface ModulDialogProps {
@@ -23,8 +24,8 @@ interface ModulDialogProps {
   setFinishStation: (station: string) => void;
   rainStatus: string;
   setRainStatus: (status: string) => void;
-  time: any;
-  setTime: (time: any) => void;
+  time: dayjs.Dayjs | null;
+  setTime: (time: dayjs.Dayjs | null) => void;
   motionBase: boolean;
   handleMotionBaseChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   speedBuzzer: boolean;
@@ -89,6 +90,16 @@ const ModulDialog: React.FC<ModulDialogProps> = ({
   getDisplayStationName,
   getPayloadStationName,
 }) => {
+
+  const [formattedTime, setFormattedTime] = useState<string>('');
+
+  useEffect(() => {
+    if (time && typeof time.format === 'function') {
+      const formatted = time.format('HH:00');
+      setFormattedTime(formatted);
+    }
+  }, [time]);
+
   return (
     <Dialog open={open} onClose={() => setOpen()}>
         <DialogTitle className="px-6 pt-6">
@@ -216,14 +227,18 @@ const ModulDialog: React.FC<ModulDialogProps> = ({
             </Select>
           </FormControl>
           <div className="mb-2 mt-8 flex items-center w-full">
-            <TimePicker
-              label={<span>Waktu <span style={{ color: 'red' }}>*</span></span>}
-              ampm={false}
-              value={time}
-              onChange={(newWaktu) => setTime(newWaktu)}
-              className="flex-grow"
-              timeSteps={{ minutes: 60 }}
-            />
+          <TimePicker
+            label={<span>Waktu <span style={{ color: 'red' }}>*</span></span>}
+            ampm={false}
+            value={time}
+            onChange={(newWaktu) => {
+              if (newWaktu && typeof newWaktu.format === 'function') {
+                setTime(newWaktu); // Set the new time object
+              }
+            }}
+            className="flex-grow"
+            timeSteps={{ minutes: 60 }}
+          />
           </div>
           <div className="flex items-center justify-center mt-4 space-x-4">
             <FormControlLabel

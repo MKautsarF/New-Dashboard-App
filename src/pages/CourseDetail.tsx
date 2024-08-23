@@ -23,6 +23,7 @@ import { getScoringByCourse } from '@/services/scoring.services';
 import { getCourseListbyAdmin } from '../services/course.services';
 import { deleteScoringAsAdmin } from '@/services/scoring.services';
 import ModulDialog from '@/components/ModulDialog';
+import dayjs from 'dayjs';
 
 
 interface ScoringDetail {
@@ -182,9 +183,6 @@ const CourseDetail = () => {
 	const handleSave = async () => {
 		try {
 		const formData = await collectDataAndPrepareFormData();
-		
-		// const response = await editCourseAsAdmin(courseId, formData);
-		// console.log("Upload successful", response);
 				async function getRows(id: any) {
 					try {
 						const res = await getCourseDetail(courseId);
@@ -217,6 +215,7 @@ useEffect(() => {
     const getRows = async (id: any) => {
       try {
         const res = await getCourseDetail(id);
+		console.log("ress", res)
         setPayload(res);
       } catch (e) {
         console.error(e);
@@ -531,7 +530,7 @@ useEffect(() => {
 									<span>Waktu</span>
 									<div className='ml-2'>
 											<div>
-												<h3>{payload.time}</h3>
+												<h3>{payload.time}:00</h3>
 											</div>
 									</div>
 								</div>
@@ -539,7 +538,13 @@ useEffect(() => {
 									<span>Jarak Pandang</span>
 									<div className='ml-2'>
 											<div>
-												<h3>{Math.round(Math.pow(payload.weather?.[1]?.value / 100, -0.914) * 50.6)} m</h3>
+												<h3>
+													{(() => {
+														const value = Math.round(Math.pow(payload.weather?.[1]?.value / 100, -0.914) * 50.6);
+														
+														return Number.isFinite(value) ? `${value} m` : '∞ m';
+													})()}
+												</h3>
 											</div>
 									</div>
 								</div>
@@ -558,6 +563,27 @@ useEffect(() => {
 												<h3>{payload.speed_buzzer ? payload.speed_limit : "Off"}</h3>
 											</div>
 									</div>
+								</div>
+								<div className='flex flex-col gap-2'>
+									<span>Edit Konfigurasi:</span>
+									<Button
+										type="button"
+										sx={{
+											color: "#ffffff",
+											backgroundColor: "#00a6fb",
+											borderColor: "#00a6fb",
+											"&:hover": {
+												borderColor: "#1aaffb",
+												color: "#ffffff",
+												backgroundColor: "#1aaffb",
+											},
+											}}
+										variant="contained"
+										onClick={() => toogleEdit()}
+										className='ml-2'
+									>
+										Edit
+									</Button>
 								</div>
 							</div>
 						</div>
@@ -672,7 +698,7 @@ useEffect(() => {
 						</div>
 
 				</div>
-				<div className='w-2/5 flex items-center justify-end'>
+				{/* <div className='w-2/5 flex items-center justify-end'>
 					<Button
 						type="button"
 						sx={{
@@ -691,7 +717,7 @@ useEffect(() => {
 					>
 						Edit
 					</Button>
-				</div>
+				</div> */}
 				<div className="flex gap-4">
 					<Button
 						type="button"
