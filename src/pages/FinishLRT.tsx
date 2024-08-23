@@ -30,6 +30,8 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import { Dialog } from "@mui/material";
 import { set } from "lodash";
+import * as XLSX from 'xlsx';
+import ExcelGrid from '@/components/ExcelGrid';
 
 
 function useQuery() {
@@ -53,6 +55,7 @@ const FinishLRT: React.FC = () => {
   const [pdf, setPdf] = useState<any>(null);
   const [excel, setExcel] = useState<any>(null);
   const [isExcel, setIsExcel] = useState(false);
+  const [__html, setHTML] = useState("");
 
   useEffect(() => {
     const fetchSubmission = async () => {
@@ -127,13 +130,49 @@ const FinishLRT: React.FC = () => {
   };
 
   const handleOpenExcel = () => {
-    // shell.openPath(filePathExcel);
-    const blob = new Blob([excel], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,' });
-    const urlfile = URL.createObjectURL(blob);
-    setIsExcel(true);
-    setUrl(urlfile);
-    setPreviewOpen(true);
-    handleClose();
+    // shell.openPath(filePathExcel);\
+    // const blob = new Blob([excel], { type: 'application/vnd.ms-excel' });
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const arrayBuffer = e.target.result;
+      const workbook = XLSX.read(arrayBuffer, {sheetRows:20});
+      /* get first worksheet */
+      const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+      const table = XLSX.utils.sheet_to_html(worksheet,{id: "tabeller" });
+      const styledHTML = `
+        <style>
+          table#styledTable {
+            border-collapse: collapse;
+            width: 100%;
+          }
+          table#styledTable, th, td {
+            border: 1px solid black;
+          }
+          th {
+            background-color: black; /* Header background color */
+            color: white; /* Header text color */
+            padding: 8px;
+            text-align: center;
+          }
+          td {
+            padding: 8px;
+            text-align: left;
+          }
+          td[colspan] {
+            text-align: center;
+            font-weight: bold;
+          }
+        </style>
+        ${table}
+      `;
+
+      setHTML(styledHTML);
+      setIsExcel(true);
+      // setUrl(urlfile);
+      setPreviewOpen(true);
+      handleClose();
+    }
+    reader.readAsArrayBuffer(excel);
   };
 
   const handleUploadFinish = async () => {
@@ -256,7 +295,8 @@ const FinishLRT: React.FC = () => {
         </div>
       </div>
       <Dialog open={previewOpen} onClose={handlePreviewClose} aria-labelledby="logout-dialog-title" aria-describedby="logout-dialog-description" maxWidth="lg" fullWidth>
-        <iframe src={url} style={{ width: "100%", height: "1800px" }}></iframe>
+        {!isExcel && <iframe src={url} style={{ width: "100%", height: "1800px" }}></iframe>}
+        {isExcel && <ExcelGrid file={excel} /> }
       </Dialog>
 
       <FullPageLoading loading={pageLoading} />

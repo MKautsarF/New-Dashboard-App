@@ -57,6 +57,7 @@
     "@mui/x-date-pickers": "^6.16.1",
     "@types/node": "^20.10.5",
     "axios": "^1.5.1",
+    "canvas-datagrid": "^0.4.7",
     "dayjs": "^1.11.10",
     "electron-squirrel-startup": "^1.0.0",
     "exceljs": "^4.4.0",
@@ -71,7 +72,8 @@
     "react-hook-form": "^7.49.2",
     "react-router-dom": "^6.16.0",
     "react-toastify": "^9.1.3",
-    "react-video-js-player": "^1.1.1"
+    "react-video-js-player": "^1.1.1",
+    "xlsx": "^0.18.5"
   },
   "browser": {
     "fs": false,
