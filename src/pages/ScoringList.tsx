@@ -207,6 +207,10 @@ import {
         setError('');
       }
     };
+
+    const handleWeightChange = (event: any) => {
+      setTrainWeight(event.target.value);
+    };
   
   
     const [deletePrompt, setDeletePrompt] = useState(false);

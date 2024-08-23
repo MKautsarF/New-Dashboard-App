@@ -36,6 +36,7 @@ interface ModulDialogProps {
   setSpeedLimit: (limit: string) => void;
   error: string;
   handleSpeedLimitChange: (e: any) => void;
+  handletWeightChange: (e: any) => void;
   handleRegister: () => void;
   isAddButtonEnabled: boolean;
   sourceSettings: any;
@@ -78,6 +79,7 @@ const ModulDialog: React.FC<ModulDialogProps> = ({
   setSpeedLimit,
   error,
   handleSpeedLimitChange,
+  handletWeightChange,
   handleRegister,
   isAddButtonEnabled,
   sourceSettings,
@@ -136,8 +138,15 @@ const ModulDialog: React.FC<ModulDialogProps> = ({
             type="text"
             fullWidth
             variant="standard"
+            inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
             value={trainWeight}
-            onChange={(e) => setTrainWeight(e.target.value)}
+            // onChange={(e) => setTrainWeight(e.target.value)}
+            onChange={(e) => {
+              const value = e.target.value;
+              if (/^\d*$/.test(value)) {
+                handletWeightChange(e);
+              }
+            }}
           />
           
           <FormControl fullWidth variant="standard" margin="normal" disabled={!train}>

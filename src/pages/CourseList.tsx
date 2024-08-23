@@ -203,6 +203,10 @@ const CourseList = () => {
     }
   };
 
+  const handleWeightChange = (event: any) => {
+		setTrainWeight(event.target.value);
+	};
+
   useEffect(() => {
     if (!speedBuzzer) {
       // Hapus pesan error jika speedBuzzer tidak diceklis
@@ -691,6 +695,7 @@ const CourseList = () => {
         setSpeedLimit={setSpeedLimit}
         error={error}
         handleSpeedLimitChange={handleSpeedLimitChange}
+        handletWeightChange={handleWeightChange}
         handleRegister={handleRegister}
         isAddButtonEnabled={isAddButtonEnabled}
         sourceSettings={sourceSettings}

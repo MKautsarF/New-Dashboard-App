@@ -274,8 +274,8 @@ useEffect(() => {
 			trainLine: payload.train_line || '',
 			startStation: payload.route?.start?.name || '',
 			finishStation: payload.route?.finish?.name || '',
-			rainStatus: payload.weather?.find((item) => item.name === 'rain')?.value || '',
-			fog: payload.weather?.find((item) => item.name === 'fog')?.value || 2,
+			rainStatus: payload.weather?.find((item: any) => item.name === 'rain')?.value || '',
+			fog: payload.weather?.find((item: any) => item.name === 'fog')?.value || 2,
 			time: payload.time ? new Date(1970, 0, 1, ...payload.time.split(':').map(Number)) : null,
 			motionBase: payload.motion_base || false,
 			speedBuzzer: payload.speed_buzzer || false,
@@ -383,6 +383,10 @@ useEffect(() => {
 		} else {
 		setError('');
 		}
+	};
+
+	const handleWeightChange = (event: any) => {
+		setTrainWeight(event.target.value);
 	};
 	
 
@@ -743,6 +747,7 @@ useEffect(() => {
 					setSpeedLimit={setSpeedLimit}
 					error={error}
 					handleSpeedLimitChange={handleSpeedLimitChange}
+					handletWeightChange={handleWeightChange}
 					handleRegister={handleSave}
 					isAddButtonEnabled={isAddButtonEnabled}
 					sourceSettings={sourceSettings}

@@ -20,6 +20,19 @@ export const getSubmissionList = async (
   return res.data;
 };
 
+// export const getSubmissionList = async (
+//   id: string,
+//   page: number = 1,
+//   size: number = 5,
+//   // user_query: string = ""
+// ) => {
+//   const res = await services.get(
+//     `/instructor/submission?id=${id}&page=${page}&size=${size}`
+//   );
+
+//   return res.data;
+// };
+
 export const getSubmissionById = async (id: number) => {
   const res = await services.get(`/instructor/submission/${id}`);
 
