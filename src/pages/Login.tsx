@@ -91,7 +91,7 @@ function Login() {
       <Container w={435}>
         <form
           onSubmit={handleSubmit}
-          className="flex flex-col gap-4 justify-center p-8"
+          className="flex flex-col gap-4 justify-center p-6"
         >
           {/* <Logo /> */}
           <TextField

@@ -2,9 +2,8 @@ import React from "react";
 import { Button, SxProps } from "@mui/material";
 
 interface ButtonSettingsProps {
-  buttonName: string;
+  buttonName: any;
   completion: number;
-  // requiredCompletion: number; // Add this prop
   onClick?: (name: string) => void;
   checkedValue: string | null;
   activeButton: string | null;
@@ -13,8 +12,6 @@ interface ButtonSettingsProps {
 
 const ButtonSettings: React.FC<ButtonSettingsProps> = ({
   buttonName,
-  completion,
-  // requiredCompletion, // Use this prop
   onClick,
   checkedValue,
   activeButton,
@@ -22,7 +19,7 @@ const ButtonSettings: React.FC<ButtonSettingsProps> = ({
 }) => {
   // const isDisabled = completion < requiredCompletion;
 
-  const isActive = checkedValue === buttonName;
+  const isActive = checkedValue === buttonName.id;
 
   // const handleClick = () => {
   //   if (isDisabled || !onClick) return;
@@ -31,7 +28,7 @@ const ButtonSettings: React.FC<ButtonSettingsProps> = ({
 
   const handleClick = () => {
     if (!onClick) return;
-    onClick(buttonName);
+    onClick(buttonName.id);
   };
 
   return (
@@ -54,7 +51,7 @@ const ButtonSettings: React.FC<ButtonSettingsProps> = ({
           ...sx,
         }}
       >
-        {buttonName}
+        {buttonName.title}
       </Button>
     </div>
   );

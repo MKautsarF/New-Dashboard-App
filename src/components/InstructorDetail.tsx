@@ -140,11 +140,11 @@ const InstructorDetail: React.FC<InstructorDetailProps> = ({
         </DialogContentText>
       </DialogContent>
       <DialogActions className="flex px-6 mb-4">
-        <Button onClick={handleLogout} color="error" variant="outlined">
+        <Button onClick={handleLogout} color="error" variant="contained">
           Logout
         </Button>
         <Button onClick={handleClose} className="ml-auto">
-          Tutup
+          Batal
         </Button>
       </DialogActions>
 

@@ -364,7 +364,7 @@ function Database() {
   return (
     <>
       <Container w={1200}>
-        <div className="p-8 flex flex-wrap">
+        <div className="p-6 flex flex-wrap">
           {/* Judul */}
           <h1
             className="w-full text-center my-4"
@@ -725,7 +725,7 @@ function Database() {
           </Dialog>
         </div>
         {/* nav */}
-        <div className="flex gap-4 justify-between pl-8 pb-8 pr-8 w-full">
+        <div className="flex gap-4 justify-between px-6 pb-6 w-full">
           <div className="w-1/2 space-x-2">
             <Button
               type="button"

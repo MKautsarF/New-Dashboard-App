@@ -47,7 +47,7 @@ import {
     getScoringListbyAdmin,
     deleteScoringAsAdmin,
   } from "@/services/scoring.services";
-  import { getCourseListbyAdmin } from "@/services/course.services";
+  import { getCourseListbyAdmin, createCourseAsAdmin } from "@/services/course.services";
   import { useSettings } from "@/context/settings";
   import FullPageLoading from "@/components/FullPageLoading";
   import Checkbox from '@mui/material/Checkbox';
@@ -596,8 +596,8 @@ import {
   
         {/* pop up registrasi */}
         <Dialog open={open} onClose={handleClose}>
-          <DialogTitle className="px-8 pt-8">Tambah Modul Pembelajaran Baru</DialogTitle>
-          <DialogContent className="w-[600px] px-8">
+          <DialogTitle className="px-6 pt-8">Tambah Modul Pembelajaran Baru</DialogTitle>
+          <DialogContent className="w-[600px] px-6">
             <DialogContentText>Penambahan Modul Pembelajaran</DialogContentText>
             <TextField
               autoFocus
@@ -796,7 +796,7 @@ import {
               // helperText={errors.speedLimit}
             />
           </DialogContent>
-          <DialogActions className="px-8 pb-4">
+          <DialogActions className="px-6 pb-4">
             <Button onClick={handleClose} color="error">
               Kembali
             </Button>

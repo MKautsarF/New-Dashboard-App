@@ -203,7 +203,7 @@ const FinishLRT: React.FC = () => {
         <LogoWithText />
       </div>
 
-      <div className="p-8 h-full">
+      <div className="p-6 h-full">
         {/* Action Buttons */}
         <div className="mt-16 flex justify-around w-full">
           <Button
@@ -255,8 +255,8 @@ const FinishLRT: React.FC = () => {
           </Button>
         </div>
       </div>
-      <Dialog open={previewOpen} onClose={handlePreviewClose} aria-labelledby="logout-dialog-title" aria-describedby="logout-dialog-description">
-        <iframe src={url} width="100%" height="100%"></iframe>
+      <Dialog open={previewOpen} onClose={handlePreviewClose} aria-labelledby="logout-dialog-title" aria-describedby="logout-dialog-description" maxWidth="lg" fullWidth>
+        <iframe src={url} style={{ width: "100%", height: "1800px" }}></iframe>
       </Dialog>
 
       <FullPageLoading loading={pageLoading} />

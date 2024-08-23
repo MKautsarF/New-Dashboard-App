@@ -318,11 +318,11 @@ function AppMenu() {
 
   return (
     <>
-      <Container w={1500}>
+      <Container w={1500} h={950}>
         {/* Header  */}
         <header className="header">
-          <h2 className="p-3">Menu</h2>
-          <nav className="flex gap-4 p-3">
+          <div className="pl-6 font-bold text-2xl">Menu</div>
+          <nav className="flex gap-4 pr-6">
             <Button
               variant="outlined"
               onClick={handleSimulation}
@@ -383,42 +383,10 @@ function AppMenu() {
                 LRT
               </MenuItem>
             </Menu>
-            <Button
-              variant="outlined"
-              onClick={handleScoringClick}
-              sx={{
-                color: "#f3f3f4",
-                borderColor: "#f3f3f4",
-                "&:hover": {
-                  borderColor: "#00a6fb",
-                  color: "#00a6fb",
-                },
-              }}
-            >
-              Penilaian{" "}
-              {isScoringMenuOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-            </Button>
-            <Menu
-              anchorEl={scoringAnchorEl}
-              open={Boolean(scoringAnchorEl)}
-              onClose={handleScoringClose}
-              PaperProps={{
-                style: {
-                  width: scoringAnchorEl ? scoringAnchorEl.clientWidth : null,
-                },
-              }}
-            >
-              <MenuItem onClick={() => handleScoringOptionClick("kcic")}>
-                Kereta Cepat
-              </MenuItem>
-              <MenuItem onClick={() => handleScoringOptionClick("lrt")}>
-                LRT
-              </MenuItem>
-            </Menu>
           </nav>
         </header>
         {/* First Box  */}
-        <div className="flex gap-4 justify-center pr-8 pl-8 pt-4 w-full">
+        <div className="flex gap-4 justify-center px-6 pt-4 w-full">
           {/* box 1 */}
           <div className="flex flex-grow">
             <div className="relative flex flex-grow">
@@ -515,7 +483,7 @@ function AppMenu() {
         </div>
 
         {/* Second Box  */}
-        <div className="flex px-8 pt-4 pb-1 w-full">
+        <div className="flex px-6 pt-4 pb-1 w-full">
           {/* Box 1 */}
           <div className="flex-grow flex flex-col">
             <div className="flex items-center justify-center p-2">
@@ -575,7 +543,7 @@ function AppMenu() {
                   </TableRow>
                 </TableHead>
                 {isLoading ? (
-                  <div className=" w-full top-1/3 left-0 flex justify-center">
+                  <div className="absolute w-full top-1/3 left-0 flex justify-center">
                     <CircularProgress />
                   </div>
                 ) : rows.length > 0 ? (
@@ -649,14 +617,6 @@ function AppMenu() {
                         </TableCell>
                       </TableRow>
                     ))}
-                    {rows.length < 4 &&
-                      Array.from({ length: 4 - rows.length }).map(
-                        (_, index) => (
-                          <TableRow key={`empty-${index}`} sx={{ height: 53 }}>
-                            <TableCell colSpan={3} />
-                          </TableRow>
-                        )
-                      )}
                   </TableBody>
                 ) : (
                   <p className=" w-full top-1/3 left-0 flex justify-center">
@@ -665,7 +625,7 @@ function AppMenu() {
                 )}
               </Table>
             </TableContainer>
-            <div className="flex gap-4 items-center justify-end mt-2">
+            {/* <div className="flex gap-4 items-center justify-end mt-2"> */}
               <TablePagination
                 component="div"
                 count={totalData}
@@ -673,7 +633,7 @@ function AppMenu() {
                 page={page - 1}
                 onPageChange={handleChangePage}
                 rowsPerPageOptions={[4]}
-                className="overflow-hidden mt-auto"
+                className="overflow-hidden"
               />
               {/* Detail peserta */}
               <TraineeDetail
@@ -700,17 +660,15 @@ function AppMenu() {
                   setEditPrompt(true);
                 }}
               />
-            </div>
           </div>
         </div>
 
         {/* nav */}
-        <div className="flex justify-start px-8 pb-8 pt-2 w-full">
           <Button
             type="button"
             color="error"
             variant="outlined"
-            className="bottom-0 mt-4"
+            className="text-base absolute bottom-6 left-6"
             sx={{
               color: "#df2935",
               borderColor: "#df2935",
@@ -725,7 +683,6 @@ function AppMenu() {
           >
             Logout
           </Button>
-        </div>
 
         {/* Edit Peserta Prompt */}
         <Dialog open={editPrompt} onClose={() => setEditPrompt(false)}>
@@ -817,6 +774,7 @@ function AppMenu() {
           onClose={handleLogoutClose}
           aria-labelledby="logout-dialog-title"
           aria-describedby="logout-dialog-description"
+          className="p-6"
         >
           <DialogTitle id="logout-dialog-title">Konfirmasi Logout</DialogTitle>
           <DialogContent>
@@ -824,12 +782,12 @@ function AppMenu() {
               Apakah Anda yakin ingin logout?
             </DialogContentText>
           </DialogContent>
-          <DialogActions className="flex mb-2 justify-between">
-            <Button onClick={handleConfirmLogout} color="error" className="mx-2">
-              Logout
-            </Button>
-            <Button onClick={handleLogoutClose} variant="contained" color="primary" className="mx-2">
+          <DialogActions className="flex p-6 justify-between w-full">
+            <Button onClick={handleLogoutClose} color="primary">
               Batal
+            </Button>
+            <Button onClick={handleConfirmLogout} color="error" variant="contained">
+              Logout
             </Button>
           </DialogActions>
         </Dialog>

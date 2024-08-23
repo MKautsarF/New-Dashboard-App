@@ -9,7 +9,7 @@ import {
 import PublishIcon from '@mui/icons-material/Publish';
 import Picker from "pickerjs";
 import "pickerjs/dist/picker.css";
-import TimePicker from "../components/TimePicker"
+import { TimePicker } from "@mui/x-date-pickers";
 import {
   Box,
   Button,
@@ -32,7 +32,7 @@ import {
   Tooltip,
   Select, 
   MenuItem, 
-  FormControl, 
+  FormControl,
   FormHelperText,
   InputLabel,
   Slider,
@@ -59,6 +59,7 @@ import fs from "fs";
 import { toast } from 'react-toastify';
 import { useLocation } from "react-router-dom";
 import { useMemo } from "react";
+import ModulDialog  from "@/components/ModulDialog";
 
 interface RowData {
   id: string;
@@ -83,6 +84,7 @@ const CourseList = () => {
 
   const query = useQuery();
   const role = query.get("role");
+  const trainType = query.get("type") as "kcic" | "lrt";
 
   type StationMapping = {
     [key: string]: string;
@@ -128,7 +130,7 @@ const CourseList = () => {
   const [trainLine, setTrainLine] = useState("");
   const [trainLines, setTrainLines] = useState([]);
   const [trainWeight, setTrainWeight] = useState("");
-  const [trainType, setTrainType] = useState("");
+  // const [trainType, setTrainType] = useState("");
   const [time, setTime] = useState(null);
   const [startStation, setStartStation] = useState("");
   const [finishStation, setFinishStation] = useState("");
@@ -201,6 +203,13 @@ const CourseList = () => {
     }
   };
 
+  useEffect(() => {
+    if (!speedBuzzer) {
+      // Hapus pesan error jika speedBuzzer tidak diceklis
+      setError('');
+    }
+  }, [speedBuzzer]);
+
 
   const [deletePrompt, setDeletePrompt] = useState(false);
   const [configPrompt, setConfigPrompt] = useState(false);
@@ -217,7 +226,9 @@ const CourseList = () => {
   // console.log(currentInstructor.isAdmin);
   currentInstructor.isInstructor = true;
 
-
+  const toggleEdit = () => {
+    setOpen(!open)
+  }
   
 
   const collectDataAndPrepareFormData = async () => {
@@ -274,7 +285,7 @@ const CourseList = () => {
   const handleDaftar = () => {
     setMode('add');
     setOpen(true);
-};
+  };
 
   const handleKembali = () => {
     if (role === "admin") navigate("/admin");
@@ -299,48 +310,53 @@ const CourseList = () => {
       console.error("Upload failed", error);
     }
   };
-  
 
   useEffect(() => {
     async function getRows(page: number) {
       try {
         setIsLoading(true);
+  
+        let res;
         if (role === "admin") {
-          const res = await getCourseListbyAdmin(page, 5);
-          console.log("API Response:", res);
-
+          // Jika role adalah admin, ambil semua data tanpa filter berdasarkan trainType
+          res = await getCourseListbyAdmin(page, 5);
+          console.log("API Response (Admin):", res);
+        } else {
+          // Jika role bukan admin, filter berdasarkan trainType
+          res = await getCourseByInstructor(page, 5);
+          console.log("API Response (Instructor):", res);
+  
+          // Filter berdasarkan trainType
+          res.results = res.results.filter((entry: any) => {
+            if (trainType === "kcic") {
+              return entry.description === "KCIC";
+            } else if (trainType === "lrt") {
+              return entry.description === "LRT";
+            }
+            return false; // atau kembalikan `true` jika Anda ingin semua data tanpa filter trainType
+          });
+        }
+  
+        // Mapping hasil untuk di setRows
         const resRows: RowData[] = res.results.map((entry: any) => ({
           id: entry.id,
           title: entry.title,
           description: entry.description,
           published: entry.published,
         }));
-
-        setRows(resRows);
-        setTotalData(res.total);
-        } else {
-          const res = await getCourseByInstructor(page, 5);
-          console.log("API Response:", res);
-          const resRows: RowData[] = res.results.map((entry: any) => ({
-            id: entry.id,
-            title: entry.title,
-            description: entry.description,
-            published: entry.published,
-          }));
   
-          setRows(resRows);
-          setTotalData(res.total);
-        }
-        
+        setRows(resRows);
+        setTotalData(res.results.length); // Menghitung total data setelah filter (jika ada)
       } catch (e) {
         console.error(e);
       } finally {
         setIsLoading(false);
       }
     }
-
+  
     getRows(page);
-  }, [page, reload]);
+  }, [page, reload, trainType]);
+  
 
   useEffect(() => {
     const fetchPayload = async () => {
@@ -374,9 +390,7 @@ const CourseList = () => {
   const handleEdit = () => {
     setMode('edit');
     setOpen(true);
-
-    
-};
+  };
 
   const handleDelete = async (id: string) => {
     try {
@@ -428,10 +442,7 @@ const CourseList = () => {
     }
   }, [mode, payload]);
 
-  
-
   useEffect(() => {
-    // Update the train lines based on the selected train type
     if (train) {
       setTrainLines(Object.keys(sourceSettings[train]?.rute || {}));
     } else {
@@ -454,7 +465,6 @@ const CourseList = () => {
       setFinishStations([]);
     }
   }, [train, trainLine, startStation]);
-
 
   return (
     <Container w={1000} h={700}>
@@ -584,24 +594,10 @@ const CourseList = () => {
                               });
                               // setConfigPrompt(true);
                               
-                              navigate(`/admin/scoringlist/coursedetail?id=${row.id}&role=${role}`);
+                              navigate(`/admin/scoringlist/coursedetail?id=${row.id}&role=${role}&type=${trainType}`);
                             }}
                           >
                             <Info />
-                          </IconButton>
-                        </Tooltip>
-                        <Tooltip title="Edit Modul Pembelajaran" placement="top">
-                          <IconButton
-                            size="small"
-                            onClick={() => {
-                              setSelectedModul({
-                                id: row.id,
-                                title: row.title,
-                              });
-                              handleEdit();
-                            }}
-                          >
-                            <EditNote />
                           </IconButton>
                         </Tooltip>
                         <Tooltip title="Hapus Modul Pembelajaran" placement="top">
@@ -663,240 +659,47 @@ const CourseList = () => {
         </div>
       </div>
 
-      {/* pop up registrasi dan edit*/}
-      <Dialog open={open} onClose={() => setOpen(false)}>
-        <DialogTitle className="px-8 pt-8">
-          {mode === 'add' 
-            ? 'Tambah Modul Pembelajaran Baru' 
-            : `Edit Modul Pembelajaran - ${payload?.module_name || ''}`}
-        </DialogTitle>
-        <DialogContent className="w-[600px] px-8">
-          <DialogContentText>
-            {mode === 'add' 
-              ? 'Penambahan Modul Pembelajaran' 
-              : `Pengeditan Modul Pembelajaran - ${payload?.module_name || ''}`}
-          </DialogContentText>
-          <TextField
-            autoFocus
-            margin="normal"
-            id="modulName"
-            label={<span>Nama Modul Pembelajaran <span style={{ color: 'red' }}>*</span></span>}
-            type="text"
-            fullWidth
-            variant="standard"
-            value={moduleName}
-            onChange={(e) => setModuleName(e.target.value)}
-          />
-          <FormControl fullWidth variant="standard" margin="normal">
-            <InputLabel id="train-label">Jenis Kereta <span style={{ color: 'red' }}>*</span></InputLabel>
-            <Select
-              labelId="train-label"
-              id="train"
-              value={train}
-              onChange={(e) => {
-                setTrain(e.target.value);
-                setTrainLine(''); // Reset trainLine when train changes
-                setStartStation(''); // Reset startStation when train changes
-                setFinishStation(''); // Reset finishStation when train changes
-              }}
-            >
-              {Object.keys(sourceSettings).map((key) => (
-                <MenuItem key={key} value={key}>{key.toUpperCase()}</MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <TextField
-            margin="normal"
-            id="Spesifikasi Kereta"
-            label={<span>Berat Kereta (ton) <span style={{ color: 'red' }}>*</span></span>}
-            type="text"
-            fullWidth
-            variant="standard"
-            value={trainWeight}
-            onChange={(e) => setTrainWeight(e.target.value)}
-          />
-          
-          <FormControl fullWidth variant="standard" margin="normal" disabled={!train}>
-            <InputLabel id="train-label">Line Kereta <span style={{ color: 'red' }}>*</span></InputLabel>
-            <Select
-              labelId="train-line-label"
-              id="train-line"
-              value={trainLine}
-              onChange={(e) => {
-                setTrainLine(e.target.value);
-                setStartStation(''); // Reset startStation when trainLine changes
-                setFinishStation(''); // Reset finishStation when trainLine changes
-              }}
-              label="Line Kereta"
-            >
-              {trainLines.map((line) => (
-                <MenuItem key={line} value={line}>{line}</MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <FormControl fullWidth variant="standard" margin="normal" disabled={!trainLine}>
-            <InputLabel id="train-label">Stasiun Awal <span style={{ color: 'red' }}>*</span></InputLabel>
-            <Select
-              labelId="start-station-label"
-              id="start-station"
-              value={getDisplayStationName(startStation)}
-              onChange={(e) => {
-                setStartStation(getPayloadStationName(e.target.value));
-                setFinishStation(''); // Reset finishStation when startStation changes
-              }}
-              label="Stasiun Awal"
-            >
-              {startStations.map((station) => (
-                <MenuItem key={station} value={getDisplayStationName(station)}>{getDisplayStationName(station)}</MenuItem>
-              ))}
-            </Select>
-            {/* <FormHelperText>{errors.startStation}</FormHelperText> */}
-          </FormControl>
-          <FormControl fullWidth variant="standard" margin="normal" disabled={!startStation}>
-            <InputLabel id="train-label">Stasiun Akhir <span style={{ color: 'red' }}>*</span></InputLabel>
-            <Select
-              labelId="finish-station-label"
-              id="finish-station"
-              value={getDisplayStationName(finishStation)}
-              onChange={(e) => setFinishStation(getPayloadStationName(e.target.value))}
-              label="Stasiun Akhir"
-            >
-              {finishStations.map((station) => (
-                <MenuItem key={station} value={getDisplayStationName(station)}>{getDisplayStationName(station)}</MenuItem>
-              ))}
-            </Select>
-            {/* <FormHelperText>{errors.finishStation}</FormHelperText> */}
-          </FormControl>
-          <FormControl fullWidth variant="standard" margin="normal">
-            <InputLabel id="train-label">Status Hujan <span style={{ color: 'red' }}>*</span></InputLabel>
-            <Select
-              labelId="rain-status"
-              id="rainStatus"
-              value={rainStatus}
-              onChange={(e) => {
-                setRainStatus(e.target.value);
-              }}
-              label="Status Hujan"
-            >
-                <MenuItem value="Cerah">Cerah</MenuItem>
-                <MenuItem value="Ringan">Ringan</MenuItem>
-                <MenuItem value="Sedang">Sedang</MenuItem>
-                <MenuItem value="Deras">Deras</MenuItem>
-            </Select>
-          </FormControl>
-          <div className="mb-2 mt-6 flex items-center w-full">
-          <TimePicker value={time} onChange={setTime} mode={"new"} />
-          </div>
-          <div className="flex items-center justify-center mt-4 space-x-4">
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={motionBase}
-                  onChange={handleMotionBaseChange}
-                  name="motionBase"
-                />
-              }
-              label="Motion Base"
-            />
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={speedBuzzer}
-                  onChange={handleSpeedBuzzerChange}
-                  name="speedBuzzer"
-                />
-              }
-              label="Speed Buzzer"
-            />
-          </div>
-          <div className="flex items-center mt-5">Jarak Pandang</div>
-          <div className="flex items-center mt-3 gap-3">
-            <Visibility className="my-[0.5px] mr-2 text-gray-600" />
-            <div className="flex-grow">
-              <Slider
-                className="flex-grow"
-                min={0}
-                max={100}
-                step={0.25}
-                value={fog}
-                onChange={handleSliderChange}
-              />
-            </div>
-            <Input
-              value={jarakPandang}
-              readOnly
-              className="w-28"
-              size="small"
-              onFocus={(e) => e.target.select()}
-              endAdornment={
-                <InputAdornment
-                  position="start"
-                  className={`${
-                    jarakPandang !== 0 ? "text-base" : "text-xs"
-                  }`}
-                >
-                  {jarakPandang !== 0 ? "meter" : "Tidak berkabut"}
-                </InputAdornment>
-              }
-            />
-          </div>
-          <TextField
-            margin="normal"
-            id="Speed Limit"
-            label={
-              <span>
-                Speed Limit (km/h) {speedBuzzer && <span style={{ color: 'red' }}>*</span>}
-              </span>
-            }
-            type="text"
-            fullWidth
-            variant="standard"
-            value={speedLimit}
-            onChange={handleSpeedLimitChange}
-            error={!!error}
-            helperText={error}
-            disabled={!speedBuzzer}
-          />
-        </DialogContent>
-        <DialogActions className="px-8 pb-4">
-          <Button onClick={() => setOpen(false)} color="error">
-            Kembali
-          </Button>
-          <Button onClick={handleRegister} disabled={!isAddButtonEnabled}>
-            {mode === 'add' ? 'Tambah' : 'Simpan Perubahan'}
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      {/* Config Modul prompt */}
-      <Dialog open={configPrompt} onClose={() => setConfigPrompt(false)}>
-        <DialogContent className="w-[400px] p-8">
-          <div>
-            <h1 className="text-xl mb-4">Konfigurasi Modul Pembelajaran: <b>{payload?.module_name}</b></h1>
-            <p>Jenis Kereta: <b>{payload?.train_type?.toUpperCase()}</b></p>
-            <p>Berat Kereta: <b>{payload?.train?.weight} ton</b></p>
-            <p>Tipe Kereta: <b>{payload?.train?.type}</b></p>
-            <p>Waktu Simulasi: <b>{new Date(payload?.time).toLocaleString()}</b></p>
-            <p>Status Hujan: <b>{payload?.weather?.[0]?.value}</b></p>
-            <p>Intensitas Kabut: <b>{payload?.weather?.[1]?.value}</b></p>
-            <p>Line Kereta: <b>{payload?.train_line}</b></p>
-            <p>Stasiun Awal: <b>{getMappedStationName(payload?.route?.start?.name)}</b></p>
-            <p>Stasiun Akhir: <b>{getMappedStationName(payload?.route?.finish?.name)}</b></p>
-            <p>Motion Base: <b>{payload?.motion_base ? 'Ya' : 'Tidak'}</b></p>
-            <p>Speed Buzzer: <b>{payload?.speed_buzzer ? 'Ya' : 'Tidak'}</b></p>
-            <p>Speed Limit: <b>{payload?.speed_limit || 'Tidak Ditetapkan'}</b></p>
-          </div>
-        </DialogContent>
-        <DialogActions className="flex mb-2 justify-between">
-          <Button
-            className="mx-2"
-            onClick={() => setConfigPrompt(false)}
-            color="error"
-          >
-            Tutup
-          </Button>
-        </DialogActions>
-      </Dialog>
+      {/* pop up registrasi dan edit */}
+      <ModulDialog
+        open={open}
+        setOpen={toggleEdit}
+        mode="add"
+        moduleName={moduleName}
+        setModuleName={setModuleName}
+        train={train}
+        setTrain={setTrain}
+        trainWeight={trainWeight}
+        setTrainWeight={setTrainWeight}
+        trainLine={trainLine}
+        setTrainLine={setTrainLine}
+        startStation={startStation}
+        setStartStation={setStartStation}
+        finishStation={finishStation}
+        setFinishStation={setFinishStation}
+        rainStatus={rainStatus}
+        setRainStatus={setRainStatus}
+        time={time}
+        setTime={setTime}
+        motionBase={motionBase}
+        handleMotionBaseChange={handleMotionBaseChange}
+        speedBuzzer={speedBuzzer}
+        handleSpeedBuzzerChange={handleSpeedBuzzerChange}
+        fog={fog}
+        handleSliderChange={handleSliderChange}
+        jarakPandang={jarakPandang}
+        speedLimit={speedLimit}
+        setSpeedLimit={setSpeedLimit}
+        error={error}
+        handleSpeedLimitChange={handleSpeedLimitChange}
+        handleRegister={handleRegister}
+        isAddButtonEnabled={isAddButtonEnabled}
+        sourceSettings={sourceSettings}
+        trainLines={trainLines}
+        startStations={startStations}
+        finishStations={finishStations}
+        getDisplayStationName={getDisplayStationName}
+        getPayloadStationName={getPayloadStationName}
+      />
 
       {/* Delete Modul prompt */}
       <Dialog open={deletePrompt} onClose={() => setDeletePrompt(false)}>
@@ -906,6 +709,13 @@ const CourseList = () => {
         <DialogActions className="flex mb-2 justify-between">
           <Button
             className="mx-2"
+            onClick={() => setDeletePrompt(false)}
+            
+          >
+            Batal
+          </Button>
+          <Button
+            className="mx-2"
             onClick={async () => {
               if (selectedModul.id) {
                 await handleDelete(selectedModul.id);
@@ -913,15 +723,9 @@ const CourseList = () => {
               setDeletePrompt(false);
             }}
             color="error"
-          >
-            Hapus
-          </Button>
-          <Button
-            className="mx-2"
-            onClick={() => setDeletePrompt(false)}
             variant="contained"
           >
-            Batal
+            Hapus
           </Button>
         </DialogActions>
       </Dialog>

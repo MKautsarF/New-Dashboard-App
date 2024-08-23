@@ -11,25 +11,25 @@ import { Checkbox, FormControlLabel, Dialog, DialogContent, DialogTitle, DialogA
 import Flatpickr from "react-flatpickr";
 import "flatpickr/dist/flatpickr.min.css";
 import TimePicker from "../components/TimePicker";
-import { CircularProgress, Paper, Table, TableBody, TableCell, TableHead, TableRow } from "@mui/material";
+import { CircularProgress, Paper, Table, TableBody, TableCell, TableHead, TableRow, TablePagination } from "@mui/material";
 import { BookmarkAdd } from "@mui/icons-material";
 import { IconButton } from "@mui/material";
 import { Info } from "@mui/icons-material";
 import { EditNote } from "@mui/icons-material";
 import { Delete } from "@mui/icons-material";
 import { Tooltip } from "@mui/material";
-const fs = require("fs");
-
 import { editCourseAsAdmin } from '../services/course.services';
 import { getScoringByCourse } from '@/services/scoring.services';
 import { getCourseListbyAdmin } from '../services/course.services';
 import { deleteScoringAsAdmin } from '@/services/scoring.services';
+import ModulDialog from '@/components/ModulDialog';
+
 
 interface ScoringDetail {
 	id: string,
 	name: string,
 }
-
+const fs = require("fs");
 
 
 function useQuery() {
@@ -47,7 +47,8 @@ const CourseDetail = () => {
 	//get query params
 	const query = useQuery();
 	const courseId = query.get("id");
-	console.log("id: " ,courseId)
+	const role = query.get("role");
+	console.log("role: " ,role)
 
 	type StationMapping = {
     [key: string]: string;
@@ -80,7 +81,7 @@ const CourseDetail = () => {
 	const [time, setTime] = useState(null);
 	const [motionBase, setMotionBase] = useState(false);
 	const [speedBuzzer, setSpeedBuzzer] = useState(false);
-	const [speedLimit, setSpeedLimit] = useState(0);
+	const [speedLimit, setSpeedLimit] = useState("");
 	const [jarakPandang, setJarakPandang] = useState(null);
 	const [startStations, setStartStations] = useState([]);
 	const [finishStations, setFinishStations] = useState([]);
@@ -89,14 +90,25 @@ const CourseDetail = () => {
 	const [isEditing, setIsEditing] = useState(false);
 
 	const [rows, setRows] = useState<any[]>([]);
+	const [page, setPage] = useState(1);
+	const [totalData, setTotalData] = useState(0);
+
 	const [open, setOpen] = useState(false);
-	const role = query.get("role");
+	const [openEdit, setOpenEdit] = useState(false);
+	
 
 	const [selectedScoring, setSelectedScoring] = useState(null);
 	const [deletePrompt, setDeletePrompt] = useState(false);
+	const type = query.get('type')
+
+	const [reload, setReload] = useState(false);
+	const [error, setError] = useState('');
+	const [isAddButtonEnabled, setIsAddButtonEnabled] = useState(false);
 	
 	const toogleEdit = () => {
 		setIsEditing(!isEditing);
+		console.log("modulename", moduleName)
+		setOpenEdit(!openEdit);
 	}
 
 	const navigateBack = () => {
@@ -104,7 +116,7 @@ const CourseDetail = () => {
 			navigate("/admin/courselist?role=admin");
 		}
 		else {
-			navigate("/admin/courselist?role=instruktur");
+			navigate(`/admin/courselist?role=instructor&type=${type}`);
 		}
 	}
 
@@ -114,7 +126,7 @@ const CourseDetail = () => {
 
   const handleSpeedBuzzerChange = (event: any) => {
     setSpeedBuzzer(event.target.checked);
-    setSpeedLimit(0); // Reset speedLimit when speedBuzzer changes
+    setSpeedLimit(""); // Reset speedLimit when speedBuzzer changes
   };
 
 	const collectDataAndPrepareFormData = async () => {
@@ -168,118 +180,190 @@ const CourseDetail = () => {
   };  
 
 	const handleSave = async () => {
-    try {
-      const formData = await collectDataAndPrepareFormData();
-      
-      // const response = await editCourseAsAdmin(courseId, formData);
-      // console.log("Upload successful", response);
-			async function getRows(id: any) {
-				try {
-					const res = await getCourseDetail(courseId);
-					setPayload(res);
-					console.log("res: ", res);
-				} catch (e) {
-					console.error(e);
-				} finally {
+		try {
+		const formData = await collectDataAndPrepareFormData();
+		
+		// const response = await editCourseAsAdmin(courseId, formData);
+		// console.log("Upload successful", response);
+				async function getRows(id: any) {
+					try {
+						const res = await getCourseDetail(courseId);
+						setPayload(res);
+						console.log("res: ", res);
+					} catch (e) {
+						console.error(e);
+					} finally {
+					}
 				}
-			}
-			getRows(courseId);
-			toogleEdit();
-			
-    } catch (error) {
-      console.error("Upload failed", error);
-    }
-  };
+				getRows(courseId);
+				toogleEdit();
+				
+		} catch (error) {
+		console.error("Upload failed", error);
+		}
+	};
 
-
-
-	useEffect(() => {
-    async function getRows(id: any) {
+useEffect(() => {
+    const fetchData = async () => {
       try {
-        const res = await getCourseDetail(courseId);
+        const res = await getCourseListbyAdmin(1, 100);
+        console.log("Course List: ", res);
+        setCourses(res.results);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    const getRows = async (id: any) => {
+      try {
+        const res = await getCourseDetail(id);
         setPayload(res);
-				console.log("res: ", res);
+      } catch (e) {
+        console.error(e);
+      }
+    };
+
+    const getModulePenilaian = async (id: any, page: any, rowsPerPage: any) => {
+      try {
+        setIsLoading(true);
+        const res = await getScoringByCourse(id, page, rowsPerPage);
+        console.log("Module Penilaian: ", res);
+        setRows(res.results);
+        setTotalData(res.total);
       } catch (e) {
         console.error(e);
       } finally {
+        setIsLoading(false);
       }
-    }
-	async function getModulePenilaian(id: any) {
-		try{
-			const res = await getScoringByCourse(id, 1, 100);
-			console.log("ress", res)
-			setRows(res.results);
-		} catch (e) {
-		}
-	}
-	async function fetchData()  {
-		try {
-				const res = await getCourseListbyAdmin(1, 100);
-				console.log("aku", res);
-				setCourses(res.results);
-		} catch (error) {
-		}
-};
-fetchData();
-	getRows(courseId);
-	getModulePenilaian(courseId);
-  }, [courseId]);
-	
+    };
 
-  useEffect(() => {
-    if (isEditing && payload) {
-      setModuleName(payload.module_name || '');
-      
-      // Set train-related states
-      setTrain(payload.train_type || '');
-      setTrainWeight(payload.train?.weight || '');
-      setTrainLine(payload.train_line || '');
-      
-      // Set start and finish stations based on the rute structure
-      setStartStation(payload.route?.start?.name || '');
-      setFinishStation(payload.route?.finish?.name || '');
-      
-      // Other settings
-      setRainStatus(payload.weather?.find((item: { name: string, value: string | number }) => item.name === 'rain')?.value || '');
-      setFog(payload.weather?.find((item: { name: string, value: string | number }) => item.name === 'fog')?.value || 2);
-      
-      setTime(payload.time || null);
-      setMotionBase(payload.motion_base || false);
-      setSpeedBuzzer(payload.speed_buzzer || false);
-      setSpeedLimit(payload.speed_limit || '');
-	  const fogDistance =
-        payload.weather[1]?.value >= 0.5 ? Math.round(Math.pow(payload.weather[1]?.value / 100, -0.914) * 50.6) : 2;
-      setJarakPandang(fogDistance);
-    } else {
-      // Reset fields for adding new module
-      setModuleName('');
-      setTrain('');
-      setTrainWeight('');
-      setTrainLine('');
-      setStartStation('');
-      setFinishStation('');
-      setRainStatus('');
-      setFog(0);
-      setTime(null);
-      setMotionBase(false);
-      setSpeedBuzzer(false);
-      setSpeedLimit(0);
-      setJarakPandang(0);
-			setTrainLines([]);
+    fetchData();
+    if (courseId) {
+      getRows(courseId);
+      getModulePenilaian(courseId, page, 5);
     }
-  }, [isEditing, payload]);
+  	}, [courseId, page, reload]);
+
+	const handleChangePage = (event: unknown, newPage: number) => {
+		setPage(newPage + 1);
+	};
+
+	const [initialValues, setInitialValues] = useState({
+		moduleName: '',
+		train: '',
+		trainWeight: '',
+		trainLine: '',
+		startStation: '',
+		finishStation: '',
+		rainStatus: '',
+		fog: 0,
+		time: null,
+		motionBase: false,
+		speedBuzzer: false,
+		speedLimit: '',
+		jarakPandang: 0,
+	  });
+
+	useEffect(() => {
+		if (isEditing && payload) {
+		  // Set fields from payload
+		  const newInitialValues = {
+			moduleName: payload.module_name || '',
+			train: payload.train_type || '',
+			trainWeight: payload.train?.weight || '',
+			trainLine: payload.train_line || '',
+			startStation: payload.route?.start?.name || '',
+			finishStation: payload.route?.finish?.name || '',
+			rainStatus: payload.weather?.find((item) => item.name === 'rain')?.value || '',
+			fog: payload.weather?.find((item) => item.name === 'fog')?.value || 2,
+			time: payload.time ? new Date(1970, 0, 1, ...payload.time.split(':').map(Number)) : null,
+			motionBase: payload.motion_base || false,
+			speedBuzzer: payload.speed_buzzer || false,
+			speedLimit: payload.speed_limit || '',
+			jarakPandang: payload.weather[1]?.value >= 0.5 ? Math.round(Math.pow(payload.weather[1]?.value / 100, -0.914) * 50.6) : 2,
+		  };
+		  setInitialValues(newInitialValues);
+	  
+		  // Set form values
+		  setModuleName(newInitialValues.moduleName);
+		  setTrain(newInitialValues.train);
+		  setTrainWeight(newInitialValues.trainWeight);
+		  setTrainLine(newInitialValues.trainLine);
+		  setStartStation(newInitialValues.startStation);
+		  setFinishStation(newInitialValues.finishStation);
+		  setRainStatus(newInitialValues.rainStatus);
+		  setFog(newInitialValues.fog);
+		  setTime(newInitialValues.time);
+		  setMotionBase(newInitialValues.motionBase);
+		  setSpeedBuzzer(newInitialValues.speedBuzzer);
+		  setSpeedLimit(newInitialValues.speedLimit);
+		  setJarakPandang(newInitialValues.jarakPandang);
+		} else {
+		  // Reset fields for adding new module
+		  setModuleName('');
+		  setTrain('');
+		  setTrainWeight('');
+		  setTrainLine('');
+		  setStartStation('');
+		  setFinishStation('');
+		  setRainStatus('');
+		  setFog(0);
+		  setTime(null);
+		  setMotionBase(false);
+		  setSpeedBuzzer(false);
+		  setSpeedLimit('');
+		  setJarakPandang(0);
+		  setTrainLines([]);
+		}
+	  }, [isEditing, payload]);
+
+	useEffect(() => {
+		const hasChanges = 
+		  moduleName !== initialValues.moduleName ||
+		  train !== initialValues.train ||
+		  trainWeight !== initialValues.trainWeight ||
+		  trainLine !== initialValues.trainLine ||
+		  startStation !== initialValues.startStation ||
+		  finishStation !== initialValues.finishStation ||
+		  rainStatus !== initialValues.rainStatus ||
+		  fog !== initialValues.fog ||
+		  time?.getHours() !== initialValues.time?.getHours() ||
+		  time?.getMinutes() !== initialValues.time?.getMinutes() ||
+		  motionBase !== initialValues.motionBase ||
+		  speedBuzzer !== initialValues.speedBuzzer ||
+		  speedLimit !== initialValues.speedLimit ||
+		  jarakPandang !== initialValues.jarakPandang;
+	  
+		setIsAddButtonEnabled(hasChanges);
+	  }, [
+		moduleName, train, trainWeight, trainLine, startStation, finishStation, 
+		rainStatus, fog, time, motionBase, speedBuzzer, speedLimit, jarakPandang, 
+		initialValues
+	  ]);
 
 	useEffect(() => {
 		if (train) {
-			setTrainLines(Object.keys(sourceSettings[train].rute));
+		  setTrainLines(Object.keys(sourceSettings[train]?.rute || {}));
+		} else {
+		  setTrainLines([]);
 		}
-		if (trainLine) {
-			setStartStations(Object.keys(sourceSettings[train]?.rute[trainLine] || {}));
+	  }, [train]);
+	  
+	  useEffect(() => {
+		if (train && trainLine) {
+		  setStartStations(Object.keys(sourceSettings[train]?.rute[trainLine] || {}));
+		} else {
+		  setStartStations([]);
 		}
-		if (startStation) {
-			setFinishStations(sourceSettings[train]?.rute[trainLine]?.[startStation] || []);
+	  }, [train, trainLine]);
+	  
+	  useEffect(() => {
+		if (train && trainLine && startStation) {
+		  setFinishStations(sourceSettings[train]?.rute[trainLine]?.[startStation] || []);
+		} else {
+		  setFinishStations([]);
 		}
-	}, [train, startStation]);
+	  }, [train, trainLine, startStation]);
 
 
 	const handleSliderChange = (event: Event, newValue: number | number[]) => {
@@ -288,14 +372,19 @@ fetchData();
         newValue >= 0.5 ? Math.round(Math.pow(newValue / 100, -0.914) * 50.6) : 0;
       setFog(Math.round(newValue));
       setJarakPandang(fogDistance);
-    }
-  };
+    	}
+  	};
 
-	const handleSpeedLimitChange = (event: Event, newValue: number | number[]) => {
-		if (typeof newValue === 'number') {
-      setSpeedLimit(newValue);
-    }
-	}
+	const handleSpeedLimitChange = (event: any) => {
+		setSpeedLimit(event.target.value);
+		// Validate speed limit if speed buzzer is checked
+		if (speedBuzzer && event.target.value.trim() === '') {
+		setError('Speed limit perlu diisi ketika speed buzzer terceklis');
+		} else {
+		setError('');
+		}
+	};
+	
 
 	const [openCreateScoring, setOpenCreateScoring] = useState(false);
 	const handleDaftar = () => {
@@ -340,18 +429,18 @@ fetchData();
 
     useEffect(() => {
         async function fetchData(courseId: any) {
-						try {
-							const res = await getScoringByCourse(courseId, 1, 100);
-							console.log("ress", res)
-							setScoring(res);
-						}
-						catch (e) {
-							console.error(e);
-						}
+			try {
+				const res = await getScoringByCourse(courseId, 1, 100);
+					console.log("ress", res)
+					setScoring(res);
 				}
-				if (!useDefault) {
-        	fetchData(courseId);
+				catch (e) {
+					console.error(e);
 				}
+		}
+		if (!useDefault) {
+        fetchData(courseId);
+		}
     }
     , [selectedCourse]);
 
@@ -361,6 +450,7 @@ fetchData();
 				console.log("res", res);
 				const res2 = await getScoringByCourse(courseId, 1, 100);
 				setRows(res2.results);
+				setReload(!reload);
 			} catch (e) {
 				console.error(e);
 			}
@@ -368,336 +458,220 @@ fetchData();
 
 	return (
 		<Container w={1000} h={700}>
-			<div className="flex flex-col gap-4 justify-center items-center p-5">
-				<h1>Course Detail</h1>
+			<div className="flex flex-col p-6 h-full gap-4">
+				<h1 className='flex items-center justify-center'>Detail Modul Pembelajaran</h1>
 				<div className='flex flex-row gap-4 w-full'>
-					<div className='flex flex-row gap-5 w-1/2'>
-						<div className='flex flex-col gap-5'>
-							<div className='flex flex-col gap-2'>
-								<span>Nama Modul Pembelajaran</span>
-								<div className='ml-2'>
-									{isEditing ? (
-										<TextField
-										autoFocus
-										margin="none"
-										id="modulName"
-										type="text"
-										style={isEditing ? { display: "block" } : { display: "none" }}
-										fullWidth
-										variant="standard"
-										value={payload.module_name}
-										onChange={(e) => setModuleName(e.target.value)}
-										/>
-										
-									) : (
-										<div>
-											<h3>{payload.module_name}</h3>
-										</div>
-									)}
-								</div>
-							</div>
-							<div className='flex flex-col gap-2'>
-								<span>Jenis Kereta</span>
-								<div className='ml-2'>
-									{isEditing ? (
-										<FormControl fullWidth variant="standard" margin="none">
-										<Select
-											labelId="train-label"
-											id="train"
-											value={train}
-											onChange={(e) => {
-											setTrain(e.target.value);
-											setTrainLine(''); // Reset trainLine when train changes
-											setStartStation(''); // Reset startStation when train changes
-											setFinishStation(''); // Reset finishStation when train changes
-											}}
-										>
-											<MenuItem value="lrt">LRT</MenuItem>
-											<MenuItem value="kcic">Kereta Cepat</MenuItem>
-										</Select>
-										</FormControl>
-										
-									) : (
-										<div>
-											<h3>{payload?.train_type ? payload.train_type.toUpperCase() : ''}</h3>
-										</div>
-									)}
-								</div>
-							</div>
-							<div className='flex flex-col gap-2'>
-								<span>Berat Kereta</span>
-								<div className='ml-2'>
-									{isEditing ? (
-										<TextField
-										margin="none"
-										id="Spesifikasi Kereta"
-										type="text"
-										fullWidth
-										variant="standard"
-										value={trainWeight}
-										onChange={(e) => setTrainWeight(e.target.value)}
-										/>
-										
-									) : (
-										<div>
-											<h3>{payload.train?.weight} kg</h3>
-										</div>
-									)}
-								</div>
-							</div>
-							<div className='flex flex-col gap-2'>
-								<span>Line Kereta</span>
-								<div className='ml-2'>
-									{isEditing ? (
-									<FormControl fullWidth variant="standard" margin="none" disabled={!train}>
-											<Select
-												labelId="train-line-label"
-												id="train-line"
-												value={trainLine}
-												onChange={(e) => {
-												setTrainLine(e.target.value);
-												setStartStation(''); // Reset startStation when trainLine changes
-												setFinishStation(''); // Reset finishStation when trainLine changes
-												}}
-												label="Line Kereta"
-											>
-												{trainLines.map((line) => (
-												<MenuItem key={line} value={line}>{line}</MenuItem>
-												))}
-											</Select>
-										</FormControl>
-									) : (
-										<div>
-											<h3>{payload.train_line}</h3>
-										</div>
-									)}
-								</div>
-							</div>
-							<div className='flex flex-col gap-2'>
-								<span>Stasiun Mulai</span>
-								<div className='ml-2'>
-									{isEditing ? (
-									<FormControl fullWidth variant="standard" margin="none" disabled={!trainLine}>
-									<Select
-										labelId="start-station-label"
-										id="start-station"
-										value={startStation}
-										onChange={(e) => {
-											setStartStation(e.target.value);
-											setFinishStation(''); // Reset finishStation when startStation changes
-										}}
-										label="Stasiun Awal"
-									>
-										{startStations.map((station) => (
-											<MenuItem key={station} value={station}>{station}</MenuItem>
-										))}
-									</Select>
-									{/* <FormHelperText>{errors.startStation}</FormHelperText> */}
-								</FormControl>
-									) : (
-										<div>
-											<h3>{payload.route?.start?.name}</h3>
-										</div>
-									)}
-								</div>
-							</div>
-							<div className='flex flex-col gap-2'>
-								<span>Stasiun Akhir</span>
-								<div className='ml-2'>
-									{isEditing ? (
-									<FormControl fullWidth variant="standard" margin="none" disabled={!startStation}>
-									<Select
-										labelId="finish-station-label"
-										id="finish-station"
-										value={finishStation}
-										onChange={(e) => setFinishStation(e.target.value)}
-										label="Stasiun Akhir"
-									>
-										{finishStations.map((station) => (
-											<MenuItem key={station} value={station}>{station}</MenuItem>
-										))}
-									</Select>
-									{/* <FormHelperText>{errors.finishStation}</FormHelperText> */}
-								</FormControl>
-									) : (
-										<div>
-											<h3>{payload.route?.finish?.name}</h3>
-										</div>
-									)}
-								</div>
-							</div>
-						</div>
-						<div className='flex flex-col gap-5'>
-							<div className='flex flex-col gap-2'>
-								<span>Status Hujan</span>
-								<div className='ml-2'>
-									{isEditing ? (
-									<FormControl fullWidth variant="standard" margin="none">
-										<Select
-											labelId="rain-status"
-											id="rainStatus"
-											value={rainStatus}
-											onChange={(e) => {
-												setRainStatus(e.target.value);
-											}}
-											label="Status Hujan"
-										>
-												<MenuItem value="Cerah">Cerah</MenuItem>
-												<MenuItem value="Ringan">Ringan</MenuItem>
-												<MenuItem value="Sedang">Sedang</MenuItem>
-												<MenuItem value="Deras">Deras</MenuItem>
-										</Select>
-								</FormControl>
-									) : (
-										<div>
-											<h3>{payload.weather?.[0]?.value}</h3>
-										</div>
-									)}
-								</div>
-							</div>
-							<div className='flex flex-col gap-2'>
-								<span>Waktu</span>
-								<div className='ml-2'>
-									{isEditing ? (
-										//use flatpickr
-										<TimePicker value={time} onChange={setTime} mode='edit' />
-									) : (
-										<div>
-											<h3>{payload.time}</h3>
-										</div>
-									)}
-								</div>
-							</div>
-							<div className='flex flex-col gap-2'>
-								<span>Jarak Pandang</span>
-								<div className='ml-2'>
-									{isEditing ? (
-										//use flatpickr
-										<div className="flex items-center mt-3 gap-3">
-											{/* <Visibility className="my-[0.5px] mr-2 text-gray-600" /> */}
-											<div className="flex-grow">
-											<Slider
-												className="flex-grow"
-												min={0}
-												max={100}
-												step={0.25}
-												value={fog}
-												onChange={handleSliderChange}
-											/>
+					<div className='w-2/5'>
+						<div className='mb-4 text-2xl'>Konfigurasi Modul:</div>
+						<div className='flex flex-row gap-10'>
+							<div className='flex flex-col gap-5'>
+								<div className='flex flex-col gap-2'>
+									<span>Nama Modul Pembelajaran</span>
+									<div className='ml-2'>
+											<div>
+												<h3>{payload.module_name}</h3>
 											</div>
-											<Input
-											value={jarakPandang}
-											readOnly
-											className="w-20"
-											size="small"
-											onFocus={(e) => e.target.select()}
-											endAdornment={
-												<InputAdornment
-												position="start"
-												className={`${
-													jarakPandang !== 0 ? "text-base" : "text-xs"
-												}`}
-											>
-												{jarakPandang !== 0 ? "m" : "None"}
-												{
-													}
-												</InputAdornment>
-											}
-											/>
-										</div>
-									) : (
-										<div>
-											<h3>{Math.round(Math.pow(payload.weather?.[1]?.value / 100, -0.914) * 50.6)} m</h3>
-										</div>
-									)}
+									</div>
 								</div>
-							</div>
-							<div className='flex flex-col gap-2'>
-								<span>Motion Base</span>
-								<div className='ml-2'>
-									{isEditing ? (
-										//use flatpickr
-										<FormControlLabel
-											control={
-												<Checkbox
-													checked={motionBase}
-													onChange={handleMotionBaseChange}
-													name="motionBase"
-												/>
-											}
-											label="Motion Base"
-										/>
-									) : (
-										<div>
-											<h3>{payload.motion_base? "On": "Off"}</h3>
-										</div>
-									)}
-								</div>
-							</div>
-							<div className='flex flex-col gap-2'>
-								<span>Speed Buzzer</span>
-								<div className='ml-2'>
-									{isEditing ? (
-										//use flatpickr
-										<FormControlLabel
-											control={
-												<Checkbox
-													checked={speedBuzzer}
-													onChange={handleSpeedBuzzerChange}
-													name="speedBuzzer"
-												/>
-											}
-											label="Speed Buzzer"
-										/>
-									) : (
-										<div>
-											<h3>{payload.speed_buzzer ? payload.speed_limit : "Off"}</h3>
-										</div>
-									)}
-								</div>
-							</div>
-							{
-								speedBuzzer && (
-									<div className="flex items-center mt-3 gap-3">
-											{/* <Visibility className="my-[0.5px] mr-2 text-gray-600" /> */}
-											<div className="flex-grow">
-											<Slider
-												className="flex-grow"
-												min={0}
-												max={100}
-												step={1}
-												value={speedLimit}
-												onChange={handleSpeedLimitChange}
-											/>
+								<div className='flex flex-col gap-2'>
+									<span>Jenis Kereta</span>
+									<div className='ml-2'>
+											<div>
+												<h3>{payload?.train_type ? payload.train_type.toUpperCase() : ''}</h3>
 											</div>
-											<Input
-											value={speedLimit}
-											readOnly
-											className="w-20"
-											size="small"
-											onFocus={(e) => e.target.select()}
-											endAdornment={
-												<InputAdornment
-												position="start"
-												
-												>
-												{
-													}
-												</InputAdornment>
-											}
-											/>
-										</div>
-								)
-							}
+									</div>
+								</div>
+								<div className='flex flex-col gap-2'>
+									<span>Berat Kereta</span>
+									<div className='ml-2'>
+											<div>
+												<h3>{payload.train?.weight} kg</h3>
+											</div>
+									</div>
+								</div>
+								<div className='flex flex-col gap-2'>
+									<span>Line Kereta</span>
+									<div className='ml-2'>
+											<div>
+												<h3>{payload.train_line}</h3>
+											</div>
+									</div>
+								</div>
+								<div className='flex flex-col gap-2'>
+									<span>Stasiun Mulai</span>
+									<div className='ml-2'>
+											<div>
+												<h3>{payload.route?.start?.name}</h3>
+											</div>
+									</div>
+								</div>
+								<div className='flex flex-col gap-2'>
+									<span>Stasiun Akhir</span>
+									<div className='ml-2'>
+											<div>
+												<h3>{payload.route?.finish?.name}</h3>
+											</div>
+									</div>
+								</div>
+							</div>
+							<div className='flex flex-col gap-5'>
+								<div className='flex flex-col gap-2'>
+									<span>Status Hujan</span>
+									<div className='ml-2'>
+											<div>
+												<h3>{payload.weather?.[0]?.value}</h3>
+											</div>
+									</div>
+								</div>
+								<div className='flex flex-col gap-2'>
+									<span>Waktu</span>
+									<div className='ml-2'>
+											<div>
+												<h3>{payload.time}</h3>
+											</div>
+									</div>
+								</div>
+								<div className='flex flex-col gap-2'>
+									<span>Jarak Pandang</span>
+									<div className='ml-2'>
+											<div>
+												<h3>{Math.round(Math.pow(payload.weather?.[1]?.value / 100, -0.914) * 50.6)} m</h3>
+											</div>
+									</div>
+								</div>
+								<div className='flex flex-col gap-2'>
+									<span>Motion Base</span>
+									<div className='ml-2'>
+											<div>
+												<h3>{payload.motion_base? "On": "Off"}</h3>
+											</div>
+									</div>
+								</div>
+								<div className='flex flex-col gap-2'>
+									<span>Speed Buzzer</span>
+									<div className='ml-2'>
+											<div>
+												<h3>{payload.speed_buzzer ? payload.speed_limit : "Off"}</h3>
+											</div>
+									</div>
+								</div>
+							</div>
 						</div>
 					</div>
-					<div>
-						<Button
-							type="button"
-							variant="contained"
-							onClick={() => handleDaftar()}
-							startIcon={<BookmarkAdd className="text-2xl" />}
-							sx={{
+					<div className='w-3/5'>
+						{/* Tabel Preview */}
+						<TableContainer className="mt-5" component={Paper} sx={{
+							maxHeight: '420px',
+							overflowY: 'hidden',
+						}}>
+							<Table stickyHeader aria-label="Tabel Peserta">
+							<colgroup>
+								<col width="60%" />
+								<col width="40%" />
+							</colgroup>
+							<TableHead>
+								<TableRow>
+								<TableCell sx={{ fontWeight: "bold", fontSize: "17px" }}>
+									Modul Penilaian
+								</TableCell>
+								<TableCell className='flex items-center justify-end'>
+									<Button
+									type="button"
+									variant="contained"
+									onClick={() => handleDaftar()}
+									startIcon={<BookmarkAdd className="text-2xl" />}
+									sx={{
+										color: "#ffffff",
+										backgroundColor: "#00a6fb",
+										borderColor: "#00a6fb",
+										"&:hover": {
+										borderColor: "#1aaffb",
+										color: "#ffffff",
+										backgroundColor: "#1aaffb",
+										},
+									}}
+									>
+									Tambah Baru
+									</Button>
+								</TableCell>
+								</TableRow>
+							</TableHead>
+							{isLoading ? (
+								<div className="absolute w-full top-1/3 left-0 flex justify-center">
+								<CircularProgress />
+								</div>
+							) : rows.length > 0 ? (
+								<>
+								<TableBody>
+									{rows.map((row) => (
+									<TableRow
+										key={row.id}
+										sx={{
+										"&:last-child td, &:last-child th": { border: 0 },
+										}}
+									>
+										<TableCell>{row.title}</TableCell>
+										<TableCell>
+										<div className="flex gap-4 justify-end">
+											<Tooltip title="Detail" placement="top">
+											<IconButton
+												size="small"
+												onClick={() => {
+												setSelected({
+													id: row.id,
+													title: row.title,
+												});
+												navigate(`/Scoring?type=${row.id}&courseID=${courseId}&train=${payload.train_type}&mode=edit&role=admin`);
+												}}
+											>
+												<Info />
+											</IconButton>
+											</Tooltip>
+											<Tooltip title="Hapus Modul Penilaian" placement="top">
+											<IconButton
+												size="small"
+												onClick={() => {
+												setSelected({
+													id: row.id,
+													title: row.title,
+												});
+												setDeletePrompt(true);
+												}}
+											>
+												<Delete />
+											</IconButton>
+											</Tooltip>
+										</div>
+										</TableCell>
+									</TableRow>
+									))}
+								</TableBody>
+								<TablePagination
+									component="div"
+									count={totalData}
+									rowsPerPage={5}
+									page={page - 1}
+									onPageChange={handleChangePage}
+									rowsPerPageOptions={[5]}
+									className="overflow-hidden"
+								/>
+								</>
+							) : (
+								<div className="absolute mt-6 w-[562px]">
+									<p className='flex items-center justify-center'>
+										Data modul penilaian tidak ditemukan
+									</p>
+								</div>
+							)}
+							</Table>
+						</TableContainer>
+						</div>
+
+				</div>
+				<div className='w-2/5 flex items-center justify-end'>
+					<Button
+						type="button"
+						sx={{
 							color: "#ffffff",
 							backgroundColor: "#00a6fb",
 							borderColor: "#00a6fb",
@@ -707,174 +681,84 @@ fetchData();
 								backgroundColor: "#1aaffb",
 							},
 							}}
-						>
-							Tambah Baru
-						</Button>
-						{/* tabel preview */}
-						<TableContainer className="mt-5" component={Paper}sx={{
-    maxHeight: '400px', // Adjust this value to your desired max width
-    overflowY: 'auto',
-  }}>
-          <Table stickyHeader aria-label="Tabel Peserta" >
-            <colgroup>
-              <col width="80%" />
-              <col width="20%" />
-            </colgroup>
-            <TableHead>
-              <TableRow>
-                <TableCell sx={{ fontWeight: "bold", fontSize: "17px" }}>
-                  Judul Modul Pembelajaran
-                </TableCell>
-                {/* <TableCell sx={{ fontWeight: "bold", fontSize: "17px" }}>
-                  Tipe Kereta
-                </TableCell> */}
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-            </TableHead>
-            {isLoading ? (
-              <div className="absolute w-full top-1/3 left-0 flex justify-center">
-                <CircularProgress />
-              </div>
-            ) : rows?.length > 0 ? (
-              <TableBody>
-                {rows.map((row) => (
-                  <TableRow
-                    key={row.id}
-                    sx={{
-                      "&:last-child td, &:last-child th": { border: 0 },
-                    }}
-                  >
-                    <TableCell>{row.title}</TableCell>
-                    {/* <TableCell>
-                      {row.description === "KCIC" ? "Kereta Cepat" : row.description}
-                    </TableCell> */}
-                    {/* <TableCell>
-                      {!row.published && (
-                        <Button
-                          variant="contained"
-                          onClick={() => handlePublish(row.id)}
-                          sx={{
-                            color: "#ffffff",
-                            backgroundColor: "#00a6fb",
-                            borderColor: "#00a6fb",
-                            "&:hover": {
-                              borderColor: "#1aaffb",
-                              color: "#ffffff",
-                              backgroundColor: "#1aaffb",
-                            },
-                          }}
-                        >
-                          Publish
-                        </Button>
-                      )}
-                    </TableCell> */}
-                    <TableCell>
-                      <div className="flex gap-4 justify-end">
-                        <Tooltip title="Detail" placement="top">
-                          <IconButton
-                            size="small"
-                            onClick={() => {
-                              setSelected({
-                                id: row.id,
-                                title: row.title,
-                              });
-                              // setConfigPrompt(true);
-                              navigate(`/Scoring?type=${row.id}&courseID=${courseId}&train=${payload.train_type}&mode=edit&role=admin`);
-                            }}
-                          >
-                            <Info />
-                          </IconButton>
-                        </Tooltip>
-                        
-                        <Tooltip title="Hapus Modul Pembelajaran" placement="top">
-                          <IconButton
-                            size="small"
-                            onClick={() => {
-                              setSelected({
-                                id: row.id,
-                                title: row.title,
-                              });
-                              setDeletePrompt(true);
-                            }}
-                          >
-                            <Delete />
-                          </IconButton>
-                        </Tooltip>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            ) : (
-              <p className="absolute w-full top-1/3 right-4/5">
-                Data modul pembelajaran tidak ditemukan
-              </p>
-            )}
-          </Table>
-        </TableContainer>
-				
-					</div>
+						variant="contained"
+						onClick={() => toogleEdit()}
+						className='mr-12'
+					>
+						Edit
+					</Button>
+				</div>
+				<div className="flex gap-4">
+					<Button
+						type="button"
+						color="error"
+						variant="outlined"
+						className="text-base absolute bottom-6 left-6"
+						sx={{
+						color: "#df2935",
+						borderColor: "#df2935",
+						backgroundColor: "#ffffff",
+						"&:hover": {
+							borderColor: "#df2935",
+							backgroundColor: "#df2935",
+							color: "#ffffff",
+						},
+						}}
+						onClick={() => navigateBack()}
+					>
+						Kembali
+					</Button>
 				</div>
 			</div>
-			{
-				isEditing ? (
-					<div className="absolute left-1/3">
-						<Button
-							type="button"
-							color="primary"
-							variant="contained"
-							className='mr-4'
-							onClick={() => handleSave()}
-						>
-							Simpan
-						</Button>
-						<Button
-							type="button"
-							color="error"
-							variant="contained"
-							onClick={() => toogleEdit()}
-						>
-							Batal
-						</Button>
-					</div>
-				) :
-				<div className="absolute left-1/3">
-				<Button
-					type="button"
-					color="primary"
-					variant="contained"
-					onClick={() => toogleEdit()}
-				>
-					Edit
-				</Button>
-				</div>
-			}
 			
-			<Button
-				type="button"
-				color="error"
-				variant="outlined"
-				sx={{
-					color: "#df2935",
-					borderColor: "#df2935",
-					backgroundColor: "#ffffff",
-					"&:hover": {
-						borderColor: "#df2935",
-						backgroundColor: "#df2935",
-						color: "#ffffff",
-					},
-				}}
-				className='absolute bottom-8 left-4'
-				onClick={() => navigateBack()}
-			>
-				Kembali
-			</Button>
+			{/* pop up registrasi dan edit */}
+			<ModulDialog
+					open={openEdit}
+					setOpen={toogleEdit}
+					mode="edit"
+					moduleName={moduleName}
+					setModuleName={setModuleName}
+					train={train}
+					setTrain={setTrain}
+					trainWeight={trainWeight}
+					setTrainWeight={setTrainWeight}
+					trainLine={trainLine}
+					setTrainLine={setTrainLine}
+					startStation={startStation}
+					setStartStation={setStartStation}
+					finishStation={finishStation}
+					setFinishStation={setFinishStation}
+					rainStatus={rainStatus}
+					setRainStatus={setRainStatus}
+					time={time}
+					setTime={setTime}
+					motionBase={motionBase}
+					handleMotionBaseChange={handleMotionBaseChange}
+					speedBuzzer={speedBuzzer}
+					handleSpeedBuzzerChange={handleSpeedBuzzerChange}
+					fog={fog}
+					handleSliderChange={handleSliderChange}
+					jarakPandang={jarakPandang}
+					speedLimit={speedLimit}
+					setSpeedLimit={setSpeedLimit}
+					error={error}
+					handleSpeedLimitChange={handleSpeedLimitChange}
+					handleRegister={handleSave}
+					isAddButtonEnabled={isAddButtonEnabled}
+					sourceSettings={sourceSettings}
+					trainLines={trainLines}
+					startStations={startStations}
+					finishStations={finishStations}
+					getDisplayStationName={getDisplayStationName}
+					getPayloadStationName={getPayloadStationName}
+			/>
+
+			{/* pop up add scoring*/}
 			<Dialog open={open} onClose={() => setOpen(false)}>
-			<DialogTitle className="px-8 pt-8">
-          Tambah Modul Penilaian
-        </DialogTitle>
-				<DialogContent className="w-[600px] px-8">
+				<DialogTitle className="px-6 pt-6">
+					Tambah Modul Penilaian
+				</DialogTitle>
+				<DialogContent className="w-[600px] px-6">
 					<DialogContentText> Template </DialogContentText>
 					<FormControl fullWidth variant="standard" margin="none">
 							<Select
@@ -907,49 +791,58 @@ fetchData();
 				<DialogContent className="flex justify-center items-center gap-4">
 					<Button
 						type="button"
-						color="primary"
-						variant="contained"
-						onClick={() => handleCreateScoring()}
-					>
-						Buat
-					</Button>
-					<Button
-						type="button"
 						color="error"
-						variant="contained"
 						onClick={() => setOpen(false)}
 					>
 						Batal
 					</Button>
+					<Button
+						type="button"
+						variant="contained"
+						onClick={() => handleCreateScoring()}
+						sx={{
+							color: "#ffffff",
+							backgroundColor: "#00a6fb",
+							borderColor: "#00a6fb",
+							"&:hover": {
+								borderColor: "#1aaffb",
+								color: "#ffffff",
+								backgroundColor: "#1aaffb",
+							},
+						}}
+					>
+						Buat
+					</Button>
 				</DialogContent>
 			</Dialog>
+			
 			{/* Delete Modul prompt */}
-      <Dialog open={deletePrompt} onClose={() => setDeletePrompt(false)}>
-        <DialogContent className="min-w-[260px]">
-          Hapus Modul: <b>{selected.title}</b>?
-        </DialogContent>
-        <DialogActions className="flex mb-2 justify-between">
-          <Button
-            className="mx-2"
-            onClick={async () => {
-              if (selected.id) {
-                await handleDelete(selected.id);
-              }
-              setDeletePrompt(false);
-            }}
-            color="error"
-          >
-            Hapus
-          </Button>
-          <Button
-            className="mx-2"
-            onClick={() => setDeletePrompt(false)}
-            variant="contained"
-          >
-            Batal
-          </Button>
-        </DialogActions>
-      </Dialog>
+			<Dialog open={deletePrompt} onClose={() => setDeletePrompt(false)}>
+				<DialogContent className="min-w-[260px]">
+				Hapus Modul: <b>{selected.title}</b>?
+				</DialogContent>
+				<DialogActions className="flex mb-2 justify-between">
+				<Button
+					className="mx-2"
+					onClick={async () => {
+					if (selected.id) {
+						await handleDelete(selected.id);
+					}
+					setDeletePrompt(false);
+					}}
+					color="error"
+				>
+					Hapus
+				</Button>
+				<Button
+					className="mx-2"
+					onClick={() => setDeletePrompt(false)}
+					variant="contained"
+				>
+					Batal
+				</Button>
+				</DialogActions>
+			</Dialog>
 		</Container>
 	);
 }

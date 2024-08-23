@@ -580,7 +580,7 @@ const InstructorList = () => {
                                 nip: row.nip,
                               });
                               setDeletePrompt(true);
-                              setReload(!reload); 
+                              // setReload(!reload); 
                             }}
                           >
                             <Delete />
@@ -744,7 +744,7 @@ const InstructorList = () => {
           <Button
             className="mx-2"
             onClick={() => setDeletePrompt(false)}
-            color="error"
+            color="primary"
           >
             Tidak
           </Button>
@@ -752,8 +752,9 @@ const InstructorList = () => {
             className="mx-2"
             onClick={() => handleHapusUser()}
             variant="contained"
+            color="error"
           >
-            Ya
+            Hapus
           </Button>
         </DialogActions>
       </Dialog>

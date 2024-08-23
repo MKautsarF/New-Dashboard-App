@@ -11,12 +11,8 @@ import FifthPage from "./pages/Settings";
 import SixthPage from "./pages/ScoringKCIC";
 import SeventhPage from "./pages/ScoringLRT";
 import Scoring from "./pages/Scoring";
-import NinthPage from "./pages/EditLRT";
 import TenthPage from "./pages/ReviewKCIC";
 import EleventhPage from "./pages/ReviewLRT";
-import TwelvethPageKCIC from "./pages/SettingsModulKCIC";
-import TwelvethPageLRT from "./pages/SettingsModulLRT";
-import ThirteenPage from "./pages/EditSettingsLRT"; // not used
 import FourteenPage from "./pages/Modul";
 import Fiveteen from "./pages/SettingsSecond";
 import Admin from "./pages/AdminStart";
@@ -84,28 +80,12 @@ const routerData = [
     element: <Scoring />,
   },
   {
-    path: "/Sixthpage/lrt/edit",
-    element: <NinthPage />,
-  },
-  {
     path: "/FifthPage/kcic",
     element: <TenthPage />,
   },
   {
     path: "/FifthPage/lrt",
     element: <EleventhPage />,
-  },
-  {
-    path: "/FifthPage/modul/kcic",
-    element: <TwelvethPageKCIC />,
-  },
-  {
-    path: "/FifthPage/modul/lrt",
-    element: <TwelvethPageLRT />,
-  },
-  {
-    path: "/FifthPage/edit/lrt/config",
-    element: <ThirteenPage />,
   },
   {
     path: "/Modul",

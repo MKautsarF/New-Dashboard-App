@@ -625,7 +625,7 @@ const TraineeList = () => {
           <Button
             className="mx-2"
             onClick={() => setDeletePrompt(false)}
-            color="error"
+            color="primary"
           >
             Tidak
           </Button>
@@ -633,8 +633,9 @@ const TraineeList = () => {
             className="mx-2"
             onClick={() => handleHapusUser()}
             variant="contained"
+            color="error"
           >
-            Ya
+            Hapus
           </Button>
         </DialogActions>
       </Dialog>

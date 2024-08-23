@@ -829,7 +829,7 @@ function ReviewKCIC() {
       {/* <div className="w-1/3 absolute -translate-y-full py-4">
         <Logo />
       </div> */}
-      <div className="p-8">
+      <div className="p-6">
         <h1
           className="w-full text-center mb-8"
           style={{ fontSize: "2rem", fontWeight: "bold" }}

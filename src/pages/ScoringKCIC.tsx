@@ -307,7 +307,7 @@ function ScoringKCIC() {
     <>
       <Container w={900}>
         <div className="flex flex-col gap-4 w-full">
-          <div className="flex flex-col text-left gap-4 p-8 ">
+          <div className="flex flex-col text-left gap-4 p-6 ">
             {/* {settings.score && <p>Selected Value: {settings.score}</p>} */}
             <h1 style={{ fontSize: "1.75rem", fontWeight: "bold" }}>
               Pengaturan Penilaian Kereta Cepat
@@ -317,7 +317,7 @@ function ScoringKCIC() {
             </p>
           </div>
 
-          <div className="flex flex-col pl-8 gap-4 pr-8 justify-center items-center">
+          <div className="flex flex-col px-6 gap-4 justify-center items-center">
             <div>
               <Button
                 variant="text"
@@ -462,7 +462,7 @@ function ScoringKCIC() {
         </div>
 
         {/* nav */}
-        <div className="flex gap-4 justify-between p-8 w-full">
+        <div className="flex gap-4 justify-between p-6 w-full">
           <Button
             type="button"
             color="error"

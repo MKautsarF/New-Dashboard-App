@@ -31,7 +31,8 @@ webview {
 .header {
   background-color: #001119;
   color: #fff;
-  padding: 10px;
+  padding-top: 20px;
+  padding-bottom: 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;

@@ -107,7 +107,7 @@ function UserLog() {
     return (
         <Container>
             {isLoading && <FullPageLoading loading={false} />}
-            <div className="p-8">
+            <div className="p-6">
                 <h1 className="text-2xl font-bold text-center">User Log</h1>
                 <div className="flex justify-between flex-start gap-4 mt-4">
                     <div className="flex-col items-center justify-center w-[300px]">

@@ -28,7 +28,6 @@ interface TraineeDetailProps {
   isOpen: boolean;
   handleClose: () => void;
   handleLog: () => void;
-  // handleHapus: () => void;
   handleEdit: () => void;
 }
 
@@ -103,24 +102,13 @@ const TraineeDetail: React.FC<TraineeDetailProps> = ({
                 Persentase kelulusan:{' '}
                 {data.completion ? `${data.completion}%` : '-'}
               </p>
-              {/* <p>
-                Kode kedinasan: {(data.bio && data.bio.officialCode) || '-'}
-              </p> */}
             </>
           ) : (
             <p>Data tidak ditemukan</p>
           )}
         </DialogContentText>
       </DialogContent>
-      <DialogActions className="flex justify-end">
-        {/* {currentInstructor.isAdmin ? (
-          <Button color="error" onClick={handleHapus}>
-            Hapus
-          </Button>
-        ) : (
-          <Button onClick={handleLog}>Log</Button>
-        )} */}
-
+      <DialogActions className="flex justify-end pr-6">
         {currentInstructor.isAdmin ? null : (
           <>
             <Button onClick={handleEdit}>Edit</Button>

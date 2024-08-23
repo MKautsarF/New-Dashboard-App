@@ -9,7 +9,7 @@ export const getCourseByInstructor = async () => {
   return res.data;
 };
 export const getScoringByCourseInstructor = async (id: string, page: number, size: number) => {
-  const res = await services.get(`/instructor/course-exam/?courseId=${id}`);
+  const res = await services.get(`/instructor/course-exam?courseId=${id}`);
 
   return res.data;
 }
@@ -22,8 +22,8 @@ export const getPayloadFromCourse = async (id: string) => {
 
 // ADMIN
 
-export const getScoringByCourse = async (id: string, page: number, size: number) => {
-  const res = await services.get(`/admin/course-exam?courseId=${id}`);
+export const getScoringByCourse = async (id: string, page: number = 1, size: number = 5,) => {
+  const res = await services.get(`/admin/course-exam?courseId=${id}&page=${page}&size=${size}`);
 
   return res.data;
 }

@@ -196,7 +196,7 @@ function Settings() {
   return (
     <>
       <Container w={1500}>
-        <div className="p-8 flex flex-wrap">
+        <div className="p-6 flex flex-wrap">
           {/* Judul */}
           <h1
             className="w-full text-center my-4"
@@ -468,7 +468,7 @@ function Settings() {
           </div>
         </div>
         {/* Back Button */}
-        <div className="flex justify-between pl-8 pb-8 w-full">
+        <div className="flex justify-between pl-6 pb-6 w-full">
           <Button
             type="button"
             color="error"
@@ -490,9 +490,10 @@ function Settings() {
           >
             Kembali
           </Button>
-          <div className="flex gap-4 pr-8">
+          <div className="flex gap-4 pr-6">
             <Button
               variant="outlined"
+              className="bottom-0 mt-4"
               startIcon={<EditNote />}
               onClick={() => {
                 navigate(`/Sixthpage/${trainType}`);
@@ -520,6 +521,7 @@ function Settings() {
 
             <Button
               variant="outlined"
+              className="bottom-0 mt-4"
               endIcon={<NavigateNext />}
               disabled={!canContinue}
               onClick={() => {
@@ -529,7 +531,6 @@ function Settings() {
                 color: "#f3f3f4",
                 backgroundColor: canContinue ? "#00a6fb" : "#ccc", // Change background color based on disabled state
                 borderColor: "#f3f3f4",
-                fontSize: "1.1rem",
                 "&:hover": {
                   borderColor: canContinue ? "#4dc1fc" : "#ccc", // Change border color based on disabled state
                   color: "#f3f3f4",

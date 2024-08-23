@@ -43,7 +43,7 @@ function Modul() {
     <>
       <Container w={900}>
         <div className="flex flex-col gap-4 w-full">
-          <div className="flex flex-col text-left gap-4 p-8 ">
+          <div className="flex flex-col text-left gap-4 p-6 ">
             <h1 style={{ fontSize: "1.75rem", fontWeight: "bold" }}>
               Modul {trainType === "kcic" ? "Kereta Cepat" : trainType.toUpperCase()}
             </h1>
@@ -52,7 +52,7 @@ function Modul() {
             </p>
           </div>
 
-          <div className="flex flex-col pl-8 pb-8 pr-8 justify-center items-center">
+          <div className="flex flex-col px-6 pb-6 justify-center items-center">
             <div
               className="box gap-6 flex "
               style={{
@@ -82,7 +82,7 @@ function Modul() {
               <h1>Pembelajaran</h1>
             </div>
           </div>
-          <div className="flex flex-col pl-8 pb-8 pr-8 justify-center items-center">
+          <div className="flex flex-col px-6 pb-6 justify-center items-center">
             <div
               className="box gap-6 flex "
               style={{
@@ -113,7 +113,7 @@ function Modul() {
             </div>
           </div>
         </div>
-        <div className="flex gap-2 justify-start pl-8 pb-8 w-full">
+        <div className="flex gap-2 justify-start pl-6 pb-6 w-full">
           <Button
             type="button"
             color="error"

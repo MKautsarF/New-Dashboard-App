@@ -50,15 +50,25 @@ function ScoringStart() {
   const handleClick = (buttonName: string) => {
     console.log(`Currently pressed: ${buttonName}`);
   
-    const selectedCourse = coursesData.find((course: any) => course.title === buttonName);
+    const selectedCourse = coursesData.find((course: any) => course.id === buttonName);
     setSelectedCourse(selectedCourse || null);
   
     if (trainType === "lrt") {
-      setCheckedLRT(buttonName);
+      if (checkedLRT == buttonName){
+        setCheckedLRT(null)
+      }
+      else{
+        setCheckedLRT(buttonName);
+      }
       setSelectedValue3(buttonName);
       setCheckedKCIC(null);
     } else if (trainType === "kcic") {
-      setCheckedKCIC(buttonName);
+      if ( checkedKCIC == buttonName){
+        setCheckedKCIC(null)
+      }
+      else {
+        setCheckedKCIC(buttonName);
+      }
       setSelectedValue4(buttonName);
       setCheckedLRT(null);
     }
@@ -71,6 +81,7 @@ function ScoringStart() {
 
         
         console.log("Results:", results);
+        console.log("id:", courseID);
         // results.sort((a: any, b: any) => a.level - b.level);
   
         // const lrtData = results.filter((course: any) => course.description === "LRT")
@@ -90,6 +101,7 @@ function ScoringStart() {
   }, []); 
 
   const [submission, setSubmission] = useState<any>({});
+
   useEffect(() => {
     const fetchPayload = async () => {
       const selectedPesertaId = localStorage.getItem('selectedPesertaId');
@@ -148,7 +160,7 @@ function ScoringStart() {
     <>
       <Container w={900}>
         <div className="flex flex-col gap-4 w-full">
-          <div className="flex flex-col text-left gap-4 p-8 ">
+          <div className="flex flex-col text-left gap-4 p-6 ">
             <h1 style={{ fontSize: "1.75rem", fontWeight: "bold" }}>
               Modul Penilaian {trainType === "kcic" ? "Kereta Cepat" : trainType.toUpperCase()}
 
@@ -158,13 +170,13 @@ function ScoringStart() {
             </p>
           </div>
 
-          <div className="flex flex-col pl-8 gap-4 pr-8 justify-center items-center">
+          <div className="flex flex-col px-6 gap-4 justify-center items-center">
             {/* Buttons for LRT */}
             {trainType === "lrt" &&
               lrtButtons.map((button) => (
                 <ButtonSettings
                   key={button.title}
-                  buttonName={button.title}
+                  buttonName={button}
                   completion={completion}
                   onClick={handleClick}
                   checkedValue={checkedLRT}
@@ -178,7 +190,7 @@ function ScoringStart() {
               kcicButtons.map((button) => (
                 <ButtonSettings
                   key={button.title}
-                  buttonName={button.title}
+                  buttonName={button}
                   completion={completion}
                   onClick={handleClick}
                   checkedValue={checkedKCIC}
@@ -190,7 +202,7 @@ function ScoringStart() {
         </div>
 
         {/* nav */}
-        <div className="flex gap-4 justify-between p-8 mt-6 w-full">
+        <div className="flex gap-4 justify-between p-6 mt-6 w-full">
           <div className="w-1/2 space-x-2">
             <Button
               type="button"
@@ -236,7 +248,7 @@ function ScoringStart() {
             </Button>
           </div>
           <div className="w-1/2 flex items-center justify-end">
-            {payload.module_name ? (
+            {checkedLRT || checkedKCIC ? (
               <Button
                 type="button"
                 variant="outlined"

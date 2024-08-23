@@ -152,7 +152,7 @@ const FinishKCIC: React.FC = () => {
         <LogoWithText />
       </div>
 
-      <div className="p-8 h-full">
+      <div className="p-6 h-full">
         {/* Action Buttons */}
         <div className="mt-16 flex justify-around w-full">
           <Button

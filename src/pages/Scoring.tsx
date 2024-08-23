@@ -225,10 +225,10 @@ function EditKCIC() {
   return (
     <>
       <Container w={1000}>
-        <div className="p-8">
+        <div className="p-6">
           <div className="flex flex-col gap-4 w-full">
             <h1
-              className="w-full text-center pt-9 pr-8 pl-8"
+              className="w-full text-center pt-9 px-6"
               style={{ fontSize: "2rem", fontWeight: "bold" }}
             >
               {/* Penilaian Kereta: {sourceKCIC.train_type} */}
@@ -259,7 +259,7 @@ function EditKCIC() {
             </h1>
             <div className="flex flex-col justify-center items-center">
             <TextField
-              className="w-1/3 text-center pr-8 pl-8"
+              className="w-1/3 text-center px-6"
               style={{ fontSize: "2.75rem", fontWeight: "bold" }}
               // defaultValue={jsonToWrite?.judul_penilaian}
               value={jsonToWrite?.judul_penilaian}

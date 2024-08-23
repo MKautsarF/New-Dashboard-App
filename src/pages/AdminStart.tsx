@@ -51,7 +51,7 @@ const AdminStart = () => {
 
   return (
     <Container w={800}>
-      <div className="p-8">
+      <div className="p-6">
         <h4 className="pt-3 mb-2 text-2xl">{"Halo, " + instructor.name + "."}</h4>
         <div className="flex flex-col">
           <p className="mb-2">
@@ -98,7 +98,7 @@ const AdminStart = () => {
               variant="contained"
               type="button"
               onClick={() => handleCourse()}
-              className="w-1/2 p-5 text-2xl bg-gray-400 "
+              className="w-full p-5 text-2xl bg-gray-400 "
               startIcon={<School className="text-3xl mr-2 ml-[-7px]" />}
               sx={{
                 "&:hover": {
@@ -107,20 +107,6 @@ const AdminStart = () => {
               }}
             >
               Pembelajaran
-            </Button>
-            <Button
-              variant="contained"
-              type="button"
-              onClick={() => handleScoring()}
-              className="w-1/2 p-5 text-2xl bg-gray-400 "
-              startIcon={<WorkspacePremium className="text-3xl mr-2 ml-[-7px]" />}
-              sx={{
-                "&:hover": {
-                  backgroundColor: "#1aaffb !important",
-                },
-              }}
-            >
-              Penilaian
             </Button>
           </div>
         </div>
@@ -153,6 +139,7 @@ const AdminStart = () => {
           onClose={handleLogoutClose}
           aria-labelledby="logout-dialog-title"
           aria-describedby="logout-dialog-description"
+          className="p-6"
         >
           <DialogTitle id="logout-dialog-title">Konfirmasi Logout</DialogTitle>
           <DialogContent>
@@ -160,12 +147,12 @@ const AdminStart = () => {
               Apakah Anda yakin ingin logout?
             </DialogContentText>
           </DialogContent>
-          <DialogActions className="flex mb-2 justify-between">
-            <Button onClick={handleConfirmLogout} color="error" className="mx-2">
-              Logout
-            </Button>
-            <Button onClick={handleLogoutClose} variant="contained" color="primary" className="mx-2">
+          <DialogActions className="flex p-6 justify-between w-full">
+            <Button onClick={handleLogoutClose} color="primary">
               Batal
+            </Button>
+            <Button onClick={handleConfirmLogout} color="error" variant="contained">
+              Logout
             </Button>
           </DialogActions>
         </Dialog>

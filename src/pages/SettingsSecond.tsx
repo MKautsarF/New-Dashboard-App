@@ -45,20 +45,61 @@ function SettingsSecond() {
   const handleClick = (buttonName: string) => {
     console.log(`Currently pressed: ${buttonName}`);
   
-    const selectedCourse = coursesData.find((course: any) => course.title === buttonName);
+    const selectedCourse = coursesData.find((course: any) => course.id === buttonName);
     setSelectedCourse(selectedCourse || null);
   
     if (trainType === "lrt") {
-      setCheckedLRT(buttonName);
+      if (checkedLRT == buttonName){
+        setCheckedLRT(null)
+      }
+      else{
+        setCheckedLRT(buttonName);
+      }
       setSelectedValue3(buttonName);
       setCheckedKCIC(null);
     } else if (trainType === "kcic") {
-      setCheckedKCIC(buttonName);
+      if ( checkedKCIC == buttonName){
+        setCheckedKCIC(null)
+      }
+      else {
+        setCheckedKCIC(buttonName);
+      }
       setSelectedValue4(buttonName);
       setCheckedLRT(null);
     }
   };
 
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       const { results } = await getCourseByInstructor(1, 100);
+        
+  //       // Sort alphabetically by title
+  //       results.sort((a: any, b: any) => a.title.localeCompare(b.title));
+  
+  //       const lrtData = results.filter((course: any) => course.description === "LRT")
+  //         .map((course: any) => ({
+  //           title: course.title,
+  //           // requiredCompletion: course.level // Assuming level as requiredCompletion
+  //         }));
+          
+  //       const kcicData = results.filter((course: any) => course.description === "KCIC")
+  //         .map((course: any) => ({
+  //           title: course.title,
+  //           // requiredCompletion: course.level // Assuming level as requiredCompletion
+  //         }));
+  
+  //       setLrtButtons(lrtData);
+  //       setKcicButtons(kcicData);
+  //       setCoursesData(results);
+  //     } catch (error) {
+  //       console.error("Failed to fetch course data:", error);
+  //     }
+  //   };
+  
+  //   fetchData();
+  // }, []);
+  
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -69,12 +110,14 @@ function SettingsSecond() {
   
         const lrtData = results.filter((course: any) => course.description === "LRT")
           .map((course: any) => ({
+            id: course.id,
             title: course.title,
             // requiredCompletion: course.level // Assuming level as requiredCompletion
           }));
           
         const kcicData = results.filter((course: any) => course.description === "KCIC")
           .map((course: any) => ({
+            id: course.id,
             title: course.title,
             // requiredCompletion: course.level // Assuming level as requiredCompletion
           }));
@@ -126,27 +169,26 @@ function SettingsSecond() {
     <>
       <Container w={900}>
         <div className="flex flex-col gap-4 w-full">
-          <div className="flex flex-col text-left gap-4 p-8 ">
+          <div className="flex flex-col text-left gap-4 p-6 ">
             <h1 style={{ fontSize: "1.75rem", fontWeight: "bold" }}>
-              Pengaturan Kereta {trainType === "kcic" ? "Kereta Cepat" : trainType.toUpperCase()}
+              Pengaturan {trainType === "kcic" ? "Kereta Cepat" : trainType.toUpperCase()}
             </h1>
             <p style={{ fontSize: "1.25rem" }}>
               Pilih pembelajaran kereta yang akan digunakan:
             </p>
           </div>
 
-          <div className="flex flex-col pl-8 gap-4 pr-8 justify-center items-center">
+          <div className="flex flex-col px-6 gap-4 justify-center items-center">
             {/* Buttons for LRT */}
             {trainType === "lrt" &&
               lrtButtons.map((button) => (
                 <ButtonSettings
-                  key={button.title}
-                  buttonName={button.title}
+                  key={button.id}
+                  buttonName={button}
                   completion={completion}
-                  onClick={handleClick}
+                  onClick={() => handleClick(button.id)}
                   checkedValue={checkedLRT}
                   activeButton={activeButton}
-                  // requiredCompletion={button.requiredCompletion} // Pass requiredCompletion here
                 />
               ))}
 
@@ -154,20 +196,19 @@ function SettingsSecond() {
             {trainType === "kcic" &&
               kcicButtons.map((button) => (
                 <ButtonSettings
-                  key={button.title}
-                  buttonName={button.title}
+                  key={button.id}
+                  buttonName={button}
                   completion={completion}
-                  onClick={handleClick}
+                  onClick={() => handleClick(button.id)}
                   checkedValue={checkedKCIC}
                   activeButton={activeButton}
-                  // requiredCompletion={button.requiredCompletion} // Pass requiredCompletion here
                 />
               ))}
           </div>
         </div>
 
         {/* nav */}
-        <div className="flex gap-4 justify-between p-8 mt-6 w-full">
+        <div className="flex gap-4 justify-between p-6 mt-6 w-full">
           <div className="w-1/2 space-x-2">
             <Button
               type="button"
@@ -213,7 +254,7 @@ function SettingsSecond() {
             </Button>
           </div>
           <div className="w-1/2 flex items-center justify-end">
-            {payload.module_name ? (
+            {checkedKCIC || checkedLRT ? (
               <Button
                 type="button"
                 variant="outlined"
