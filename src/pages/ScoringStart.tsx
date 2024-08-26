@@ -144,7 +144,7 @@ function ScoringStart() {
       const res = await createSubmission(submissionPayload);
       console.log("Submission created:", res.id);
       setSubmission(res);
-      navigate(`/FifthPage/${trainType}?type=${settings.score}&submissionId=${res.id}&scoringId=${selectedCourse.id}`);
+      navigate(`/FifthPage/${trainType}?type=${settings.score}&submissionId=${res.id}&scoringId=${selectedCourse.id}&courseId=${courseID}`);
       // console.log("sent payload:", payload);
       // setIsLoading(true);
       // sendTextToClients(JSON.stringify(payload, null, 2));

@@ -49,6 +49,7 @@ import fs from "fs";
 
 import { finishSubmissionById } from "@/services/submission.services";
 import { set } from "lodash";
+import { getCourseByID } from "@/services/course.services";
 
 interface TableRow {
   content: string | number;
@@ -87,6 +88,7 @@ function ReviewLRT() {
 
   const settingsType = query.get("type");
   const submissionId = query.get("submissionId");
+  const courseId = query.get("courseId");
   console.log("submissionId", submissionId);
   const jsonPath =
     settingsType === "Default"
@@ -97,6 +99,8 @@ function ReviewLRT() {
   const [realTimeNilai, setRealTimeNilai] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [open, setOpen] = useState(false);
+  const [courseName, setCourseName] = useState("");
+  const [totalScore, setTotalScore] = useState(null);
   const [toastData, setToastData] = useState<ToastData>({
     severity: "error",
     msg: "",
@@ -124,8 +128,12 @@ function ReviewLRT() {
         // setIsLoading(true);
         const res = await getScoringDetail(scoringID);
         const res2 = await getUserById(localStorage.getItem('selectedPesertaId'));
+        const res3 = await getCourseByID(courseId);
+        console.log("res", res);
+        console.log("res3", res3);
         setJson(res);
         setPeserta(res2);
+        setCourseName(res3.title);
         // console.log("trainee", res2);
         setIsLoading(false);
       } catch (error) {
@@ -155,7 +163,10 @@ function ReviewLRT() {
       const inputValues = data.getAll("penilaian");
       
       // Copy krl json mock template
-      const jsonToWrite = json;
+      const jsonToWrite = {
+        ...json,
+        judul_modul: courseName,
+      };
       
       // Write metadata
       // * Time
@@ -219,14 +230,12 @@ function ReviewLRT() {
       //generate pdf
       let pdfname = null;
       let excelname = null;
-      await generatePDF(jsonToWrite).then((pdf) => {
-        pdfname = pdf;
-      });
+      pdfname = generatePDF(jsonToWrite);
       console.log("pdf", pdfname);
       await generateExcel(jsonToWrite).then((excel) => {
         excelname = excel;
       });
-      const res = await finishSubmission(jsonToWrite, pdfname, excelname);
+      const res = await finishSubmission(jsonToWrite, pdfname.pdfBuffer, pdfname.score, excelname);
 
       // Save file to local
       const fileName = "LRT_" + getFilenameSafeDateString(new Date());
@@ -273,12 +282,14 @@ function ReviewLRT() {
     }
   };
 
-  const finishSubmission = async (jsonToWrite: any, pdfbuf: any, excelbuf:any) => {
+  const finishSubmission = async (jsonToWrite: any, pdfbuf: any, score: number, excelbuf:any) => {
     try {
+      console.log("totalScore2", totalScore);
       const payload = {
-        score : Number(jsonToWrite.nilai_akhir),
+        score : score,
         assessment : jsonToWrite
       }
+      console.log("payload", payload);
       const res = await finishSubmissionById(Number(submissionId), payload);
       console.log("Finish button clicked");   
       console.log("Submission finished:", res);
@@ -303,7 +314,7 @@ function ReviewLRT() {
     }
   }
 
-  const generatePDF = async (json: any) => {
+  const generatePDF = (json: any) => {
     const doc = new jsPDF();
 
     let nilaiAkhir = 0;
@@ -637,6 +648,9 @@ function ReviewLRT() {
     // convert average akhir to 2 decimal
     averageAkhir = Math.floor(averageAkhir * 10) / 10;
     const averageTotal = (averageAkhir + json.nilai_akhir) / 2;
+    setTotalScore(averageTotal);
+    console.log("averagetotal",averageTotal)
+    console.log("totalscore1", totalScore);
     doc.addPage();
     doc.setFontSize(20);
     doc.text("Rata-rata Total Penilaian", 14, 20);
@@ -677,9 +691,12 @@ function ReviewLRT() {
     //   fs.mkdirSync(dir, { recursive: true });
     // }
     
+    //rounding averageTotal to integer
+    const score = Math.round(averageTotal);
+    
     const pdfBuffer = doc.output("blob");
     console.log("pdfBuffer", pdfBuffer);
-    return pdfBuffer;
+    return {pdfBuffer, score};
     // const blob = new Blob([pdfBuffer], { type: 'application/pdf' });  // or any other appropriate MIME type
     
     // // Use the Blob as needed, e.g., append to FormData

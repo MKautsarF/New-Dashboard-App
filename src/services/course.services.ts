@@ -9,6 +9,12 @@ export const getCourseByInstructor = async (page: number, size: number) => {
   return res.data;
 };
 
+export const getCourseByID = async (id: string) => {
+  const res = await services.get(`/instructor/course/${id}`);
+
+  return res.data;
+}
+
 export const getPayloadFromCourse = async (id: string) => {
   const res = await services.get(`/instructor/course/${id}/download`);
 
