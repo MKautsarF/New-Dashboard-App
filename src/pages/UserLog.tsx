@@ -48,6 +48,7 @@ import TaskAltIcon from '@mui/icons-material/TaskAlt';
 import { getUserById } from "@/services/user.services";
 import { getCourseByInstructor } from '@/services/course.services';
 import { getScoringByCourseInstructor, getScoringByInstructor } from '@/services/scoring.services';
+import { get } from 'lodash';
 
 
 interface RowData {
@@ -308,6 +309,7 @@ const UserLog = () => {
   const handleExcelUnclick = () => {
     setExcelAnchorEl(null);
   };
+  const [getSubmission, setGetSubmission] = useState(false);
 
   const [courseMap, setCourseMap] = useState<Map<number, string>>(new Map());
   const [scoringMap, setScoringMap] = useState<Map<number, string>>(new Map());
@@ -322,19 +324,19 @@ const UserLog = () => {
                 setSubmissionList(response2.results);
                 setUserLog(response);
 
-                const coursesData = await getCourseByInstructor(1, 100);
-                const courses: Course[] = coursesData.results || [];
+                // const coursesData = await getCourseByInstructor(1, 100);
+                // const courses: Course[] = coursesData.results || [];
 
-                const newCourseMap = new Map(courses.map((course: any) => [course.id, course.title]));
-                setCourseMap(newCourseMap);
+                // const newCourseMap = new Map(courses.map((course: any) => [course.id, course.title]));
+                // setCourseMap(newCourseMap);
 
-                const scoringsData = await getScoringByInstructor();
-                const scorings: Scoring[] = scoringsData.results || [];
+                // const scoringsData = await getScoringByInstructor();
+                // const scorings: Scoring[] = scoringsData.results || [];
+ 
+                // const newScoringMap = new Map(scorings.map((scoring: any) => [scoring.id, scoring.title]));
+                // setScoringMap(newScoringMap);
 
-                const newScoringMap = new Map(scorings.map((scoring: any) => [scoring.id, scoring.title]));
-                setScoringMap(newScoringMap);
-
-                console.log("scoringdata", newScoringMap);
+                // console.log("scoringdata", newScoringMap);
 
                 const resRows = response2.results.map((submission: any) => ({
                     id: submission.id,
@@ -342,13 +344,15 @@ const UserLog = () => {
                     train: submission.objectType, 
                     start: submission.createdAt, 
                     finish: submission.finishedAt, 
-                    module: newCourseMap.get(submission.courseId) || 'Unknown',
+                    module: '',
                     score: submission.score,
                     // scoring: submission.courseExamId
-                    scoring: newScoringMap.get(submission.courseExamId) || 'Unknown'
+                    scoring: ''
                   }));
                 
                 setRows(resRows);
+                setGetSubmission(true);
+                
             } catch (error) {
                 console.error('Error fetching user log:', error);
             } finally {
@@ -360,6 +364,21 @@ const UserLog = () => {
             fetchUserLog();
         }
     }, [userId]);
+
+    useEffect(() => {
+      if (getSubmission) {
+        rows.map(async (row) => {
+          const res = await getSubmissionById(Number(row.id));
+          console.log('submission', res.exam?.assessment?.judul_modul);
+          row.module = res.exam?.assessment?.judul_modul
+          row.scoring = res.exam?.assessment?.judul_penilaian
+          // set to rows
+          setRows([...rows]);
+        });
+        setGetSubmission(false);
+      }
+  }
+, [getSubmission]);
 
   return (
     <Container w={1250} h={875}>
