@@ -7,10 +7,8 @@ import {
   TextField,
   Checkbox,
   Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
+  MenuItem,
+  Menu,
   Paper,
   Table,
   TableBody,
@@ -48,6 +46,8 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
 import TaskAltIcon from '@mui/icons-material/TaskAlt';
 import { getUserById } from "@/services/user.services";
+import { getCourseByInstructor } from '@/services/course.services';
+import { getScoringByCourseInstructor, getScoringByInstructor } from '@/services/scoring.services';
 
 
 interface RowData {
@@ -74,11 +74,14 @@ interface UserLog {
     completion?: number;
 }
 
-interface SubmissionProps {
-    id: string;
-    moduleName: string;
-    score: number;
-    status: string;
+interface Course {
+    id: number;
+    title: string;
+}
+
+interface Scoring {
+    id: number;
+    title: string;
 }
 
 function useQuery() {
@@ -129,7 +132,7 @@ const UserLog = () => {
   
   const totalLevels = 6;
   const data = [
-    { label: 'Selesai', value: 1, color: "#1bf249" },
+    { label: 'Selesai', value: 1, color: "#1aaffb" },
   ];
 
   const selesaiValue = data.find(item => item.label === 'Selesai')?.value || 0;
@@ -189,6 +192,18 @@ const UserLog = () => {
   const [pdf, setPdf] = useState<any>(null);
   const [excel, setExcel] = useState<any>(null);
   const [isExcel, setIsExcel] = useState(false);
+  const [courseList, setCourseList] = useState<[]>([]);
+
+  const [pdfAnchorEl, setPDFAnchorEl] = useState<null | HTMLElement>(
+    null
+  );
+
+  const [excelAnchorEl, setExcelAnchorEl] = useState<null | HTMLElement>(
+    null
+  );
+
+  const isPDFMenuOpen = Boolean(pdfAnchorEl);
+  const isExcelMenuOpen = Boolean(pdfAnchorEl);
 
   useEffect(() => {
     const fetchSubmission = async () => {
@@ -209,8 +224,8 @@ const UserLog = () => {
         console.error(e);
       }
     };
+
     fetchSubmission();
-    // setUrl(query.get('url'));
   }
   , []);
 
@@ -237,9 +252,63 @@ const UserLog = () => {
     }
   };
 
-  const handleCloseModal = () => {
-    setModalOpen(false);
+  const handleDownloadPDF = async (id: number, date: string, module: string) => {
+    setSubmissionId(id);
+    try {
+        const pdfres = await getSubmissionLogByTag(id, 'pdf');
+        console.log('pdfres', pdfres.results[0]);
+
+        if (pdfres.results.length === 0) {
+            console.error('No PDF results found');
+            return;
+        }
+
+        const pdffile = await getSubmissionLogByFileIndex(id, pdfres.results[0].id);
+        console.log('pdffile', pdffile);
+
+        const blob = new Blob([pdffile], { type: 'application/pdf' });
+
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `${userLog?.name}_${dayjs(date).format('DD MMM YYYY')}_${module}.pdf`;
+
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        setIsExcel(false);
+    } catch (error) {
+        console.error('Error fetching or opening PDF:', error);
+    }
   };
+
+
+  const handlePDFClick = (event: React.MouseEvent<HTMLElement>) => {
+    if (isPDFMenuOpen) {
+      setPDFAnchorEl(null);
+    } else {
+      setPDFAnchorEl(event.currentTarget);
+    }
+  };
+
+  const handlePDFUnclick = () => {
+    setPDFAnchorEl(null);
+  };
+
+  const handleExcelClick = (event: React.MouseEvent<HTMLElement>) => {
+    if (isExcelMenuOpen) {
+      setExcelAnchorEl(null);
+    } else {
+      setExcelAnchorEl(event.currentTarget);
+    }
+  };
+
+  const handleExcelUnclick = () => {
+    setExcelAnchorEl(null);
+  };
+
+  const [courseMap, setCourseMap] = useState<Map<number, string>>(new Map());
+  const [scoringMap, setScoringMap] = useState<Map<number, string>>(new Map());
 
     useEffect(() => {
         const fetchUserLog = async () => {
@@ -251,13 +320,20 @@ const UserLog = () => {
                 setSubmissionList(response2.results);
                 setUserLog(response);
 
+                const coursesData = await getCourseByInstructor(1, 100);
+                const courses: Course[] = coursesData.results || [];
+
+                const newCourseMap = new Map(courses.map((course: any) => [course.id, course.title]));
+                setCourseMap(newCourseMap);
+
+
                 const resRows = response2.results.map((submission: any) => ({
                     id: submission.id,
                     date: submission.createdAt,
                     train: submission.objectType, 
                     start: submission.createdAt, 
                     finish: submission.finishedAt, 
-                    module: submission.courseId,
+                    module: newCourseMap.get(submission.courseId) || 'Unknown',
                     score: submission.score,
                     scoring: submission.courseExamId
                   }));
@@ -282,15 +358,25 @@ const UserLog = () => {
           Log Peserta
         </h1>
         <Box component="form" className="grid gap-4 w-full mb-2">
-          <div className="title grid grid-cols-2">
+          <div className="title grid grid-cols-4">
             <div>
               <p className='text-xl'>
-                <b>Nama:</b> {currentPeserta.name}
+                <b>Nama:</b> {userLog?.name}
               </p>
             </div>
             <div className="col-span-1">
               <p className='text-xl'>
-                <b>NIP:</b> {currentPeserta.nip}
+                <b>NIP:</b> {userLog?.username}
+              </p>
+            </div>
+            <div className="col-span-1">
+              <p className='text-xl'>
+                <b>Kedudukan:</b> {userLog?.bio.position}
+              </p>
+            </div>
+            <div className="col-span-1">
+              <p className='text-xl'>
+                <b>Tanggal Lahir:</b> {dayjs(userLog?.bio.born).format('DD MMM YYYY')}
               </p>
             </div>
           </div>
@@ -298,7 +384,7 @@ const UserLog = () => {
 
         <div className="flex items-center gap-2 mb-2">
           <div className="w-1/2 h-[300px] flex flex-col border border-solid">
-            <Typography className="pl-4 pt-4 text-xl" position='absolute'>Penyelesaian Level:</Typography>
+            <Typography className="pl-4 pt-4 text-xl" position='absolute'>Penyelesaian Modul:</Typography>
             {rows.length > 0 ? (
               <>
                 <div className="flex items-center justify-center h-52 flex-grow pt-4">
@@ -318,7 +404,7 @@ const UserLog = () => {
                       legend: { hidden: false, position: {vertical: 'middle', horizontal: 'right'}, direction: 'column' }
                     }}
                   />
-                  <Typography className="absolute text-center text-2xl" style={{ top: '236px', left: '213px'}}>{completionPercentage}%<br></br>{selesaiValue}/{totalLevels} Level</Typography>
+                  <Typography className="absolute text-center text-2xl" style={{ top: '236px', left: '213px'}}>{completionPercentage}%<br></br>{selesaiValue}/{totalLevels} Modul</Typography>
                 </div>
               </>
             ) : (
@@ -336,18 +422,18 @@ const UserLog = () => {
                     <div className='w-1/2 h-full'>
                       {levels.slice(0, 3).map((level, index) => (
                         <div className='w-full h-1/3 flex items-center justify-center px-3 py-2' key={index}>
-                          <div className={`w-full h-full flex items-center justify-center border-2 border-solid rounded-3xl ${checkedState[index] ? 'bg-[#1bf249]' : ''}`}>
+                          <div className={`w-full h-full flex items-center justify-center border-2 border-solid rounded-3xl ${checkedState[index] ? 'bg-[#1aaffb] text-white' : ''}`}>
                             <div className='w-1/4 h-1/2 flex items-center justify-center'>
                               <Checkbox
                                 icon={<RadioButtonUncheckedIcon />}
-                                checkedIcon={<TaskAltIcon sx={{ color: 'black' }} />}
+                                checkedIcon={<TaskAltIcon sx={{ color: 'white' }} />}
                                 checked={checkedState[index]}
                                 onChange={() => handleCheckboxChange(index)}
                                 disabled
                               />
                             </div>
-                            <div className={`w-2/4 h-1/2 flex items-center text-lg ${checkedState[index] ? 'text-black' : ''}`}>{level.level}</div>
-                            <div className={`w-1/4 h-1/2 flex items-center text-lg ${checkedState[index] ? 'text-black' : ''}`}>{level.value}</div>
+                            <div className={`w-2/4 h-1/2 flex items-center text-lg ${checkedState[index] ? 'text-white' : ''}`}>{level.level}</div>
+                            <div className={`w-1/4 h-1/2 flex items-center text-lg ${checkedState[index] ? 'text-white' : ''}`}>{level.value}</div>
                           </div>
                         </div>
                       ))}
@@ -355,18 +441,18 @@ const UserLog = () => {
                     <div className='w-1/2 h-full'>
                       {levels.slice(3, 6).map((level, index) => (
                         <div className='w-full h-1/3 flex items-center justify-center px-3 py-2' key={index + 3}>
-                          <div className={`w-full h-full flex items-center justify-center border-2 border-solid rounded-3xl ${checkedState[index + 3] ? 'bg-[#1bf249]' : ''}`}>
+                          <div className={`w-full h-full flex items-center justify-center border-2 border-solid rounded-3xl ${checkedState[index + 3] ? 'bg-[#1aaffb] text-white' : ''}`}>
                             <div className='w-1/4 h-1/2 flex items-center justify-center'>
                               <Checkbox
                                 icon={<RadioButtonUncheckedIcon />}
-                                checkedIcon={<TaskAltIcon sx={{ color: 'black' }} />}
+                                checkedIcon={<TaskAltIcon sx={{ color: 'white' }} />}
                                 checked={checkedState[index + 3]}
                                 onChange={() => handleCheckboxChange(index + 3)}
                                 disabled
                               />
                             </div>
-                            <div className={`w-2/4 h-1/2 flex items-center text-lg ${checkedState[index + 3] ? 'text-black' : ''}`}>{level.level}</div>
-                            <div className={`w-1/4 h-1/2 flex items-center text-lg ${checkedState[index + 3] ? 'text-black' : ''}`}>{level.value}</div>
+                            <div className={`w-2/4 h-1/2 flex items-center text-lg ${checkedState[index + 3] ? 'text-white' : ''}`}>{level.level}</div>
+                            <div className={`w-1/4 h-1/2 flex items-center text-lg ${checkedState[index + 3] ? 'text-white' : ''}`}>{level.value}</div>
                           </div>
                         </div>
                       ))}
@@ -429,17 +515,72 @@ const UserLog = () => {
                         type="button"
                         variant="outlined"
                         className='w-[60px]'
-                        onClick={() => handleOpenPDF(row.id)}
+                        onClick={handlePDFClick}
                       >
                         PDF
                       </Button>
+                      <Menu
+                        anchorEl={pdfAnchorEl}
+                        open={Boolean(pdfAnchorEl)}
+                        onClose={handlePDFUnclick}
+                        PaperProps={{
+                            style: {
+                              width: 'auto',
+                              boxShadow: 'none',
+                              border: '1px solid rgba(0, 0, 0, 0.12)',
+                            },
+                          }}
+                          anchorOrigin={{
+                            vertical: 'bottom',
+                            horizontal: 'center',
+                          }}
+                          transformOrigin={{
+                            vertical: 'top',
+                            horizontal: 'center',
+                          }}
+                        >
+                        <MenuItem onClick={() => handleOpenPDF(row.id)}>
+                            Preview
+                        </MenuItem>
+                        <MenuItem onClick={() => handleDownloadPDF(row.id, row.date, row.module)}>
+                            Download
+                        </MenuItem>
+                      </Menu>
                       <Button
                         type="button"
                         variant="outlined"
                         className='w-[60px]'
+                        onClick={handleExcelClick}
                       >
                         Excel
                       </Button>
+                      <Menu
+                        anchorEl={excelAnchorEl}
+                        open={Boolean(excelAnchorEl)}
+                        onClose={handleExcelUnclick}
+                        PaperProps={{
+                            style: {
+                              width: 'auto',
+                              boxShadow: 'none',
+                              border: '1px solid rgba(0, 0, 0, 0.12)',
+                            },
+                          }}
+                          anchorOrigin={{
+                            vertical: 'bottom',
+                            horizontal: 'center',
+                          }}
+                          transformOrigin={{
+                            vertical: 'top',
+                            horizontal: 'center',
+                          }}
+                        >
+                        <MenuItem>
+                            Preview
+                        </MenuItem>
+                        <MenuItem>
+                            Download
+                        </MenuItem>
+                      </Menu>
                     </TableCell>
                     <TableCell align='center'>
                       <Button

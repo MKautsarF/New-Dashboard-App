@@ -60,6 +60,7 @@ import { toast } from 'react-toastify';
 import { useLocation } from "react-router-dom";
 import { useMemo } from "react";
 import ModulDialog  from "@/components/ModulDialog";
+import dayjs from 'dayjs';
 
 interface RowData {
   id: string;
@@ -131,7 +132,7 @@ const CourseList = () => {
   const [trainLines, setTrainLines] = useState([]);
   const [trainWeight, setTrainWeight] = useState("");
   // const [trainType, setTrainType] = useState("");
-  const [time, setTime] = useState(null);
+  const [time, setTime] = useState<dayjs.Dayjs | null>(null);
   const [startStation, setStartStation] = useState("");
   const [finishStation, setFinishStation] = useState("");
   const [startStations, setStartStations] = useState([]);
@@ -234,6 +235,12 @@ const CourseList = () => {
     setOpen(!open)
   }
   
+  const formatTimeToHour = (time: dayjs.Dayjs | null) => {
+    if (time && typeof time.format === 'function') {
+      return time.format('HH'); // Extract the hour in 'HH' format
+    }
+    return ''; // Return an empty string or a default value if time is null
+  };
 
   const collectDataAndPrepareFormData = async () => {
     // Determine the description
@@ -247,7 +254,7 @@ const CourseList = () => {
         weight: trainWeight,
         type: "6 Rangkaian"
       },
-      time: time,
+      time: formatTimeToHour(time),
       weather: [
         {
           value: rainStatus,
