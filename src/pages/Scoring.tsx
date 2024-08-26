@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-// import "../App.css";
 import { useLocation, useNavigate } from "react-router-dom";
+import { currentInstructor } from "@/context/auth";
 import {
   AlertColor,
   Box,
@@ -42,7 +42,6 @@ function EditKCIC() {
   const courseID = query.get("courseID");
   const train = query.get("train");
   const mode = query.get("mode");
-  const role = query.get("role");
   const [scoringData, setScoringData] = useState<any>(null);
 
   const jsonPath = "C:/Train Simulator/Data/ModuleTemplate.json"
@@ -99,8 +98,8 @@ function EditKCIC() {
   });
 
   const handlePrev = () => {
-    if (role === "admin") {
-      navigate("/admin/scoringlist/coursedetail?id=" + courseID+"&role="+ role);
+    if (currentInstructor.isAdmin) {
+      navigate("/scoringlist/coursedetail?id=" + courseID);
     } else {
       navigate("/SixthPage/kcic");
     }
@@ -204,7 +203,7 @@ function EditKCIC() {
     } finally {
       // handlePrev();
       // setIsLoading(false);
-      navigate("/admin/scoringlist/coursedetail?id=" + courseID);
+      navigate("/scoringlist/coursedetail?id=" + courseID);
     }
   };
 

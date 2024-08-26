@@ -250,6 +250,7 @@ const UserLog = () => {
     } catch (error) {
       console.error('Error fetching or opening PDF:', error);
     }
+    setPDFAnchorEl(null);
   };
 
   const handleDownloadPDF = async (id: number, date: string, module: string) => {
@@ -280,6 +281,7 @@ const UserLog = () => {
     } catch (error) {
         console.error('Error fetching or opening PDF:', error);
     }
+    setPDFAnchorEl(null);
   };
 
 
@@ -315,7 +317,7 @@ const UserLog = () => {
             setIsLoading(true);
             try {
                 const response = await getUserById(userId)
-                const response2 = await getSubmissionList(1, 5, userId)
+                const response2 = await getSubmissionList(userId)
                 console.log("response2",response2);
                 setSubmissionList(response2.results);
                 setUserLog(response);
@@ -326,6 +328,13 @@ const UserLog = () => {
                 const newCourseMap = new Map(courses.map((course: any) => [course.id, course.title]));
                 setCourseMap(newCourseMap);
 
+                const scoringsData = await getScoringByInstructor();
+                const scorings: Scoring[] = scoringsData.results || [];
+
+                const newScoringMap = new Map(scorings.map((scoring: any) => [scoring.id, scoring.title]));
+                setScoringMap(newScoringMap);
+
+                console.log("scoringdata", newScoringMap);
 
                 const resRows = response2.results.map((submission: any) => ({
                     id: submission.id,
@@ -335,7 +344,8 @@ const UserLog = () => {
                     finish: submission.finishedAt, 
                     module: newCourseMap.get(submission.courseId) || 'Unknown',
                     score: submission.score,
-                    scoring: submission.courseExamId
+                    // scoring: submission.courseExamId
+                    scoring: newScoringMap.get(submission.courseExamId) || 'Unknown'
                   }));
                 
                 setRows(resRows);

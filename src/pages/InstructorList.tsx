@@ -112,8 +112,8 @@ const InstructorList = () => {
   });
   const [newBirthDate, setNewBirthDate] = useState<Dayjs | null>(null);
 
-  currentInstructor.isAdmin = true;
-  currentInstructor.isInstructor = true;
+  // currentInstructor.isAdmin = true;
+  // currentInstructor.isInstructor = true;
 
   const handleClose = () => {
     setOpen(false);
@@ -130,24 +130,6 @@ const InstructorList = () => {
 
   const handleKembali = () => {
     navigate("/admin");
-  };
-
-  const handleGetLog = async () => {
-    setPageLoading(true);
-
-    try {
-      currentPeserta.id = selectedPeserta.id;
-      currentPeserta.name = selectedPeserta.name;
-      currentPeserta.nip = selectedPeserta.nip;
-      await getSubmissionList(1, 5, selectedPeserta.id);
-      console.log("getting log for user: " + selectedPeserta.id);
-
-      navigate("/userlog");
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setPageLoading(false);
-    }
   };
 
   const handleHapusUser = async () => {

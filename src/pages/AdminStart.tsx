@@ -24,19 +24,15 @@ const AdminStart = () => {
   };
 
   const handlePeserta = () => {
-    navigate("/admin/traineelist");
+    navigate("/traineelist");
   };
 
   const handleInstruktur = () => {
-    navigate("/admin/instructorlist");
+    navigate("/instructorlist");
   };
 
   const handleCourse = () => {
-    navigate("/admin/courselist?role=admin");
-  };
-
-  const handleScoring = () => {
-    navigate("/admin/scoringlist");
+    navigate("/courselist");
   };
 
   const [logoutOpen, setLogoutOpen] = useState(false);

@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   Button,
   TableContainer,
@@ -41,6 +41,12 @@ import { toast } from "react-toastify";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 
+function useQuery() {
+  const { search } = useLocation();
+
+  return useMemo(() => new URLSearchParams(search), [search]);
+}
+
 function AppMenu() {
   const [scoringAnchorEl, setScoringAnchorEl] = useState<null | HTMLElement>(
     null
@@ -59,9 +65,12 @@ function AppMenu() {
   const handlePrev = () => {
     navigate("/FirstPage");
   };
+
   const handleNext = () => {
     navigate("/");
   };
+
+  const query = useQuery();
 
   const { logout } = useAuth();
 
@@ -183,7 +192,7 @@ function AppMenu() {
   };
 
   const handleLearningOptionClick = (type: any) => {
-    navigate(`/admin/courselist?role=instructor&type=${type}`);
+    navigate(`/courselist?&type=${type}`);
     handleLearningClose();
   };
 

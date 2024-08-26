@@ -7,14 +7,10 @@ export const createSubmission = async (payload: any) => {
 };
 
 export const getSubmissionList = async (
-  page: number = 1,
-  size: number = 5,
   user_query: string = ""
 ) => {
   const res = await services.get(
-    `/instructor/submission?page=${page}&size=${size}${
-      user_query === "" ? "" : `&owner:eq=${user_query}`
-    }`
+    `/instructor/submission?owner:eq=${user_query}`
   );
 
   return res.data;

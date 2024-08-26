@@ -102,9 +102,8 @@ const TraineeList = () => {
   });
   const [newBirthDate, setNewBirthDate] = useState<Dayjs | null>(null);
 
-  currentInstructor.isAdmin = true;
-  // console.log(currentInstructor.isAdmin);
-  currentInstructor.isInstructor = false;
+  // currentInstructor.isAdmin = true;
+  // currentInstructor.isInstructor = false;
 
   const handleClose = () => {
     setOpen(false);
@@ -121,24 +120,6 @@ const TraineeList = () => {
 
   const handleKembali = () => {
     navigate("/admin");
-  };
-
-  const handleGetLog = async () => {
-    setPageLoading(true);
-
-    try {
-      currentPeserta.id = selectedPeserta.id;
-      currentPeserta.name = selectedPeserta.name;
-      currentPeserta.nip = selectedPeserta.nip;
-      await getSubmissionList(1, 5, selectedPeserta.id);
-      console.log("getting log for user: " + selectedPeserta.id);
-
-      navigate("/userlog");
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setPageLoading(false);
-    }
   };
 
   const handleHapusUser = async () => {

@@ -115,9 +115,8 @@ function Database() {
   });
   const [newBirthDate, setNewBirthDate] = useState<Dayjs | null>(null);
 
-  currentInstructor.isAdmin = false;
-  // console.log(currentInstructor.isAdmin);
-  currentInstructor.isInstructor = false;
+  // currentInstructor.isAdmin = false;
+  // currentInstructor.isInstructor = false;
 
   const handleClose = () => {
     setOpen(false);
@@ -727,27 +726,29 @@ function Database() {
         {/* nav */}
         <div className="flex gap-4 justify-between px-6 pb-6 w-full">
           <div className="w-1/2 space-x-2">
-            <Button
-              type="button"
-              color="error"
-              variant="outlined"
-              // className="bottom-0 mt-4"
-              sx={{
-                color: "#df2935",
-                borderColor: "#df2935",
-                backgroundColor: "#ffffff",
-                "&:hover": {
+            {!fromAppMenu && (
+              <Button
+                type="button"
+                color="error"
+                variant="outlined"
+                sx={{
+                  color: "#df2935",
                   borderColor: "#df2935",
-                  backgroundColor: "#df2935",
-                  color: "#ffffff",
-                },
-              }}
-              onClick={() => {
-                navigate("/SecondPage");
-              }}
-            >
-              <FirstPageIcon className="mr-2 ml-[-2px] text-xl text-opacity-80"/> Kembali ke Menu
-            </Button>
+                  backgroundColor: "#ffffff",
+                  "&:hover": {
+                    borderColor: "#df2935",
+                    backgroundColor: "#df2935",
+                    color: "#ffffff",
+                  },
+                }}
+                onClick={() => {
+                  navigate("/SecondPage");
+                }}
+              >
+                <FirstPageIcon className="mr-2 ml-[-2px] text-xl text-opacity-80" /> 
+                Kembali ke Menu
+              </Button>
+            )}
             <Button
               type="button"
               color="error"

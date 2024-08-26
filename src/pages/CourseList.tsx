@@ -84,7 +84,6 @@ const CourseList = () => {
   const sourceSettings = JSON.parse(sourceSettingsRead);
 
   const query = useQuery();
-  const role = query.get("role");
   const trainType = query.get("type") as "kcic" | "lrt";
 
   type StationMapping = {
@@ -227,9 +226,8 @@ const CourseList = () => {
 
   const [editPrompt, setEditPrompt] = useState(false);
 
-  currentInstructor.isAdmin = true;
-  // console.log(currentInstructor.isAdmin);
-  currentInstructor.isInstructor = true;
+  // currentInstructor.isAdmin = true;
+  // currentInstructor.isInstructor = true;
 
   const toggleEdit = () => {
     setOpen(!open)
@@ -299,8 +297,9 @@ const CourseList = () => {
   };
 
   const handleKembali = () => {
-    if (role === "admin") navigate("/admin");
-    else navigate("/SecondPage");
+    if (currentInstructor.isAdmin) navigate("/admin");
+    else
+      navigate("/SecondPage");
   };
 
   const handleChangePage = (event: unknown, newPage: number) => {
@@ -328,12 +327,10 @@ const CourseList = () => {
         setIsLoading(true);
   
         let res;
-        if (role === "admin") {
-          // Jika role adalah admin, ambil semua data tanpa filter berdasarkan trainType
+        if (currentInstructor.isAdmin) {
           res = await getCourseListbyAdmin(page, 5);
           console.log("API Response (Admin):", res);
         } else {
-          // Jika role bukan admin, filter berdasarkan trainType
           res = await getCourseByInstructor(page, 5);
           console.log("API Response (Instructor):", res);
   
@@ -344,7 +341,7 @@ const CourseList = () => {
             } else if (trainType === "lrt") {
               return entry.description === "LRT";
             }
-            return false; // atau kembalikan `true` jika Anda ingin semua data tanpa filter trainType
+            return false;
           });
         }
   
@@ -364,7 +361,7 @@ const CourseList = () => {
         setIsLoading(false);
       }
     }
-  
+    console.log("now", currentInstructor)
     getRows(page);
   }, [page, reload, trainType]);
   
@@ -605,7 +602,7 @@ const CourseList = () => {
                               });
                               // setConfigPrompt(true);
                               
-                              navigate(`/admin/scoringlist/coursedetail?id=${row.id}&role=${role}&type=${trainType}`);
+                              navigate(`/scoringlist/coursedetail?id=${row.id}&type=${trainType}`);
                             }}
                           >
                             <Info />

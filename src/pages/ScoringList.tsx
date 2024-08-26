@@ -223,9 +223,8 @@ import {
   
     const [editPrompt, setEditPrompt] = useState(false);
   
-    currentInstructor.isAdmin = true;
-    // console.log(currentInstructor.isAdmin);
-    currentInstructor.isInstructor = true;
+    // currentInstructor.isAdmin = true;
+    // currentInstructor.isInstructor = true;
   
   
     

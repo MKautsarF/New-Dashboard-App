@@ -100,11 +100,11 @@ const routerData = [
     element: <Admin />,
   },
   {
-    path: "/admin/instructorlist",
+    path: "/instructorlist",
     element: <Instructor />,
   },
   {
-    path: "/admin/traineelist",
+    path: "/traineelist",
     element: <Trainee />,
   },
   {
@@ -120,15 +120,15 @@ const routerData = [
     element: <FinishLRT />,
   },
   {
-    path: "/admin/courselist",
+    path: "/courselist",
     element: <Course />,
   }, 
   {
-    path: "/admin/scoringlist",
+    path: "/scoringlist",
     element: <ScoringList />,
   },
   {
-    path: "/admin/scoringlist/coursedetail",
+    path: "/scoringlist/coursedetail",
     element: <CourseDetail />,
   }
 ];

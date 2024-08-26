@@ -19,17 +19,24 @@ import { EditNote } from "@mui/icons-material";
 import { Delete } from "@mui/icons-material";
 import { Tooltip } from "@mui/material";
 import { editCourseAsAdmin } from '../services/course.services';
-import { getScoringByCourse } from '@/services/scoring.services';
+import { getScoringByCourse, getScoringByCourseInstructor } from '@/services/scoring.services';
 import { getCourseListbyAdmin } from '../services/course.services';
 import { deleteScoringAsAdmin } from '@/services/scoring.services';
 import ModulDialog from '@/components/ModulDialog';
 import dayjs from 'dayjs';
+import { currentInstructor } from '@/context/auth';
 
 
 interface ScoringDetail {
 	id: string,
 	name: string,
 }
+
+interface InfoRowProps {
+	label: string;
+	value: string | number | React.ReactNode; // Adjust the type based on your expected value types
+  }
+
 const fs = require("fs");
 
 
@@ -48,8 +55,6 @@ const CourseDetail = () => {
 	//get query params
 	const query = useQuery();
 	const courseId = query.get("id");
-	const role = query.get("role");
-	console.log("role: " ,role)
 
 	type StationMapping = {
     [key: string]: string;
@@ -113,11 +118,11 @@ const CourseDetail = () => {
 	}
 
 	const navigateBack = () => {
-		if(role === "admin") {
-			navigate("/admin/courselist?role=admin");
+		if(currentInstructor.isAdmin) {
+			navigate("/courselist");
 		}
 		else {
-			navigate(`/admin/courselist?role=instructor&type=${type}`);
+			navigate(`/courselist?type=${type}`);
 		}
 	}
 
@@ -201,46 +206,65 @@ const CourseDetail = () => {
 		}
 	};
 
-useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await getCourseListbyAdmin(1, 100);
-        console.log("Course List: ", res);
-        setCourses(res.results);
-      } catch (error) {
-        console.error(error);
-      }
-    };
+	useEffect(() => {
+		const fetchData = async () => {
+		try {
+			const res = await getCourseListbyAdmin(1, 100);
+			console.log("Course List: ", res);
+			setCourses(res.results);
+		} catch (error) {
+			console.error(error);
+		}
+		};
 
-    const getRows = async (id: any) => {
-      try {
-        const res = await getCourseDetail(id);
-		console.log("ress", res)
-        setPayload(res);
-      } catch (e) {
-        console.error(e);
-      }
-    };
+		const getRows = async (id: any) => {
+		try {
+			const res = await getCourseDetail(id);
+			console.log("courseDetail", res)
+			setPayload(res);
+		} catch (e) {
+			console.error(e);
+		}
+		};
 
-    const getModulePenilaian = async (id: any, page: any, rowsPerPage: any) => {
-      try {
-        setIsLoading(true);
-        const res = await getScoringByCourse(id, page, rowsPerPage);
-        console.log("Module Penilaian: ", res);
-        setRows(res.results);
-        setTotalData(res.total);
-      } catch (e) {
-        console.error(e);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+		const getModulePenilaianByAdmin = async (id: any, page: any, rowsPerPage: any) => {
+		try {
+			setIsLoading(true);
+			const res = await getScoringByCourse(id, page, rowsPerPage);
+			console.log("Module Penilaian: ", res);
+			setRows(res.results);
+			setTotalData(res.total);
+		} catch (e) {
+			console.error(e);
+		} finally {
+			setIsLoading(false);
+		}
+		};
 
-    fetchData();
-    if (courseId) {
-      getRows(courseId);
-      getModulePenilaian(courseId, page, 5);
-    }
+		const getModulePenilaianByInstructor = async (id: any, page: any, rowsPerPage: any) => {
+			try {
+			setIsLoading(true);
+			const res = await getScoringByCourseInstructor(id, page, rowsPerPage);
+			console.log("Module Penilaian: ", res);
+			setRows(res.results);
+			setTotalData(res.total);
+			} catch (e) {
+			console.error(e);
+			} finally {
+			setIsLoading(false);
+			}
+		};
+
+		fetchData();
+		if (courseId) {
+			if (currentInstructor.isAdmin) {
+				getRows(courseId);
+				getModulePenilaianByAdmin(courseId, page, 5);
+			} else {
+				getRows(courseId);
+				getModulePenilaianByInstructor(courseId, page, 5);
+			}
+		}
   	}, [courseId, page, reload]);
 
 	const handleChangePage = (event: unknown, newPage: number) => {
@@ -423,10 +447,10 @@ useEffect(() => {
 		const handleCreateScoring = () => {
 			setOpen(false);
 			if (useDefault) {
-				navigate(`/Scoring?type=default&courseID=${courseId}&train=${payload.train_type}&mode=new&role=admin`);
+				navigate(`/Scoring?type=default&courseID=${courseId}&train=${payload.train_type}&mode=new`);
 			}
 			else {
-				navigate(`/Scoring?type=${selectedScoring}&courseID=${courseId}&train=${payload.train_type}&mode=new&role=admin`);
+				navigate(`/Scoring?type=${selectedScoring}&courseID=${courseId}&train=${payload.train_type}&mode=new`);
 			}
 		};
 
@@ -434,7 +458,7 @@ useEffect(() => {
         async function fetchData(courseId: any) {
 			try {
 				const res = await getScoringByCourse(courseId, 1, 100);
-					console.log("ress", res)
+					console.log("scoringByCourse", res)
 					setScoring(res);
 				}
 				catch (e) {
@@ -447,17 +471,33 @@ useEffect(() => {
     }
     , [selectedCourse]);
 
-		const handleDelete = async (id: string) => {
-			try {
-				const res = await deleteScoringAsAdmin(id);
-				console.log("res", res);
-				const res2 = await getScoringByCourse(courseId, 1, 100);
-				setRows(res2.results);
-				setReload(!reload);
-			} catch (e) {
-				console.error(e);
-			}
+	const handleDelete = async (id: string) => {
+		try {
+			const res = await deleteScoringAsAdmin(id);
+			console.log("res", res);
+			const res2 = await getScoringByCourse(courseId, 1, 100);
+			setRows(res2.results);
+			setReload(!reload);
+		} catch (e) {
+			console.error(e);
 		}
+	}
+
+	const InfoRow: React.FC<InfoRowProps> = ({ label, value }) => (
+		<div className="flex flex-col gap-2">
+			<span>{label}</span>
+			<div className="ml-2">
+				<div>
+					<h3>{value}</h3>
+				</div>
+			</div>
+		</div>
+	);
+		  
+	const getWeatherDisplayValue = (weatherValue: any) => {
+		const value = Math.round(Math.pow(weatherValue / 100, -0.914) * 50.6);
+		return Number.isFinite(value) ? `${value} m` : '∞ m';
+	};
 
 	return (
 		<Container w={1000} h={700}>
@@ -467,120 +507,37 @@ useEffect(() => {
 					<div className='w-2/5'>
 						<div className='mb-4 text-2xl'>Konfigurasi Modul:</div>
 						<div className='flex flex-row gap-10'>
-							<div className='flex flex-col gap-5'>
-								<div className='flex flex-col gap-2'>
-									<span>Nama Modul Pembelajaran</span>
-									<div className='ml-2'>
-											<div>
-												<h3>{payload.module_name}</h3>
-											</div>
-									</div>
-								</div>
-								<div className='flex flex-col gap-2'>
-									<span>Jenis Kereta</span>
-									<div className='ml-2'>
-											<div>
-												<h3>{payload?.train_type ? payload.train_type.toUpperCase() : ''}</h3>
-											</div>
-									</div>
-								</div>
-								<div className='flex flex-col gap-2'>
-									<span>Berat Kereta</span>
-									<div className='ml-2'>
-											<div>
-												<h3>{payload.train?.weight} kg</h3>
-											</div>
-									</div>
-								</div>
-								<div className='flex flex-col gap-2'>
-									<span>Line Kereta</span>
-									<div className='ml-2'>
-											<div>
-												<h3>{payload.train_line}</h3>
-											</div>
-									</div>
-								</div>
-								<div className='flex flex-col gap-2'>
-									<span>Stasiun Mulai</span>
-									<div className='ml-2'>
-											<div>
-												<h3>{payload.route?.start?.name}</h3>
-											</div>
-									</div>
-								</div>
-								<div className='flex flex-col gap-2'>
-									<span>Stasiun Akhir</span>
-									<div className='ml-2'>
-											<div>
-												<h3>{payload.route?.finish?.name}</h3>
-											</div>
-									</div>
-								</div>
+							<div className="flex flex-col gap-5">
+								<InfoRow label="Nama Modul Pembelajaran" value={payload.module_name} />
+								<InfoRow label="Jenis Kereta" value={payload?.train_type?.toUpperCase() || ''} />
+								<InfoRow label="Berat Kereta" value={`${payload.train?.weight} kg`} />
+								<InfoRow label="Line Kereta" value={payload.train_line} />
+								<InfoRow label="Stasiun Mulai" value={payload.route?.start?.name} />
+								<InfoRow label="Stasiun Akhir" value={payload.route?.finish?.name} />
 							</div>
-							<div className='flex flex-col gap-5'>
-								<div className='flex flex-col gap-2'>
-									<span>Status Hujan</span>
-									<div className='ml-2'>
-											<div>
-												<h3>{payload.weather?.[0]?.value}</h3>
-											</div>
-									</div>
-								</div>
-								<div className='flex flex-col gap-2'>
-									<span>Waktu</span>
-									<div className='ml-2'>
-											<div>
-												<h3>{payload.time}:00</h3>
-											</div>
-									</div>
-								</div>
-								<div className='flex flex-col gap-2'>
-									<span>Jarak Pandang</span>
-									<div className='ml-2'>
-											<div>
-												<h3>
-													{(() => {
-														const value = Math.round(Math.pow(payload.weather?.[1]?.value / 100, -0.914) * 50.6);
-														
-														return Number.isFinite(value) ? `${value} m` : '∞ m';
-													})()}
-												</h3>
-											</div>
-									</div>
-								</div>
-								<div className='flex flex-col gap-2'>
-									<span>Motion Base</span>
-									<div className='ml-2'>
-											<div>
-												<h3>{payload.motion_base? "On": "Off"}</h3>
-											</div>
-									</div>
-								</div>
-								<div className='flex flex-col gap-2'>
-									<span>Speed Buzzer</span>
-									<div className='ml-2'>
-											<div>
-												<h3>{payload.speed_buzzer ? payload.speed_limit : "Off"}</h3>
-											</div>
-									</div>
-								</div>
-								<div className='flex flex-col gap-2'>
+							<div className="flex flex-col gap-5">
+								<InfoRow label="Status Hujan" value={payload.weather?.[0]?.value} />
+								<InfoRow label="Waktu" value={`${payload.time}:00`} />
+								<InfoRow label="Jarak Pandang" value={getWeatherDisplayValue(payload.weather?.[1]?.value)} />
+								<InfoRow label="Motion Base" value={payload.motion_base ? "On" : "Off"} />
+								<InfoRow label="Speed Buzzer" value={payload.speed_buzzer ? payload.speed_limit : "Off"} />
+								<div className="flex flex-col gap-2">
 									<span>Edit Konfigurasi:</span>
 									<Button
 										type="button"
 										sx={{
+										color: "#ffffff",
+										backgroundColor: "#00a6fb",
+										borderColor: "#00a6fb",
+										"&:hover": {
+											borderColor: "#1aaffb",
 											color: "#ffffff",
-											backgroundColor: "#00a6fb",
-											borderColor: "#00a6fb",
-											"&:hover": {
-												borderColor: "#1aaffb",
-												color: "#ffffff",
-												backgroundColor: "#1aaffb",
-											},
-											}}
+											backgroundColor: "#1aaffb",
+										},
+										}}
 										variant="contained"
-										onClick={() => toogleEdit()}
-										className='ml-2'
+										onClick={toogleEdit}
+										className="ml-2"
 									>
 										Edit
 									</Button>
@@ -651,7 +608,7 @@ useEffect(() => {
 													id: row.id,
 													title: row.title,
 												});
-												navigate(`/Scoring?type=${row.id}&courseID=${courseId}&train=${payload.train_type}&mode=edit&role=admin`);
+												navigate(`/Scoring?type=${row.id}&courseID=${courseId}&train=${payload.train_type}&mode=edit`);
 												}}
 											>
 												<Info />
@@ -676,18 +633,9 @@ useEffect(() => {
 									</TableRow>
 									))}
 								</TableBody>
-								<TablePagination
-									component="div"
-									count={totalData}
-									rowsPerPage={5}
-									page={page - 1}
-									onPageChange={handleChangePage}
-									rowsPerPageOptions={[5]}
-									className="overflow-hidden"
-								/>
 								</>
 							) : (
-								<div className="absolute mt-6 w-[562px]">
+								<div className="absolute mt-12 w-[562px]">
 									<p className='flex items-center justify-center'>
 										Data modul penilaian tidak ditemukan
 									</p>
@@ -695,29 +643,17 @@ useEffect(() => {
 							)}
 							</Table>
 						</TableContainer>
-						</div>
-
+						<TablePagination
+							component="div"
+							count={totalData}
+							rowsPerPage={5}
+							page={page - 1}
+							onPageChange={handleChangePage}
+							rowsPerPageOptions={[5]}
+							className="overflow-hidden"
+						/>
+					</div>
 				</div>
-				{/* <div className='w-2/5 flex items-center justify-end'>
-					<Button
-						type="button"
-						sx={{
-							color: "#ffffff",
-							backgroundColor: "#00a6fb",
-							borderColor: "#00a6fb",
-							"&:hover": {
-								borderColor: "#1aaffb",
-								color: "#ffffff",
-								backgroundColor: "#1aaffb",
-							},
-							}}
-						variant="contained"
-						onClick={() => toogleEdit()}
-						className='mr-12'
-					>
-						Edit
-					</Button>
-				</div> */}
 				<div className="flex gap-4">
 					<Button
 						type="button"
@@ -816,8 +752,7 @@ useEffect(() => {
 								))}
 							</Select>
 						</FormControl>
-					)
-					}
+					)}
 				</DialogContent>
 				<DialogContent className="flex justify-center items-center gap-4">
 					<Button
