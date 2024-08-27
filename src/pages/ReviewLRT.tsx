@@ -196,7 +196,7 @@ function ReviewLRT() {
       
       // * Train data
       jsonToWrite.train_type = "LRT";
-      jsonToWrite.no_ka = "";
+      jsonToWrite.no_ka = "-";
       jsonToWrite.lintas =
       settings.stasiunAsal + " - " + settings.stasiunTujuan;
       

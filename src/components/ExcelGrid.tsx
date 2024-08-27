@@ -1,65 +1,96 @@
 import React, { useEffect, useRef, useState } from 'react';
-import * as XLSX from 'xlsx';
-import CanvasDatagrid from "canvas-datagrid";
+import ExcelJS from 'exceljs';
 
 interface ExcelGridProps {
     file: Blob;
 }
 
 const ExcelGrid = ({ file }: ExcelGridProps) => {
-    const gridRef = useRef(null);
-    const [data, setData] = useState([]);
-  
+    const gridRef = useRef<HTMLDivElement>(null);
+    const [htmlContent, setHtmlContent] = useState<string>('');
+
     useEffect(() => {
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const arrayBuffer = e.target.result;
-          const workbook = XLSX.read(arrayBuffer, { type: 'array' });
-          const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-          const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-          console.log(jsonData);
-          setData(jsonData);
-        };
-        reader.readAsArrayBuffer(file);
-      }
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                const arrayBuffer = e.target.result as ArrayBuffer;
+
+                // Initialize a new workbook and load the array buffer
+                const workbook = new ExcelJS.Workbook();
+                await workbook.xlsx.load(arrayBuffer);
+
+                // Get the first worksheet
+                const worksheet = workbook.worksheets[0];
+
+                // Generate HTML from worksheet data
+                let html = '<table border="1" style="width:100%; border-collapse:collapse;">';
+                const mergeRowStart = 4; 
+                const mergeRowEnd = 12;
+                const mergeCols = [2, 6];
+
+                worksheet.eachRow((row, rowNumber) => {
+                    const cellValues = Array.isArray(row.values) ? row.values.slice(1) : [];
+                    const isHeaderRow = cellValues.some(value => value === 'No');
+
+                    html += `<tr style="${isHeaderRow ? 'background-color: black; color: white;' : ''}">`;
+                    let lastCellValue: any = null;
+                    let colspan = 1;
+
+                    row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+                        let cellValue = cell.value;
+                        if (typeof cellValue === 'boolean' || typeof cellValue === 'number') {
+                            cellValue = cellValue.toString();
+                        } else if (cellValue === null || cellValue === undefined) {
+                            cellValue = '';
+                        }
+
+                        // Check if the current cell value matches the last cell value for horizontal merge
+                        if (cellValue === lastCellValue) {
+                            colspan++;
+                        } else {
+                            if (lastCellValue !== null) {
+                                html += `<td colspan="${colspan}" style="text-align: center; font-weight: normal; font-size: 15px;">${lastCellValue}</td>`;
+                            }
+                            lastCellValue = cellValue;
+                            colspan = 1;
+                        }
+
+                        // For the last cell in the row or if it's a header row
+                        if (colNumber === row.cellCount) {
+                            html += `<td colspan="${colspan}" style="text-align: ${cell.alignment?.horizontal || 'center'}; font-weight: ${cell.font?.bold ? 'bold' : 'normal'}; font-size: ${(cell.font?.size + 3) || 12}px;">${cellValue}</td>`;
+                        }
+                    });
+
+                    html += '</tr>';
+
+                    // Handle vertical merging for rows 3-11 in columns 1 and 5
+                    if (rowNumber >= mergeRowStart && rowNumber <= mergeRowEnd) {
+                        for (const col of mergeCols) {
+                            if (rowNumber > mergeRowStart && row.getCell(col).value === '') {
+                                // Skip empty cells in the column
+                                const previousCellValue = worksheet.getRow(rowNumber - 1).getCell(col).value;
+                                if (previousCellValue !== '') {
+                                    // Merge the cell vertically
+                                    html = html.replace(/<\/tr>\s*$/, `<td rowspan="${mergeRowEnd - mergeRowStart + 1}" style="background-color: white; text-align: center;">${previousCellValue}</td></tr>`);
+                                }
+                            }
+                        }
+                    }
+                });
+
+                html += '</table>';
+
+                setHtmlContent(html);
+            };
+            reader.readAsArrayBuffer(file);
+        }
     }, [file]);
-  
-    useEffect(() => {
-      if (data.length > 0 && gridRef.current) {
-        const grid = CanvasDatagrid({
-          parentNode: gridRef.current,
-          data: data,
-          style: {
-            headerCellBackgroundColor: 'black',
-            headerCellColor: 'white',
-          },
-          // schema: [
-          //   { name: 'A' ,
-          //   title: 'A',
-          //   },
-          //   {
-          //     name: 'B',
-          //     title: 'B',
-          //   },
-          //   { name: 'C',
-          //   },
-          //   {
-          //     name: 'B',
-          //   },
-          //   { name: 'C' },
-          //   { name: 'D' },
-          //   { name: 'E' },
-          //   { name: 'F' },
-          //   { name: 'G' },
-          // ],
-        });
-        grid.style.height = '100%';
-        grid.style.width = '100%';
-      }
-    }, [data]);
-  
-    return <div ref={gridRef} style={{ height: '500px', width: '100%' }}></div>;
-  };
-  
-  export default ExcelGrid;
+
+    return (
+        <div ref={gridRef} style={{ height: '1800px', width: '100%', overflow: 'auto' }}>
+            <div dangerouslySetInnerHTML={{ __html: htmlContent }} />
+        </div>
+    );
+};
+
+export default ExcelGrid;

@@ -134,37 +134,49 @@ const FinishLRT: React.FC = () => {
     // const blob = new Blob([excel], { type: 'application/vnd.ms-excel' });
     const reader = new FileReader();
     reader.onload = function(e) {
-      const arrayBuffer = e.target.result;
-      const workbook = XLSX.read(arrayBuffer, {sheetRows:20});
+      const array = new Uint8Array(e.target.result as ArrayBuffer);
+      const workbook = XLSX.read(array, {sheetRows:20, type: 'array'}); /* get first worksheet */
       /* get first worksheet */
       const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-      const table = XLSX.utils.sheet_to_html(worksheet,{id: "tabeller" });
+      // const htmlstr = XLSX.write(workbook, { bookType: 'html', type: 'binary'}); /* generate file and send to client */
+      //get id container from html
+      // const container = document.getElementById('container');
+      // console.log(container);
+      // container.innerHTML += htmlstr;
+      
+      const table = XLSX.utils.sheet_to_html(worksheet,{id: "tabeller", editable: true,});
       const styledHTML = `
-        <style>
-          table#styledTable {
-            border-collapse: collapse;
-            width: 100%;
-          }
-          table#styledTable, th, td {
-            border: 1px solid black;
-          }
-          th {
-            background-color: black; /* Header background color */
-            color: white; /* Header text color */
-            padding: 8px;
-            text-align: center;
-          }
-          td {
-            padding: 8px;
-            text-align: left;
-          }
-          td[colspan] {
-            text-align: center;
-            font-weight: bold;
-          }
-        </style>
-        ${table}
-      `;
+  <style>
+    table#styledTable {
+      border-collapse: collapse;
+      width: 100%;
+      font-family: Arial, sans-serif;
+    }
+    td {
+      border: 1px solid black; /* Solid black border for all cells */
+    }
+    th {
+      background-color: #f2f2f2;
+      color: black;
+      padding: 8px;
+      text-align: center;
+      font-weight: bold;
+    }
+    td {
+      padding: 8px;
+      text-align: left;
+      vertical-align: middle;
+    }
+    td[colspan] {
+      text-align: center;
+      font-weight: bold;
+    }
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+  </style>
+  ${table}
+`;
 
       setHTML(styledHTML);
       setIsExcel(true);
@@ -294,9 +306,10 @@ const FinishLRT: React.FC = () => {
           </Button>
         </div>
       </div>
-      <Dialog open={previewOpen} onClose={handlePreviewClose} aria-labelledby="logout-dialog-title" aria-describedby="logout-dialog-description" maxWidth="lg" fullWidth>
+      <Dialog open={previewOpen} onClose={handlePreviewClose} aria-labelledby="logout-dialog-title" aria-describedby="logout-dialog-description" maxWidth="lg" fullWidth id="container">
         {!isExcel && <iframe src={url} style={{ width: "100%", height: "1800px" }}></iframe>}
-        {isExcel && <ExcelGrid file={excel} /> }
+        {/* {isExcel && <div dangerouslySetInnerHTML={{ __html: __html }}></div>} */}
+        {isExcel && <ExcelGrid file={excel}/>}
       </Dialog>
 
       <FullPageLoading loading={pageLoading} />
