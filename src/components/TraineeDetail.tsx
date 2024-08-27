@@ -54,7 +54,7 @@ const TraineeDetail: React.FC<TraineeDetailProps> = ({
         } else {
           detailData = await getUserById(id);
         }
-        console.log("data",detailData);
+        console.log("data peserta",detailData);
 
         userId = detailData.id;
 
@@ -64,13 +64,14 @@ const TraineeDetail: React.FC<TraineeDetailProps> = ({
           bio: detailData.bio,
           completion: Math.round(4/7 * 100 * 10) / 10,
         });
+    console.log("detail peserta", data)
+
       } catch (error) {
         console.error(error);
       } finally {
         setIsLoading(false);
       }
     }
-
     fetchDetail();
   }, [isOpen]);
 
@@ -109,13 +110,13 @@ const TraineeDetail: React.FC<TraineeDetailProps> = ({
         </DialogContentText>
       </DialogContent>
       <DialogActions className="flex justify-end pr-6">
+        <Button onClick={handleClose}>Tutup</Button>
         {currentInstructor.isAdmin ? null : (
           <>
             <Button onClick={handleEdit}>Edit</Button>
             <Button onClick={handleLog}>Log</Button>
           </>
         )}
-        <Button onClick={handleClose}>Tutup</Button>
       </DialogActions>
     </Dialog>
   );

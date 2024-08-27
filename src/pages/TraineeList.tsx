@@ -124,15 +124,18 @@ const TraineeList = () => {
 
   const handleHapusUser = async () => {
     setIsLoading(true);
-
+    setReload(true);
     try {
       const res = await deactivateUserById(selectedPeserta.id);
-      console.log("deactivated user: " + res.id);
+      // console.log("deactivated user: " + res.id);
 
       setRows(rows.filter((row) => row.id !== res.id));
-      setReload(!reload);
+      
     } catch (e) {
       console.error(e);
+      toast.error("Peserta tidak dapat dihapus karena sudah memiliki submisi", {
+        position: "top-center",
+      });
     } finally {
       setIsLoading(false);
       setDeletePrompt(false);
@@ -214,11 +217,12 @@ const TraineeList = () => {
       setCode("");
       setPosition("");
       setBirthDate(null);
+      setReload(true);
     } catch (e) {
       const errMsg = e.response.data.errorMessage;
       console.error(e);
       toast.error(
-        "Email peserta sudah terdaftar di database, mohon gunakan email yang berbeda",
+        "Terjadi kesalahan, silahkan coba dengan email/NIP yang berbeda",
         {
           position: "top-center",
         }
@@ -227,6 +231,10 @@ const TraineeList = () => {
       setPageLoading(false);
     }
   };
+
+  const handleNIPChange = (e: any) => {
+		setNip(e.target.value);
+	};
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -239,7 +247,7 @@ const TraineeList = () => {
     const query = data.get("query") as string;
 
     try {
-      const res = await getUsersAsAdmin(1, 5, query);
+      const res = await getUsersAsAdmin(1, 6, query);
       const resRows = res.results.map((data: any) => ({
         id: data.id,
         name: data.name,
@@ -281,7 +289,7 @@ const TraineeList = () => {
 
       setEditPrompt(false);
       toast.success("Data peserta berhasil diubah", { position: "top-center" });
-      setReload(!reload);
+      setReload(true);
     } catch (e) {
       const errMsg = e.response.data.errorMessage;
       toast.error(errMsg, { position: "top-center" });
@@ -292,8 +300,8 @@ const TraineeList = () => {
     async function getRows(page: number) {
       try {
         setIsLoading(true);
-        const res = await getUsersAsAdmin(page, 5);
-        console.log('API Response:', res);
+        const res = await getUsersAsAdmin(page, 6);
+        // console.log('API Response:', res);
 
         const resRows = res.results.map((data: any) => ({
           id: data.id,
@@ -306,6 +314,7 @@ const TraineeList = () => {
         console.error(e);
       } finally {
         setIsLoading(false);
+        setReload(false);
       }
     }
 
@@ -494,11 +503,11 @@ const TraineeList = () => {
         <TablePagination
           component="div"
           count={totalData}
-          rowsPerPage={5}
+          rowsPerPage={6}
           page={page - 1}
           onPageChange={handleChangePage}
-          rowsPerPageOptions={[5]}
-          className="overflow-hidden mt-auto"
+          rowsPerPageOptions={[6]}
+          className="overflow-hidden mt-4"
         />
 
         {/* Navigation */}
@@ -506,6 +515,7 @@ const TraineeList = () => {
           <Button
             type="button"
             color="error"
+            className="text-base absolute bottom-6 "
             variant="outlined"
             sx={{
               color: "#df2935",
@@ -557,8 +567,14 @@ const TraineeList = () => {
             type="text"
             fullWidth
             variant="standard"
+            inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
             value={nip}
-            onChange={(e) => setNip(e.target.value)}
+            onChange={(e) => {
+              const value = e.target.value;
+              if (/^\d*$/.test(value)) {
+                handleNIPChange(e);
+              }
+            }}
           />
           <div className="flex gap-4 items-center">
             <TextField

@@ -300,7 +300,7 @@ const CourseList = () => {
     if (currentInstructor.isAdmin) navigate("/admin");
     else
       navigate("/SecondPage");
-  };
+    };
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage + 1);
@@ -352,7 +352,6 @@ const CourseList = () => {
           description: entry.description,
           published: entry.published,
         }));
-  
         setRows(resRows);
         setTotalData(res.results.length); // Menghitung total data setelah filter (jika ada)
       } catch (e) {

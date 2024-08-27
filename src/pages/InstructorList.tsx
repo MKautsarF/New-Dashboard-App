@@ -166,6 +166,10 @@ const InstructorList = () => {
     setPage(newPage + 1);
   };
 
+  const handleNIPChange = (e: any) => {
+		setNip(e.target.value);
+	};
+
   const validateRegister = (): boolean => {
     return (
       nama !== "" &&
@@ -646,8 +650,14 @@ const InstructorList = () => {
             type="text"
             fullWidth
             variant="standard"
+            inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
             value={nip}
-            onChange={(e) => setNip(e.target.value)}
+            onChange={(e) => {
+              const value = e.target.value;
+              if (/^\d*$/.test(value)) {
+                handleNIPChange(e);
+              }
+            }}
           />
           <div className="flex gap-4">
             <TextField

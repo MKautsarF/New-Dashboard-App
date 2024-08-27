@@ -114,6 +114,7 @@ function Database() {
     complition: 2,
   });
   const [newBirthDate, setNewBirthDate] = useState<Dayjs | null>(null);
+  const [reload, setReload] = useState(false);
 
   // currentInstructor.isAdmin = false;
   // currentInstructor.isInstructor = false;
@@ -147,14 +148,7 @@ function Database() {
     setPageLoading(true);
 
     try {
-      currentPeserta.id = selectedPeserta.id;
-      currentPeserta.name = selectedPeserta.name;
-      currentPeserta.nip = selectedPeserta.nip;
-      currentPeserta.complition = selectedPeserta.complition;
-      // await getSubmissionList(1, 5, selectedPeserta.id);
-      console.log("getting log for user: " + selectedPeserta.id);
-
-      navigate(`/FourthPage/UserLog?id=${selectedPeserta.id}`);
+      navigate(`/FourthPage/UserLog?id=${detailId}`);
     } catch (e) {
       console.error(e);
     } finally {
@@ -214,6 +208,10 @@ function Database() {
       position !== ""
     );
   };
+  
+  const handleNIPChange = (e: any) => {
+		setNip(e.target.value);
+	};
 
   const handleRegister = async () => {
     const isValid = validateRegister();
@@ -265,6 +263,7 @@ function Database() {
       setCode("");
       setPosition("");
       setBirthDate(null);
+      setReload(!reload);
     } catch (e) {
       const errMsg = e.response.data.errorMessage;
       console.error(errMsg);
@@ -358,11 +357,11 @@ function Database() {
     }
 
     getRows(page);
-  }, [page]);
+  }, [page, reload]);
 
   return (
     <>
-      <Container w={1200}>
+      <Container w={1200} h={710}>
         <div className="p-6 flex flex-wrap">
           {/* Judul */}
           <h1
@@ -478,15 +477,9 @@ function Database() {
                           <div className="flex gap-2">
                             <Button
                               type="button"
-                              variant="text"
+                              variant={detailId === row.id ? "outlined" : "text"}
                               onClick={() => {
                                 setDetailId(row.id), setDetailOpen(true);
-                                setSelectedPeserta({
-                                  id: row.id,
-                                  name: row.name,
-                                  nip: row.nip,
-                                  complition: row.complition,
-                                });
                               }}
                               sx={{
                                 color: "#00a6fb",
@@ -498,6 +491,7 @@ function Database() {
                                   backgroundColor: "#00a6fb",
                                 },
                               }}
+                              className="w-20 ml-2"
                             >
                               Detail
                             </Button>
@@ -516,11 +510,7 @@ function Database() {
                                 },
                               }}
                               type="button"
-                              variant={
-                                selectedPeserta.nip === row.nip
-                                  ? "outlined"
-                                  : "text"
-                              }
+                              variant={selectedPeserta.nip === row.nip ? "outlined" : "text"}
                               onClick={() =>
                                 setSelectedPeserta({
                                   id: row.id,
@@ -590,8 +580,14 @@ function Database() {
                 type="text"
                 fullWidth
                 variant="standard"
+                inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
                 value={nip}
-                onChange={(e) => setNip(e.target.value)}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (/^\d*$/.test(value)) {
+                    handleNIPChange(e);
+                  }
+                }}
               />
               <div className="flex gap-4 items-center">
                 <TextField
@@ -625,7 +621,10 @@ function Database() {
           <TraineeDetail
             id={detailId}
             isOpen={detailOpen}
-            handleClose={() => setDetailOpen(false)}
+            handleClose={() => {
+              setDetailOpen(false);
+              setDetailId("");
+            }}
             handleLog={() => {
               setDetailOpen(false);
               handleGetLog();
@@ -661,7 +660,7 @@ function Database() {
                   name="new-name"
                   variant="standard"
                   fullWidth
-                  defaultValue={selectedPeserta.name}
+                  defaultValue={detailPeserta.name}
                 />
                 <TextField
                   className="my-4"
@@ -679,7 +678,7 @@ function Database() {
                   name="new-nip"
                   variant="standard"
                   fullWidth
-                  defaultValue={selectedPeserta.nip}
+                  defaultValue={detailPeserta.username}
                 />
                 <div className="my-4 flex gap-4 items-center">
                   <TextField
@@ -725,12 +724,60 @@ function Database() {
         </div>
         {/* nav */}
         <div className="flex gap-4 justify-between px-6 pb-6 w-full">
-          <div className="w-1/2 space-x-2">
+          <div className="w-1/2 flex justify-between items-end">
             {!fromAppMenu && (
+              <div className="flex space-x-2"> {/* Container for buttons when not fromAppMenu */}
+                <Button
+                  type="button"
+                  color="error"
+                  variant="outlined"
+                  className="text-base absolute bottom-6 left-6"
+                  sx={{
+                    color: "#df2935",
+                    borderColor: "#df2935",
+                    backgroundColor: "#ffffff",
+                    "&:hover": {
+                      borderColor: "#df2935",
+                      backgroundColor: "#df2935",
+                      color: "#ffffff",
+                    },
+                  }}
+                  onClick={() => {
+                    navigate("/SecondPage");
+                  }}
+                >
+                  <FirstPageIcon className="mr-2 ml-[-2px] text-xl text-opacity-80" />
+                  Kembali ke Menu
+                </Button>
+                <Button
+                  type="button"
+                  color="error"
+                  variant="outlined"
+                  className="text-base absolute bottom-6 left-[235px]"
+                  sx={{
+                    color: "#df2935",
+                    borderColor: "#df2935",
+                    backgroundColor: "#ffffff",
+                    "&:hover": {
+                      borderColor: "#df2935",
+                      backgroundColor: "#df2935",
+                      color: "#ffffff",
+                    },
+                  }}
+                  onClick={() => {
+                    handlePrev();
+                  }}
+                >
+                  Kembali
+                </Button>
+              </div>
+            )}
+            {fromAppMenu && (
               <Button
                 type="button"
                 color="error"
                 variant="outlined"
+                className="text-base absolute bottom-6 left-6"
                 sx={{
                   color: "#df2935",
                   borderColor: "#df2935",
@@ -742,40 +789,19 @@ function Database() {
                   },
                 }}
                 onClick={() => {
-                  navigate("/SecondPage");
+                  handlePrev();
                 }}
               >
-                <FirstPageIcon className="mr-2 ml-[-2px] text-xl text-opacity-80" /> 
-                Kembali ke Menu
+                Kembali
               </Button>
             )}
-            <Button
-              type="button"
-              color="error"
-              variant="outlined"
-              // className="bottom-0 mt-4"
-              sx={{
-                color: "#df2935",
-                borderColor: "#df2935",
-                backgroundColor: "#ffffff",
-                "&:hover": {
-                  borderColor: "#df2935",
-                  backgroundColor: "#df2935",
-                  color: "#ffffff",
-                },
-              }}
-              onClick={() => {
-                handlePrev();
-              }}
-            >
-              Kembali
-            </Button>
           </div>
           <div className="w-1/2 flex items-center justify-end">
-            {selectedPeserta.nip !== "" && (
+            {!fromAppMenu && selectedPeserta.nip !== "" && (
               <Button
                 type="button"
                 variant="outlined"
+                className="text-base absolute bottom-6 right-6"
                 onClick={() => handleStart()}
                 sx={{
                   color: "#00a6fb",

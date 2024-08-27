@@ -11,17 +11,12 @@ import React, { useState } from "react";
 import Logo from "@/components/Logo";
 import { useNavigate } from "react-router-dom";
 import Container from "@/components/Container";
-import { useAuth } from "@/context/auth";
+import { currentInstructor, useAuth } from "@/context/auth";
 
 const AdminStart = () => {
   const navigate = useNavigate();
   const { instructor, logout } = useAuth();
 
-  // const [username, setUsername] = useState("Kautsar");
-
-  const handleLogin = () => {
-    navigate("/FirstPage");
-  };
 
   const handlePeserta = () => {
     navigate("/traineelist");
@@ -44,6 +39,8 @@ const AdminStart = () => {
     logout();
     navigate('/');
   };
+
+  console.log("now", currentInstructor)
 
   return (
     <Container w={800}>

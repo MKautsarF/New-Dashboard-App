@@ -28,7 +28,7 @@ import {
   getUserById,
   updateUserById,
 } from "../services/user.services";
-import { useAuth } from '@/context/auth';
+import { currentInstructor, useAuth } from '@/context/auth';
 import Container from "@/components/Container";
 import { Train, DirectionsRailway, PeopleAlt } from "@mui/icons-material";
 import TraineeDetail from "../components/TraineeDetail";
@@ -124,6 +124,7 @@ function AppMenu() {
       setPageLoading(false);
     }
   };
+  
 
   const handleEditPeserta = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -150,18 +151,11 @@ function AppMenu() {
 
       setEditPrompt(false);
       toast.success("Data peserta berhasil diubah", { position: "top-center" });
-      setReload(!reload);
+      setDetailOpen(false);
+      setDetailId("");
     } catch (e) {
       const errMsg = e.response.data.errorMessage;
       toast.error(errMsg, { position: "top-center" });
-    }
-  };
-
-  const handleScoringClick = (event: React.MouseEvent<HTMLElement>) => {
-    if (isScoringMenuOpen) {
-      setScoringAnchorEl(null);
-    } else {
-      setScoringAnchorEl(event.currentTarget);
     }
   };
 
@@ -172,11 +166,6 @@ function AppMenu() {
 
   const handleScoringClose = () => {
     setScoringAnchorEl(null);
-  };
-
-  const handleScoringOptionClick = (type: any) => {
-    navigate(`/SixthPage/${type}`);
-    handleScoringClose();
   };
 
   const handleLearningClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -237,7 +226,6 @@ function AppMenu() {
         setIsLoading(false);
       }
     }
-
     getRows(page);
   }, [page, reload]);
 
@@ -410,20 +398,19 @@ function AppMenu() {
                 onMouseEnter={() => handleMouseEnter(1)}
                 onMouseLeave={handleMouseLeave}
               >
-                {/* <img className="h-auto max-w-full rounded-lg" src={lrtPng} /> */}
                 <h1 className="text-white ">Kereta Cepat</h1>
                 <Button
-                  variant="outlined"
+                  variant={!selectedPeserta.id || isSelected ? "outlined" : "contained"}
                   onClick={handleStartClickKcic}
                   disabled={!selectedPeserta.id || isSelected}
                   sx={{
-                    color: "#00a6fb",
+                    color: !selectedPeserta.id || isSelected ? "#00a6fb" : "#ffffff",
                     borderColor: "#00a6fb",
-                    backgroundColor: "#ffffff",
-                    fontSize: "1.2rem", // Adjust the font size as needed
+                    backgroundColor: !selectedPeserta.id || isSelected ? "#ffffff" : "#00a6fb",
+                    fontSize: "1.2rem",
                     "&:hover": {
                       borderColor: "#ffffff",
-                      color: "#ffffff",
+                      color: "#ffffff", 
                       backgroundColor: "#00a6fb",
                     },
                   }}
@@ -449,7 +436,7 @@ function AppMenu() {
               <div
                 className="box gap-6 flex flex-col flex-grow"
                 style={{
-                  backgroundImage: `url(${lrtPng})`, // Use the lrtPng variable as the background image URL
+                  backgroundImage: `url(${lrtPng})`,
                   backgroundColor: "#ffffff",
                   backgroundSize: "cover",
                   backgroundPosition: "center",
@@ -460,17 +447,17 @@ function AppMenu() {
                 <h1 className="text-white ">LRT</h1>
                 {/* {selectedValue2} */}
                 <Button
-                  variant="outlined"
+                  variant={!selectedPeserta.id || isSelected ? "outlined" : "contained"}
                   onClick={handleStartClick}
                   disabled={!selectedPeserta.id || isSelected}
                   sx={{
-                    color: "#00a6fb",
+                    color: !selectedPeserta.id || isSelected ? "#00a6fb" : "#ffffff",
                     borderColor: "#00a6fb",
-                    backgroundColor: "#ffffff",
-                    fontSize: "1.2rem", // Adjust the font size as needed
+                    backgroundColor: !selectedPeserta.id || isSelected ? "#ffffff" : "#00a6fb",
+                    fontSize: "1.2rem",
                     "&:hover": {
                       borderColor: "#ffffff",
-                      color: "#ffffff",
+                      color: "#ffffff", 
                       backgroundColor: "#00a6fb",
                     },
                   }}
@@ -569,11 +556,6 @@ function AppMenu() {
                         <TableCell align="right">
                           <div className="flex gap-2">
                             <Button
-                              type="button"
-                              variant="text"
-                              onClick={() => {
-                                setDetailId(row.id), setDetailOpen(true);
-                              }}
                               sx={{
                                 color: "#00a6fb",
                                 backgroundColor: "#ffffff",
@@ -583,7 +565,16 @@ function AppMenu() {
                                   color: "#ffffff",
                                   backgroundColor: "#00a6fb",
                                 },
+                                "&:active": {
+                                  backgroundColor: "#1aaffb",
+                                },
                               }}
+                              type="button"
+                              variant={detailId === row.id ? "outlined" : "text"}
+                              onClick={() => {
+                                setDetailId(row.id), setDetailOpen(true);
+                              }}
+                              className="w-20 ml-2"
                             >
                               Detail
                             </Button>
@@ -598,15 +589,11 @@ function AppMenu() {
                                   backgroundColor: "#00a6fb",
                                 },
                                 "&:active": {
-                                  backgroundColor: "#00a6fb", // Change background color when clicked
+                                  backgroundColor: "#1aaffb",
                                 },
                               }}
                               type="button"
-                              variant={
-                                selectedPeserta.nip === row.nip
-                                  ? "outlined"
-                                  : "text"
-                              }
+                              variant={selectedPeserta.nip === row.nip ? "outlined" : "text"}
                               onClick={() =>
                                 setSelectedPeserta((prevState) =>
                                   prevState.nip === row.nip
@@ -622,6 +609,7 @@ function AppMenu() {
                             >
                               Pilih
                             </Button>
+
                           </div>
                         </TableCell>
                       </TableRow>
@@ -648,7 +636,10 @@ function AppMenu() {
               <TraineeDetail
                 id={detailId}
                 isOpen={detailOpen}
-                handleClose={() => setDetailOpen(false)}
+                handleClose={() => {
+                  setDetailOpen(false);
+                  setDetailId("");
+                }}
                 handleLog={() => {
                   setDetailOpen(false);
                   handleGetLog();
@@ -725,7 +716,7 @@ function AppMenu() {
                 name="new-nip"
                 variant="standard"
                 fullWidth
-                defaultValue={detailPeserta.nip}
+                defaultValue={detailPeserta.username}
               />
               <div className="my-4 flex gap-4 items-center">
                 <TextField
@@ -761,10 +752,8 @@ function AppMenu() {
               type="submit"
               form="edit"
               variant="contained"
-              // color="success"
               sx={{
                 color: "#ffffff",
-                // borderColor: "#ffffff",
                 backgroundColor: "#1aaffb",
                 "&:hover": {
                   borderColor: "#00a6fb",

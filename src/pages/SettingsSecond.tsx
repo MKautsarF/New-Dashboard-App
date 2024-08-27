@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Button } from "@mui/material";
 import Container from "@/components/Container";
 import { NavigateNext } from "@mui/icons-material";
 import { useSettings } from "../context/settings";
@@ -9,6 +8,15 @@ import ButtonSettings from "@/components/ButtonSettings";
 import { getCourseByInstructor } from "@/services/course.services";
 import { getPayloadFromCourse } from "@/services/course.services";
 import FirstPageIcon from '@mui/icons-material/FirstPage';
+import { 
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+ } from "@mui/material";
+ import { currentInstructor, useAuth } from "@/context/auth";
 
 function useQuery() {
   const { search } = useLocation();
@@ -21,6 +29,8 @@ function SettingsSecond() {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const { settings } = useSettings();
+
+  const { instructor, logout } = useAuth();
 
   const [selectedValue3, setSelectedValue3] = useState<string>("");
   const [selectedValue4, setSelectedValue4] = useState<string>("");
@@ -69,36 +79,15 @@ function SettingsSecond() {
     }
   };
 
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     try {
-  //       const { results } = await getCourseByInstructor(1, 100);
-        
-  //       // Sort alphabetically by title
-  //       results.sort((a: any, b: any) => a.title.localeCompare(b.title));
-  
-  //       const lrtData = results.filter((course: any) => course.description === "LRT")
-  //         .map((course: any) => ({
-  //           title: course.title,
-  //           // requiredCompletion: course.level // Assuming level as requiredCompletion
-  //         }));
-          
-  //       const kcicData = results.filter((course: any) => course.description === "KCIC")
-  //         .map((course: any) => ({
-  //           title: course.title,
-  //           // requiredCompletion: course.level // Assuming level as requiredCompletion
-  //         }));
-  
-  //       setLrtButtons(lrtData);
-  //       setKcicButtons(kcicData);
-  //       setCoursesData(results);
-  //     } catch (error) {
-  //       console.error("Failed to fetch course data:", error);
-  //     }
-  //   };
-  
-  //   fetchData();
-  // }, []);
+  const [logoutOpen, setLogoutOpen] = useState(false);
+
+  const handleLogoutOpen = () => setLogoutOpen(true);
+  const handleLogoutClose = () => setLogoutOpen(false);
+
+  const handleConfirmLogout = () => {
+    logout();
+    navigate('/');
+  };
   
   useEffect(() => {
     const fetchData = async () => {
@@ -167,9 +156,9 @@ function SettingsSecond() {
 
   return (
     <>
-      <Container w={900}>
+      <Container w={900} h={700}>
         <div className="flex flex-col gap-4 w-full">
-          <div className="flex flex-col text-left gap-4 p-6 ">
+          <div className="flex flex-col text-left gap-4 px-6 pt-6 pb-2">
             <h1 style={{ fontSize: "1.75rem", fontWeight: "bold" }}>
               Pengaturan {trainType === "kcic" ? "Kereta Cepat" : trainType.toUpperCase()}
             </h1>
@@ -178,32 +167,85 @@ function SettingsSecond() {
             </p>
           </div>
 
-          <div className="flex flex-col px-6 gap-4 justify-center items-center">
-            {/* Buttons for LRT */}
-            {trainType === "lrt" &&
-              lrtButtons.map((button) => (
-                <ButtonSettings
-                  key={button.id}
-                  buttonName={button}
-                  completion={completion}
-                  onClick={() => handleClick(button.id)}
-                  checkedValue={checkedLRT}
-                  activeButton={activeButton}
-                />
-              ))}
-
-            {/* Buttons for KCIC */}
-            {trainType === "kcic" &&
-              kcicButtons.map((button) => (
-                <ButtonSettings
-                  key={button.id}
-                  buttonName={button}
-                  completion={completion}
-                  onClick={() => handleClick(button.id)}
-                  checkedValue={checkedKCIC}
-                  activeButton={activeButton}
-                />
-              ))}
+          <div className="flex flex-col px-6 gap-4 justify-center items-center h-[470px] overflow-y-auto">
+            {/* Displaying buttons or message based on data availability */}
+            {trainType === "kcic" ? (
+              kcicButtons.length > 0 ? (
+                <div className="w-full overflow-y-auto flex flex-col items-center gap-4">
+                  {kcicButtons.map((button) => (
+                    <ButtonSettings
+                      key={button.id}
+                      buttonName={button}
+                      completion={completion}
+                      onClick={() => handleClick(button.id)}
+                      checkedValue={checkedKCIC}
+                      activeButton={activeButton}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="w-full h-[400px] flex flex-col items-center justify-center">
+                  <p>Belum ada modul, silahkan logout lalu login kembali sebagai admin untuk membuat modul.</p>
+                  <Button
+                    type="button"
+                    color="error"
+                    variant="outlined"
+                    className="mt-6"
+                    onClick={handleLogoutOpen}
+                    sx={{
+                      color: "#df2935",
+                      borderColor: "#df2935",
+                      backgroundColor: "#ffffff",
+                      "&:hover": {
+                        borderColor: "#df2935",
+                        backgroundColor: "#df2935",
+                        color: "#ffffff",
+                      },
+                    }}
+                  >
+                    Logout
+                  </Button>
+                </div>
+              )
+            ) : (
+              lrtButtons.length > 0 ? (
+                <div className="w-full overflow-y-auto flex flex-col items-center gap-4">
+                  {lrtButtons.map((button) => (
+                    <ButtonSettings
+                      key={button.id}
+                      buttonName={button}
+                      completion={completion}
+                      onClick={() => handleClick(button.id)}
+                      checkedValue={checkedLRT}
+                      activeButton={activeButton}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="w-full h-[400px] flex flex-col items-center justify-center">
+                  <p>Belum ada modul, silahkan logout lalu login kembali sebagai admin untuk membuat modul.</p>
+                  <Button
+                    type="button"
+                    color="error"
+                    variant="outlined"
+                    className="mt-6"
+                    onClick={handleLogoutOpen}
+                    sx={{
+                      color: "#df2935",
+                      borderColor: "#df2935",
+                      backgroundColor: "#ffffff",
+                      "&:hover": {
+                        borderColor: "#df2935",
+                        backgroundColor: "#df2935",
+                        color: "#ffffff",
+                      },
+                    }}
+                  >
+                    Logout
+                  </Button>
+                </div>
+              )
+            )}
           </div>
         </div>
 
@@ -214,7 +256,7 @@ function SettingsSecond() {
               type="button"
               color="error"
               variant="outlined"
-              // className="bottom-0 mt-4"
+              className="text-base absolute bottom-6 left-6"
               sx={{
                 color: "#df2935",
                 borderColor: "#df2935",
@@ -235,7 +277,7 @@ function SettingsSecond() {
               type="button"
               color="error"
               variant="outlined"
-              // className="bottom-0 mt-4"
+              className="text-base absolute bottom-6 left-[235px]"
               sx={{
                 color: "#df2935",
                 borderColor: "#df2935",
@@ -275,6 +317,29 @@ function SettingsSecond() {
             ) : null}
           </div>
         </div>
+
+        <Dialog
+          open={logoutOpen}
+          onClose={handleLogoutClose}
+          aria-labelledby="logout-dialog-title"
+          aria-describedby="logout-dialog-description"
+          className="p-6"
+        >
+          <DialogTitle id="logout-dialog-title">Konfirmasi Logout</DialogTitle>
+          <DialogContent>
+            <DialogContentText id="logout-dialog-description">
+              Apakah Anda yakin ingin logout?
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions className="flex p-6 justify-between w-full">
+            <Button onClick={handleLogoutClose} color="primary">
+              Batal
+            </Button>
+            <Button onClick={handleConfirmLogout} color="error" variant="contained">
+              Logout
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Container>
     </>
   );

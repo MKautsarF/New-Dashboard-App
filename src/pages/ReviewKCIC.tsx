@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import lastAutoTable from "jspdf-autotable";
+
 // import { default as mrtjson } from '@/static/MockJSON_MRT.json';
 import Container from "../components/Container";
 import LangkahKerja from "../components/LangkahKerja";
@@ -18,7 +18,7 @@ import {
   Snackbar,
   TextField,
 } from "@mui/material";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   formatDurationToString,
   getFilenameSafeDateString,
@@ -39,22 +39,17 @@ import {
 import dayjs from "dayjs";
 import { useSettings, useSettingsKCIC } from "../context/settings";
 import { useAuth } from "../context/auth";
-import {
-  EditNoteRounded,
-  EditNoteSharp,
-  Stop,
-  WrapText,
-} from "@mui/icons-material";
+import { Assessment, EditNoteRounded, EditNoteSharp, Stop } from "@mui/icons-material";
+import { getScoringDetail } from "@/services/scoring.services";
+import { getUserById } from "@/services/user.services";
+import { uploadLogSubmission } from "@/services/submission.services";
 // const fs = require("fs");
-// import { default as mrtjson } from "C:/Train Simulator/Data/MockJSON_MRT.json";
+// import { default as mrtjson } from "C:/Train Simulator/Data/MockJSON_KRL.json";
 import fs from "fs";
-import { start } from "repl";
-import { wrap } from "module";
 
-interface ToastData {
-  severity: AlertColor;
-  msg: string;
-}
+import { finishSubmissionById } from "@/services/submission.services";
+import { set } from "lodash";
+import { getCourseByID } from "@/services/course.services";
 
 interface TableRow {
   content: string | number;
@@ -68,6 +63,11 @@ interface TableRow {
   };
 }
 
+interface ToastData {
+  severity: AlertColor;
+  msg: string;
+}
+
 function useQuery() {
   const { search } = useLocation();
 
@@ -79,35 +79,72 @@ function ReviewKCIC() {
   const ExcelJS = require("exceljs");
   const navigate = useNavigate();
   const { instructor } = useAuth();
-  const { settingsKCIC } = useSettingsKCIC();
-  // const [json, setJson] = useState<any>(null);
+  const { settings } = useSettings();
 
   const [simulation, setSimulation] = useState(true);
+  const [url, setUrl] = useState<string>("");
   // const jsonPath = "C:/Train Simulator/Data/MockJSON_MRT.json";
+  // const mrtjson = JSON.parse(fs.readFileSync(jsonPath, "utf-8"));
 
   const settingsType = query.get("type");
-
+  const submissionId = query.get("submissionId");
+  const courseId = query.get("courseId");
+  console.log("submissionId", submissionId);
   const jsonPath =
     settingsType === "Default"
-      ? "C:/Train Simulator/Data/MockJSON_MRT.json"
+      ? "C:/Train Simulator/Data/MockJSON_KRL.json"
       : `C:/Train Simulator/Data/kcic_${settingsType}.json`;
 
-  const mrtjson = JSON.parse(fs.readFileSync(jsonPath, "utf-8"));
-
+  const [json, setJson] = useState<any>();
   const [realTimeNilai, setRealTimeNilai] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [open, setOpen] = useState(false);
+  const [courseName, setCourseName] = useState("");
+  const [totalScore, setTotalScore] = useState(null);
   const [toastData, setToastData] = useState<ToastData>({
     severity: "error",
     msg: "",
   });
+  const scoringID = query.get("scoringId");
 
   // Notes
   const [notes, setNotes] = useState("");
   const [notesOpen, setNotesOpen] = useState(false);
 
   const startTime = useMemo(() => dayjs(), []);
+  const [peserta, setPeserta] = useState<any>();
 
+  // async function loadCctv() {
+  //   try {
+  //     await standbyCCTV("config", "standby");
+  //   } catch (error) {
+  //     console.error(error);
+  //   }
+  // }
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        // setIsLoading(true);
+        const res = await getScoringDetail(scoringID);
+        const res2 = await getUserById(localStorage.getItem('selectedPesertaId'));
+        const res3 = await getCourseByID(courseId);
+        console.log("res", res);
+        console.log("res3", res3);
+        setJson(res);
+        setPeserta(res2);
+        setCourseName(res3.title);
+        // console.log("trainee", res2);
+        setIsLoading(false);
+      } catch (error) {
+        console.error(error);
+        setIsLoading(false);
+      }
+    }
+    fetchData();
+  }
+), [];
+  
 
   const handleFinish = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -117,57 +154,61 @@ function ReviewKCIC() {
     try {
       setIsLoading(true);
       const endTime = dayjs();
-
+      
+      // reset CCTV mode
+      // await loadCctv();
+      
       // Get input data from form
       const data = new FormData(currentTarget);
       const inputValues = data.getAll("penilaian");
-
+      
       // Copy krl json mock template
-      const jsonToWrite = mrtjson;
-
+      const jsonToWrite = {
+        ...json,
+        judul_modul: courseName,
+      };
+      
       // Write metadata
       // * Time
       jsonToWrite.waktu_mulai = startTime.format("HH.mm");
       jsonToWrite.waktu_selesai = endTime.format("HH.mm");
-
+      
       const diff = endTime.diff(startTime, "second");
       const hours = Math.floor(diff / 3600);
       const minutes = Math.floor((diff % 3600) / 60);
       const seconds = diff % 60;
-
+      
       jsonToWrite.durasi = formatDurationToString(hours, minutes, seconds);
       jsonToWrite.tanggal = startTime.format("DD/MM/YYYY");
-
+      
       // * Crew data
-      jsonToWrite.nama_crew = settingsKCIC.trainee.name;
+      jsonToWrite.nama_crew = peserta.name;
       jsonToWrite.kedudukan =
-        (settingsKCIC.trainee.bio && settingsKCIC.trainee.bio.position) || "";
+      (peserta.bio && peserta.bio.position) || "";
       jsonToWrite.usia = `${
-        settingsKCIC.trainee.bio && settingsKCIC.trainee.bio.born
-          ? Math.abs(
-              dayjs(settingsKCIC.trainee.bio.born).diff(dayjs(), "years")
-            )
-          : "-"
+        peserta.bio && peserta.bio.born
+        ? Math.abs(dayjs(peserta.bio.born).diff(dayjs(), "years"))
+        : "-"
       } tahun`;
       jsonToWrite.kode_kedinasan =
-        settingsKCIC.trainee.nip ||
-        "";
-
+      peserta.username ||
+      "";
+      
       // * Train data
       jsonToWrite.train_type = "KCIC";
       jsonToWrite.no_ka = "";
       jsonToWrite.lintas =
-        settingsKCIC.stasiunAsal + " - " + settingsKCIC.stasiunTujuan;
-
+      settings.stasiunAsal + " - " + settings.stasiunTujuan;
+      
       // * Instructor data
       jsonToWrite.nama_instruktur = instructor.name;
-
+      
       // * Notes
       jsonToWrite.keterangan = notes === "" ? "-" : notes;
-
+      
       // Write actual nilai to the copied krl json
       let jsonIdx = 0;
-
+      
       jsonToWrite.penilaian.forEach((penilaian: any, i: number) => {
         // console.log('reading penilaian array');
         penilaian.data.forEach((data: any, j: number) => {
@@ -181,27 +222,53 @@ function ReviewKCIC() {
           });
         });
       });
-
+      
       // nilai skor akhir
       jsonToWrite.nilai_akhir = realTimeNilai < 0 ? 0 : realTimeNilai;
+      
+      
+      //generate pdf
+      let pdfname = null;
+      let excelname = null;
+      pdfname = generatePDF(jsonToWrite);
+      console.log("pdf", pdfname);
+      await generateExcel(jsonToWrite).then((excel) => {
+        excelname = excel;
+      });
+      const res = await finishSubmission(jsonToWrite, pdfname.pdfBuffer, pdfname.score, excelname);
 
-      generatePDF(jsonToWrite);
-      generateExcel(jsonToWrite);
       // Save file to local
       const fileName = "KCIC_" + getFilenameSafeDateString(new Date());
 
+      // console.log("tes");
       const dir = "C:/Train Simulator/Data/penilaian";
 
-      if (!fs.existsSync(dir)) {
-        await fs.mkdirSync(dir, { recursive: true });
-      }
+      // if (!fs.existsSync(dir)) {
+      //   await fs.mkdirSync(dir, { recursive: true });
+      // }
 
-      fs.writeFileSync(
-        `${dir}/${fileName}.json`,
-        JSON.stringify(jsonToWrite, null, 2)
-      );
+      // fs.writeFileSync(
+      //   `${dir}/${fileName}.json`,
+      //   JSON.stringify(jsonToWrite, null, 2)
+      // );
 
-      navigate(`/finishKCIC?filename=${fileName}`);
+      // // Hit C# API for score pdf result generation
+      // console.log('tes');
+      // const res = await processFile(fileName, 'on');
+      // const resExcel = await processFileExcel(fileName, 'on');
+      // setToastData({
+      //   severity: 'success',
+      //   msg: `Successfuly saved scores as ${fileName}.pdf!`,
+      // });
+      // setOpen(true);
+      // console.log('tes');
+
+      // open pdf in dekstop
+      // navigate(`/finish?filename=${fileName}`);
+
+      navigate(`/finishKCIC?filename=${fileName}&submissionId=${submissionId}&url=${url}`);
+
+      // shell.openPath(`C:/Train Simulator/Data/penilaian/PDF/${fileName}.pdf`);
     } catch (e) {
       console.error(e);
       setToastData({
@@ -214,6 +281,38 @@ function ReviewKCIC() {
       sendTextToClients(JSON.stringify({ status: "finish" }, null, 2));
     }
   };
+
+  const finishSubmission = async (jsonToWrite: any, pdfbuf: any, score: number, excelbuf:any) => {
+    try {
+      console.log("totalScore2", totalScore);
+      const payload = {
+        score : score,
+        assessment : jsonToWrite
+      }
+      console.log("payload", payload);
+      const res = await finishSubmissionById(Number(submissionId), payload);
+      console.log("Finish button clicked");   
+      console.log("Submission finished:", res);
+      const formData = new FormData();
+      console.log("pdfbuf", pdfbuf);
+      // const pdffile = fs.readFileSync("C:/Train Simulator/Data/penilaian/PDF/"+pdfbuf);
+      // console.log("pdffile", pdffile);
+      const blob = new Blob([pdfbuf], { type: 'application/pdf' });  // or any other appropriate MIME type
+      setUrl(URL.createObjectURL(blob));
+      formData.append("file", blob, "data.pdf");
+      formData.append("tag", "pdf");
+      const resPDF = await uploadLogSubmission(Number(submissionId), formData);
+      console.log(resPDF);
+      const blobExcel = new Blob([excelbuf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,' });  // or any other appropriate MIME type
+      const formDataExcel = new FormData();
+      formDataExcel.append("file", blobExcel, "data.xlsx");
+      formDataExcel.append("tag", "xlsx");
+      const resExcel = await uploadLogSubmission(Number(submissionId), formDataExcel);
+      console.log(resExcel);
+    } catch (error) {
+      console.error(error);
+    }
+  }
 
   const generatePDF = (json: any) => {
     const doc = new jsPDF();
@@ -549,6 +648,9 @@ function ReviewKCIC() {
     // convert average akhir to 2 decimal
     averageAkhir = Math.floor(averageAkhir * 10) / 10;
     const averageTotal = (averageAkhir + json.nilai_akhir) / 2;
+    setTotalScore(averageTotal);
+    console.log("averagetotal",averageTotal)
+    console.log("totalscore1", totalScore);
     doc.addPage();
     doc.setFontSize(20);
     doc.text("Rata-rata Total Penilaian", 14, 20);
@@ -580,18 +682,49 @@ function ReviewKCIC() {
     });
     // Save PDF file using fs
     const fileName = "KCIC_" + getFilenameSafeDateString(new Date()) + ".pdf";
+    // put file in penilaian/pdf in this folder project
+    const formData = new FormData();
     const dir = "C:/Train Simulator/Data/penilaian/PDF";
-
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-
-    const pdfBuffer = doc.output("arraybuffer");
-
-    fs.writeFileSync(`${dir}/${fileName}`, Buffer.from(pdfBuffer));
-
-    return `${fileName} saved successfully.`;
+    
+    
+    // if (!fs.existsSync(dir)) {
+    //   fs.mkdirSync(dir, { recursive: true });
+    // }
+    
+    //rounding averageTotal to integer
+    const score = Math.round(averageTotal);
+    
+    const pdfBuffer = doc.output("blob");
+    console.log("pdfBuffer", pdfBuffer);
+    return {pdfBuffer, score};
+    // const blob = new Blob([pdfBuffer], { type: 'application/pdf' });  // or any other appropriate MIME type
+    
+    // // Use the Blob as needed, e.g., append to FormData
+    //     formData.append('file', blob, 'data.pdf');
+    //     formData.append('tag', 'pdf');
+    //     console.log(formData)
+    //     try {
+      //       const res = await uploadLogSubmission(Number(submissionId), formData);
+      //       console.log(res)
+      //     }
+      //     catch (error) {
+        //       console.error(error);
+        //     }
+        
+        // fs.writeFileSync(`${dir}/${fileName}`, Buffer.from(pdfBuffer));
+        // return fileName;
+    
   };
+
+  async function uploadPDF(formData: FormData) {
+    try {
+      const res = await uploadLogSubmission(Number(submissionId), formData);
+      console.log("PDF uploaded:", res);
+    }
+    catch (error) {
+      console.error(error);
+    }
+  }
 
   async function generateExcel(json: any) {
     try {
@@ -752,13 +885,23 @@ function ReviewKCIC() {
       // worksheet.getColumn(0).width = 5;
 
       const buf = await workbook.xlsx.writeBuffer();
-      const dir = "C:/Train Simulator/Data/penilaian/Excel";
-      const fileName = "KCIC_" + getFilenameSafeDateString(new Date());
+      return buf;
+      // console.log("blob",buf)
+      // const blob = new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+      // console.log("blob", blob)
+      // const formData = new FormData();
+      // formData.append("file", blob, "data.xlsx");
+      // formData.append("tag", "xlsx");
+      // const res = await uploadLogSubmission(Number(submissionId), formData);
+      // console.log("Excel uploaded:", res);
+      
+      // const dir = "C:/Train Simulator/Data/penilaian/Excel";
+      // const fileName = "LRT_" + getFilenameSafeDateString(new Date());
 
-      if (!fs.existsSync(dir)) {
-        await fs.mkdirSync(dir, { recursive: true });
-      }
-      fs.writeFileSync(`${dir}/${fileName}.xlsx`, buf);
+      // if (!fs.existsSync(dir)) {
+      //   await fs.mkdirSync(dir, { recursive: true });
+      // }
+      // fs.writeFileSync(`${dir}/${fileName}.xlsx`, buf);
     } catch (err) {
       console.log(err);
     }
@@ -789,7 +932,7 @@ function ReviewKCIC() {
 
         console.log("received data: ", jsonData);
 
-        if (jsonData.id === "M1.1.1") {
+        if (jsonData.id === "K1.1.1") {
           setRealTimeNilai(Number(jsonData.nilai));
         }
       });
@@ -849,7 +992,7 @@ function ReviewKCIC() {
         {/* Looping penilaian */}
         <Box component="form" id="penilaian-form" onSubmit={handleFinish}>
           <div>
-            {mrtjson.penilaian.map((nilai: any, i: number) => (
+            {json?.penilaian.map((nilai: any, i: number) => (
               <section key={nilai.unit} className="pt-8 text-left ">
                 <h2
                   style={{ fontSize: "1.5rem", fontWeight: "bold" }}

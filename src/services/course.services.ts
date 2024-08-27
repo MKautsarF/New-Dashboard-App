@@ -3,7 +3,7 @@ import services from ".";
 
 // INSTRUCTOR
 
-export const getCourseByInstructor = async (page: number, size: number) => {
+export const getCourseByInstructor = async (page: number, size: number) => {  
   const res = await services.get(`/instructor/course?page=${page}&size=${size}`);
 
   return res.data;

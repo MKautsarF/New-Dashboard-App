@@ -18,6 +18,8 @@ import {
   TableRow,
   CircularProgress,
   Typography,
+  Tab,
+  Tabs
 } from '@mui/material';
 import ReplayIcon from '@mui/icons-material/Replay';
 import Container from '@/components/Container';
@@ -48,7 +50,8 @@ import TaskAltIcon from '@mui/icons-material/TaskAlt';
 import { getUserById } from "@/services/user.services";
 import { getCourseByInstructor } from '@/services/course.services';
 import { getScoringByCourseInstructor, getScoringByInstructor } from '@/services/scoring.services';
-import { get } from 'lodash';
+import { each, get } from 'lodash';
+import { arrayBuffer } from 'stream/consumers';
 
 
 interface RowData {
@@ -60,6 +63,7 @@ interface RowData {
   module: string;
   score: string;
   scoring: string;
+  courseId: string;
 }
 
 interface UserLog {
@@ -81,8 +85,9 @@ interface Course {
 }
 
 interface Scoring {
-    id: number;
     title: string;
+    score: string;
+    checkstate: boolean;
 }
 
 function useQuery() {
@@ -96,6 +101,9 @@ const UserLog = () => {
   const navigate = useNavigate();
   const userId = query.get("id");
 
+  //temporary
+  const videopath = "C:/Users/Harits/Downloads/Embed external website page and display only particular portion of it in a webpage.mp4"
+
   const [isLoading, setIsLoading] = useState(false);
 
   const [pageLoading, setPageLoading] = useState(false);
@@ -103,25 +111,124 @@ const UserLog = () => {
   const [rows, setRows] = useState<RowData[]>([]);
   const [totalData, setTotalData] = useState(0);
   const [page, setPage] = useState(1);
-  
 
-  const handleCheckboxChange = (index: any) => {
-    const updatedCheckedState = checkedState.map((item, i) =>
-      i === index ? !item : item
-    );
-    setCheckedState(updatedCheckedState);
+  const [activeDiagramTab, setActiveDiagramTab] = useState(0);
+  const [kcicDiagramData, setKCICDiagramData] = useState<any[]>([]);
+  const [lrtDiagramData, setLrtDiagramData] = useState<any[]>([]);
+  const [submissionList, setSubmissionList] = useState<any[]>([]);
+  const [completionPercentage, setCompletionPercentage] = useState(0);
+
+  const fetchCourseData = async () => {
+    try {
+      const response  = await getCourseByInstructor(1,100);
+      console.log("resssss", response)
+
+      // Filter courses based on the description
+      const lrtData = response.results.filter((course: any) => course.description === "LRT")
+          .map((course: any) => ({
+            id: course.id,
+            title: course.title,
+          }));
+          
+        const kcicData = response.results.filter((course: any) => course.description === "KCIC")
+          .map((course: any) => ({
+            id: course.id,
+            title: course.title,
+          }));
+          console.log("kcic", kcicData)
+      // Set state with the filtered data
+      setKCICDiagramData(kcicData);
+      setLrtDiagramData(lrtData);
+    } catch (error) {
+      console.error('Error fetching course data:', error);
+    }
   };
 
-  const levels = [
-    { level: "Level 1", value: 100 },
-    { level: "Level 2", value: "-" },
-    { level: "Level 3", value: "-" },
-    { level: "Level 4", value: "-" },
-    { level: "Level 5", value: "-" },
-    { level: "Level 6", value: "-" },
-  ];
+  const fetchSubmissionData = async () => {
+    try {
+      const response = await getSubmissionList(userId);
+      setSubmissionList(response.results);
+    } catch (error) {
+      console.error('Error fetching submission data:', error);
+    }
+  };
 
-  const [checkedState, setCheckedState] = useState(levels.map(level => level.value !== '-'));
+  const handleLevel = (diagramData: any) =>{
+    const updatedLevels = [...levels];
+    for(let j = 0; j < diagramData.length; j++){
+      let highestScore = -1;
+      const submissionCourse = submissionList.filter((submission) =>  submission.courseId == diagramData[j].id);
+      console.log("ini dia", submissionCourse)
+      if (submissionCourse.length > 0) {
+        for (let i = 0; i < submissionCourse.length; i++){
+          console.log("perbandingan", submissionCourse[i].score, highestScore)
+            if (submissionCourse[i].score > highestScore){
+              highestScore = submissionCourse[i].score 
+            }
+        }
+      }
+      const scoring = {
+        title : diagramData[j].title,
+        score: (highestScore == -1) ? '-' : highestScore.toLocaleString(),
+        checkstate: (highestScore > -1)
+      }
+      console.log("kiwkiw",scoring)
+      updatedLevels[j] = scoring
+    };
+    console.log(updatedLevels)
+    setLevels(updatedLevels)
+  }
+
+  const calculateCompletionPercentage = (diagramData: any) => {
+    let completion = 0
+    diagramData.forEach((course: any) => {
+      console.log("submission", submissionList)
+      const submissionCourse = submissionList.filter((submission) =>  submission.courseId == course.id);
+      if (submissionCourse.length > 0){
+        completion += 1
+      }
+    });
+    console.log("completion", completion)
+      const total = diagramData.length
+    return  (completion / total) * 100;
+  };
+
+  useEffect(() => {
+    fetchCourseData();
+    if (userId) {
+      fetchSubmissionData();
+    }
+  }, [userId]);
+
+  useEffect(() => {
+    console.log("kcic data", kcicDiagramData)
+    console.log("lrt data", lrtDiagramData)
+    const diagramData = activeDiagramTab === 0 ? kcicDiagramData : lrtDiagramData;
+    console.log("diagram data", diagramData)
+    const percentage = calculateCompletionPercentage(diagramData);
+    handleLevel(diagramData)
+    console.log("percentage", percentage)
+    setCompletionPercentage(percentage);
+  }, [kcicDiagramData, lrtDiagramData, submissionList, activeDiagramTab]);
+
+  const handleDiagramTabChange = (event: any, newValue: any) => {
+    setActiveDiagramTab(newValue);
+  };
+
+  const diagramData = activeDiagramTab === 0 ? kcicDiagramData : lrtDiagramData;
+  const totalModuls = diagramData.length;
+  
+  const [activeModuleTab, setActiveModuleTab] = useState(0);
+
+  const handleModuleTabChange = (event: any, newValue: any) => {
+    setActiveModuleTab(newValue);
+  };
+
+  
+
+  const [levels, setLevels] = useState<Scoring[]>([{title: "kk", score: "-", checkstate:false}]);
+
+  const [checkedState, setCheckedState] = useState(levels.map(level => level.score != '-'));
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage + 1);
@@ -131,23 +238,11 @@ const UserLog = () => {
     navigate(-1);
   };
   
-  const totalLevels = 6;
+  // const totalLevels = 6;
   const data = [
     { label: 'Selesai', value: 1, color: "#1aaffb" },
   ];
 
-  const selesaiValue = data.find(item => item.label === 'Selesai')?.value || 0;
-  const belumSelesaiValue = totalLevels - selesaiValue;
-
-  // Add dynamically calculated "Belum Selesai" data
-  data.push({ label: 'Belum Selesai', value: belumSelesaiValue, color: '#6e6e6e' });
-
-  const calculateCompletionPercentage = () => {
-    const completionPercentage = belumSelesaiValue === 0 ? 100 : (selesaiValue / totalLevels) * 100;
-    return completionPercentage.toFixed(2);
-  };
-
-  const [completionPercentage, setCompletionPercentage] = useState(calculateCompletionPercentage());
   
   const dataNilai = [
     { level: '0'},
@@ -185,7 +280,7 @@ const UserLog = () => {
   const [rataRataNilai, setRataRataNilai] = useState(calculateAverage());
   const [userLog, setUserLog] = useState<UserLog | null>(null);
   const [submissionId, setSubmissionId] = useState(null);
-  const [submissionList, setSubmissionList] = useState<any[]>([]);
+
 
   const [modalOpen, setModalOpen] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
@@ -205,6 +300,7 @@ const UserLog = () => {
 
   const isPDFMenuOpen = Boolean(pdfAnchorEl);
   const isExcelMenuOpen = Boolean(pdfAnchorEl);
+
 
   useEffect(() => {
     const fetchSubmission = async () => {
@@ -298,6 +394,24 @@ const UserLog = () => {
     setPDFAnchorEl(null);
   };
 
+  const handleOpenExcel = async (id: any) => {
+    setSubmissionId(id);
+    try {
+      const excelres = await getSubmissionLogByTag(Number(submissionId), 'xlsx');
+      console.log('excelres', excelres);
+      const excelfile = await getSubmissionLogByFileIndex(Number(submissionId),excelres.results[0].id);
+      console.log('excelfile', excelfile);
+      const blob = new Blob([excelfile], { type: 'application/vnd.ms-excel' });
+      const urlfile = URL.createObjectURL(blob);
+      setExcel(excelfile);
+      setUrl(urlfile);
+      setPreviewOpen(true);
+    } catch (error) {
+      console.error('Error fetching or opening PDF:', error);
+    }
+    setExcelAnchorEl(null);
+  };
+
   const handleExcelClick = (event: React.MouseEvent<HTMLElement>) => {
     if (isExcelMenuOpen) {
       setExcelAnchorEl(null);
@@ -309,6 +423,15 @@ const UserLog = () => {
   const handleExcelUnclick = () => {
     setExcelAnchorEl(null);
   };
+
+  const handleVideoPreview = () => {
+    //load video file from videopath
+    const video = fs.readFileSync(videopath)
+    const blob = new Blob([video], { type: 'video/mp4'});
+    const urel = URL.createObjectURL(blob);
+    setUrl(urel)
+    setPreviewOpen(true)
+  }
   const [getSubmission, setGetSubmission] = useState(false);
 
   const [courseMap, setCourseMap] = useState<Map<number, string>>(new Map());
@@ -324,20 +447,6 @@ const UserLog = () => {
                 setSubmissionList(response2.results);
                 setUserLog(response);
 
-                // const coursesData = await getCourseByInstructor(1, 100);
-                // const courses: Course[] = coursesData.results || [];
-
-                // const newCourseMap = new Map(courses.map((course: any) => [course.id, course.title]));
-                // setCourseMap(newCourseMap);
-
-                // const scoringsData = await getScoringByInstructor();
-                // const scorings: Scoring[] = scoringsData.results || [];
- 
-                // const newScoringMap = new Map(scorings.map((scoring: any) => [scoring.id, scoring.title]));
-                // setScoringMap(newScoringMap);
-
-                // console.log("scoringdata", newScoringMap);
-
                 const resRows = response2.results.map((submission: any) => ({
                     id: submission.id,
                     date: submission.createdAt,
@@ -347,7 +456,8 @@ const UserLog = () => {
                     module: '',
                     score: submission.score,
                     // scoring: submission.courseExamId
-                    scoring: ''
+                    scoring: '',
+                    courseId: submission.courseId
                   }));
                 
                 setRows(resRows);
@@ -387,34 +497,36 @@ const UserLog = () => {
           Log Peserta
         </h1>
         <Box component="form" className="grid gap-4 w-full mb-2">
-          <div className="title grid grid-cols-4">
-            <div>
-              <p className='text-xl'>
-                <b>Nama:</b> {userLog?.name}
-              </p>
-            </div>
-            <div className="col-span-1">
-              <p className='text-xl'>
-                <b>NIP:</b> {userLog?.username}
-              </p>
-            </div>
-            <div className="col-span-1">
-              <p className='text-xl'>
-                <b>Kedudukan:</b> {userLog?.bio.position}
-              </p>
-            </div>
-            <div className="col-span-1">
-              <p className='text-xl'>
-                <b>Tanggal Lahir:</b> {dayjs(userLog?.bio.born).format('DD MMM YYYY')}
-              </p>
-            </div>
+          <div className="title grid grid-cols-4 gap-4">
+            <p className='text-xl'>
+              <b>Nama:</b> {userLog?.name}
+            </p>
+            <p className='text-xl'>
+              <b>NIP:</b> {userLog?.username}
+            </p>
+            <p className='text-xl'>
+              <b>Kedudukan:</b> {userLog?.bio.position}
+            </p>
+            <p className='text-xl'>
+              <b>Tanggal Lahir:</b> {dayjs(userLog?.bio.born).format('DD MMM YYYY')}
+            </p>
           </div>
         </Box>
 
         <div className="flex items-center gap-2 mb-2">
           <div className="w-1/2 h-[300px] flex flex-col border border-solid">
             <Typography className="pl-4 pt-4 text-xl" position='absolute'>Penyelesaian Modul:</Typography>
-            {rows.length > 0 ? (
+
+            <Tabs
+              value={activeDiagramTab}
+              onChange={handleDiagramTabChange}
+              className='absolute pl-[366px]'
+            >
+              <Tab label="Kereta Cepat" />
+              <Tab label="LRT" />
+            </Tabs>
+
+            {diagramData.length > 0 ? (
               <>
                 <div className="flex items-center justify-center h-52 flex-grow pt-4">
                   <PieChart
@@ -423,7 +535,7 @@ const UserLog = () => {
                         paddingAngle: 2,
                         innerRadius: 80,
                         outerRadius: 100,
-                        data,
+                        data: diagramData,
                       },
                     ]}
                     margin={{ right: 120 }}
@@ -433,7 +545,7 @@ const UserLog = () => {
                       legend: { hidden: false, position: {vertical: 'middle', horizontal: 'right'}, direction: 'column' }
                     }}
                   />
-                  <Typography className="absolute text-center text-2xl" style={{ top: '236px', left: '213px'}}>{completionPercentage}%<br></br>{selesaiValue}/{totalLevels} Modul</Typography>
+                  <Typography className="absolute text-center text-2xl" style={{ top: '236px', left: '213px'}}>{completionPercentage.toFixed(2)}%<br />{totalModuls} Modul</Typography>
                 </div>
               </>
             ) : (
@@ -444,44 +556,34 @@ const UserLog = () => {
           </div>
           <div className="w-1/2 h-[300px] flex border border-solid">
             <Typography className="pl-4 pt-4 text-xl" position='absolute'>Nilai Penyelesaian Modul Terbaru:</Typography>
+
+            <Tabs
+              value={activeModuleTab}
+              onChange={handleModuleTabChange}
+              className='absolute pl-80'
+            >
+              <Tab label="Kereta Cepat" />
+              <Tab label="LRT" />
+            </Tabs>
+
             {rows.length > 0 ? (
               <>
-                <div className='flex items-center justify-center w-full h-full pt-16 pb-4'>
+                <div className='flex items-center justify-center w-full h-full pt-16 pb-4 overflow-y-auto'>
                   <div className='w-full h-full flex'>
-                    <div className='w-1/2 h-full'>
-                      {levels.slice(0, 3).map((level, index) => (
+                    <div className='w-full h-full'>
+                      {levels.map((level, index) => (
                         <div className='w-full h-1/3 flex items-center justify-center px-3 py-2' key={index}>
-                          <div className={`w-full h-full flex items-center justify-center border-2 border-solid rounded-3xl ${checkedState[index] ? 'bg-[#1aaffb] text-white' : ''}`}>
+                          <div className={`w-full h-full flex items-center justify-center border-2 border-solid rounded-3xl ${level.checkstate ? 'bg-[#1aaffb] text-white' : ''}`}>
                             <div className='w-1/4 h-1/2 flex items-center justify-center'>
                               <Checkbox
                                 icon={<RadioButtonUncheckedIcon />}
                                 checkedIcon={<TaskAltIcon sx={{ color: 'white' }} />}
-                                checked={checkedState[index]}
-                                onChange={() => handleCheckboxChange(index)}
+                                checked={level.checkstate}
                                 disabled
                               />
                             </div>
-                            <div className={`w-2/4 h-1/2 flex items-center text-lg ${checkedState[index] ? 'text-white' : ''}`}>{level.level}</div>
-                            <div className={`w-1/4 h-1/2 flex items-center text-lg ${checkedState[index] ? 'text-white' : ''}`}>{level.value}</div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                    <div className='w-1/2 h-full'>
-                      {levels.slice(3, 6).map((level, index) => (
-                        <div className='w-full h-1/3 flex items-center justify-center px-3 py-2' key={index + 3}>
-                          <div className={`w-full h-full flex items-center justify-center border-2 border-solid rounded-3xl ${checkedState[index + 3] ? 'bg-[#1aaffb] text-white' : ''}`}>
-                            <div className='w-1/4 h-1/2 flex items-center justify-center'>
-                              <Checkbox
-                                icon={<RadioButtonUncheckedIcon />}
-                                checkedIcon={<TaskAltIcon sx={{ color: 'white' }} />}
-                                checked={checkedState[index + 3]}
-                                onChange={() => handleCheckboxChange(index + 3)}
-                                disabled
-                              />
-                            </div>
-                            <div className={`w-2/4 h-1/2 flex items-center text-lg ${checkedState[index + 3] ? 'text-white' : ''}`}>{level.level}</div>
-                            <div className={`w-1/4 h-1/2 flex items-center text-lg ${checkedState[index + 3] ? 'text-white' : ''}`}>{level.value}</div>
+                            <div className={`w-2/4 h-1/2 flex items-center text-lg ${level.checkstate ? 'text-white' : ''}`}>{level.title}</div>
+                            <div className={`w-1/4 h-1/2 flex items-center text-lg ${level.checkstate ? 'text-white' : ''}`}>{level.score}</div>
                           </div>
                         </div>
                       ))}
@@ -497,7 +599,7 @@ const UserLog = () => {
           </div>
         </div>
         
-        <TableContainer className="mb-8" component={Paper}>
+        <TableContainer className="mb-8 h-[370px]" component={Paper}>
           <Table stickyHeader aria-label="Tabel Peserta">
             <colgroup>
               <col width="18%" />
@@ -603,7 +705,7 @@ const UserLog = () => {
                             horizontal: 'center',
                           }}
                         >
-                        <MenuItem>
+                        <MenuItem onClick={() => handleOpenExcel(row.id)}>
                             Preview
                         </MenuItem>
                         <MenuItem>
@@ -617,6 +719,7 @@ const UserLog = () => {
                         variant="outlined"
                         color="primary"
                         className='w-[60px] h-[36px]'
+                        onClick={handleVideoPreview}
                       >
                         {<ReplayIcon style={{fontSize: 17}}/>}
                       </Button>
@@ -644,7 +747,7 @@ const UserLog = () => {
             type="button"
             variant="contained"
             startIcon={<NavigateBefore />}
-            className="text-base"
+            className="text-base absolute bottom-6 left-6"
             onClick={() => handleBack()}
             sx={{
                 color: "#ffffff",
