@@ -138,7 +138,7 @@ const ModulDialog: React.FC<ModulDialogProps> = ({
               }}
             >
               {Object.keys(sourceSettings).map((key) => (
-                <MenuItem key={key} value={key}>{key.toUpperCase()}</MenuItem>
+                <MenuItem key={key} value={key}>{key.toUpperCase() === "KCIC" ? "Kereta Cepat" : key.toUpperCase()}</MenuItem>
               ))}
             </Select>
           </FormControl>

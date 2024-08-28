@@ -158,10 +158,8 @@ const UserLog = () => {
     for(let j = 0; j < diagramData.length; j++){
       let highestScore = -1;
       const submissionCourse = submissionList.filter((submission) =>  submission.courseId == diagramData[j].id);
-      console.log("ini dia", submissionCourse)
       if (submissionCourse.length > 0) {
         for (let i = 0; i < submissionCourse.length; i++){
-          console.log("perbandingan", submissionCourse[i].score, highestScore)
             if (submissionCourse[i].score > highestScore){
               highestScore = submissionCourse[i].score 
             }
@@ -172,25 +170,24 @@ const UserLog = () => {
         score: (highestScore == -1) ? '-' : highestScore.toLocaleString(),
         checkstate: (highestScore > -1)
       }
-      console.log("kiwkiw",scoring)
       updatedLevels[j] = scoring
     };
-    console.log(updatedLevels)
     setLevels(updatedLevels)
   }
+
+  const [completion, setCompletion] = useState(0);
+  const [totalModuls, setTotalModuls] = useState(0);
 
   const calculateCompletionPercentage = (diagramData: any) => {
     let completion = 0
     diagramData.forEach((course: any) => {
-      console.log("submission", submissionList)
       const submissionCourse = submissionList.filter((submission) =>  submission.courseId == course.id);
       if (submissionCourse.length > 0){
         completion += 1
       }
     });
-    console.log("completion", completion)
-      const total = diagramData.length
-    return  (completion / total) * 100;
+      const totalModuls = diagramData.length
+    return  (completion / totalModuls) * 100;
   };
 
   useEffect(() => {
@@ -200,87 +197,67 @@ const UserLog = () => {
     }
   }, [userId]);
 
-  useEffect(() => {
-    console.log("kcic data", kcicDiagramData)
-    console.log("lrt data", lrtDiagramData)
-    const diagramData = activeDiagramTab === 0 ? kcicDiagramData : lrtDiagramData;
-    console.log("diagram data", diagramData)
-    const percentage = calculateCompletionPercentage(diagramData);
-    handleLevel(diagramData)
-    console.log("percentage", percentage)
-    setCompletionPercentage(percentage);
-  }, [kcicDiagramData, lrtDiagramData, submissionList, activeDiagramTab]);
+  const calculateCompletion = (diagramData: any) => {
+    let completionCount = 0;
+    diagramData.forEach((course: any) => {
+      const submissionCourse = submissionList.filter(
+        (submission) => submission.courseId === course.id
+      );
+      if (submissionCourse.length > 0) {
+        completionCount += 1;
+      }
+    });
+    const totalModuls = diagramData.length;
+    return { completion: completionCount, totalModuls };
+  };
+  
+  const diagramData = activeDiagramTab === 0 ? kcicDiagramData : lrtDiagramData;
 
+  useEffect(() => {
+    const diagramData = activeDiagramTab === 0 ? kcicDiagramData : lrtDiagramData;
+    const percentage = calculateCompletionPercentage(diagramData);
+    const { completion, totalModuls } = calculateCompletion(diagramData)
+    handleLevel(diagramData)
+    setCompletion(completion)
+    setTotalModuls(totalModuls)
+    setCompletionPercentage(percentage);
+  }, [diagramData, activeDiagramTab]);
+
+  
   const handleDiagramTabChange = (event: any, newValue: any) => {
     setActiveDiagramTab(newValue);
   };
+  
 
-  const diagramData = activeDiagramTab === 0 ? kcicDiagramData : lrtDiagramData;
-  const totalModuls = diagramData.length;
+  const pieDiagramData = [
+    { id: 'selesai', label: 'Selesai', value: completion, color: "#1aaffb" },
+    { id: 'belum selesai', label: 'Belum Selesai', value: totalModuls - completion, color: '#6e6e6e' },
+  ];
+
+  const adjustedPieDiagramData = diagramData.length === 0 ? 
+  [ { id: 'selesai', label: 'Selesai', value: 0, color: "#1aaffb" },
+    { id: 'belum selesai', label: 'Belum Selesai', value: totalModuls, color: '#6e6e6e' }] : pieDiagramData;
+
   
   const [activeModuleTab, setActiveModuleTab] = useState(0);
+  
+  useEffect(() => {
+    const diagramData = activeModuleTab === 0 ? kcicDiagramData : lrtDiagramData;
+    handleLevel(diagramData)
+  }, [activeModuleTab]);
 
   const handleModuleTabChange = (event: any, newValue: any) => {
     setActiveModuleTab(newValue);
   };
-
   
-
   const [levels, setLevels] = useState<Scoring[]>([{title: "kk", score: "-", checkstate:false}]);
-
-  const [checkedState, setCheckedState] = useState(levels.map(level => level.score != '-'));
-
-  const handleChangePage = (event: unknown, newPage: number) => {
-    setPage(newPage + 1);
-  };
 
   const handleBack = () => {
     navigate(-1);
   };
-  
-  // const totalLevels = 6;
-  const data = [
-    { label: 'Selesai', value: 1, color: "#1aaffb" },
-  ];
 
-  
-  const dataNilai = [
-    { level: '0'},
-    { level: '1', nilai: 35 },
-    { level: '2', nilai: 100 },
-    { level: '3', nilai: 100 },
-    { level: '4', nilai: 0 },
-    { level: '5', nilai: 15 },
-    { level: '6', nilai: 0 },
-    { level: '7', nilai: 60 },
-    { level: '8', nilai: 88 },
-    { level: '9', nilai: 12 },
-    { level: '10', nilai: 85 },
-  ];
-
-  // Menghitung rata-rata nilai
-  const calculateAverage = () => {
-    const totalNilai = dataNilai
-      .filter(item => item.level !== '0') // Filter level 0
-      .reduce((acc, curr) => acc + (curr.nilai || 0), 0);
-
-    const jumlahData = dataNilai.filter(item => item.level !== '0').length;
-
-    let rataRataNilai = (totalNilai / jumlahData).toFixed(2);
-
-    if (rataRataNilai.endsWith('.00')) {
-      rataRataNilai = rataRataNilai.slice(0, -3);
-    } else if (rataRataNilai.endsWith('.50')) {
-      rataRataNilai = rataRataNilai.slice(0, -1);
-    }
-
-    return parseFloat(rataRataNilai); // Konversi ke number
-  };
-
-  const [rataRataNilai, setRataRataNilai] = useState(calculateAverage());
   const [userLog, setUserLog] = useState<UserLog | null>(null);
   const [submissionId, setSubmissionId] = useState(null);
-
 
   const [modalOpen, setModalOpen] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
@@ -306,16 +283,11 @@ const UserLog = () => {
     const fetchSubmission = async () => {
       try {
         const res = await getSubmissionById(Number(submissionId));
-        console.log('submission', res);
         const pdfres = await getSubmissionLogByTag(Number(submissionId), 'pdf');
-        console.log('pdfres', pdfres.results[0]);
         const pdffile = await getSubmissionLogByFileIndex(Number(submissionId),pdfres.results[0].id);
-        console.log('pdffile', pdffile);
         setPdf(pdffile);
         const excelres = await getSubmissionLogByTag(Number(submissionId), 'xlsx');
-        console.log('excelres', excelres);
         const excelfile = await getSubmissionLogByFileIndex(Number(submissionId),excelres.results[0].id);
-        console.log('excelfile', excelfile);
         setExcel(excelfile);
       } catch (e) {
         console.error(e);
@@ -334,15 +306,12 @@ const UserLog = () => {
     setSubmissionId(id);
     try {
       const pdfres = await getSubmissionLogByTag(Number(id), 'pdf');
-      console.log('pdfres', pdfres.results[0]);
       const pdffile = await getSubmissionLogByFileIndex(Number(id), pdfres.results[0].id);
-      console.log('pdffile', pdffile);
       const blob = new Blob([pdffile], { type: 'application/pdf' });
       const urlfile = URL.createObjectURL(blob);
       setPdf(pdffile);
       setUrl(urlfile);
       setIsExcel(false);
-      console.log('url', urlfile);
       setPreviewOpen(true);
     } catch (error) {
       console.error('Error fetching or opening PDF:', error);
@@ -354,15 +323,12 @@ const UserLog = () => {
     setSubmissionId(id);
     try {
         const pdfres = await getSubmissionLogByTag(id, 'pdf');
-        console.log('pdfres', pdfres.results[0]);
-
         if (pdfres.results.length === 0) {
             console.error('No PDF results found');
             return;
         }
 
         const pdffile = await getSubmissionLogByFileIndex(id, pdfres.results[0].id);
-        console.log('pdffile', pdffile);
 
         const blob = new Blob([pdffile], { type: 'application/pdf' });
 
@@ -398,7 +364,6 @@ const UserLog = () => {
     setSubmissionId(id);
     try {
       const excelres = await getSubmissionLogByTag(Number(submissionId), 'xlsx');
-      console.log('excelres', excelres);
       const excelfile = await getSubmissionLogByFileIndex(Number(submissionId),excelres.results[0].id);
       console.log('excelfile', excelfile);
       const blob = new Blob([excelfile], { type: 'application/vnd.ms-excel' });
@@ -425,7 +390,6 @@ const UserLog = () => {
   };
 
   const handleVideoPreview = () => {
-    //load video file from videopath
     const video = fs.readFileSync(videopath)
     const blob = new Blob([video], { type: 'video/mp4'});
     const urel = URL.createObjectURL(blob);
@@ -455,7 +419,6 @@ const UserLog = () => {
                     finish: submission.finishedAt, 
                     module: '',
                     score: submission.score,
-                    // scoring: submission.courseExamId
                     scoring: '',
                     courseId: submission.courseId
                   }));
@@ -479,10 +442,8 @@ const UserLog = () => {
       if (getSubmission) {
         rows.map(async (row) => {
           const res = await getSubmissionById(Number(row.id));
-          console.log('submission', res.exam?.assessment?.judul_modul);
           row.module = res.exam?.assessment?.judul_modul
           row.scoring = res.exam?.assessment?.judul_penilaian
-          // set to rows
           setRows([...rows]);
         });
         setGetSubmission(false);
@@ -515,87 +476,97 @@ const UserLog = () => {
 
         <div className="flex items-center gap-2 mb-2">
           <div className="w-1/2 h-[300px] flex flex-col border border-solid">
-            <Typography className="pl-4 pt-4 text-xl" position='absolute'>Penyelesaian Modul:</Typography>
-
-            <Tabs
-              value={activeDiagramTab}
-              onChange={handleDiagramTabChange}
-              className='absolute pl-[366px]'
-            >
-              <Tab label="Kereta Cepat" />
-              <Tab label="LRT" />
-            </Tabs>
-
-            {diagramData.length > 0 ? (
-              <>
-                <div className="flex items-center justify-center h-52 flex-grow pt-4">
+            <div className='flex w-full h-1/5 justify-between'>
+              <div>
+                <Typography className="pl-3 pt-2 text-xl" >Penyelesaian Modul:</Typography>  
+              </div>
+              <div className='w-[229.44px]'>
+                <Tabs
+                  value={activeDiagramTab}
+                  onChange={handleDiagramTabChange}
+                >
+                  <Tab label="Kereta Cepat" />
+                  <Tab label="LRT" />
+                </Tabs>
+              </div>
+            </div>
+            <div className="flex items-center justify-center w-full h-full -mt-4 pb-4 flex-grow">
+              {kcicDiagramData.length > 0 || lrtDiagramData.length > 0 ? (
+                <>
                   <PieChart
                     series={[
                       {
-                        paddingAngle: 2,
-                        innerRadius: 80,
-                        outerRadius: 100,
-                        data: diagramData,
+                        innerRadius: 75,
+                        outerRadius: 95,
+                        data: adjustedPieDiagramData,
                       },
                     ]}
                     margin={{ right: 120 }}
                     width={460}
                     height={200}
                     slotProps={{
-                      legend: { hidden: false, position: {vertical: 'middle', horizontal: 'right'}, direction: 'column' }
+                      legend: { hidden: false, position: { vertical: 'middle', horizontal: 'right' }, direction: 'column' }
                     }}
                   />
-                  <Typography className="absolute text-center text-2xl" style={{ top: '236px', left: '213px'}}>{completionPercentage.toFixed(2)}%<br />{totalModuls} Modul</Typography>
+                  <Typography className="absolute text-center text-2xl" style={{ top: '236px', left: '220px' }}>
+                    {diagramData.length > 0 ? `${completionPercentage.toFixed(2)}%` : '0%'}<br />{totalModuls} Modul
+                  </Typography>
+                </>
+              ) : (
+                <div className="flex items-center justify-center w-full h-full -mt-4">
+                  <Typography className="text-xl">Data log peserta tidak ditemukan</Typography>
                 </div>
-              </>
-            ) : (
-              <div className="flex items-center justify-center h-full">
-                <Typography className="text-xl">Data log peserta tidak ditemukan</Typography>
-              </div>
-            )}
+              )}
+            </div>
           </div>
-          <div className="w-1/2 h-[300px] flex border border-solid">
-            <Typography className="pl-4 pt-4 text-xl" position='absolute'>Nilai Penyelesaian Modul Terbaru:</Typography>
-
-            <Tabs
-              value={activeModuleTab}
-              onChange={handleModuleTabChange}
-              className='absolute pl-80'
-            >
-              <Tab label="Kereta Cepat" />
-              <Tab label="LRT" />
-            </Tabs>
-
-            {rows.length > 0 ? (
-              <>
-                <div className='flex items-center justify-center w-full h-full pt-16 pb-4 overflow-y-auto'>
-                  <div className='w-full h-full flex'>
-                    <div className='w-full h-full'>
-                      {levels.map((level, index) => (
-                        <div className='w-full h-1/3 flex items-center justify-center px-3 py-2' key={index}>
-                          <div className={`w-full h-full flex items-center justify-center border-2 border-solid rounded-3xl ${level.checkstate ? 'bg-[#1aaffb] text-white' : ''}`}>
-                            <div className='w-1/4 h-1/2 flex items-center justify-center'>
-                              <Checkbox
-                                icon={<RadioButtonUncheckedIcon />}
-                                checkedIcon={<TaskAltIcon sx={{ color: 'white' }} />}
-                                checked={level.checkstate}
-                                disabled
-                              />
+          <div className="w-1/2 h-[300px] flex flex-col border border-solid">
+            <div className='flex w-full h-1/5 justify-between'>
+              <div>
+                <Typography className="pl-3 pt-2 text-xl" >Nilai Penyelesaian Modul Terbaik:</Typography>  
+              </div>
+              <div className='w-[229.44px]'>
+                <Tabs
+                  value={activeModuleTab}
+                  onChange={handleModuleTabChange}
+                >
+                  <Tab label="Kereta Cepat" />
+                  <Tab label="LRT" />
+                </Tabs>
+              </div>
+            </div>
+            <div className='flex w-full h-4/5'>
+              {diagramData.length > 0 ? (
+                <>
+                  <div className='flex items-center justify-center w-full h-full pt-2 pb-4 overflow-y-auto'>
+                    <div className='w-full h-full flex'>
+                      <div className='w-full h-full'>
+                        {levels.map((level, index) => (
+                          <div className='w-full h-1/3 flex items-center justify-center px-3 py-2' key={index}>
+                            <div className={`w-full h-full flex items-center justify-center border-2 border-solid rounded-3xl ${level.checkstate ? 'bg-[#1aaffb] text-white' : ''}`}>
+                              <div className='w-1/6 h-1/2 flex items-center justify-center'>
+                                <Checkbox
+                                  icon={<RadioButtonUncheckedIcon />}
+                                  checkedIcon={<TaskAltIcon sx={{ color: 'white' }} />}
+                                  checked={level.checkstate}
+                                  disabled
+                                />
+                              </div>
+                              <div className={`w-4/6 h-1/2 flex items-center text-lg ${level.checkstate ? 'text-white' : ''}`}>{level.title}</div>
+                              <div className={`w-1/6 h-1/2 flex items-center text-lg ${level.checkstate ? 'text-white' : ''}`}>{level.score}</div>
                             </div>
-                            <div className={`w-2/4 h-1/2 flex items-center text-lg ${level.checkstate ? 'text-white' : ''}`}>{level.title}</div>
-                            <div className={`w-1/4 h-1/2 flex items-center text-lg ${level.checkstate ? 'text-white' : ''}`}>{level.score}</div>
                           </div>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </div>
                   </div>
+                </>
+              ) : (
+                <div className="flex items-center justify-center w-full h-full">
+                  <Typography className="text-xl">Data log peserta tidak ditemukan</Typography>
                 </div>
-              </>
-            ) : (
-              <div className="flex items-center justify-center w-full h-full">
-                <Typography className="text-xl">Data log peserta tidak ditemukan</Typography>
-              </div>
-            )}
+              )}
+            </div>
+
           </div>
         </div>
         
