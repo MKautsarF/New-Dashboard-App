@@ -640,20 +640,22 @@ const CourseList = () => {
                             <Info />
                           </IconButton>
                         </Tooltip>
-                        <Tooltip title="Hapus Modul Pembelajaran" placement="top">
-                          <IconButton
-                            size="small"
-                            onClick={() => {
-                              setSelectedModul({
-                                id: row.id,
-                                title: row.title,
-                              });
-                              setDeletePrompt(true);
-                            }}
-                          >
-                            <Delete />
-                          </IconButton>
-                        </Tooltip>
+                        {currentInstructor.isAdmin && (
+                          <Tooltip title="Hapus Modul Pembelajaran" placement="top">
+                            <IconButton
+                              size="small"
+                              onClick={() => {
+                                setSelectedModul({
+                                  id: row.id,
+                                  title: row.title,
+                                });
+                                setDeletePrompt(true);
+                              }}
+                            >
+                              <Delete />
+                            </IconButton>
+                          </Tooltip>
+                        )}
                       </div>
                     </TableCell>
                   </TableRow>

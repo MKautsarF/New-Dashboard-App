@@ -154,7 +154,8 @@ const UserLog = () => {
   };
 
   const handleLevel = (diagramData: any) =>{
-    const updatedLevels = [...levels];
+    console.log("MASUJKKKKKKK")
+    const updatedLevels = [];
     for(let j = 0; j < diagramData.length; j++){
       let highestScore = -1;
       const submissionCourse = submissionList.filter((submission) =>  submission.courseId == diagramData[j].id);
@@ -212,96 +213,95 @@ const UserLog = () => {
   };
   
   const diagramData = activeDiagramTab === 0 ? kcicDiagramData : lrtDiagramData;
-
+  
   useEffect(() => {
     const diagramData = activeDiagramTab === 0 ? kcicDiagramData : lrtDiagramData;
     const percentage = calculateCompletionPercentage(diagramData);
     const { completion, totalModuls } = calculateCompletion(diagramData)
-    handleLevel(diagramData)
     setCompletion(completion)
     setTotalModuls(totalModuls)
     setCompletionPercentage(percentage);
   }, [diagramData, activeDiagramTab]);
-
   
   const handleDiagramTabChange = (event: any, newValue: any) => {
     setActiveDiagramTab(newValue);
   };
   
-
+  
   const pieDiagramData = [
     { id: 'selesai', label: 'Selesai', value: completion, color: "#1aaffb" },
     { id: 'belum selesai', label: 'Belum Selesai', value: totalModuls - completion, color: '#6e6e6e' },
   ];
-
+  
   const adjustedPieDiagramData = diagramData.length === 0 ? 
   [ { id: 'selesai', label: 'Selesai', value: 0, color: "#1aaffb" },
     { id: 'belum selesai', label: 'Belum Selesai', value: totalModuls, color: '#6e6e6e' }] : pieDiagramData;
-
-  
-  const [activeModuleTab, setActiveModuleTab] = useState(0);
-  
-  useEffect(() => {
-    const diagramData = activeModuleTab === 0 ? kcicDiagramData : lrtDiagramData;
-    handleLevel(diagramData)
-  }, [activeModuleTab]);
-
-  const handleModuleTabChange = (event: any, newValue: any) => {
-    setActiveModuleTab(newValue);
-  };
-  
-  const [levels, setLevels] = useState<Scoring[]>([{title: "kk", score: "-", checkstate:false}]);
-
-  const handleBack = () => {
-    navigate(-1);
-  };
-
-  const [userLog, setUserLog] = useState<UserLog | null>(null);
-  const [submissionId, setSubmissionId] = useState(null);
-
-  const [modalOpen, setModalOpen] = useState(false);
-  const [previewOpen, setPreviewOpen] = useState(false);
-  const [url, setUrl] = useState<string>('');
-  const [pdf, setPdf] = useState<any>(null);
-  const [excel, setExcel] = useState<any>(null);
-  const [isExcel, setIsExcel] = useState(false);
-  const [courseList, setCourseList] = useState<[]>([]);
-
-  const [pdfAnchorEl, setPDFAnchorEl] = useState<null | HTMLElement>(
-    null
-  );
-
-  const [excelAnchorEl, setExcelAnchorEl] = useState<null | HTMLElement>(
-    null
-  );
-
-  const isPDFMenuOpen = Boolean(pdfAnchorEl);
-  const isExcelMenuOpen = Boolean(pdfAnchorEl);
-
-
-  useEffect(() => {
-    const fetchSubmission = async () => {
-      try {
-        const res = await getSubmissionById(Number(submissionId));
-        const pdfres = await getSubmissionLogByTag(Number(submissionId), 'pdf');
-        const pdffile = await getSubmissionLogByFileIndex(Number(submissionId),pdfres.results[0].id);
-        setPdf(pdffile);
-        const excelres = await getSubmissionLogByTag(Number(submissionId), 'xlsx');
-        const excelfile = await getSubmissionLogByFileIndex(Number(submissionId),excelres.results[0].id);
-        setExcel(excelfile);
-      } catch (e) {
-        console.error(e);
-      }
+    
+    
+    const [activeModuleTab, setActiveModuleTab] = useState(0);
+    const moduleData = activeModuleTab === 0 ? kcicDiagramData : lrtDiagramData;
+    
+    useEffect(() => {
+      const diagramData = activeModuleTab === 0 ? kcicDiagramData : lrtDiagramData;
+      handleLevel(diagramData)
+    }, [moduleData, activeModuleTab]);
+    
+    const handleModuleTabChange = (event: any, newValue: any) => {
+      setActiveModuleTab(newValue);
     };
-
-    fetchSubmission();
-  }
+    
+    const [levels, setLevels] = useState<Scoring[]>([{title: "kk", score: "-", checkstate:false}]);
+    
+    const handleBack = () => {
+      navigate(-1);
+    };
+    
+    const [userLog, setUserLog] = useState<UserLog | null>(null);
+    const [submissionId, setSubmissionId] = useState(null);
+    
+    const [modalOpen, setModalOpen] = useState(false);
+    const [previewOpen, setPreviewOpen] = useState(false);
+    const [url, setUrl] = useState<string>('');
+    const [pdf, setPdf] = useState<any>(null);
+    const [excel, setExcel] = useState<any>(null);
+    const [isExcel, setIsExcel] = useState(false);
+    const [courseList, setCourseList] = useState<[]>([]);
+    
+    const [pdfAnchorEl, setPDFAnchorEl] = useState<null | HTMLElement>(
+      null
+    );
+    
+    const [excelAnchorEl, setExcelAnchorEl] = useState<null | HTMLElement>(
+      null
+    );
+    
+    const isPDFMenuOpen = Boolean(pdfAnchorEl);
+    const isExcelMenuOpen = Boolean(pdfAnchorEl);
+    
+    
+    useEffect(() => {
+      const fetchSubmission = async () => {
+        try {
+          const res = await getSubmissionById(Number(submissionId));
+          const pdfres = await getSubmissionLogByTag(Number(submissionId), 'pdf');
+          const pdffile = await getSubmissionLogByFileIndex(Number(submissionId),pdfres.results[0].id);
+          setPdf(pdffile);
+          const excelres = await getSubmissionLogByTag(Number(submissionId), 'xlsx');
+          const excelfile = await getSubmissionLogByFileIndex(Number(submissionId),excelres.results[0].id);
+          setExcel(excelfile);
+        } catch (e) {
+          console.error(e);
+        }
+      };
+      
+      fetchSubmission();
+    }
   , []);
-
+  
   const handlePreviewClose = () => {
     setPreviewOpen(false);
   };
-
+  
   const handleOpenPDF = async (id: any) => {
     setSubmissionId(id);
     try {
@@ -318,36 +318,36 @@ const UserLog = () => {
     }
     setPDFAnchorEl(null);
   };
-
+  
   const handleDownloadPDF = async (id: number, date: string, module: string) => {
     setSubmissionId(id);
     try {
-        const pdfres = await getSubmissionLogByTag(id, 'pdf');
-        if (pdfres.results.length === 0) {
-            console.error('No PDF results found');
-            return;
-        }
-
-        const pdffile = await getSubmissionLogByFileIndex(id, pdfres.results[0].id);
-
-        const blob = new Blob([pdffile], { type: 'application/pdf' });
-
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = `${userLog?.name}_${dayjs(date).format('DD MMM YYYY')}_${module}.pdf`;
-
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-
-        setIsExcel(false);
+      const pdfres = await getSubmissionLogByTag(id, 'pdf');
+      if (pdfres.results.length === 0) {
+        console.error('No PDF results found');
+        return;
+      }
+      
+      const pdffile = await getSubmissionLogByFileIndex(id, pdfres.results[0].id);
+      
+      const blob = new Blob([pdffile], { type: 'application/pdf' });
+      
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `${userLog?.name}_${dayjs(date).format('DD MMM YYYY')}_${module}.pdf`;
+      
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      setIsExcel(false);
     } catch (error) {
-        console.error('Error fetching or opening PDF:', error);
+      console.error('Error fetching or opening PDF:', error);
     }
     setPDFAnchorEl(null);
   };
-
-
+  
+  
   const handlePDFClick = (event: React.MouseEvent<HTMLElement>) => {
     if (isPDFMenuOpen) {
       setPDFAnchorEl(null);
@@ -355,11 +355,11 @@ const UserLog = () => {
       setPDFAnchorEl(event.currentTarget);
     }
   };
-
+  
   const handlePDFUnclick = () => {
     setPDFAnchorEl(null);
   };
-
+  
   const handleOpenExcel = async (id: any) => {
     setSubmissionId(id);
     try {
@@ -376,7 +376,7 @@ const UserLog = () => {
     }
     setExcelAnchorEl(null);
   };
-
+  
   const handleExcelClick = (event: React.MouseEvent<HTMLElement>) => {
     if (isExcelMenuOpen) {
       setExcelAnchorEl(null);
@@ -384,11 +384,11 @@ const UserLog = () => {
       setExcelAnchorEl(event.currentTarget);
     }
   };
-
+  
   const handleExcelUnclick = () => {
     setExcelAnchorEl(null);
   };
-
+  
   const handleVideoPreview = () => {
     const video = fs.readFileSync(videopath)
     const blob = new Blob([video], { type: 'video/mp4'});
@@ -397,60 +397,60 @@ const UserLog = () => {
     setPreviewOpen(true)
   }
   const [getSubmission, setGetSubmission] = useState(false);
-
+  
   const [courseMap, setCourseMap] = useState<Map<number, string>>(new Map());
   const [scoringMap, setScoringMap] = useState<Map<number, string>>(new Map());
-
-    useEffect(() => {
-        const fetchUserLog = async () => {
-            setIsLoading(true);
-            try {
-                const response = await getUserById(userId)
-                const response2 = await getSubmissionList(userId)
-                console.log("response2",response2);
-                setSubmissionList(response2.results);
-                setUserLog(response);
-
-                const resRows = response2.results.map((submission: any) => ({
-                    id: submission.id,
-                    date: submission.createdAt,
-                    train: submission.objectType, 
-                    start: submission.createdAt, 
-                    finish: submission.finishedAt, 
-                    module: '',
-                    score: submission.score,
-                    scoring: '',
-                    courseId: submission.courseId
-                  }));
-                
-                setRows(resRows);
-                setGetSubmission(true);
-                
-            } catch (error) {
-                console.error('Error fetching user log:', error);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        if (userId) {
-            fetchUserLog();
-        }
-    }, [userId]);
-
-    useEffect(() => {
-      if (getSubmission) {
-        rows.map(async (row) => {
-          const res = await getSubmissionById(Number(row.id));
-          row.module = res.exam?.assessment?.judul_modul
-          row.scoring = res.exam?.assessment?.judul_penilaian
-          setRows([...rows]);
-        });
-        setGetSubmission(false);
+  
+  useEffect(() => {
+    const fetchUserLog = async () => {
+      setIsLoading(true);
+      try {
+        const response = await getUserById(userId)
+        const response2 = await getSubmissionList(userId)
+        console.log("response2",response2);
+        setSubmissionList(response2.results);
+        setUserLog(response);
+        
+        const resRows = response2.results.map((submission: any) => ({
+          id: submission.id,
+          date: submission.createdAt,
+          train: submission.objectType, 
+          start: submission.createdAt, 
+          finish: submission.finishedAt, 
+          module: '',
+          score: submission.score,
+          scoring: '',
+          courseId: submission.courseId
+        }));
+        
+        setRows(resRows);
+        setGetSubmission(true);
+        
+      } catch (error) {
+        console.error('Error fetching user log:', error);
+      } finally {
+        setIsLoading(false);
       }
+    };
+    
+    if (userId) {
+      fetchUserLog();
+    }
+  }, [userId]);
+  
+  useEffect(() => {
+    if (getSubmission) {
+      rows.map(async (row) => {
+        const res = await getSubmissionById(Number(row.id));
+        row.module = res.exam?.assessment?.judul_modul
+        row.scoring = res.exam?.assessment?.judul_penilaian
+        setRows([...rows]);
+      });
+      setGetSubmission(false);
+    }
   }
-, [getSubmission]);
-
+  , [getSubmission]);
+  
   return (
     <Container w={1250} h={875}>
       <div className="flex flex-col p-6 h-full">
@@ -490,34 +490,35 @@ const UserLog = () => {
                 </Tabs>
               </div>
             </div>
-            <div className="flex items-center justify-center w-full h-full -mt-4 pb-4 flex-grow">
-              {kcicDiagramData.length > 0 || lrtDiagramData.length > 0 ? (
-                <>
-                  <PieChart
-                    series={[
-                      {
-                        innerRadius: 75,
-                        outerRadius: 95,
-                        data: adjustedPieDiagramData,
-                      },
-                    ]}
-                    margin={{ right: 120 }}
-                    width={460}
-                    height={200}
-                    slotProps={{
-                      legend: { hidden: false, position: { vertical: 'middle', horizontal: 'right' }, direction: 'column' }
-                    }}
-                  />
-                  <Typography className="absolute text-center text-2xl" style={{ top: '236px', left: '220px' }}>
-                    {diagramData.length > 0 ? `${completionPercentage.toFixed(2)}%` : '0%'}<br />{totalModuls} Modul
-                  </Typography>
-                </>
+            {diagramData.length > 0 ? (<div className="flex items-center justify-center w-full h-full -mt-4 pb-4 flex-grow">
+              <PieChart
+                series={[
+                  {
+                    innerRadius: 75,
+                    outerRadius: 95,
+                    data: adjustedPieDiagramData,
+                  },
+                ]}
+                margin={{ right: 120 }}
+                width={460}
+                height={200}
+                slotProps={{
+                  legend: { hidden: false, position: { vertical: 'middle', horizontal: 'right' }, direction: 'column' }
+                }}
+              />
+              {diagramData.length > 0 ? (
+                <Typography className="absolute text-center text-2xl" style={{ top: '236px', left: '220px' }}>
+                  {completionPercentage.toFixed(2)}%<br />{totalModuls} Modul
+                </Typography>
               ) : (
-                <div className="flex items-center justify-center w-full h-full -mt-4">
-                  <Typography className="text-xl">Data log peserta tidak ditemukan</Typography>
-                </div>
+                <Typography className="absolute text-center text-xl" style={{ top: '236px', left: '220px' }}>
+                  0%<br />{totalModuls} Modul
+                </Typography>
               )}
-            </div>
+            </div>) :
+             (<div className="flex items-center justify-center w-full h-full -mt-4">
+              <Typography className="text-xl">Data log peserta tidak ditemukan</Typography>
+            </div>)}
           </div>
           <div className="w-1/2 h-[300px] flex flex-col border border-solid">
             <div className='flex w-full h-1/5 justify-between'>
@@ -535,7 +536,7 @@ const UserLog = () => {
               </div>
             </div>
             <div className='flex w-full h-4/5'>
-              {diagramData.length > 0 ? (
+              {moduleData.length > 0 ? (
                 <>
                   <div className='flex items-center justify-center w-full h-full pt-2 pb-4 overflow-y-auto'>
                     <div className='w-full h-full flex'>

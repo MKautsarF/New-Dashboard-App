@@ -521,27 +521,29 @@ const CourseDetail = () => {
 								<InfoRow label="Jarak Pandang" value={getWeatherDisplayValue(payload.weather?.[1]?.value)} />
 								<InfoRow label="Motion Base" value={payload.motion_base ? "On" : "Off"} />
 								<InfoRow label="Speed Buzzer" value={payload.speed_buzzer ? payload.speed_limit : "Off"} />
-								<div className="flex flex-col gap-2">
-									<span>Edit Konfigurasi:</span>
-									<Button
-										type="button"
-										sx={{
-										color: "#ffffff",
-										backgroundColor: "#00a6fb",
-										borderColor: "#00a6fb",
-										"&:hover": {
-											borderColor: "#1aaffb",
+								{currentInstructor.isAdmin && (
+									<div className="flex flex-col gap-2">
+										<span>Edit Konfigurasi:</span>
+										<Button
+											type="button"
+											sx={{
 											color: "#ffffff",
-											backgroundColor: "#1aaffb",
-										},
-										}}
-										variant="contained"
-										onClick={toogleEdit}
-										className="ml-2"
-									>
-										Edit
-									</Button>
-								</div>
+											backgroundColor: "#00a6fb",
+											borderColor: "#00a6fb",
+											"&:hover": {
+												borderColor: "#1aaffb",
+												color: "#ffffff",
+												backgroundColor: "#1aaffb",
+											},
+											}}
+											variant="contained"
+											onClick={toogleEdit}
+											className="ml-2"
+										>
+											Edit
+										</Button>
+									</div>
+								)}
 							</div>
 						</div>
 					</div>
@@ -558,29 +560,31 @@ const CourseDetail = () => {
 							</colgroup>
 							<TableHead>
 								<TableRow>
-								<TableCell sx={{ fontWeight: "bold", fontSize: "17px" }}>
-									Modul Penilaian
-								</TableCell>
-								<TableCell className='flex items-center justify-end'>
-									<Button
-									type="button"
-									variant="contained"
-									onClick={() => handleDaftar()}
-									startIcon={<BookmarkAdd className="text-2xl" />}
-									sx={{
-										color: "#ffffff",
-										backgroundColor: "#00a6fb",
-										borderColor: "#00a6fb",
-										"&:hover": {
-										borderColor: "#1aaffb",
-										color: "#ffffff",
-										backgroundColor: "#1aaffb",
-										},
-									}}
-									>
-									Tambah Baru
-									</Button>
-								</TableCell>
+									<TableCell sx={{ fontWeight: "bold", fontSize: "17px" }}>
+										Modul Penilaian
+									</TableCell>
+									{currentInstructor.isAdmin && (
+										<TableCell className='flex items-center justify-end'>
+											<Button
+											type="button"
+											variant="contained"
+											onClick={() => handleDaftar()}
+											startIcon={<BookmarkAdd className="text-2xl" />}
+											sx={{
+												color: "#ffffff",
+												backgroundColor: "#00a6fb",
+												borderColor: "#00a6fb",
+												"&:hover": {
+												borderColor: "#1aaffb",
+												color: "#ffffff",
+												backgroundColor: "#1aaffb",
+												},
+											}}
+											>
+											Tambah Baru
+											</Button>
+										</TableCell>
+									)}
 								</TableRow>
 							</TableHead>
 							{isLoading ? (
