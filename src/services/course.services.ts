@@ -3,9 +3,9 @@ import services from ".";
 
 // INSTRUCTOR
 
-export const getCourseByInstructor = async (page: number, size: number, title: string = '') => {  
+export const getCourseByInstructor = async (page: number, size: number, title: string = '', description: string = '') => {  
   const res = await services.get(`/instructor/course?page=${page}&size=${size}${
-    title === '' ? '' : `&title:likeLower=${title}`}`);
+    title === '' ? '' : `&title:likeLower=${title}`}${ description === '' ? '' : `&description:likeLower=${description}`}`);
 
   return res.data;
 };
