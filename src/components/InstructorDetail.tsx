@@ -140,7 +140,19 @@ const InstructorDetail: React.FC<InstructorDetailProps> = ({
         </DialogContentText>
       </DialogContent>
       <DialogActions className="flex px-6 mb-4">
-        <Button onClick={handleLogout} color="error" variant="contained">
+        <Button 
+          onClick={handleLogout} color="error" variant="outlined"
+          sx={{
+            color: "#df2935",
+            borderColor: "#df2935",
+            backgroundColor: "#ffffff",
+            "&:hover": {
+              borderColor: "#df2935",
+              backgroundColor: "#df2935",
+              color: "#ffffff",
+            },
+          }}
+          >
           Logout
         </Button>
         <Button onClick={handleClose} className="ml-auto">

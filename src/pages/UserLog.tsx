@@ -21,7 +21,7 @@ import {
   Tab,
   Tabs
 } from '@mui/material';
-import ReplayIcon from '@mui/icons-material/Replay';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import Container from '@/components/Container';
 import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -49,9 +49,8 @@ import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
 import TaskAltIcon from '@mui/icons-material/TaskAlt';
 import { getUserById } from "@/services/user.services";
 import { getCourseByInstructor } from '@/services/course.services';
-import { getScoringByCourseInstructor, getScoringByInstructor } from '@/services/scoring.services';
-import { each, get } from 'lodash';
-import { arrayBuffer } from 'stream/consumers';
+import * as XLSX from 'xlsx';
+import ExcelGrid from '@/components/ExcelGrid';
 
 
 interface RowData {
@@ -154,7 +153,6 @@ const UserLog = () => {
   };
 
   const handleLevel = (diagramData: any) =>{
-    console.log("MASUJKKKKKKK")
     const updatedLevels = [];
     for(let j = 0; j < diagramData.length; j++){
       let highestScore = -1;
@@ -267,16 +265,23 @@ const UserLog = () => {
     const [isExcel, setIsExcel] = useState(false);
     const [courseList, setCourseList] = useState<[]>([]);
     
-    const [pdfAnchorEl, setPDFAnchorEl] = useState<null | HTMLElement>(
+    // const [pdfAnchorEl, setPDFAnchorEl] = useState<null | HTMLElement>(
+    //   null
+    // );
+    
+    // const [excelAnchorEl, setExcelAnchorEl] = useState<null | HTMLElement>(
+    //   null
+    // );
+
+    const [replayAnchorEl, setReplayAnchorEl] = useState<null | HTMLElement>(
       null
     );
     
-    const [excelAnchorEl, setExcelAnchorEl] = useState<null | HTMLElement>(
-      null
-    );
-    
-    const isPDFMenuOpen = Boolean(pdfAnchorEl);
-    const isExcelMenuOpen = Boolean(pdfAnchorEl);
+    // const isPDFMenuOpen = Boolean(pdfAnchorEl);
+    // const isExcelMenuOpen = Boolean(excelAnchorEl);
+    const isReplayMenuOpen = Boolean(replayAnchorEl);
+
+    const [__html, setHTML] = useState("");
     
     
     useEffect(() => {
@@ -316,7 +321,7 @@ const UserLog = () => {
     } catch (error) {
       console.error('Error fetching or opening PDF:', error);
     }
-    setPDFAnchorEl(null);
+    // setPDFAnchorEl(null);
   };
   
   const handleDownloadPDF = async (id: number, date: string, module: string) => {
@@ -344,23 +349,111 @@ const UserLog = () => {
     } catch (error) {
       console.error('Error fetching or opening PDF:', error);
     }
-    setPDFAnchorEl(null);
+    // setPDFAnchorEl(null);
   };
   
   
-  const handlePDFClick = (event: React.MouseEvent<HTMLElement>) => {
-    if (isPDFMenuOpen) {
-      setPDFAnchorEl(null);
+  // const handlePDFClick = (event: React.MouseEvent<HTMLElement>) => {
+  //   if (isPDFMenuOpen) {
+  //     setPDFAnchorEl(null);
+  //   } else {
+  //     setPDFAnchorEl(event.currentTarget);
+  //   }
+  // };
+  
+  // const handlePDFUnclick = () => {
+  //   setPDFAnchorEl(null);
+  // };
+  
+  const handleOpenExcel = async (id: any) => {
+    setSubmissionId(id);
+    try {
+      const excelres = await getSubmissionLogByTag(Number(id), 'xlsx');
+      const excelfile = await getSubmissionLogByFileIndex(Number(id), excelres.results[0].id);
+      console.log('excelfile', excelfile);
+  
+      const blob = new Blob([excelfile], { type: 'application/vnd.ms-excel' });
+      const urlfile = URL.createObjectURL(blob);
+      setUrl(urlfile);
+      setExcel(excelfile);
+  
+      // Gunakan FileReader untuk membaca file Excel dan tampilkan sebagai HTML
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const array = new Uint8Array(e.target?.result as ArrayBuffer);
+        const workbook = XLSX.read(array, { sheetRows: 20, type: 'array' });
+        const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+        const table = XLSX.utils.sheet_to_html(worksheet, { id: "tabeller", editable: true });
+  
+        const styledHTML = `
+          <style>
+            table#styledTable {
+              border-collapse: collapse;
+              width: 100%;
+              font-family: Arial, sans-serif;
+            }
+            td {
+              border: 1px solid black;
+            }
+            th {
+              background-color: #f2f2f2;
+              color: black;
+              padding: 8px;
+              text-align: center;
+              font-weight: bold;
+            }
+            td {
+              padding: 8px;
+              text-align: left;
+              vertical-align: middle;
+            }
+            td[colspan] {
+              text-align: center;
+              font-weight: bold;
+            }
+            tr:nth-child(even) {
+              background-color: #f9f9f9;
+            }
+          </style>
+          ${table}
+        `;
+  
+        setHTML(styledHTML);
+        setIsExcel(true);
+        setPreviewOpen(true);
+      };
+      reader.readAsArrayBuffer(excelfile);
+    } catch (error) {
+      console.error('Error fetching or opening Excel:', error);
+    }
+    // setExcelAnchorEl(null);
+  };
+  
+  // const handleExcelClick = (event: React.MouseEvent<HTMLElement>) => {
+  //   if (isExcelMenuOpen) {
+  //     setExcelAnchorEl(null);
+  //   } else {
+  //     setExcelAnchorEl(event.currentTarget);
+  //   }
+  // };
+  
+  // const handleExcelUnclick = () => {
+  //   setExcelAnchorEl(null);
+  // };
+
+  const handleReplayClick = (event: React.MouseEvent<HTMLElement>) => {
+    if (isReplayMenuOpen) {
+      setReplayAnchorEl(null);
     } else {
-      setPDFAnchorEl(event.currentTarget);
+      setReplayAnchorEl(event.currentTarget);
     }
   };
   
-  const handlePDFUnclick = () => {
-    setPDFAnchorEl(null);
+  const handleReplaylUnclick = () => {
+    setReplayAnchorEl(null);
   };
-  
-  const handleOpenExcel = async (id: any) => {
+
+  const handleOpenReplay = async (id: any) => {
     setSubmissionId(id);
     try {
       const excelres = await getSubmissionLogByTag(Number(submissionId), 'xlsx');
@@ -374,19 +467,7 @@ const UserLog = () => {
     } catch (error) {
       console.error('Error fetching or opening PDF:', error);
     }
-    setExcelAnchorEl(null);
-  };
-  
-  const handleExcelClick = (event: React.MouseEvent<HTMLElement>) => {
-    if (isExcelMenuOpen) {
-      setExcelAnchorEl(null);
-    } else {
-      setExcelAnchorEl(event.currentTarget);
-    }
-  };
-  
-  const handleExcelUnclick = () => {
-    setExcelAnchorEl(null);
+    // setExcelAnchorEl(null);
   };
   
   const handleVideoPreview = () => {
@@ -507,12 +588,12 @@ const UserLog = () => {
                 }}
               />
               {diagramData.length > 0 ? (
-                <Typography className="absolute text-center text-2xl" style={{ top: '236px', left: '220px' }}>
-                  {completionPercentage.toFixed(2)}%<br />{totalModuls} Modul
+                <Typography className="absolute text-center text-2xl" style={{ top: '223px', left: '220px' }}>
+                  {completionPercentage.toFixed(2)}%<br />{completion} dari {totalModuls}<br />Modul
                 </Typography>
               ) : (
-                <Typography className="absolute text-center text-xl" style={{ top: '236px', left: '220px' }}>
-                  0%<br />{totalModuls} Modul
+                <Typography className="absolute text-center text-xl" style={{ top: '223px', left: '220px' }}>
+                  0%<br />{completion} Modul
                 </Typography>
               )}
             </div>) :
@@ -538,7 +619,7 @@ const UserLog = () => {
             <div className='flex w-full h-4/5'>
               {moduleData.length > 0 ? (
                 <>
-                  <div className='flex items-center justify-center w-full h-full pt-2 pb-4 overflow-y-auto'>
+                  <div className='flex items-center justify-center w-full h-full pb-4 overflow-y-auto'>
                     <div className='w-full h-full flex'>
                       <div className='w-full h-full'>
                         {levels.map((level, index) => (
@@ -618,11 +699,11 @@ const UserLog = () => {
                         type="button"
                         variant="outlined"
                         className='w-[60px]'
-                        onClick={handlePDFClick}
+                        onClick={() => handleOpenPDF(row.id)}
                       >
                         PDF
                       </Button>
-                      <Menu
+                      {/* <Menu
                         anchorEl={pdfAnchorEl}
                         open={Boolean(pdfAnchorEl)}
                         onClose={handlePDFUnclick}
@@ -648,16 +729,16 @@ const UserLog = () => {
                         <MenuItem onClick={() => handleDownloadPDF(row.id, row.date, row.module)}>
                             Download
                         </MenuItem>
-                      </Menu>
+                      </Menu> */}
                       <Button
                         type="button"
                         variant="outlined"
                         className='w-[60px]'
-                        onClick={handleExcelClick}
+                        onClick={() => handleOpenExcel(row.id)}
                       >
                         Excel
                       </Button>
-                      <Menu
+                      {/* <Menu
                         anchorEl={excelAnchorEl}
                         open={Boolean(excelAnchorEl)}
                         onClose={handleExcelUnclick}
@@ -683,7 +764,7 @@ const UserLog = () => {
                         <MenuItem>
                             Download
                         </MenuItem>
-                      </Menu>
+                      </Menu> */}
                     </TableCell>
                     <TableCell align='center'>
                       <Button
@@ -691,10 +772,37 @@ const UserLog = () => {
                         variant="outlined"
                         color="primary"
                         className='w-[60px] h-[36px]'
-                        onClick={handleVideoPreview}
+                        onClick={handleReplayClick}
                       >
-                        {<ReplayIcon style={{fontSize: 17}}/>}
+                        {<PlayArrowIcon style={{fontSize: 19}}/>}
                       </Button>
+                      <Menu
+                        anchorEl={replayAnchorEl}
+                        open={Boolean(replayAnchorEl)}
+                        onClose={handleReplaylUnclick}
+                        PaperProps={{
+                            style: {
+                              width: 'auto',
+                              boxShadow: 'none',
+                              border: '1px solid rgba(0, 0, 0, 0.12)',
+                            },
+                          }}
+                          anchorOrigin={{
+                            vertical: 'bottom',
+                            horizontal: 'center',
+                          }}
+                          transformOrigin={{
+                            vertical: 'top',
+                            horizontal: 'center',
+                          }}
+                        >
+                        <MenuItem onClick={() => handleOpenReplay(row.id)}>
+                            Preview
+                        </MenuItem>
+                        <MenuItem>
+                            Download
+                        </MenuItem>
+                      </Menu>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -741,7 +849,8 @@ const UserLog = () => {
 
       {/* Preview */}
       <Dialog open={previewOpen} onClose={handlePreviewClose} aria-labelledby="logout-dialog-title" aria-describedby="logout-dialog-description" maxWidth="lg" fullWidth>
-        <iframe src={url} style={{ width: "100%", height: "1800px" }}></iframe>
+        {!isExcel && <iframe src={url} style={{ width: "100%", height: "1800px" }}></iframe>}
+        {isExcel && <ExcelGrid file={excel}/>}
       </Dialog>
     </Container>
     

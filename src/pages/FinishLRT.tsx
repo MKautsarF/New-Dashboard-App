@@ -21,7 +21,6 @@ import {
   getSubmissionById,
   getSubmissionLogById,
 } from '@/services/submission.services';
-// import { currentSubmission } from '@/context/auth';
 import { config } from '@/config';
 import fs from 'fs';
 import FileSaver from 'file-saver';
@@ -131,19 +130,12 @@ const FinishLRT: React.FC = () => {
   };
 
   const handleOpenExcel = () => {
-    // shell.openPath(filePathExcel);\
-    // const blob = new Blob([excel], { type: 'application/vnd.ms-excel' });
     const reader = new FileReader();
     reader.onload = function(e) {
       const array = new Uint8Array(e.target.result as ArrayBuffer);
       const workbook = XLSX.read(array, {sheetRows:20, type: 'array'}); /* get first worksheet */
       /* get first worksheet */
       const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-      // const htmlstr = XLSX.write(workbook, { bookType: 'html', type: 'binary'}); /* generate file and send to client */
-      //get id container from html
-      // const container = document.getElementById('container');
-      // console.log(container);
-      // container.innerHTML += htmlstr;
       
       const table = XLSX.utils.sheet_to_html(worksheet,{id: "tabeller", editable: true,});
       const styledHTML = `
@@ -181,7 +173,6 @@ const FinishLRT: React.FC = () => {
 
       setHTML(styledHTML);
       setIsExcel(true);
-      // setUrl(urlfile);
       setPreviewOpen(true);
       handleClose();
     }
@@ -318,7 +309,6 @@ const FinishLRT: React.FC = () => {
       </div>
       <Dialog open={previewOpen} onClose={handlePreviewClose} aria-labelledby="logout-dialog-title" aria-describedby="logout-dialog-description" maxWidth="lg" fullWidth id="container">
         {!isExcel && <iframe src={url} style={{ width: "100%", height: "1800px" }}></iframe>}
-        {/* {isExcel && <div dangerouslySetInnerHTML={{ __html: __html }}></div>} */}
         {isExcel && <ExcelGrid file={excel}/>}
       </Dialog>
 

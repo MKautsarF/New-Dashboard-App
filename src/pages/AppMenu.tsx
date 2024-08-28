@@ -784,7 +784,19 @@ function AppMenu() {
             <Button onClick={handleLogoutClose} color="primary">
               Batal
             </Button>
-            <Button onClick={handleConfirmLogout} color="error" variant="contained">
+            <Button 
+              onClick={handleConfirmLogout} color="error" variant="outlined"
+              sx={{
+                color: "#df2935",
+                borderColor: "#df2935",
+                backgroundColor: "#ffffff",
+                "&:hover": {
+                  borderColor: "#df2935",
+                  backgroundColor: "#df2935",
+                  color: "#ffffff",
+                },
+              }}
+              >
               Logout
             </Button>
           </DialogActions>

@@ -1,5 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import ExcelJS from 'exceljs';
+import DownloadIcon from '@mui/icons-material/Download';
+import {
+    Button,
+  } from '@mui/material';
 
 interface ExcelGridProps {
     file: Blob;
@@ -86,8 +90,33 @@ const ExcelGrid = ({ file }: ExcelGridProps) => {
         }
     }, [file]);
 
+    const handleDownload = () => {
+        const url = window.URL.createObjectURL(file);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'Submisi Peserta.xlsx';
+        a.click();
+        window.URL.revokeObjectURL(url);
+    };
+
     return (
         <div ref={gridRef} style={{ height: '1800px', width: '100%', overflow: 'auto' }}>
+            <div className='h-12 w-full p-6 flex justify-end items-center'>Unduh file excel:
+                <Button
+                    type="button"
+                    onClick={handleDownload}
+                    style={{
+                        padding: 0,
+                        minWidth: 'auto',
+                        backgroundColor: 'transparent',
+                        border: 'none',
+                        boxShadow: 'none',
+                    }}
+                    className='ml-2'
+                    >
+                    <DownloadIcon style={{ fontSize: 21, color: 'black' }} />
+                </Button>
+            </div>
             <div dangerouslySetInnerHTML={{ __html: htmlContent }} />
         </div>
     );
