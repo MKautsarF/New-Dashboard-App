@@ -9,7 +9,7 @@ import ButtonSettings from "@/components/ButtonSettings";
 import { getCourseByInstructor } from "@/services/course.services";
 import { createSubmission } from "@/services/submission.services";
 import { getPayloadFromCourse } from "@/services/course.services";
-import { getScoringByCourseInstructor } from "@/services/scoring.services";
+import { getScoringByCourseInstructor, getScoringByInstructor } from "@/services/scoring.services";
 import FirstPageIcon from '@mui/icons-material/FirstPage';
 import { set } from "lodash";
 
@@ -22,6 +22,8 @@ function ScoringStart() {
   const query = useQuery();
   const trainType = query.get("type") as "kcic" | "lrt";
   const courseID = query.get("id");
+  const location = useLocation();
+  const fromEksplorasi = location.state?.fromEksplorasi || false;
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const { settings } = useSettings();
@@ -77,19 +79,12 @@ function ScoringStart() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const { results } = await getScoringByCourseInstructor(courseID, 1, 100);
-
-        
-        console.log("Results:", results);
-        console.log("id:", courseID);
-        // results.sort((a: any, b: any) => a.level - b.level);
-  
-        // const lrtData = results.filter((course: any) => course.description === "LRT")
-        //   .map((course: any) => ({
-        //     title: course.title,
-        //     requiredCompletion: course.level // Assuming level as requiredCompletion
-        //   }));
-  
+        let results;
+        if (fromEksplorasi) {
+          const { results } = await getScoringByInstructor();
+        } else {
+          const { results } = await getScoringByCourseInstructor(courseID, 1, 100);
+        }
         setLrtButtons(results);
         setCoursesData(results);
       } catch (error) {

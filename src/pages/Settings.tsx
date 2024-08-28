@@ -111,6 +111,10 @@ function Settings() {
   const rangkaianKereta = "6 Rangkaian";
   const [isLoading, setIsLoading] = useState(false);
 
+  const handleLanjut = () => {
+    navigate("/scoringStart", { state: { fromEksplorasi: true } });
+  };
+
   const handleMulai = async () => {
     let startStation = "";
     let finishStation = "";
@@ -491,55 +495,26 @@ function Settings() {
             Kembali
           </Button>
           <div className="flex gap-4 pr-6">
-            <Button
-              variant="outlined"
-              className="bottom-0 mt-4"
-              startIcon={<EditNote />}
-              onClick={() => {
-                navigate(`/Sixthpage/${trainType}`);
-              }}
-              sx={{
-                color: isHovered ? "#ffffff" : "#00a6fb",
-                borderColor: isHovered ? "#ffffff" : "#00a6fb",
-                backgroundColor: isHovered ? "#00a6fb" : "#ffffff",
-                "&:hover": {
-                  borderColor: "#ffffff",
-                  color: "#ffffff",
-                  backgroundColor: "#00a6fb",
-                },
-              }}
-              onMouseEnter={() => setIsHovered(true)}
-              onMouseLeave={() => setIsHovered(false)}
-            >
-              Penilaian:{" "}
-              {isHovered
-                ? "Edit Penilaian"
-                : trainType === "kcic"
-                ? selectedValue
-                : selectedValue2}
-            </Button>
-
-            <Button
-              variant="outlined"
-              className="bottom-0 mt-4"
-              endIcon={<NavigateNext />}
-              disabled={!canContinue}
-              onClick={() => {
-                handleMulai();
-              }}
-              sx={{
-                color: "#f3f3f4",
-                backgroundColor: canContinue ? "#00a6fb" : "#ccc", // Change background color based on disabled state
-                borderColor: "#f3f3f4",
-                "&:hover": {
-                  borderColor: canContinue ? "#4dc1fc" : "#ccc", // Change border color based on disabled state
+            {canContinue && (
+              <Button
+                variant="outlined"
+                className="bottom-0 mt-4"
+                endIcon={<NavigateNext />}
+                onClick={handleLanjut}
+                sx={{
                   color: "#f3f3f4",
-                  backgroundColor: canContinue ? "#4dc1fc" : "#ccc", // Change background color based on disabled state
-                },
-              }}
-            >
-              Mulai
-            </Button>
+                  backgroundColor: "#00a6fb", 
+                  borderColor: "#f3f3f4",
+                  "&:hover": {
+                    borderColor: "#4dc1fc",
+                    color: "#f3f3f4",
+                    backgroundColor: "#4dc1fc",
+                  },
+                }}
+              >
+                Lanjut
+              </Button>
+            )}
           </div>
         </div>
         <FullPageLoading loading={isLoading} />
