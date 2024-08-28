@@ -52,6 +52,7 @@ const FinishLRT: React.FC = () => {
   const filePathPDF = `C:/Train Simulator/Data/penilaian/PDF/${query.get('filename')}.pdf`;
   const filePathExcel = `C:/Train Simulator/Data/penilaian/Excel/${query.get('filename')}.xlsx`;
   const jsonPath = `C:/Train Simulator/Data/penilaian/${query.get('filename')}.json`;
+  const videopath = "C:/Users/MSI Z790/Videos/2024-07-29 17-29-33.mp4"
   const [pdf, setPdf] = useState<any>(null);
   const [excel, setExcel] = useState<any>(null);
   const [isExcel, setIsExcel] = useState(false);
@@ -187,6 +188,15 @@ const FinishLRT: React.FC = () => {
     reader.readAsArrayBuffer(excel);
   };
 
+  const handleVideoPreview = () => {
+    //load video file from videopath
+    const video = fs.readFileSync(videopath)
+    const blob = new Blob([video], { type: 'video/mp4'});
+    const urel = URL.createObjectURL(blob);
+    setUrl(urel)
+    setPreviewOpen(true)
+  }
+
   const handleUploadFinish = async () => {
     setPageLoading(true);
     try {
@@ -291,7 +301,7 @@ const FinishLRT: React.FC = () => {
             className="text-lg"
             startIcon={<PlayArrow />}
             color={'secondary'}
-            onClick={handlePlay}
+            onClick={handleVideoPreview}
           >
             Replay Simulasi
           </Button>

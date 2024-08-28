@@ -51,7 +51,7 @@ import {
 } from "@/services/course.services";
 import { useSettings } from "@/context/settings";
 import FullPageLoading from "@/components/FullPageLoading";
-import { createCourseAsAdmin, publishCourseAsAdmin, getPayloadFromCourse, deleteCourseAsAdmin } from "@/services/course.services";
+import { createCourseAsAdmin, publishCourseAsAdmin, getPayloadFromCourse, deleteCourseAsAdmin, createCourseAsInstructor } from "@/services/course.services";
 import { getCourseByInstructor } from "@/services/course.services";
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
@@ -311,7 +311,12 @@ const CourseList = () => {
     try {
       const formData = await collectDataAndPrepareFormData();
       
-      const response = await createCourseAsAdmin(formData);
+      let response;
+      if (currentInstructor.isAdmin) {
+        const response = await createCourseAsAdmin(formData);
+      } else {
+        const response = await createCourseAsInstructor(formData);
+      }
       console.log("Upload successful", response);
       handleClose();
       resetForm();
@@ -353,7 +358,7 @@ const CourseList = () => {
           published: entry.published,
         }));
         setRows(resRows);
-        setTotalData(res.results.length); // Menghitung total data setelah filter (jika ada)
+        setTotalData(res.total); // Menghitung total data setelah filter (jika ada)
       } catch (e) {
         console.error(e);
       } finally {
@@ -408,6 +413,34 @@ const CourseList = () => {
       toast.error("Gagal menghapus modul karena modul ini memiliki modul penilaian", { position: 'top-center' });
     }
   };
+
+  const handleSearch = async (e: any) => {
+    e.preventDefault();
+    const query = e.target.query.value;
+    try {
+      setIsLoading(true);
+      let res = [];
+      if (currentInstructor.isAdmin) {
+        res = await getCourseListbyAdmin(1, 5, query);
+      } else {
+        res = await getCourseByInstructor(1, 5, query);
+      }
+      console.log("API Response:", res);
+      const resRows: RowData[] = res.results.map((entry: any) => ({
+        id: entry.id,
+        title: entry.title,
+        description: entry.description,
+        published: entry.published,
+      }));
+      setRows(resRows);
+      setTotalData(res.total);
+    } catch (error) {
+      console.error("Failed to search course:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
 
   useEffect(() => {
     if (mode === 'edit' && payload) {
@@ -477,8 +510,8 @@ const CourseList = () => {
     <Container w={1000} h={700}>
       <div className="flex flex-col p-6 h-full gap-4">
         {/* Search bar */}
-        <Box component="form" className="flex gap-4 w-full ">
-          <Button
+        <Box component="form" onSubmit={handleSearch} className="flex gap-4 w-full ">
+          {currentInstructor.isAdmin && ( <Button
             type="button"
             variant="contained"
             onClick={handleDaftar}
@@ -495,7 +528,7 @@ const CourseList = () => {
             }}
           >
             Tambah Baru
-          </Button>
+          </Button> )}
           <TextField
             id="input-with-icon-textfield"
             fullWidth

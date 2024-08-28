@@ -3,8 +3,9 @@ import services from ".";
 
 // INSTRUCTOR
 
-export const getCourseByInstructor = async (page: number, size: number) => {  
-  const res = await services.get(`/instructor/course?page=${page}&size=${size}`);
+export const getCourseByInstructor = async (page: number, size: number, title: string = '') => {  
+  const res = await services.get(`/instructor/course?page=${page}&size=${size}${
+    title === '' ? '' : `&title:likeLower=${title}`}`);
 
   return res.data;
 };
@@ -21,12 +22,27 @@ export const getPayloadFromCourse = async (id: string) => {
   return res.data;
 };
 
+export const createCourseAsInstructor = async (formData: FormData) => {
+  try {
+    const response = await services.post('/instructor/course', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error creating course", error);
+    throw error;
+  }
+};
+
 
 // ADMIN
 
-export const getCourseListbyAdmin = async (page: number, size: number) => {
+export const getCourseListbyAdmin = async (page: number, size: number, title: string = '') => {
   try {
-    const res = await services.get(`/admin/course?page=${page}&size=${size}`);
+    const res = await services.get(`/admin/course?page=${page}&size=${size}${
+      title === '' ? '' : `&title:likeLower=${title}`}`);
 
     return res.data;
   } catch (error) {
