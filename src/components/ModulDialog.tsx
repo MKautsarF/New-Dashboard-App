@@ -288,7 +288,7 @@ const ModulDialog: React.FC<ModulDialogProps> = ({
                     jarakPandang !== 0 ? "text-base" : "text-xs"
                   }`}
                 >
-                  {Number.isFinite(jarakPandang) && jarakPandang !== 0 ? "meter" : "Tidak berkabut"}
+                  {jarakPandang !== 0 ? "meter" : "Tidak berkabut"}
                 </InputAdornment>
               }
             />

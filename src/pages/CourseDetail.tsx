@@ -298,12 +298,12 @@ const CourseDetail = () => {
 			startStation: payload.route?.start?.name || '',
 			finishStation: payload.route?.finish?.name || '',
 			rainStatus: payload.weather?.find((item: any) => item.name === 'rain')?.value || '',
-			fog: payload.weather?.find((item: any) => item.name === 'fog')?.value || 2,
+			fog: payload.weather?.find((item: any) => item.name === 'fog')?.value || 0,
 			time: payload.time ? new Date(1970, 0, 1, ...payload.time.split(':').map(Number)) : null,
 			motionBase: payload.motion_base || false,
 			speedBuzzer: payload.speed_buzzer || false,
 			speedLimit: payload.speed_limit || '',
-			jarakPandang: payload.weather[1]?.value >= 0.5 ? Math.round(Math.pow(payload.weather[1]?.value / 100, -0.914) * 50.6) : 2,
+			jarakPandang: payload.weather[1]?.value >= 0.5 ? Math.round(Math.pow(payload.weather[1]?.value / 100, -0.914) * 50.6) : 0,
 		  };
 		  setInitialValues(newInitialValues);
 	  

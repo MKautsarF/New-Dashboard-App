@@ -336,19 +336,13 @@ const CourseList = () => {
           res = await getCourseListbyAdmin(page, 5);
           console.log("API Response (Admin):", res);
         } else {
-          res = await getCourseByInstructor(page, 5);
+          res = await getCourseByInstructor(page, 5, '', trainType);
           console.log("API Response (Instructor):", res);
   
-          // Filter berdasarkan trainType
-          res.results = res.results.filter((entry: any) => {
-            if (trainType === "kcic") {
-              return entry.description === "KCIC";
-            } else if (trainType === "lrt") {
-              return entry.description === "LRT";
-            }
-            return false;
-          });
+          
+          
         }
+        console.log("FILTER", res);
   
         // Mapping hasil untuk di setRows
         const resRows: RowData[] = res.results.map((entry: any) => ({
