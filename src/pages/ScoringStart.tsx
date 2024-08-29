@@ -30,14 +30,11 @@ function ScoringStart() {
   const { settings } = useSettings();
 
   const [selectedValue3, setSelectedValue3] = useState<string>("");
-  const [selectedValue4, setSelectedValue4] = useState<string>("");
   const [completion, setCompletion] = useState(7);
   const [activeButton, setActiveButton] = useState<string | null>(null);
 
   const [checkedButton, setCheckedButton] = useState<string | null>(null);
 
-  const [lrtButtons, setLrtButtons] = useState<any[]>([]);
-  const [kcicButtons, setKcicButtons] = useState<any[]>([]);
   const [coursesData, setCoursesData] = useState<any[]>([]);
   const [selectedCourse, setSelectedCourse] = useState<any | null>(null);
   const [submissionPayload, setSubmissionPayload] = useState<any | null>(null);
@@ -196,7 +193,7 @@ function ScoringStart() {
       const res = await createSubmission(submissionPayload);
       console.log("Submission created:", res.id);
       setSubmission(res);
-      navigate(`/FifthPage/${trainType}?type=${settings.score}&submissionId=${res.id}&scoringId=${selectedCourse.id}&courseId=${courseID}`);
+      navigate(`/FifthPage/review?type=${settings.score}&submissionId=${res.id}&scoringId=${selectedCourse.id}&courseId=${courseID}&trainType=${trainType}`);
       // console.log("sent payload:", payload);
       // setIsLoading(true);
       // sendTextToClients(JSON.stringify(payload, null, 2));
@@ -223,7 +220,6 @@ function ScoringStart() {
           </div>
 
           <div className="flex flex-col px-6 gap-4 justify-center items-center">
-            {/* Buttons for LRT */}
             {
               coursesData.map((button) => (
                 <ButtonSettings

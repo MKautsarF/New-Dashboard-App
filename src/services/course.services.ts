@@ -38,17 +38,19 @@ export const createCourseAsInstructor = async (formData: FormData) => {
 
 
 // ADMIN
+// initioalize pageExclusions[0] to avoid undefined error
 
-let pageExclusions: { [page: number]: Set<number> } = {};
-pageExclusions[0] = new Set();
+
 
 export const getCourseListbyAdmin = async (
   page: number,
   size: number,
   title: string = '',
-  description: string = ''
+  description: string = '',
+  pageExclusions: { [page: number]: Set<number> } = {}
 ) => {
   try {
+    let pageExclusion = pageExclusions;
     console.log("pertama", page)
     let filteredData: any[] = [];
     let total=0;
@@ -60,18 +62,16 @@ export const getCourseListbyAdmin = async (
         title ? `&title:likeLower=${title}` : ''
       }${description ? `&description:likeLower=${description}` : ''}`
     );
-    total = res.data.total;
+    total = res.data.total - 1;
 
     // Initialize exclusions for the current page if not already done
-    if (!pageExclusions[page]) {
-      pageExclusions[page] = new Set();
-    }
+    pageExclusion[page] = new Set();
 
     // Filter out unwanted items and items that have already been excluded for this page
     const newData = res.data.results.filter(
       (item: any) =>
         item.description !== "Default" &&
-        !pageExclusions[page-1].has(item.id)
+        !pageExclusion[page-1].has(item.id)
     );
 
     // Add new filtered items to the list
@@ -86,12 +86,12 @@ export const getCourseListbyAdmin = async (
     const results = filteredData.slice(0, size);
 
     // Track excluded IDs for this page
-    results.forEach((item) => pageExclusions[page].add(item.id));
-    console.log("pageExclusions", page);
-    console.log(pageExclusions);
+    results.forEach((item) => pageExclusion[page].add(item.id));
+    console.log("pageExclusion", page);
+    console.log(pageExclusion);
 
     // Return the correctly filtered data
-    return {results, total};
+    return {results, total, pageExclusion};
   } catch (error) {
     console.error(`Error fetching course list:`, error);
     throw error;

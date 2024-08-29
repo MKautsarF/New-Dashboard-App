@@ -7,10 +7,12 @@ export const createSubmission = async (payload: any) => {
 };
 
 export const getSubmissionList = async (
-  user_query: string = ""
+  user_query: string = "",
+  date_sort_query: string = "",
+  train_filter_query: string = "",
 ) => {
   const res = await services.get(
-    `/instructor/submission?owner:eq=${user_query}`
+    `/instructor/submission?owner:eq=${user_query}${date_sort_query === "" ? "" : `&orderBy=createdAt&order=${date_sort_query}`}${train_filter_query === "" ? "" : `&objectType:eq=${train_filter_query}`}`
   );
 
   return res.data;

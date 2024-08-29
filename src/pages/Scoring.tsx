@@ -212,7 +212,7 @@ function EditKCIC() {
     } finally {
       // handlePrev();
       // setIsLoading(false);
-      navigate("/scoringlist/coursedetail?id=" + courseID);
+      navigate("/scoringlist/coursedetail?id=" + courseID+"&type="+train);
     }
   };
 

@@ -21,6 +21,8 @@ import {
   Tab,
   Tabs
 } from '@mui/material';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import Container from '@/components/Container';
 import { useEffect, useState } from 'react';
@@ -117,6 +119,29 @@ const UserLog = () => {
   const [submissionList, setSubmissionList] = useState<any[]>([]);
   const [completionPercentage, setCompletionPercentage] = useState(0);
 
+  const [dateSort, setDateSort] = useState<'asc' | 'desc' | ''>('desc');
+  const [trainSort, setTrainSort] = useState<'LRT' | 'KCIC' | ''>('');
+
+  const handleDateSort = () => {
+    if (dateSort === 'asc') {
+      setDateSort('desc');
+    } else if (dateSort === 'desc') {
+      setDateSort('asc');
+    } else {
+      setDateSort('desc');
+    }
+  }
+
+  const handleTrainSort = () => {
+    if (trainSort === 'LRT') {
+      setTrainSort('KCIC');
+    } else if (trainSort === 'KCIC') {
+      setTrainSort('');
+    } else {
+      setTrainSort('LRT');
+    }
+  }
+
   const fetchCourseData = async () => {
     try {
       const response  = await getCourseByInstructor(1,100);
@@ -145,7 +170,7 @@ const UserLog = () => {
 
   const fetchSubmissionData = async () => {
     try {
-      const response = await getSubmissionList(userId);
+      const response = await getSubmissionList(userId, dateSort, trainSort);
       setSubmissionList(response.results);
     } catch (error) {
       console.error('Error fetching submission data:', error);
@@ -354,17 +379,6 @@ const UserLog = () => {
   };
   
   
-  // const handlePDFClick = (event: React.MouseEvent<HTMLElement>) => {
-  //   if (isPDFMenuOpen) {
-  //     setPDFAnchorEl(null);
-  //   } else {
-  //     setPDFAnchorEl(event.currentTarget);
-  //   }
-  // };
-  
-  // const handlePDFUnclick = () => {
-  //   setPDFAnchorEl(null);
-  // };
   
   const handleOpenExcel = async (id: any) => {
     setSubmissionId(id);
@@ -488,7 +502,7 @@ const UserLog = () => {
       setIsLoading(true);
       try {
         const response = await getUserById(userId)
-        const response2 = await getSubmissionList(userId)
+        const response2 = await getSubmissionList(userId, dateSort, trainSort);
         console.log("response2",response2);
         setSubmissionList(response2.results);
         setUserLog(response);
@@ -518,7 +532,7 @@ const UserLog = () => {
     if (userId) {
       fetchUserLog();
     }
-  }, [userId]);
+  }, [userId, dateSort, trainSort]);
   
   useEffect(() => {
     if (getSubmission) {
@@ -657,18 +671,18 @@ const UserLog = () => {
         <TableContainer className="mb-8 h-[370px]" component={Paper}>
           <Table stickyHeader aria-label="Tabel Peserta">
             <colgroup>
-              <col width="18%" />
-              <col width="13%" />
+              <col width="20%" />
+              <col width="15%" />
               <col width='22%'/>
               <col width="22%" />
-              <col width="6%" />
-              <col width="14%" />
               <col width="5%" />
+              <col width="12%" />
+              <col width="4%" />
             </colgroup>
             <TableHead>
               <TableRow>
-                <TableCell className="text-lg font-bold">Tanggal Pengujian</TableCell>
-                <TableCell className="text-lg font-bold">Jenis Kereta</TableCell>
+                <TableCell className="text-lg font-bold" ><Button onClick={handleDateSort}>Tanggal Pengujian{dateSort == '' ? (<></>) : (dateSort == "desc" ? <ExpandLessIcon/> : <ExpandMoreIcon/>)}</Button></TableCell>
+                <TableCell className="text-lg font-bold"><Button onClick={handleTrainSort}>{trainSort == '' ? ("Jenis Kereta") : (trainSort == "LRT" ? ("LRT") : ("KCIC"))}</Button></TableCell>
                 <TableCell className="text-lg font-bold">Modul</TableCell>
                 <TableCell className="text-lg font-bold">Penilaian</TableCell>
                 <TableCell className='text-lg font-bold'>Nilai  </TableCell>

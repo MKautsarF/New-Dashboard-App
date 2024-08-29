@@ -135,6 +135,10 @@ const CourseDetail = () => {
     setSpeedLimit(""); // Reset speedLimit when speedBuzzer changes
   };
 
+  useEffect(() => {
+	  console.log("update isediting", isEditing)
+  }
+  , [isEditing]);
 	const collectDataAndPrepareFormData = async () => {
     // Determine the description
     const description = train.toUpperCase();
@@ -147,7 +151,7 @@ const CourseDetail = () => {
         weight: trainWeight,
         type: "6 Rangkaian"
       },
-      time: time,
+      time: dayjs(time).format('HH'),
       weather: [
         {
           value: rainStatus,
@@ -188,19 +192,11 @@ const CourseDetail = () => {
 	const handleSave = async () => {
 		try {
 		const formData = await collectDataAndPrepareFormData();
-				async function getRows(id: any) {
-					try {
-						const res = await getCourseDetail(courseId);
-						setPayload(res);
-						console.log("res: ", res);
-					} catch (e) {
-						console.error(e);
-					} finally {
-					}
-				}
-				getRows(courseId);
-				toogleEdit();
-				
+			const res = await editCourseAsAdmin(courseId, formData);
+			const res2 = await getCourseDetailByAdmin(courseId);
+			console.log("ressssss", res2);
+			toogleEdit();
+			setReload(!reload);
 		} catch (error) {
 		console.error("Upload failed", error);
 		}
@@ -227,6 +223,7 @@ const CourseDetail = () => {
 			let res;
 			if (currentInstructor.isAdmin) {
 				res = await getCourseDetailByAdmin(id);
+				console.log("isEditing", isEditing)
 			} else {
 				res = await getCourseDetailByInstructor(id);
 			}	
@@ -275,7 +272,7 @@ const CourseDetail = () => {
 				getModulePenilaianByInstructor(courseId, page, 5);
 			}
 		}
-  	}, [courseId]);
+  	}, [courseId, reload]);
 
 	const handleChangePage = (event: unknown, newPage: number) => {
 		setPage(newPage + 1);
@@ -299,6 +296,7 @@ const CourseDetail = () => {
 
 	useEffect(() => {
 		if (isEditing && payload) {
+			console.log("pamasukkkkkkkk")
 		  // Set fields from payload
 		  const newInitialValues = {
 			moduleName: payload.module_name || '',
@@ -309,12 +307,13 @@ const CourseDetail = () => {
 			finishStation: payload.route?.finish?.name || '',
 			rainStatus: payload.weather?.find((item: any) => item.name === 'rain')?.value || '',
 			fog: payload.weather?.find((item: any) => item.name === 'fog')?.value || 0,
-			time: payload.time ? new Date(1970, 0, 1, ...payload.time.split(':').map(Number)) : null,
+			time: payload.time ? dayjs(new Date(1970, 0, 1, ...payload.time.split(':').map(Number))) : null,
 			motionBase: payload.motion_base || false,
 			speedBuzzer: payload.speed_buzzer || false,
 			speedLimit: payload.speed_limit || '',
 			jarakPandang: payload.weather[1]?.value >= 0.5 ? Math.round(Math.pow(payload.weather[1]?.value / 100, -0.914) * 50.6) : 0,
 		  };
+		  console.log("newInitialValues", newInitialValues)
 		  setInitialValues(newInitialValues);
 	  
 		  // Set form values
@@ -327,6 +326,7 @@ const CourseDetail = () => {
 		  setRainStatus(newInitialValues.rainStatus);
 		  setFog(newInitialValues.fog);
 		  setTime(newInitialValues.time);
+		  console.log("time", newInitialValues.time)
 		  setMotionBase(newInitialValues.motionBase);
 		  setSpeedBuzzer(newInitialValues.speedBuzzer);
 		  setSpeedLimit(newInitialValues.speedLimit);
@@ -360,8 +360,7 @@ const CourseDetail = () => {
 		  finishStation !== initialValues.finishStation ||
 		  rainStatus !== initialValues.rainStatus ||
 		  fog !== initialValues.fog ||
-		  time?.getHours() !== initialValues.time?.getHours() ||
-		  time?.getMinutes() !== initialValues.time?.getMinutes() ||
+		  time !== dayjs(initialValues.time).format('HH') ||
 		  motionBase !== initialValues.motionBase ||
 		  speedBuzzer !== initialValues.speedBuzzer ||
 		  speedLimit !== initialValues.speedLimit ||

@@ -74,7 +74,7 @@ function useQuery() {
   return useMemo(() => new URLSearchParams(search), [search]);
 }
 
-function ReviewLRT() {
+function Review() {
   const query = useQuery();
   const ExcelJS = require("exceljs");
   const navigate = useNavigate();
@@ -89,6 +89,7 @@ function ReviewLRT() {
   const settingsType = query.get("type");
   const submissionId = query.get("submissionId");
   const courseId = query.get("courseId");
+  const trainType = query.get("trainType");
   console.log("submissionId", submissionId);
   const jsonPath =
     settingsType === "Default"
@@ -195,7 +196,7 @@ function ReviewLRT() {
       "";
       
       // * Train data
-      jsonToWrite.train_type = "LRT";
+      jsonToWrite.train_type = trainType.toUpperCase();
       jsonToWrite.id_pengaturan
       
       jsonToWrite.no_ka = "-";
@@ -240,7 +241,6 @@ function ReviewLRT() {
       const res = await finishSubmission(jsonToWrite, pdfname.pdfBuffer, pdfname.score, excelname);
 
       // Save file to local
-      const fileName = "LRT_" + getFilenameSafeDateString(new Date());
 
       // console.log("tes");
       const dir = "C:/Train Simulator/Data/penilaian";
@@ -268,7 +268,7 @@ function ReviewLRT() {
       // open pdf in dekstop
       // navigate(`/finish?filename=${fileName}`);
 
-      navigate(`/finishLRT?filename=${fileName}&submissionId=${submissionId}&url=${url}`);
+      navigate(`/finishLRT?&submissionId=${submissionId}&url=${url}&trainType=${trainType}`);
 
       // shell.openPath(`C:/Train Simulator/Data/penilaian/PDF/${fileName}.pdf`);
     } catch (e) {
@@ -683,10 +683,6 @@ function ReviewLRT() {
       },
     });
     // Save PDF file using fs
-    const fileName = "LRT_" + getFilenameSafeDateString(new Date()) + ".pdf";
-    // put file in penilaian/pdf in this folder project
-    const formData = new FormData();
-    const dir = "C:/Train Simulator/Data/penilaian/PDF";
     
     
     // if (!fs.existsSync(dir)) {
@@ -979,7 +975,7 @@ function ReviewLRT() {
           className="w-full text-center mb-8"
           style={{ fontSize: "2rem", fontWeight: "bold" }}
         >
-          Penilaian Kereta: LRT
+          Penilaian Kereta: {courseName}
         </h1>
 
         <section className="w-full flex flex-col gap-2 items-center justify-center p-4 mb-4 bg-blue-100">
@@ -1141,4 +1137,4 @@ function ReviewLRT() {
   );
 }
 
-export default ReviewLRT;
+export default Review;

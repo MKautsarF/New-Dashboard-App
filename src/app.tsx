@@ -8,22 +8,17 @@ import AppMenu from "./pages/AppMenu";
 import ThirdPage from "./pages/Simulation";
 import FourthPage from "./pages/Database";
 import FifthPage from "./pages/Settings";
-import SixthPage from "./pages/ScoringKCIC";
-import SeventhPage from "./pages/ScoringLRT";
 import Scoring from "./pages/Scoring";
-import TenthPage from "./pages/ReviewKCIC";
-import EleventhPage from "./pages/ReviewLRT";
+import EleventhPage from "./pages/Review";
 import FourteenPage from "./pages/Modul";
 import Fiveteen from "./pages/SettingsSecond";
 import Admin from "./pages/AdminStart";
 import Instructor from "./pages/InstructorList";
 import Trainee from "./pages/TraineeList";
 import UserLog from "./pages/UserLog";
-import FinishKCIC from "./pages/FinishKCIC";
-import FinishLRT from "./pages/FinishLRT";
+import Finish from "./pages/Finish";
 import ScoringStart from "./pages/ScoringStart";
 import Course from "./pages/CourseList";
-import ScoringList from "./pages/ScoringList";
 import CourseDetail from "./pages/CourseDetail";
 
 import { ToastContainer } from "react-toastify";
@@ -68,23 +63,11 @@ const routerData = [
     element: <FifthPage />,
   },
   {
-    path: "/SixthPage/kcic",
-    element: <SixthPage />,
-  },
-  {
-    path: "/SixthPage/lrt",
-    element: <SeventhPage />,
-  },
-  {
     path: "/Scoring",
     element: <Scoring />,
   },
   {
-    path: "/FifthPage/kcic",
-    element: <TenthPage />,
-  },
-  {
-    path: "/FifthPage/lrt",
+    path: "/FifthPage/Review",
     element: <EleventhPage />,
   },
   {
@@ -108,25 +91,17 @@ const routerData = [
     element: <Trainee />,
   },
   {
-    path: "/finishkcic",
-    element: <FinishKCIC />,
-  },
-  {
     path: "/scoringStart",
     element: <ScoringStart />,
   },
   {
     path: "/finishLRT",
-    element: <FinishLRT />,
+    element: <Finish />,
   },
   {
     path: "/courselist",
     element: <Course />,
   }, 
-  {
-    path: "/scoringlist",
-    element: <ScoringList />,
-  },
   {
     path: "/scoringlist/coursedetail",
     element: <CourseDetail />,

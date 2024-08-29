@@ -38,7 +38,7 @@ function useQuery() {
   return useMemo(() => new URLSearchParams(search), [search]);
 }
 
-const FinishKCIC: React.FC = () => {
+const Finish: React.FC = () => {
   const navigate = useNavigate();
   const [pageLoading, setPageLoading] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -317,4 +317,4 @@ const FinishKCIC: React.FC = () => {
   );
 };
 
-export default FinishKCIC;
+export default Finish;

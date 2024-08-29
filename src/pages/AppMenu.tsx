@@ -393,7 +393,6 @@ function AppMenu() {
               }}
             >
               Riwayat{" "}
-              {isLearningMenuOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />}
             </Button>
           </nav>
         </header>

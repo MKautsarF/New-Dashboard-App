@@ -326,6 +326,7 @@ const CourseList = () => {
       console.error("Upload failed", error);
     }
   };
+  const [pageExclusions, setPageExclusions] = useState<{ [page: number]: Set<number> }>({0: new Set()});
 
   useEffect(() => {
     async function getRows(page: number) {
@@ -337,10 +338,12 @@ const CourseList = () => {
         };
         
         if (currentInstructor.isAdmin) {
-          const response = await getCourseListbyAdmin(page, 5);
+          const response = await getCourseListbyAdmin(page, 5, '', '', pageExclusions);
           res.results = response.results;
           res.total = response.total;
+          setPageExclusions(response.pageExclusion);
         } else {
+          console.log("trainType", trainType)
           const response = await getCourseByInstructor(page, 5, '', trainType);
           res.results = response.results;
           res.total = response.total;

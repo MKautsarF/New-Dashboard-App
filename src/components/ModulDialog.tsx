@@ -99,6 +99,11 @@ const ModulDialog: React.FC<ModulDialogProps> = ({
       setFormattedTime(formatted);
     }
   }, [time]);
+  useEffect(() => {
+    console.log('time', time);
+    console.log('kiwikwi',moduleName)
+  }
+  , [open]);
 
   return (
     <Dialog open={open} onClose={() => setOpen()}>
