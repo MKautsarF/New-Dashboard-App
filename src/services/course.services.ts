@@ -16,7 +16,7 @@ export const getCourseByID = async (id: string) => {
   return res.data;
 }
 
-export const getPayloadFromCourse = async (id: string) => {
+export const getCourseDetailByInstructor = async (id: string) => {
   const res = await services.get(`/instructor/course/${id}/download`);
 
   return res.data;
@@ -143,6 +143,16 @@ export const deleteCourseAsAdmin = async (id: string) => {
 
   return res.data;
 };
+
+export const getCourseDetailByAdmin = async (id: string) => {
+  try {
+    const res = await services.get(`/admin/course/${id}/download`);
+    return res.data;
+  } catch (error) {
+    console.error(`Error fetching course detail:`, error);
+    throw error;
+  }
+}
 
 
 // PUBLIC

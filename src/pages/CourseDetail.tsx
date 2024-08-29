@@ -3,7 +3,7 @@ import { useMemo } from "react";
 import Container from '../components/Container';
 import {Button, DialogContentText, TableContainer} from "@mui/material";
 import { useNavigate, useLocation, Form } from "react-router-dom";
-import {getCourseDetail} from "../services/course.services";
+import {getCourseDetail, getCourseDetailByAdmin, getCourseDetailByInstructor} from "../services/course.services";
 import {TextField, FormControl, Select, MenuItem} from "@mui/material";
 import { Visibility } from "@mui/icons-material";
 import { Slider, Input, InputAdornment } from "@mui/material";
@@ -224,7 +224,12 @@ const CourseDetail = () => {
 
 		const getRows = async (id: any) => {
 		try {
-			const res = await getCourseDetail(id);
+			let res;
+			if (currentInstructor.isAdmin) {
+				res = await getCourseDetailByAdmin(id);
+			} else {
+				res = await getCourseDetailByInstructor(id);
+			}	
 			console.log("courseDetail", res)
 			setPayload(res);
 		} catch (e) {

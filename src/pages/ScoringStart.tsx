@@ -8,7 +8,7 @@ import { sendTextToClients } from "@/socket";
 import ButtonSettings from "@/components/ButtonSettings";
 import { getCourseByInstructor } from "@/services/course.services";
 import { createSubmission } from "@/services/submission.services";
-import { getPayloadFromCourse } from "@/services/course.services";
+import { getCourseDetailByInstructor } from "@/services/course.services";
 import { getScoringByCourseInstructor, getScoringByInstructor } from "@/services/scoring.services";
 import FirstPageIcon from '@mui/icons-material/FirstPage';
 import { set } from "lodash";
@@ -152,7 +152,7 @@ function ScoringStart() {
           if (fromEksplorasi) {
             payloadData = getPayloadExploration();
           } else {
-            payloadData = await getPayloadFromCourse(courseID);
+            payloadData = await getCourseDetailByInstructor(courseID);
           }
           // add scoring name in payloadData
           payloadData.scoring_name = selectedCourse.title;

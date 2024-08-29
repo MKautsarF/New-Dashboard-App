@@ -51,7 +51,7 @@ import {
 } from "@/services/course.services";
 import { useSettings } from "@/context/settings";
 import FullPageLoading from "@/components/FullPageLoading";
-import { createCourseAsAdmin, publishCourseAsAdmin, getPayloadFromCourse, deleteCourseAsAdmin, createCourseAsInstructor } from "@/services/course.services";
+import { createCourseAsAdmin, publishCourseAsAdmin, getCourseDetailByInstructor, deleteCourseAsAdmin, createCourseAsInstructor } from "@/services/course.services";
 import { getCourseByInstructor } from "@/services/course.services";
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';

@@ -380,6 +380,21 @@ function AppMenu() {
                 LRT
               </MenuItem>
             </Menu>
+            <Button
+              variant="outlined"
+              onClick={handleLearningClick}
+              sx={{
+                color: "#f3f3f4",
+                borderColor: "#f3f3f4",
+                "&:hover": {
+                  borderColor: "#00a6fb",
+                  color: "#00a6fb",
+                },
+              }}
+            >
+              Riwayat{" "}
+              {isLearningMenuOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+            </Button>
           </nav>
         </header>
         {/* First Box  */}
