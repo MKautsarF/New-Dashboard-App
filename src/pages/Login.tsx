@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import Container from "@/components/Container";
-import { currentInstructor, useAuth } from "../context/auth";
+import { currentInstructor, useAuth, setCurrentInstructor } from "../context/auth";
 import FullPageLoading from "../components/FullPageLoading";
 
 // login page
@@ -58,10 +58,10 @@ function Login() {
       await login(username, password);
   
       if (username === "admin") {
-        currentInstructor.isAdmin = true;
+        setCurrentInstructor(true, false);
         navigate("/admin");
       } else {
-        currentInstructor.isAdmin = false;
+        setCurrentInstructor(false, true);
         navigate("/SecondPage");
       }
     } catch (e: any) {

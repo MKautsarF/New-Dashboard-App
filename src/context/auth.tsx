@@ -153,6 +153,13 @@ export const currentSubmission = {
 };
 
 export const currentInstructor = {
-  isAdmin: false,
-  isInstructor: false,
+  isAdmin: localStorage.getItem("isAdmin") === "true",
+  isInstructor: localStorage.getItem("isInstructor") === "true",
+};
+
+export const setCurrentInstructor = (isAdmin: boolean, isInstructor: boolean) => {
+  currentInstructor.isAdmin = isAdmin;
+  currentInstructor.isInstructor = isInstructor;
+  localStorage.setItem("isAdmin", String(isAdmin));
+  localStorage.setItem("isInstructor", String(isInstructor));
 };
