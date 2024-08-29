@@ -115,7 +115,7 @@ function Settings() {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleLanjut = () => {
-    navigate(`/scoringStart?type=${trainType}&id=${courseId}`, { state: { fromEksplorasi: true } });
+    navigate(`/scoringStart?type=${trainType}&id=65`, { state: { fromEksplorasi: true } });
   };
 
   const handleMulai = async () => {

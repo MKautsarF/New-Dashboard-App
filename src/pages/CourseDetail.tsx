@@ -19,7 +19,7 @@ import { EditNote } from "@mui/icons-material";
 import { Delete } from "@mui/icons-material";
 import { Tooltip } from "@mui/material";
 import { editCourseAsAdmin } from '../services/course.services';
-import { getScoringByCourse, getScoringByCourseInstructor } from '@/services/scoring.services';
+import { deleteScoringAsInstructor, getScoringByCourse, getScoringByCourseInstructor } from '@/services/scoring.services';
 import { getCourseListbyAdmin } from '../services/course.services';
 import { deleteScoringAsAdmin } from '@/services/scoring.services';
 import ModulDialog from '@/components/ModulDialog';
@@ -209,8 +209,13 @@ const CourseDetail = () => {
 	useEffect(() => {
 		const fetchData = async () => {
 		try {
-			const res = await getCourseListbyAdmin(1, 100);
+			let res = {
+				results: [] as any,
+				total: 0
+			}
+			res = await getCourseListbyAdmin(1, 100);
 			console.log("Course List: ", res);
+			
 			setCourses(res.results);
 		} catch (error) {
 			console.error(error);
@@ -265,7 +270,7 @@ const CourseDetail = () => {
 				getModulePenilaianByInstructor(courseId, page, 5);
 			}
 		}
-  	}, [courseId, page, reload]);
+  	}, [courseId]);
 
 	const handleChangePage = (event: unknown, newPage: number) => {
 		setPage(newPage + 1);
@@ -432,8 +437,8 @@ const CourseDetail = () => {
 			id: null,
 			title: null,
 		});
-    const [courses, setCourses] = useState<[]>([]);
-    const [scoring, setScoring] = useState();
+    const [courses, setCourses] = useState<any[]>([]);
+    const [scoring, setScoring] = useState<any[]>([]);
 
     const handleTemplateChange = (template: any) => {
         setSelectedCourse(template);
@@ -473,9 +478,16 @@ const CourseDetail = () => {
 
 	const handleDelete = async (id: string) => {
 		try {
-			const res = await deleteScoringAsAdmin(id);
-			console.log("res", res);
-			const res2 = await getScoringByCourse(courseId, 1, 100);
+			let res2;
+			if (currentInstructor.isAdmin) {
+				const res = await deleteScoringAsAdmin(id);
+				console.log("res", res);
+				res2 = await getScoringByCourse(courseId, 1, 100);
+			} else {
+				const res = await deleteScoringAsInstructor(id);
+				console.log("res", res);
+				res2 = await getScoringByCourseInstructor(courseId, 1, 100);
+			}
 			setRows(res2.results);
 			setReload(!reload);
 		} catch (e) {
@@ -563,7 +575,6 @@ const CourseDetail = () => {
 									<TableCell sx={{ fontWeight: "bold", fontSize: "17px" }}>
 										Modul Penilaian
 									</TableCell>
-									{currentInstructor.isAdmin && (
 										<TableCell className='flex items-center justify-end'>
 											<Button
 											type="button"
@@ -584,7 +595,6 @@ const CourseDetail = () => {
 											Tambah Baru
 											</Button>
 										</TableCell>
-									)}
 								</TableRow>
 							</TableHead>
 							{isLoading ? (

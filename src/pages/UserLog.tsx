@@ -288,6 +288,7 @@ const UserLog = () => {
       const fetchSubmission = async () => {
         try {
           const res = await getSubmissionById(Number(submissionId));
+          console.log("RESSSSSSS", res);
           const pdfres = await getSubmissionLogByTag(Number(submissionId), 'pdf');
           const pdffile = await getSubmissionLogByFileIndex(Number(submissionId),pdfres.results[0].id);
           setPdf(pdffile);
@@ -523,6 +524,7 @@ const UserLog = () => {
     if (getSubmission) {
       rows.map(async (row) => {
         const res = await getSubmissionById(Number(row.id));
+        console.log("res", res);
         row.module = res.exam?.assessment?.judul_modul
         row.scoring = res.exam?.assessment?.judul_penilaian
         setRows([...rows]);

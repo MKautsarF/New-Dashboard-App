@@ -22,6 +22,7 @@ function ScoringStart() {
   const query = useQuery();
   const trainType = query.get("type") as "kcic" | "lrt";
   const courseID = query.get("id");
+  console.log("courseID", courseID);
   const location = useLocation();
   const fromEksplorasi = location.state?.fromEksplorasi || false;
   const navigate = useNavigate();
@@ -134,7 +135,7 @@ function ScoringStart() {
       speed_buzzer: settings.useSpeedBuzzer,
       speed_limit: settings.speedLimit,
       status: "play",
-      module: "Eksplorasi",
+      module_name: "Eksplorasi",
     };
 
     console.log("payload", payload);
@@ -153,6 +154,8 @@ function ScoringStart() {
           } else {
             payloadData = await getPayloadFromCourse(courseID);
           }
+          // add scoring name in payloadData
+          payloadData.scoring_name = selectedCourse.title;
           const payloadS = {
             owner : selectedPesertaId,
             objectType : trainType.toLocaleUpperCase(), 
@@ -160,8 +163,8 @@ function ScoringStart() {
             courseExamId : selectedCourse.id,
             setting : payloadData
           }
+          console.log("Payload data:", payloadS);
           setSubmissionPayload(payloadS);
-          console.log("Payload data:", submissionPayload);
           const payloadAll = {
             ...payloadData,
             id_user: selectedPesertaId,

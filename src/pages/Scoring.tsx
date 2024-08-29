@@ -16,7 +16,7 @@ import ConfirmationModal from "@/components/ConfirmationModal";
 // import { default as sourceKCIC } from "C:/Train Simulator/Data/MockJSON_MRT.json";
 import { flushSync } from "react-dom";
 import fs from "fs";
-import { createScoringAsAdmin } from "@/services/scoring.services";
+import { createScoringAsAdmin, createScoringAsInstructor, editScoringAsInstructor } from "@/services/scoring.services";
 import { editScoringAsAdmin } from "@/services/scoring.services";
 import { getScoringDetail } from "@/services/scoring.services";
 import { get, set } from "lodash";
@@ -101,7 +101,7 @@ function EditKCIC() {
     if (currentInstructor.isAdmin) {
       navigate("/scoringlist/coursedetail?id=" + courseID);
     } else {
-      navigate("/SixthPage/kcic");
+      navigate("/scoringlist/coursedetail?id=" + courseID+"&type="+train);
     }
   };
   const handleNext = () => {
@@ -185,9 +185,18 @@ function EditKCIC() {
 
     // Create the course
     if (mode === "new") {
-      await createScoringAsAdmin(formData);
+      console.log("role", currentInstructor.isAdmin);
+      if (currentInstructor.isAdmin) {
+        await createScoringAsAdmin(formData);
+      } else {
+        await createScoringAsInstructor(formData);
+      }
     } else {
-      await editScoringAsAdmin(type as string, formData);
+      if (currentInstructor.isAdmin) {
+        await editScoringAsAdmin(type as string, formData);
+      } else {
+        await editScoringAsInstructor(type as string, formData);
+      }
     }
     setToastData({
       severity: "success",

@@ -3,6 +3,41 @@ import services from ".";
 
 // INSTRUCTOR
 
+export const createScoringAsInstructor = async (formData: FormData) => {
+  try {
+    const response = await services.post('/instructor/course-exam', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error creating course", error);
+    throw error;
+  }
+}
+
+export const editScoringAsInstructor = async (id: string, formData: FormData) => {
+  try {
+    const response = await services.put(`/instructor/course-exam/${id}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error creating course", error);
+    throw error;
+  }
+}
+
+export const deleteScoringAsInstructor = async (id: string) => {
+  const res = await services.delete(`/instructor/course-exam/${id}`, {
+  });
+
+  return res.data;
+}
+
 export const getScoringByInstructor = async (description: string = '') => {
   const res = await services.get(`/instructor/course-exam?${description === '' ? '' : `description:likeLower=${description}`}`);
   console.log(res.data);
