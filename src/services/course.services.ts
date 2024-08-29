@@ -39,17 +39,65 @@ export const createCourseAsInstructor = async (formData: FormData) => {
 
 // ADMIN
 
-export const getCourseListbyAdmin = async (page: number, size: number, title: string = '') => {
-  try {
-    const res = await services.get(`/admin/course?page=${page}&size=${size}${
-      title === '' ? '' : `&title:likeLower=${title}`}`);
+let pageExclusions: { [page: number]: Set<number> } = {};
+pageExclusions[0] = new Set();
 
-    return res.data;
+export const getCourseListbyAdmin = async (
+  page: number,
+  size: number,
+  title: string = '',
+  description: string = ''
+) => {
+  try {
+    console.log("pertama", page)
+    let filteredData: any[] = [];
+    let total=0;
+    let fetchpage = page;
+    // Fetch data from the server
+    while (filteredData.length < size) {
+    const res = await services.get(
+      `/admin/course?page=${fetchpage}&size=${size}${
+        title ? `&title:likeLower=${title}` : ''
+      }${description ? `&description:likeLower=${description}` : ''}`
+    );
+    total = res.data.total;
+
+    // Initialize exclusions for the current page if not already done
+    if (!pageExclusions[page]) {
+      pageExclusions[page] = new Set();
+    }
+
+    // Filter out unwanted items and items that have already been excluded for this page
+    const newData = res.data.results.filter(
+      (item: any) =>
+        item.description !== "Default" &&
+        !pageExclusions[page-1].has(item.id)
+    );
+
+    // Add new filtered items to the list
+    filteredData = filteredData.concat(newData);
+    if (newData.length === 0) {break;}
+
+      // Increase the page count for the next iteration
+    fetchpage += 1;
+  }
+
+    // If there are more items than needed, slice the array to the requested size
+    const results = filteredData.slice(0, size);
+
+    // Track excluded IDs for this page
+    results.forEach((item) => pageExclusions[page].add(item.id));
+    console.log("pageExclusions", page);
+    console.log(pageExclusions);
+
+    // Return the correctly filtered data
+    return {results, total};
   } catch (error) {
     console.error(`Error fetching course list:`, error);
     throw error;
   }
 };
+
 
 export const createCourseAsAdmin = async (formData: FormData) => {
   try {

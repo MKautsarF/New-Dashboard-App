@@ -33,8 +33,7 @@ function ScoringStart() {
   const [completion, setCompletion] = useState(7);
   const [activeButton, setActiveButton] = useState<string | null>(null);
 
-  const [checkedLRT, setCheckedLRT] = useState<string | null>(null);
-  const [checkedKCIC, setCheckedKCIC] = useState<string | null>(null);
+  const [checkedButton, setCheckedButton] = useState<string | null>(null);
 
   const [lrtButtons, setLrtButtons] = useState<any[]>([]);
   const [kcicButtons, setKcicButtons] = useState<any[]>([]);
@@ -55,25 +54,13 @@ function ScoringStart() {
     const selectedCourse = coursesData.find((course: any) => course.id === buttonName);
     setSelectedCourse(selectedCourse || null);
   
-    if (trainType === "lrt") {
-      if (checkedLRT == buttonName){
-        setCheckedLRT(null)
-      }
+    if (checkedButton == buttonName){
+        setCheckedButton(null)
+    }
       else{
-        setCheckedLRT(buttonName);
+        setCheckedButton(buttonName);
       }
       setSelectedValue3(buttonName);
-      setCheckedKCIC(null);
-    } else if (trainType === "kcic") {
-      if ( checkedKCIC == buttonName){
-        setCheckedKCIC(null)
-      }
-      else {
-        setCheckedKCIC(buttonName);
-      }
-      setSelectedValue4(buttonName);
-      setCheckedLRT(null);
-    }
   };
 
   useEffect(() => {
@@ -81,12 +68,13 @@ function ScoringStart() {
       try {
         let results;
         if (fromEksplorasi) {
-          const { results } = await getScoringByInstructor();
+          results = await getScoringByInstructor(trainType);
+          console.log("traintype", trainType)
+          console.log("results", results);
         } else {
-          const { results } = await getScoringByCourseInstructor(courseID, 1, 100);
+          results = await getScoringByCourseInstructor(courseID, 1, 100);
         }
-        setLrtButtons(results);
-        setCoursesData(results);
+        setCoursesData(results.results);
       } catch (error) {
         console.error("Failed to fetch course data:", error);
       }
@@ -97,6 +85,61 @@ function ScoringStart() {
 
   const [submission, setSubmission] = useState<any>({});
 
+  type StationMapping = {
+    [key: string]: string;
+  };
+  
+  const stationMapping: StationMapping = {
+    "Tegalluar": "Tegal Luar",
+    "Joint Workshop Tegalluar": "Tegal Luar Depot",
+    "Karawang": "Karawang",
+    "Padalarang": "Padalarang",
+    "Halim": "Halim",
+  };
+  
+  const getPayloadStationName = (displayName: any) => Object.keys(stationMapping).find(key => stationMapping[key] === displayName) || displayName;
+
+  const getPayloadExploration = () => {
+    const rangkaianKereta = "6 Rangkaian";
+    const selectedPesertaId = localStorage.getItem('selectedPesertaId');
+    const payload = {
+      id_user: selectedPesertaId,
+      train_type: trainType.toUpperCase(),
+      train: {
+        weight: settings.berat.toString(),
+        type: rangkaianKereta,
+      },
+      time: Number(settings.waktu.format("HH")),
+      weather: [
+        {
+          value: settings.statusHujan,
+          location: [0, 0],
+          name: "rain",
+        },
+        {
+          value: settings.fog,
+          location: [0, 0],
+          name: "fog",
+        },
+      ],
+      route: {
+        start: {
+          name: getPayloadStationName(settings.stasiunAsal),
+        },
+        finish: {
+          name: getPayloadStationName(settings.stasiunTujuan),
+        },
+      },
+      motion_base: settings.useMotionBase,
+      speed_buzzer: settings.useSpeedBuzzer,
+      speed_limit: settings.speedLimit,
+      status: "play",
+      module: "Eksplorasi",
+    };
+
+    console.log("payload", payload);
+    return payload;
+  };
   useEffect(() => {
     const fetchPayload = async () => {
       const selectedPesertaId = localStorage.getItem('selectedPesertaId');
@@ -104,10 +147,15 @@ function ScoringStart() {
       
       if (selectedCourse && selectedCourse.id) {
         try {
-          const payloadData = await getPayloadFromCourse(courseID);
+          let payloadData;
+          if (fromEksplorasi) {
+            payloadData = getPayloadExploration();
+          } else {
+            payloadData = await getPayloadFromCourse(courseID);
+          }
           const payloadS = {
             owner : selectedPesertaId,
-            objectType : trainType.toLocaleUpperCase(),
+            objectType : trainType.toLocaleUpperCase(), 
             courseId : courseID,
             courseExamId : selectedCourse.id,
             setting : payloadData
@@ -129,9 +177,15 @@ function ScoringStart() {
     fetchPayload();
   }, [selectedCourse]);
 
+
   useEffect(() => {
     console.log("Payload updated:", payload);
   }, [payload]);
+
+  useEffect(() => {
+    console.log("coursesData updated:", coursesData);
+  }
+  , [coursesData]);
 
   const handleStart = async () => {
     try {
@@ -167,28 +221,14 @@ function ScoringStart() {
 
           <div className="flex flex-col px-6 gap-4 justify-center items-center">
             {/* Buttons for LRT */}
-            {trainType === "lrt" &&
-              lrtButtons.map((button) => (
+            {
+              coursesData.map((button) => (
                 <ButtonSettings
                   key={button.title}
                   buttonName={button}
                   completion={completion}
                   onClick={handleClick}
-                  checkedValue={checkedLRT}
-                  activeButton={activeButton}
-                  // requiredCompletion={button.requiredCompletion} // Pass requiredCompletion here
-                />
-              ))}
-
-            {/* Buttons for KCIC */}
-            {trainType === "kcic" &&
-              kcicButtons.map((button) => (
-                <ButtonSettings
-                  key={button.title}
-                  buttonName={button}
-                  completion={completion}
-                  onClick={handleClick}
-                  checkedValue={checkedKCIC}
+                  checkedValue={checkedButton}
                   activeButton={activeButton}
                   // requiredCompletion={button.requiredCompletion} // Pass requiredCompletion here
                 />
@@ -243,7 +283,7 @@ function ScoringStart() {
             </Button>
           </div>
           <div className="w-1/2 flex items-center justify-end">
-            {checkedLRT || checkedKCIC ? (
+            {checkedButton ? (
               <Button
                 type="button"
                 variant="outlined"

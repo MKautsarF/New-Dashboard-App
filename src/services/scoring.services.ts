@@ -3,8 +3,9 @@ import services from ".";
 
 // INSTRUCTOR
 
-export const getScoringByInstructor = async () => {
-  const res = await services.get(`/instructor/course-exam`);
+export const getScoringByInstructor = async (description: string = '') => {
+  const res = await services.get(`/instructor/course-exam?${description === '' ? '' : `description:likeLower=${description}`}`);
+  console.log(res.data);
 
   return res.data;
 };

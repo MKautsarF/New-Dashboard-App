@@ -34,6 +34,8 @@ import { sendTextToClients } from "@/socket";
 import FullPageLoading from "@/components/FullPageLoading";
 import { useAuth } from '@/context/auth';
 import fs from "fs";
+import { getCourseByInstructor } from "@/services/course.services";
+import { set } from "lodash";
 
 function useQuery() {
   const { search } = useLocation();
@@ -61,6 +63,7 @@ function Settings() {
   const trainType = query.get("type") as "kcic" | "lrt";
   const trainSource = sourceSettings[trainType];
   const location = useLocation() as CustomLocation;
+  const [courseId, setCourseId] = useState("");
 
   type StationMapping = {
     [key: string]: string;
@@ -112,7 +115,7 @@ function Settings() {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleLanjut = () => {
-    navigate("/scoringStart", { state: { fromEksplorasi: true } });
+    navigate(`/scoringStart?type=${trainType}&id=${courseId}`, { state: { fromEksplorasi: true } });
   };
 
   const handleMulai = async () => {
@@ -170,6 +173,15 @@ function Settings() {
 
   useEffect(() => {
     setSettings(settings);
+    const fetchDefaultID = async () => {
+      try {
+        const res = await getCourseByInstructor(1, 1, '', 'Default');
+        setCourseId(res.result[0].id);
+      } catch (error) {
+        console.error("Error fetching course list:", error);
+      }
+    }
+    fetchDefaultID();
     // assign module
     if (trainType === "lrt") {
       localStorage.setItem("valueSettingsLRT", "Eksplorasi");

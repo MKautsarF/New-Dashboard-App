@@ -61,6 +61,7 @@ import { useLocation } from "react-router-dom";
 import { useMemo } from "react";
 import ModulDialog  from "@/components/ModulDialog";
 import dayjs from 'dayjs';
+import { result } from "lodash";
 
 interface RowData {
   id: string;
@@ -330,21 +331,21 @@ const CourseList = () => {
     async function getRows(page: number) {
       try {
         setIsLoading(true);
-  
-        let res;
+        let res = {
+          results: [] as any,
+          total: 0,
+        };
+        
         if (currentInstructor.isAdmin) {
-          res = await getCourseListbyAdmin(page, 5);
-          console.log("API Response (Admin):", res);
+          const response = await getCourseListbyAdmin(page, 5);
+          res.results = response.results;
+          res.total = response.total;
         } else {
-          res = await getCourseByInstructor(page, 5, '', trainType);
-          console.log("API Response (Instructor):", res);
-  
-          
-          
+          const response = await getCourseByInstructor(page, 5, '', trainType);
+          res.results = response.results;
+          res.total = response.total;
         }
-        console.log("FILTER", res);
-  
-        // Mapping hasil untuk di setRows
+        console.log("API Response:", res);
         const resRows: RowData[] = res.results.map((entry: any) => ({
           id: entry.id,
           title: entry.title,
@@ -352,7 +353,7 @@ const CourseList = () => {
           published: entry.published,
         }));
         setRows(resRows);
-        setTotalData(res.total); // Menghitung total data setelah filter (jika ada)
+        setTotalData(res.total);
       } catch (e) {
         console.error(e);
       } finally {
@@ -397,6 +398,7 @@ const CourseList = () => {
     setMode('edit');
     setOpen(true);
   };
+  const [size, setSize] = useState(5);
 
   const handleDelete = async (id: string) => {
     try {
@@ -413,11 +415,20 @@ const CourseList = () => {
     const query = e.target.query.value;
     try {
       setIsLoading(true);
-      let res = [];
+      let res = {
+        results: [] as any,
+        total: 0,
+      };
+      
       if (currentInstructor.isAdmin) {
-        res = await getCourseListbyAdmin(1, 5, query);
+        // const response = await getCourseListbyAdmin(1, 5, query, 'kcic');
+        // const response2 = await getCourseListbyAdmin(1, 5, query, 'lrt');
+        // res.results = response.results.concat(response2.results);
+        // res.total = response.total + response2.total;
       } else {
-        res = await getCourseByInstructor(1, 5, query);
+        const response = await getCourseByInstructor(1, 5, query, trainType);
+        res.results = response.results;
+        res.total = response.total;
       }
       console.log("API Response:", res);
       const resRows: RowData[] = res.results.map((entry: any) => ({
