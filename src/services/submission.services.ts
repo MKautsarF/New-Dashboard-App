@@ -18,6 +18,20 @@ export const getSubmissionList = async (
   return res.data;
 };
 
+export const getAllSubmissionList = async (
+  page: number = 1,
+  size: number = 9,
+  nip_query: string = '',
+  date_sort_query: string = "",
+  train_filter_query: string = "",
+) => {
+  const res = await services.get(
+    `/instructor/submission?page=${page}&size=${size}${date_sort_query === "" ? "" : `&orderBy=createdAt&order=${date_sort_query}`}${train_filter_query === "" ? "" : `&objectType:eq=${train_filter_query}`}`
+  );
+
+  return res.data;
+};
+
 // export const getSubmissionList = async (
 //   id: string,
 //   page: number = 1,

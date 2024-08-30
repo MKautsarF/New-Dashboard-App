@@ -122,7 +122,8 @@ const CourseDetail = () => {
 			navigate("/courselist");
 		}
 		else {
-			navigate(`/courselist?type=${type}`);
+			// navigate(`/courselist?type=${type}`);
+			navigate(-1);
 		}
 	}
 

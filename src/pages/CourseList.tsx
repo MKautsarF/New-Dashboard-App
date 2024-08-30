@@ -301,6 +301,7 @@ const CourseList = () => {
     if (currentInstructor.isAdmin) navigate("/admin");
     else
       navigate("/SecondPage");
+      // navigate(-1);
     };
 
   const handleChangePage = (event: unknown, newPage: number) => {

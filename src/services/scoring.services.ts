@@ -51,11 +51,7 @@ export const getScoringByCourseInstructor = async (id: string, page: number, siz
   return res.data;
 }
 
-export const getPayloadFromCourse = async (id: string) => {
-  const res = await services.get(`/instructor/course/${id}/download`);
 
-  return res.data;
-};
 
 // ADMIN
 

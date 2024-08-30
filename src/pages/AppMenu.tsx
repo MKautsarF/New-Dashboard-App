@@ -313,6 +313,10 @@ function AppMenu() {
     navigate('/');
   };
 
+  const handleRiwayatClick = () => {
+    navigate('/SubmissionList');
+  };
+
   return (
     <>
       <Container w={1500} h={950}>
@@ -382,7 +386,7 @@ function AppMenu() {
             </Menu>
             <Button
               variant="outlined"
-              onClick={handleLearningClick}
+              onClick={handleRiwayatClick}
               sx={{
                 color: "#f3f3f4",
                 borderColor: "#f3f3f4",
@@ -392,7 +396,7 @@ function AppMenu() {
                 },
               }}
             >
-              Riwayat{" "}
+              Riwayat
             </Button>
           </nav>
         </header>

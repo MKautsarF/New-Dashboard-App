@@ -210,7 +210,7 @@ const UserLog = () => {
         completion += 1
       }
     });
-      const totalModuls = diagramData.length
+    const totalModuls = diagramData.length
     return  (completion / totalModuls) * 100;
   };
 
@@ -605,7 +605,7 @@ const UserLog = () => {
               />
               {diagramData.length > 0 ? (
                 <Typography className="absolute text-center text-2xl" style={{ top: '223px', left: '220px' }}>
-                  {completionPercentage.toFixed(2)}%<br />{completion} dari {totalModuls}<br />Modul
+                  {completionPercentage.toFixed(1)}%<br />{completion} dari {totalModuls}<br />Modul
                 </Typography>
               ) : (
                 <Typography className="absolute text-center text-xl" style={{ top: '223px', left: '220px' }}>
@@ -669,20 +669,36 @@ const UserLog = () => {
         </div>
         
         <TableContainer className="mb-8 h-[370px]" component={Paper}>
-          <Table stickyHeader aria-label="Tabel Peserta">
+          <Table
+            stickyHeader
+            sx={{
+              '& .MuiTableCell-sizeMedium': {
+                padding: '14px 8px',
+              },
+            }}
+            aria-label="Tabel Peserta"
+          >
             <colgroup>
-              <col width="20%" />
-              <col width="15%" />
-              <col width='22%'/>
-              <col width="22%" />
-              <col width="5%" />
-              <col width="12%" />
-              <col width="4%" />
+              <col width="18%"/>
+              <col width="12%"/>
+              <col width='24%'/>
+              <col width="24%"/>
+              <col width="5%"/>
+              <col width="13%"/>
+              <col width="4%"/>
             </colgroup>
             <TableHead>
               <TableRow>
-                <TableCell className="text-lg font-bold" ><Button onClick={handleDateSort}>Tanggal Pengujian{dateSort == '' ? (<></>) : (dateSort == "desc" ? <ExpandLessIcon/> : <ExpandMoreIcon/>)}</Button></TableCell>
-                <TableCell className="text-lg font-bold"><Button onClick={handleTrainSort}>{trainSort == '' ? ("Jenis Kereta") : (trainSort == "LRT" ? ("LRT") : ("KCIC"))}</Button></TableCell>
+                <TableCell>
+                  <Button onClick={handleDateSort} className="text-lg text-black font-bold" sx={{ textTransform: 'none', padding: '0px 0px' }}>
+                    Tanggal Pengujian {dateSort == '' ? (<></>) : (dateSort == "desc" ? <ExpandLessIcon style={{fontSize: 19}}/> : <ExpandMoreIcon style={{fontSize: 19}}/>)}
+                  </Button>
+                </TableCell>
+                <TableCell>
+                    <Button onClick={handleTrainSort} className="text-lg text-black font-bold" sx={{ textTransform: 'none', padding: '0px 0px' }}>
+                        {trainSort == '' ? ("Jenis Kereta") : (trainSort == "LRT" ? ("LRT") : ("KCIC"))}
+                    </Button>
+                </TableCell>
                 <TableCell className="text-lg font-bold">Modul</TableCell>
                 <TableCell className="text-lg font-bold">Penilaian</TableCell>
                 <TableCell className='text-lg font-bold'>Nilai  </TableCell>
@@ -706,11 +722,11 @@ const UserLog = () => {
                     <TableCell className="text-lg">
                         {dayjs(row.date).format('DD MMM YYYY, HH:mm')}
                     </TableCell>
-                    <TableCell className="text-lg">{row.train}</TableCell>
+                    <TableCell className="text-lg">{row.train === "KCIC" ? "Kereta Cepat" : row.train}</TableCell>
                     <TableCell className="text-lg">{row.module}</TableCell>
                     <TableCell className='text-lg'>{row.scoring}</TableCell>
                     <TableCell className='text-lg'>{row.score}</TableCell>
-                    <TableCell align='center' className='flex items-center justify-between'>
+                    <TableCell align='center' className='flex items-center gap-1'>
                       <Button
                         type="button"
                         variant="outlined"

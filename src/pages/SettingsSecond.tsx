@@ -5,8 +5,7 @@ import { NavigateNext } from "@mui/icons-material";
 import { useSettings } from "../context/settings";
 import { sendTextToClients } from "@/socket";
 import ButtonSettings from "@/components/ButtonSettings";
-import { getCourseByInstructor } from "@/services/course.services";
-import { getPayloadFromCourse } from "@/services/course.services";
+import { getCourseByInstructor, getCourseDetailByInstructor } from "@/services/course.services";
 import FirstPageIcon from '@mui/icons-material/FirstPage';
 import { 
   Button,
@@ -127,7 +126,7 @@ function SettingsSecond() {
     const fetchPayload = async () => {
       if (selectedCourse && selectedCourse.id) {
         try {
-          const payloadData = await getPayloadFromCourse(selectedCourse.id);
+          const payloadData = await getCourseDetailByInstructor(selectedCourse.id);
           setPayload(payloadData);
         } catch (error) {
           console.error("Failed to fetch payload data:", error);
@@ -256,7 +255,7 @@ function SettingsSecond() {
               type="button"
               color="error"
               variant="outlined"
-              className="text-base absolute bottom-6 left-6"
+              className="text-base absolute bottom-4 left-6"
               sx={{
                 color: "#df2935",
                 borderColor: "#df2935",
@@ -277,7 +276,7 @@ function SettingsSecond() {
               type="button"
               color="error"
               variant="outlined"
-              className="text-base absolute bottom-6 left-[235px]"
+              className="text-base absolute bottom-4 left-[235px]"
               sx={{
                 color: "#df2935",
                 borderColor: "#df2935",

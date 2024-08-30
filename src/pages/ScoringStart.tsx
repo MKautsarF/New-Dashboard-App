@@ -194,15 +194,17 @@ function ScoringStart() {
       console.log("Submission created:", res.id);
       setSubmission(res);
       navigate(`/FifthPage/review?type=${settings.score}&submissionId=${res.id}&scoringId=${selectedCourse.id}&courseId=${courseID}&trainType=${trainType}`);
-      // console.log("sent payload:", payload);
-      // setIsLoading(true);
-      // sendTextToClients(JSON.stringify(payload, null, 2));
     } catch (error) {
       console.error(error);
     } finally {
       setIsLoading(false);
       console.log("submissionId:", submission.id);
     }
+  };
+
+  const handleNewScoring = async () => {
+    // navigate(`/courselist?&type=${trainType}`);
+    navigate(`/scoringlist/coursedetail?id=${courseID}&type=${trainType}`)
   };
 
   return (
@@ -220,7 +222,7 @@ function ScoringStart() {
           </div>
 
           <div className="flex flex-col px-6 gap-4 justify-center items-center">
-            {
+            {coursesData.length > 0 ? (
               coursesData.map((button) => (
                 <ButtonSettings
                   key={button.title}
@@ -229,9 +231,31 @@ function ScoringStart() {
                   onClick={handleClick}
                   checkedValue={checkedButton}
                   activeButton={activeButton}
-                  // requiredCompletion={button.requiredCompletion} // Pass requiredCompletion here
                 />
-              ))}
+              ))
+            ) : (
+              <div className="w-full h-[400px] flex flex-col items-center justify-center">
+                  <p>Belum ada modul, silahkan buat modul penilaian baru.</p>
+                  <Button
+                    type="button"
+                    variant="outlined"
+                    className="mt-6"
+                    onClick={handleNewScoring}
+                    sx={{
+											color: "#ffffff",
+											backgroundColor: "#00a6fb",
+											borderColor: "#00a6fb",
+											"&:hover": {
+												borderColor: "#1aaffb",
+												color: "#ffffff",
+												backgroundColor: "#1aaffb",
+											},
+										}}
+                  >
+                    Buat Baru
+                  </Button>
+                </div>
+            )}
           </div>
         </div>
 

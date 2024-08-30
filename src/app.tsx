@@ -20,6 +20,7 @@ import Finish from "./pages/Finish";
 import ScoringStart from "./pages/ScoringStart";
 import Course from "./pages/CourseList";
 import CourseDetail from "./pages/CourseDetail";
+import SubmissionList from "./pages/SubmissionList";
 
 import { ToastContainer } from "react-toastify";
 import "./index.css";
@@ -65,6 +66,10 @@ const routerData = [
   {
     path: "/Scoring",
     element: <Scoring />,
+  },
+  {
+    path: "/SubmissionList",
+    element: <SubmissionList />,
   },
   {
     path: "/FifthPage/Review",
