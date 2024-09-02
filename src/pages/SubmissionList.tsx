@@ -1,6 +1,6 @@
 import FullPageLoading from '@/components/FullPageLoading';
 import { useMemo } from "react";
-import { getUsers } from '@/services/user.services';
+import { getUsers, getUsersDatabase } from '@/services/user.services';
 import {
   Box,
   Button,
@@ -118,6 +118,7 @@ const SubmissionList = () => {
   const [rows, setRows] = useState<RowData[]>([]);
   const [totalData, setTotalData] = useState(0);
   const [page, setPage] = useState(1);
+  const [ownerId, setOwnerId] = useState('');
   
 
   const [submissionList, setSubmissionList] = useState<any[]>([]);
@@ -165,12 +166,47 @@ const SubmissionList = () => {
     const [previewOpen, setPreviewOpen] = useState(false);
     const [courseList, setCourseList] = useState<[]>([]);
 
+    const handleSearch = async (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+  
+      setIsLoading(true);
+      setPage(1);
+      setTotalData(0);
+  
+      const data = new FormData(e.currentTarget);
+      const query = data.get("query") as string;
+  
+      try {
+        if (query != ''){
+          const res = await getUsersDatabase(1, 5, query);
+          const resRows = res.results.map((data: any) => ({
+            id: data.id,
+            name: data.name,
+            nip: data.username,
+            complition: 3,
+          }));
+    
+          setOwnerId(resRows[0].id);
+          setTotalData(res.total);
+      }
+      else {
+        setOwnerId('');
+      }
+      } catch (e) {
+        console.error(e);
+        setRows([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
     
     
     useEffect(() => {
       const getRows = async (page: number) => {
         try {
-          const res = await getAllSubmissionList(page, 9);
+          console.log("OWNER ID", ownerId);
+          const res = await getAllSubmissionList(page, 9, ownerId, dateSort, trainSort);
           console.log("RESSSSSSS", res);
 
           const resRows = res.results.map((submission: any) => ({
@@ -194,7 +230,7 @@ const SubmissionList = () => {
       
       getRows(page);
     }
-  , [page]);
+  , [page,dateSort,trainSort, ownerId]);
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage + 1);
@@ -207,7 +243,6 @@ const SubmissionList = () => {
     if (getSubmission) {
       rows.map(async (row) => {
         const res = await getSubmissionById(Number(row.id));
-        console.log("res", res);
         row.instructor = res.exam?.assessment?.nama_instruktur
         row.name = res.exam?.assessment?.nama_crew
         row.module = res.exam?.assessment?.judul_modul
@@ -227,6 +262,7 @@ const SubmissionList = () => {
         </h1>
         <Box
           component="form"
+          onSubmit={handleSearch}
           className="flex gap-4 w-full mb-4"
         >
           <TextField
@@ -274,26 +310,45 @@ const SubmissionList = () => {
                 aria-label="Tabel Peserta"
             >
             <colgroup>
-              <col width="18%" />
+              <col width="19%" />
               <col width="11%" />
               <col width='11%'/>
               <col width="12%" />
-              <col width="24%" />
+              <col width="23%" />
               <col width="24%" />
             </colgroup>
             <TableHead>
               <TableRow>
                 <TableCell className="text-lg font-bold" >
-                    <Button onClick={handleDateSort} className="text-lg text-black font-bold" sx={{ textTransform: 'none', padding: '0px 0px' }}>
-                        Tanggal Pengujian {dateSort == '' ? (<></>) : (dateSort == "desc" ? <ExpandLessIcon style={{fontSize: 19}}/> : <ExpandMoreIcon style={{fontSize: 19}}/>)}
-                    </Button>
+                  <Button
+                    onClick={handleDateSort}
+                    className="text-lg text-black font-bold"
+                    sx={{ 
+                        textTransform: 'none', 
+                        padding: '5px 2px', 
+                        border: '1px solid black' // Add this line for the border
+                    }}
+                >
+                    Tanggal Pengujian {dateSort == '' ? (<></>) : (dateSort == "desc" ? <ExpandLessIcon style={{fontSize: 19}}/> : <ExpandMoreIcon style={{fontSize: 19}}/>)}
+                  </Button>
                 </TableCell>
                 <TableCell className='text-lg font-bold'>Instruktur</TableCell>
                 <TableCell className="text-lg font-bold">Peserta</TableCell>
                 <TableCell className="text-lg font-bold">
-                    <Button onClick={handleTrainSort} className="text-lg text-black font-bold" sx={{ textTransform: 'none', padding: '0px 0px' }}>
-                        {trainSort == '' ? ("Jenis Kereta") : (trainSort == "LRT" ? ("LRT") : ("KCIC"))}
-                    </Button>
+                  <Button
+                    onClick={handleTrainSort}
+                    className="text-lg text-black font-bold"
+                    sx={{ 
+                        textTransform: 'none', 
+                        padding: '5px 3px', 
+                        border: '1px solid black', 
+                        width: '140px',  // Set the fixed width
+                        textAlign: 'center',  // Center the text
+                        justifyContent: 'center'  // Ensure content inside the button is centered
+                    }}
+                >
+                    {trainSort == '' ? ("Jenis Kereta") : (trainSort == "LRT" ? ("LRT") : ("KCIC"))}
+                  </Button>
                 </TableCell>
                 <TableCell className="text-lg font-bold">Modul</TableCell>
                 <TableCell className="text-lg font-bold">Penilaian</TableCell>

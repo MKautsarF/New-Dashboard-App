@@ -442,10 +442,6 @@ function Database() {
                   <col width="20%" />
                   {
                     !fromAppMenu ? 
-                    <col width="10%" /> : <col width="20%" />
-                  }
-                  {
-                    !fromAppMenu ? 
                     <col width="20%" /> : <col width="10%" />
                   }
                 </colgroup>
@@ -453,7 +449,7 @@ function Database() {
                   <TableRow>
                     <TableCell>Nama</TableCell>
                     <TableCell>NIP</TableCell>
-                    <TableCell>Complition</TableCell>
+                    {/* <TableCell>Complition</TableCell> */}
                     <TableCell></TableCell>
                   </TableRow>
                 </TableHead>
@@ -472,7 +468,7 @@ function Database() {
                       >
                         <TableCell>{row.name}</TableCell>
                         <TableCell>{row.nip}</TableCell>
-                        <TableCell>{row.complition}/7</TableCell>
+                        {/* <TableCell>{row.complition}/7</TableCell> */}
                         <TableCell align="right">
                           <div className="flex gap-2">
                             <Button

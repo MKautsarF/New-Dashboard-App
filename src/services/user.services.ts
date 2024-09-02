@@ -86,7 +86,7 @@ export const getInstructorList = async (
   try {
     const res = await services.get(
       `/admin/user-account/scope/instructor?page=${page}&size=${size}&isActive=true${
-        nip_query === '' ? '' : `&bio.officialCode=${nip_query}`
+        nip_query === '' ? '' : `&bio.identityNumber=${nip_query}`
       }`
     );
     console.log('Response data:', res.data);

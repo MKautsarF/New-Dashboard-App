@@ -26,7 +26,7 @@ export const getAllSubmissionList = async (
   train_filter_query: string = "",
 ) => {
   const res = await services.get(
-    `/instructor/submission?page=${page}&size=${size}${date_sort_query === "" ? "" : `&orderBy=createdAt&order=${date_sort_query}`}${train_filter_query === "" ? "" : `&objectType:eq=${train_filter_query}`}`
+    `/instructor/submission?page=${page}&size=${size}${nip_query == '' ? '' : `&owner:eq=${nip_query}`}${date_sort_query === "" ? "" : `&orderBy=createdAt&order=${date_sort_query}`}${train_filter_query === "" ? "" : `&objectType:eq=${train_filter_query}`}&status=finished`
   );
 
   return res.data;

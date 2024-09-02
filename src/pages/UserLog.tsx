@@ -679,9 +679,9 @@ const UserLog = () => {
             aria-label="Tabel Peserta"
           >
             <colgroup>
-              <col width="18%"/>
+              <col width="19%"/>
               <col width="12%"/>
-              <col width='24%'/>
+              <col width='23%'/>
               <col width="24%"/>
               <col width="5%"/>
               <col width="13%"/>
@@ -690,14 +690,33 @@ const UserLog = () => {
             <TableHead>
               <TableRow>
                 <TableCell>
-                  <Button onClick={handleDateSort} className="text-lg text-black font-bold" sx={{ textTransform: 'none', padding: '0px 0px' }}>
+                <Button
+                    onClick={handleDateSort}
+                    className="text-lg text-black font-bold"
+                    sx={{ 
+                        textTransform: 'none', 
+                        padding: '5px 3px', 
+                        border: '1px solid black' // Add this line for the border
+                    }}
+                >
                     Tanggal Pengujian {dateSort == '' ? (<></>) : (dateSort == "desc" ? <ExpandLessIcon style={{fontSize: 19}}/> : <ExpandMoreIcon style={{fontSize: 19}}/>)}
                   </Button>
                 </TableCell>
                 <TableCell>
-                    <Button onClick={handleTrainSort} className="text-lg text-black font-bold" sx={{ textTransform: 'none', padding: '0px 0px' }}>
-                        {trainSort == '' ? ("Jenis Kereta") : (trainSort == "LRT" ? ("LRT") : ("KCIC"))}
-                    </Button>
+                <Button
+                    onClick={handleTrainSort}
+                    className="text-lg text-black font-bold"
+                    sx={{ 
+                        textTransform: 'none', 
+                        padding: '5px 2px', 
+                        border: '1px solid black', 
+                        width: '140px',  // Set the fixed width
+                        textAlign: 'center',  // Center the text
+                        justifyContent: 'center'  // Ensure content inside the button is centered
+                    }}
+                >
+                    {trainSort == '' ? ("Jenis Kereta") : (trainSort == "LRT" ? ("LRT") : ("KCIC"))}
+                  </Button>
                 </TableCell>
                 <TableCell className="text-lg font-bold">Modul</TableCell>
                 <TableCell className="text-lg font-bold">Penilaian</TableCell>

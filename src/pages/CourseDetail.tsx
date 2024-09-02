@@ -3,7 +3,7 @@ import { useMemo } from "react";
 import Container from '../components/Container';
 import {Button, DialogContentText, TableContainer} from "@mui/material";
 import { useNavigate, useLocation, Form } from "react-router-dom";
-import {getCourseDetail, getCourseDetailByAdmin, getCourseDetailByInstructor} from "../services/course.services";
+import {getAllCourseByInstructor, getCourseByInstructor, getCourseDetail, getCourseDetailByAdmin, getCourseDetailByInstructor} from "../services/course.services";
 import {TextField, FormControl, Select, MenuItem} from "@mui/material";
 import { Visibility } from "@mui/icons-material";
 import { Slider, Input, InputAdornment } from "@mui/material";
@@ -119,11 +119,10 @@ const CourseDetail = () => {
 
 	const navigateBack = () => {
 		if(currentInstructor.isAdmin) {
-			navigate("/courselist");
+			navigate("/courselist/");
 		}
 		else {
-			// navigate(`/courselist?type=${type}`);
-			navigate(-1);
+			navigate(`/courselist?type=${type}`);
 		}
 	}
 
@@ -203,17 +202,29 @@ const CourseDetail = () => {
 		}
 	};
 
+	const [pageExclusion, setPageExclusion] = useState<{ [page: number]: Set<number> }>({ 0: new Set() });
+
 	useEffect(() => {
 		const fetchData = async () => {
 		try {
-			let res = {
-				results: [] as any,
-				total: 0
+			if (currentInstructor.isAdmin) {
+				let res = {
+					results: [] as any,
+					total: 0,
+				}
+				res = await getCourseListbyAdmin(1, 100)
+				setCourses(res.results);
 			}
-			res = await getCourseListbyAdmin(1, 100);
-			console.log("Course List: ", res);
+			else {
+				let res = {
+					results: [] as any,
+					total: 0,
+					pageExclusion: {} as any,
+				}
+				res = await getAllCourseByInstructor(1, 1000, '', '', pageExclusion);
+				setCourses(res.results);
+			}
 			
-			setCourses(res.results);
 		} catch (error) {
 			console.error(error);
 		}
@@ -238,7 +249,12 @@ const CourseDetail = () => {
 		const getModulePenilaianByAdmin = async (id: any, page: any, rowsPerPage: any) => {
 		try {
 			setIsLoading(true);
-			const res = await getScoringByCourse(id, page, rowsPerPage);
+			let res;
+			if (currentInstructor.isAdmin) {
+				res = await getScoringByCourse(id, page, rowsPerPage);
+			} else {
+				res = await getScoringByCourseInstructor(id, page, rowsPerPage);
+			}
 			console.log("Module Penilaian: ", res);
 			setRows(res.results);
 			setTotalData(res.total);
@@ -434,8 +450,10 @@ const CourseDetail = () => {
 			setUseDefault(true);
 		}
 		else {
+			setSelectedScoring(null);
 			setUseDefault(false);
 		}
+		console.log("course", course)
 		setSelectedCourse(course);
 	}
     const [selected, setSelected] = useState<{ id: string | null; title: string | null }>({
@@ -467,7 +485,13 @@ const CourseDetail = () => {
     useEffect(() => {
         async function fetchData(courseId: any) {
 			try {
-				const res = await getScoringByCourse(courseId, 1, 100);
+				let res;
+				if (currentInstructor.isAdmin) {
+					res = await getScoringByCourse(selectedCourse, 1, 100);
+				}
+				else {
+					res = await getScoringByCourseInstructor(selectedCourse, 1, 100);
+				}
 					console.log("scoringByCourse", res)
 					setScoring(res);
 				}
@@ -745,7 +769,7 @@ const CourseDetail = () => {
 					Tambah Modul Penilaian
 				</DialogTitle>
 				<DialogContent className="w-[600px] px-6">
-					<DialogContentText> Template </DialogContentText>
+					<DialogContentText>Pilih Modul Pembelajaran </DialogContentText>
 					<FormControl fullWidth variant="standard" margin="none">
 							<Select
 									labelId="rain-status"
@@ -763,8 +787,10 @@ const CourseDetail = () => {
 					</FormControl>
 					{ !useDefault && scoring?.total > 0 && (
 						<FormControl fullWidth variant="standard" margin="normal">
+							<DialogContentText>Pilih Template Modul Penilaian </DialogContentText>
 							<Select
 							value={selectedScoring}
+							displayEmpty
 							onChange={(e) => {setSelectedScoring(e.target.value)}}>
 								{scoring?.results.map((score: any) => (
 									<MenuItem value={score.id}>{score.title}</MenuItem>
@@ -785,6 +811,7 @@ const CourseDetail = () => {
 						type="button"
 						variant="contained"
 						onClick={() => handleCreateScoring()}
+						disabled={!(useDefault || selectedScoring !== null)}
 						sx={{
 							color: "#ffffff",
 							backgroundColor: "#00a6fb",
@@ -823,6 +850,7 @@ const CourseDetail = () => {
 					className="mx-2"
 					onClick={() => setDeletePrompt(false)}
 					variant="contained"
+					// not disabled if default is selected or selectedScoring not null
 				>
 					Batal
 				</Button>

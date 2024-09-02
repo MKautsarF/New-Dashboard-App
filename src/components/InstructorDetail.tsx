@@ -31,11 +31,21 @@ const InstructorDetail: React.FC<InstructorDetailProps> = ({
   handleClose,
 }) => {
   const { instructor, logout } = useAuth();
+  const [logoutOpen, setLogoutOpen] = useState(false);
 
   const handleLogout = () => {
     handleClose();
     logout();
   };
+
+  const handleLogoutClose = () => {
+    setLogoutOpen(false);
+  }
+
+  const handleLogoutOpen = () => {
+    setLogoutOpen(true);
+  }
+
 
   const [passwordPrompt, setPasswordPrompt] = useState(false);
   const [showOldPassword, setShowOldPassword] = useState(false);
@@ -141,7 +151,7 @@ const InstructorDetail: React.FC<InstructorDetailProps> = ({
       </DialogContent>
       <DialogActions className="flex px-6 mb-4">
         <Button 
-          onClick={handleLogout} color="error" variant="outlined"
+          onClick={handleLogoutOpen} color="error" variant="outlined"
           sx={{
             color: "#df2935",
             borderColor: "#df2935",
@@ -284,6 +294,40 @@ const InstructorDetail: React.FC<InstructorDetailProps> = ({
           </Button>
         </DialogActions>
       </Dialog>
+      <Dialog
+          open={logoutOpen}
+          onClose={handleLogoutClose}
+          aria-labelledby="logout-dialog-title"
+          aria-describedby="logout-dialog-description"
+          className="p-6"
+        >
+          <DialogTitle id="logout-dialog-title">Konfirmasi Logout</DialogTitle>
+          <DialogContent>
+            <DialogContentText id="logout-dialog-description">
+              Apakah Anda yakin ingin logout?
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions className="flex p-6 justify-between w-full">
+            <Button onClick={handleLogoutClose} color="primary">
+              Batal
+            </Button>
+            <Button 
+              onClick={handleLogout} color="error" variant="outlined"
+              sx={{
+                color: "#df2935",
+                borderColor: "#df2935",
+                backgroundColor: "#ffffff",
+                "&:hover": {
+                  borderColor: "#df2935",
+                  backgroundColor: "#df2935",
+                  color: "#ffffff",
+                },
+              }}
+              >
+              Logout
+            </Button>
+          </DialogActions>
+        </Dialog>
     </Dialog>
   );
 };
