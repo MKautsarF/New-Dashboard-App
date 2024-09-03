@@ -77,7 +77,6 @@ const Finish: React.FC = () => {
       }
     };
     fetchSubmission();
-    // setUrl(query.get('url'));
   }
   , []);
 
@@ -85,29 +84,10 @@ const Finish: React.FC = () => {
     setPreviewOpen(false);
   };
 
-  const handlePlay = () => {
-    const payload = {
-      status: 'video-play',
-      source: 'local',
-    };
-    sendTextToClients(JSON.stringify(payload));
-  };
 
-  const handleBackward = () => {
-    const payload = {
-      status: 'video-backward',
-      source: 'local',
-    };
-    sendTextToClients(JSON.stringify(payload));
-  };
 
-  const handleForward = () => {
-    const payload = {
-      status: 'video-forward',
-      source: 'local',
-    };
-    sendTextToClients(JSON.stringify(payload));
-  };
+
+
 
   const handleLihatNilai = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(anchorEl ? null : event.currentTarget);
@@ -118,7 +98,6 @@ const Finish: React.FC = () => {
   };
 
   const handleOpenPDF = () => {
-    // shell.openPath(filePathPDF);
     console.log('pdf', pdf);
     const blob = new Blob([pdf], { type: 'application/pdf' });
     const urlfile = URL.createObjectURL(blob);
@@ -196,9 +175,6 @@ const Finish: React.FC = () => {
         source: 'local',
       };
       sendTextToClients(JSON.stringify(payload));
-
-      // const res = await finishSubmissionById(currentSubmission.id);
-      // console.log('finished submission: ' + res.data);
 
       const json = fs.readFileSync(jsonPath, 'binary');
       const jsonBlob = new Blob([json], { type: 'application/json' });

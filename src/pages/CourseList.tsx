@@ -1,15 +1,9 @@
 import {
-  Add,
   Delete,
-  EditNote,
   Info,
   BookmarkAdd,
-  Visibility,
 } from "@mui/icons-material";
-import PublishIcon from '@mui/icons-material/Publish';
-import Picker from "pickerjs";
 import "pickerjs/dist/picker.css";
-import { TimePicker } from "@mui/x-date-pickers";
 import {
   Box,
   Button,
@@ -17,8 +11,6 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
-  DialogContentText,
-  DialogTitle,
   Paper,
   Table,
   TableBody,
@@ -30,38 +22,26 @@ import {
   CircularProgress,
   IconButton,
   Tooltip,
-  Select, 
-  MenuItem, 
-  FormControl,
-  FormHelperText,
-  InputLabel,
-  Slider,
-  Input
 } from "@mui/material";
-import React, { useEffect, useState } from "react";
-import Logo from "@/components/Logo";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Container from "@/components/Container";
 import SearchIcon from "@mui/icons-material/Search";
 import InputAdornment from "@mui/material/InputAdornment";
-import { useAuth, currentPeserta, currentInstructor } from "@/context/auth";
+import {currentInstructor } from "@/context/auth";
 import {
   getCourseListbyAdmin,
   getCourseDetail
 } from "@/services/course.services";
-import { useSettings } from "@/context/settings";
 import FullPageLoading from "@/components/FullPageLoading";
-import { createCourseAsAdmin, publishCourseAsAdmin, getCourseDetailByInstructor, deleteCourseAsAdmin, createCourseAsInstructor } from "@/services/course.services";
+import { createCourseAsAdmin, publishCourseAsAdmin, deleteCourseAsAdmin, createCourseAsInstructor } from "@/services/course.services";
 import { getCourseByInstructor } from "@/services/course.services";
-import Checkbox from '@mui/material/Checkbox';
-import FormControlLabel from '@mui/material/FormControlLabel';
 import fs from "fs";
 import { toast } from 'react-toastify';
 import { useLocation } from "react-router-dom";
 import { useMemo } from "react";
 import ModulDialog  from "@/components/ModulDialog";
 import dayjs from 'dayjs';
-import { result } from "lodash";
 
 interface RowData {
   id: string;
@@ -101,9 +81,6 @@ const CourseList = () => {
 
   const getDisplayStationName = (station: any) => stationMapping[station] || station;
   const getPayloadStationName = (displayName: any) => Object.keys(stationMapping).find(key => stationMapping[key] === displayName) || displayName;
-  const getMappedStationName = (stationName: any) => {
-    return stationMapping[stationName] || stationName;
-  };
 
   const [open, setOpen] = useState(false);
   const [mode, setMode] = useState<'add' | 'edit'>('add');
@@ -222,13 +199,9 @@ const CourseList = () => {
   const [reload, setReload] = useState(false);
 
   const [showPassword, setShowPassword] = useState(false);
-  // const [inputError, setInputError] = useState(false);
-  // const [errorMsg, setErrorMsg] = useState('');
 
   const [editPrompt, setEditPrompt] = useState(false);
 
-  // currentInstructor.isAdmin = true;
-  // currentInstructor.isInstructor = true;
 
   const toggleEdit = () => {
     setOpen(!open)
@@ -286,7 +259,6 @@ const CourseList = () => {
     formData.append('file', new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }), 'data.json');
     formData.append('title', moduleName);
     formData.append('description', description);
-    // formData.append('level', 1);
   
     return formData;
   };  
@@ -301,12 +273,10 @@ const CourseList = () => {
     if (currentInstructor.isAdmin) navigate("/admin");
     else
       navigate("/SecondPage");
-      // navigate(-1);
     };
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage + 1);
-    // setPage(newPage);
   };  
   
   const handleRegister = async () => {
@@ -398,12 +368,6 @@ const CourseList = () => {
   };
 
 
-  const handleEdit = () => {
-    setMode('edit');
-    setOpen(true);
-  };
-  const [size, setSize] = useState(5);
-
   const handleDelete = async (id: string) => {
     try {
       await deleteCourseAsAdmin(id);
@@ -423,12 +387,13 @@ const CourseList = () => {
         results: [] as any,
         total: 0,
       };
+      setPageExclusions({0: new Set()});
       
       if (currentInstructor.isAdmin) {
-        // const response = await getCourseListbyAdmin(1, 5, query, 'kcic');
-        // const response2 = await getCourseListbyAdmin(1, 5, query, 'lrt');
-        // res.results = response.results.concat(response2.results);
-        // res.total = response.total + response2.total;
+        const response = await getCourseListbyAdmin(1, 5, query, '', pageExclusions);
+        res.results = response.results;
+        res.total = response.total;
+        setPageExclusions(response.pageExclusion);
       } else {
         const response = await getCourseByInstructor(1, 5, query, trainType);
         res.results = response.results;

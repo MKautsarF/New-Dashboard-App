@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 // import "../App.css";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Add, PersonAdd } from "@mui/icons-material";
+import {PersonAdd } from "@mui/icons-material";
 import {
   Box,
   Button,
@@ -24,7 +24,7 @@ import {
 import Container from "@/components/Container";
 import SearchIcon from "@mui/icons-material/Search";
 import InputAdornment from "@mui/material/InputAdornment";
-import { useAuth, currentPeserta, currentInstructor } from "../context/auth";
+import { useAuth, currentPeserta } from "../context/auth";
 import {
   createUser,
   // deleteUserById,
@@ -42,7 +42,6 @@ import TraineeDetail from "../components/TraineeDetail";
 import dayjs, { Dayjs } from "dayjs";
 import { DatePicker } from "@mui/x-date-pickers";
 import { toast } from "react-toastify";
-import { getSubmissionList } from "../services/submission.services";
 import FirstPageIcon from '@mui/icons-material/FirstPage';
 
 interface RowData {
@@ -66,8 +65,6 @@ function Database() {
 
   const trainType = query.get("type") as "kcic" | "lrt";
   const { logout } = useAuth();
-
-  // const { settings, setSettings } = useSettings();
 
   const { settings: LRTSettings, setSettings: setLRTSettings } =
     useLRTSettings();
@@ -94,7 +91,6 @@ function Database() {
   const [nama, setNama] = useState("");
   const [email, setEmail] = useState("");
   const [nip, setNip] = useState("");
-  const [complition, setComplition] = useState(0);
   const [code, setCode] = useState("");
   const [position, setPosition] = useState("");
   const [birthDate, setBirthDate] = useState<Dayjs | null>(null);
@@ -127,10 +123,6 @@ function Database() {
     setOpen(true);
   };
 
-  const handleLogout = () => {
-    logout();
-    navigate("/");
-  };
 
   const handlePrev = () => {
     if (fromAppMenu) {
@@ -140,9 +132,6 @@ function Database() {
     }
   };
 
-  const handleNext = () => {
-    navigate("/");
-  };
 
   const handleGetLog = async () => {
     setPageLoading(true);
@@ -184,7 +173,6 @@ function Database() {
       localStorage.setItem('selectedPesertaId', selectedPeserta.id);
 
       const nextPage =
-        // trainType === "kcic" ? "/FifthPage?type=kcic" : "/FifthPage?type=lrt";
         trainType === "kcic" ? "/Modul?type=kcic" : "/Modul?type=lrt";
       navigate(nextPage);
     } catch (e) {
@@ -203,7 +191,6 @@ function Database() {
       nama.length >= 3 &&
       nip !== "" &&
       email.length >= 8 &&
-      // code !== '' &&
       birthDate !== null &&
       position !== ""
     );
@@ -468,7 +455,6 @@ function Database() {
                       >
                         <TableCell>{row.name}</TableCell>
                         <TableCell>{row.nip}</TableCell>
-                        {/* <TableCell>{row.complition}/7</TableCell> */}
                         <TableCell align="right">
                           <div className="flex gap-2">
                             <Button
@@ -569,7 +555,6 @@ function Database() {
                 onChange={(e) => setEmail(e.target.value)}
               />
               <TextField
-                // className="w-1/2"
                 margin="normal"
                 id="nip"
                 label="NIP"

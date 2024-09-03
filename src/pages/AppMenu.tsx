@@ -640,7 +640,6 @@ function AppMenu() {
                 )}
               </Table>
             </TableContainer>
-            {/* <div className="flex gap-4 items-center justify-end mt-2"> */}
               <TablePagination
                 component="div"
                 count={totalData}

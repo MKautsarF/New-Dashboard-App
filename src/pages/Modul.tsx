@@ -40,7 +40,7 @@ function Modul() {
   };
 
   return (
-    <>
+    <>  
       <Container w={900}>
         <div className="flex flex-col gap-4 w-full">
           <div className="flex flex-col text-left gap-4 p-6 ">

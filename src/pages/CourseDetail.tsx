@@ -27,11 +27,6 @@ import dayjs from 'dayjs';
 import { currentInstructor } from '@/context/auth';
 
 
-interface ScoringDetail {
-	id: string,
-	name: string,
-}
-
 interface InfoRowProps {
 	label: string;
 	value: string | number | React.ReactNode; // Adjust the type based on your expected value types
@@ -70,9 +65,6 @@ const CourseDetail = () => {
 
   const getDisplayStationName = (station: any) => stationMapping[station] || station;
   const getPayloadStationName = (displayName: any) => Object.keys(stationMapping).find(key => stationMapping[key] === displayName) || displayName;
-  const getMappedStationName = (stationName: any) => {
-    return stationMapping[stationName] || stationName;
-  };
 
 	const [payload, setPayload] = useState<any>([]);
 	const [moduleName, setModuleName] = useState("");
@@ -462,15 +454,6 @@ const CourseDetail = () => {
 		});
     const [courses, setCourses] = useState<any[]>([]);
     const [scoring, setScoring] = useState<any[]>([]);
-
-    const handleTemplateChange = (template: any) => {
-        setSelectedCourse(template);
-        setSelectedScoring(null);
-    };
-
-    const handleScoringOptionChange = (option: string) => {
-        setSelectedScoring(option);
-    };
 
 		const handleCreateScoring = () => {
 			setOpen(false);
