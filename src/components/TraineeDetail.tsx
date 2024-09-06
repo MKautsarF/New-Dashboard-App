@@ -78,7 +78,7 @@ const TraineeDetail: React.FC<TraineeDetailProps> = ({
   return (
     <Dialog open={isOpen} onClose={handleClose}>
       <DialogTitle>
-        Detail {currentInstructor.isInstructor ? 'Asesor' : 'Peserta'}
+        Detail {currentInstructor.isInstructor ? 'Peserta' : 'Peserta'}
       </DialogTitle>
       <DialogContent className="w-[400px]">
         <DialogContentText>

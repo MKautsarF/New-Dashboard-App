@@ -42,8 +42,7 @@ function useQuery() {
 }
 
 const CourseDetail = () => {
-	const sourceSettingsPath =
-    "C:/Train Simulator/Data/settings_train - Copy.json";
+	const sourceSettingsPath = "src/config/settings_train.json";
   const sourceSettingsRead = fs.readFileSync(sourceSettingsPath, "utf-8");
   const sourceSettings = JSON.parse(sourceSettingsRead);
 	const navigate = useNavigate();
@@ -626,7 +625,7 @@ const CourseDetail = () => {
 										<TableCell>{row.title}</TableCell>
 										<TableCell>
 										<div className="flex gap-4 justify-end">
-											<Tooltip title="Detail" placement="top">
+											<Tooltip title="Detail dan Edit Modul Penilaian" placement="top">
 											<IconButton
 												size="small"
 												onClick={() => {

@@ -59,8 +59,8 @@ function useQuery() {
 const CourseList = () => {
   const navigate = useNavigate();
 
-  const sourceSettingsPath =
-    "C:/Train Simulator/Data/settings_train - Copy.json";
+ // src/config/settings_train - Copy.json
+  const sourceSettingsPath = "src/config/settings_train.json";
   const sourceSettingsRead = fs.readFileSync(sourceSettingsPath, "utf-8");
   const sourceSettings = JSON.parse(sourceSettingsRead);
 
@@ -507,7 +507,7 @@ const CourseList = () => {
             id="input-with-icon-textfield"
             fullWidth
             name="query"
-            placeholder="Cari berdasarkan ..."
+            placeholder="Cari berdasarkan judul modul"
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
