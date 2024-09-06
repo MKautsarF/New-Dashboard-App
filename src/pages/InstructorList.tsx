@@ -480,7 +480,6 @@ const InstructorList = () => {
                       <div className="flex gap-4 justify-end">
                         <Tooltip title="Detail User" placement="top">
                           <IconButton
-                            // color="primary"
                             size="small"
                             onClick={() => {
                               setDetailId(row.id), setDetailOpen(true);
@@ -497,7 +496,7 @@ const InstructorList = () => {
                         </Tooltip>
                         <Tooltip title="Edit User" placement="top">
                           <IconButton
-                            // color="primary"
+
                             size="small"
                             onClick={async () => {
                               setSelectedPeserta({
@@ -539,7 +538,7 @@ const InstructorList = () => {
                         </Tooltip>
                         <Tooltip title="Ubah Password" placement="top">
                           <IconButton
-                            // color="primary"
+
                             size="small"
                             onClick={() => {
                               setSelectedPeserta({
@@ -647,17 +646,11 @@ const InstructorList = () => {
             margin="normal"
             id="nip"
             label="NIP"
-            type="text"
+            type="number"
             fullWidth
             variant="standard"
-            inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
             value={nip}
-            onChange={(e) => {
-              const value = e.target.value;
-              if (/^\d*$/.test(value)) {
-                handleNIPChange(e);
-              }
-            }}
+            onChange={handleNIPChange}
           />
           <div className="flex gap-4">
             <TextField
@@ -806,9 +799,9 @@ const InstructorList = () => {
       </Dialog>
 
       {/* Edit Peserta Prompt */}
-      <Dialog open={editPrompt} onClose={() => setEditPrompt(false)}>
+      <Dialog open={editPrompt} onClose={() => setEditPrompt(false)} className="p-6">
         <DialogTitle className="min-w-[400px]">Edit Detail Asesor</DialogTitle>
-        <DialogContent className="m-2 max-w-[400px]">
+        <DialogContent className="max-w-[400px]">
           <form id="edit" onSubmit={handleEditAsesor}>
             <TextField
               className="my-4"
@@ -866,9 +859,8 @@ const InstructorList = () => {
             </div>
           </form>
         </DialogContent>
-        <DialogActions className="mb-2 flex justify-between">
+        <DialogActions className="mb-2 flex justify-between px-6">
           <Button
-            className="mx-2"
             onClick={() => setEditPrompt(false)}
             color="error"
           >
@@ -876,7 +868,6 @@ const InstructorList = () => {
           </Button>
 
           <Button
-            className="mx-2"
             type="submit"
             form="edit"
             variant="contained"

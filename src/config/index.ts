@@ -1,11 +1,9 @@
-// import { default as dashboardJson } from "./dashboard-config.json";
-import { default as dashboardJson } from "./dashboard-config - Copy.json";
+import { default as dashboardJson } from "./dashboard-config.json";
 
-// export const config = JSON.parse(JSON.stringify(dashboardJson));
 import * as fs from "fs";
 
-// const dashboardPath = "C:/Train Simulator/Data/dashboard-config.json";
-const dashboardPath = "C:/Train Simulator/Data/dashboard-config - Copy.json";
+
+const dashboardPath = "src/config/dashboard-config.json";
 
 // Function to read the JSON file dynamically
 function readDashboardConfig(): any {

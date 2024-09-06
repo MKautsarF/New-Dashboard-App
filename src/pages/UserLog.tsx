@@ -103,7 +103,7 @@ const UserLog = () => {
   const userId = query.get("id");
 
   //temporary
-  const videopath = "C:/Users/Harits/Downloads/Embed external website page and display only particular portion of it in a webpage.mp4"
+  const videopath = ""
 
   const [isLoading, setIsLoading] = useState(false);
 

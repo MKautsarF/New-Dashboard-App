@@ -43,8 +43,6 @@ import { Assessment, EditNoteRounded, EditNoteSharp, Stop } from "@mui/icons-mat
 import { getScoringDetail } from "@/services/scoring.services";
 import { getUserById } from "@/services/user.services";
 import { uploadLogSubmission } from "@/services/submission.services";
-// const fs = require("fs");
-// import { default as mrtjson } from "C:/Train Simulator/Data/MockJSON_KRL.json";
 import fs from "fs";
 
 import { finishSubmissionById } from "@/services/submission.services";
@@ -83,18 +81,11 @@ function Review() {
 
   const [simulation, setSimulation] = useState(true);
   const [url, setUrl] = useState<string>("");
-  // const jsonPath = "C:/Train Simulator/Data/MockJSON_MRT.json";
-  // const mrtjson = JSON.parse(fs.readFileSync(jsonPath, "utf-8"));
 
-  const settingsType = query.get("type");
   const submissionId = query.get("submissionId");
   const courseId = query.get("courseId");
   const trainType = query.get("trainType");
-  console.log("submissionId", submissionId);
-  const jsonPath =
-    settingsType === "Default"
-      ? "C:/Train Simulator/Data/MockJSON_KRL.json"
-      : `C:/Train Simulator/Data/lrt_${settingsType}.json`;
+
 
   const [json, setJson] = useState<any>();
   const [realTimeNilai, setRealTimeNilai] = useState(0);
@@ -270,7 +261,6 @@ function Review() {
 
       navigate(`/finishLRT?&submissionId=${submissionId}&url=${url}&trainType=${trainType}`);
 
-      // shell.openPath(`C:/Train Simulator/Data/penilaian/PDF/${fileName}.pdf`);
     } catch (e) {
       console.error(e);
       setToastData({
@@ -297,8 +287,6 @@ function Review() {
       console.log("Submission finished:", res);
       const formData = new FormData();
       console.log("pdfbuf", pdfbuf);
-      // const pdffile = fs.readFileSync("C:/Train Simulator/Data/penilaian/PDF/"+pdfbuf);
-      // console.log("pdffile", pdffile);
       const blob = new Blob([pdfbuf], { type: 'application/pdf' });  // or any other appropriate MIME type
       setUrl(URL.createObjectURL(blob));
       formData.append("file", blob, "data.pdf");

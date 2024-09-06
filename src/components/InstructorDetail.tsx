@@ -51,25 +51,26 @@ const InstructorDetail: React.FC<InstructorDetailProps> = ({
   const [showOldPassword, setShowOldPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
 
-  const [editPrompt, setEditPrompt] = useState(false);
-
+  const [oldPassword, setOldPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  
   const handleSubmitPassword = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-
+    
     const oldPassword = formData.get('old-password') as string;
     const newPassword = formData.get('new-password') as string;
-
+    
     if (oldPassword === '' || newPassword === '') {
       toast.error('Input password tidak boleh kosong!', {
         position: 'top-center',
       });
       return;
     }
-
+    
     try {
       await updatePassword(oldPassword, newPassword);
-
+      
       setPasswordPrompt(false);
       toast.success('Password berhasil diubah', {
         position: 'top-center',
@@ -79,25 +80,25 @@ const InstructorDetail: React.FC<InstructorDetailProps> = ({
       toast.error(errMsg, { position: 'top-center' });
     }
   };
-
+  
   const handleSubmitProfile = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-
+    
     const newName = formData.get('name') as string;
     const newUsername = formData.get('username') as string;
     const newEmail = formData.get('email') as string;
-
+    
     if (newName === '' || newUsername === '' || newEmail === '') {
       toast.error('Input tidak boleh kosong!', {
         position: 'top-center',
       });
       return;
     }
-
+    
     try {
       const res = await updateProfile(newName, newUsername, newEmail);
-
+      
       setEditPrompt(false);
       // handleClose();
       toast.success(
@@ -109,32 +110,100 @@ const InstructorDetail: React.FC<InstructorDetailProps> = ({
       toast.error(errMsg, { position: 'top-center' });
     }
   };
+  
+  const [isSaveEditPasswordButtonEnabled, setIsSaveEditPasswordButtonEnabled] = useState(false);
+  
+  const [password, setPassword] = useState("");
+  
+  const [initialPasswordValues, setInitialPasswordValues] = useState({
+    password: ''
+  });
+  
+	useEffect(() => {
+    if (passwordPrompt) {
+      setOldPassword('');
+      setNewPassword('');
+    }
+  }, [passwordPrompt]);
+  
+  useEffect(() => {
+    const hasChanges = newPassword !== '' && oldPassword !== '' && newPassword !== oldPassword;
+    setIsSaveEditPasswordButtonEnabled(hasChanges);
+  }, [oldPassword, newPassword]);
+
+  const [editPrompt, setEditPrompt] = useState(false);
+  
+  const [isSaveEditProfileButtonEnabled, setIsSaveEditProfileButtonEnabled] = useState(false);
+  
+  const [profileName, setProfileName] = useState("");
+  const [profileUsername, setProfileUsername] = useState("");
+  const [profileEmail, setProfileEmail] = useState("");
+
+  const [initialProfileValues, setInitialProfileValues] = useState({
+    name: '',
+    username: '',
+    email: ''
+	  });
+
+	useEffect(() => {
+		if (editPrompt) {
+		  const newInitialProfileValues = {
+        name: instructor?.name || '',
+        username: instructor?.username || '',
+        email: instructor?.email || ''
+		  };
+		  setInitialProfileValues(newInitialProfileValues);
+
+      setProfileName(newInitialProfileValues.name);
+      setProfileUsername(newInitialProfileValues.username);
+      setProfileEmail(newInitialProfileValues.email);
+		} else {
+      setProfileName('');
+      setProfileUsername('');
+      setProfileEmail('');
+		  
+		}
+	}, [editPrompt]);
+
+
+  useEffect(() => {
+    const hasChanges = 
+      profileName !== initialProfileValues.name ||
+      profileUsername !== initialProfileValues.username ||
+      profileEmail !== initialProfileValues.email;
+    
+    setIsSaveEditProfileButtonEnabled(hasChanges);
+  }, [profileName, profileUsername, profileEmail, initialProfileValues]);
 
   return (
-    <Dialog open={isOpen} onClose={handleClose}>
+    <Dialog open={isOpen} onClose={handleClose} className='p-6'>
       <DialogTitle className="flex justify-between">
         <span>
           Detail {currentInstructor.isAdmin ? 'Administrator' : 'Asesor'}
         </span>
         <span>
-          <Tooltip title="Edit Profil" placement="top">
-            <IconButton
-              size="small"
-              onClick={() => setEditPrompt(true)}
-              className="ml-1"
-            >
-              <EditNote />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Ubah Password" placement="top">
-            <IconButton
-              size="small"
-              onClick={() => setPasswordPrompt(true)}
-              className="ml-1"
-            >
-              <LockReset />
-            </IconButton>
-          </Tooltip>
+          {!currentInstructor.isAdmin && (
+            <>
+              <Tooltip title="Edit Profil" placement="top">
+                <IconButton
+                  size="small"
+                  onClick={() => setEditPrompt(true)}
+                  className="ml-1"
+                >
+                  <EditNote />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Ubah Password" placement="top">
+                <IconButton
+                  size="small"
+                  onClick={() => setPasswordPrompt(true)}
+                  className="ml-1"
+                >
+                  <LockReset />
+                </IconButton>
+              </Tooltip>
+            </>
+          )}
         </span>
       </DialogTitle>
       <DialogContent className="w-[400px]">
@@ -171,10 +240,9 @@ const InstructorDetail: React.FC<InstructorDetailProps> = ({
       </DialogActions>
 
       {/* Change Password prompt */}
-      <Dialog open={passwordPrompt} onClose={() => setPasswordPrompt(false)}>
-        <DialogTitle className="min-w-[360px]">Ubah Password</DialogTitle>
-
-        <DialogContent className="flex m-2 justify-center max-w-[360px]">
+      <Dialog open={passwordPrompt} onClose={() => setPasswordPrompt(false)} className='p-6'>
+        <DialogTitle>Ubah Password</DialogTitle>
+        <DialogContent className="flex justify-center max-w-[360px]">
           <form id="password" onSubmit={handleSubmitPassword}>
             <TextField
               className="mb-4"
@@ -184,6 +252,8 @@ const InstructorDetail: React.FC<InstructorDetailProps> = ({
               variant="standard"
               fullWidth
               type={showOldPassword ? 'text' : 'password'}
+              value={oldPassword}
+              onChange={(e) => setOldPassword(e.target.value)}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
@@ -204,6 +274,8 @@ const InstructorDetail: React.FC<InstructorDetailProps> = ({
               variant="standard"
               fullWidth
               type={showNewPassword ? 'text' : 'password'}
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
@@ -218,7 +290,6 @@ const InstructorDetail: React.FC<InstructorDetailProps> = ({
             />
           </form>
         </DialogContent>
-
         <DialogActions className="mb-2 flex justify-between">
           <Button
             className="mx-2"
@@ -227,13 +298,20 @@ const InstructorDetail: React.FC<InstructorDetailProps> = ({
           >
             Batal
           </Button>
-
           <Button
             className="mx-2"
             type="submit"
             form="password"
             variant="contained"
-            color="success"
+            sx={{
+              color: "#ffffff",
+              backgroundColor: "#1aaffb",
+              "&:hover": {
+                borderColor: "#00a6fb",
+                color: "#ffffff",
+              },
+            }}
+            disabled={!isSaveEditPasswordButtonEnabled}
           >
             Simpan
           </Button>
@@ -241,37 +319,40 @@ const InstructorDetail: React.FC<InstructorDetailProps> = ({
       </Dialog>
 
       {/* Edit Profile Prompt */}
-      <Dialog open={editPrompt} onClose={() => setEditPrompt(false)}>
-        <DialogTitle className="min-w-[360px]">Edit Profil</DialogTitle>
-        <DialogContent className="flex m-2 justify-center max-w-[360px]">
+      <Dialog open={editPrompt} onClose={() => setEditPrompt(false)} className='p-6'>
+        <DialogTitle>Edit Profil</DialogTitle>
+        <DialogContent className="flex justify-center max-w-[360px]">
           <form id="profile" onSubmit={handleSubmitProfile}>
-            <TextField
-              className="my-4"
-              id="name"
-              label="Nama"
-              name="name"
-              variant="standard"
-              fullWidth
-              defaultValue={instructor.name}
-            />
-            <TextField
-              className="my-4"
-              id="username"
-              label="Username"
-              name="username"
-              variant="standard"
-              fullWidth
-              defaultValue={instructor.username}
-            />
-            <TextField
-              className="my-4"
-              id="email"
-              label="Email"
-              name="email"
-              variant="standard"
-              fullWidth
-              defaultValue={instructor.email}
-            />
+          <TextField
+            className="my-4"
+            id="name"
+            label="Nama"
+            name="name"
+            variant="standard"
+            fullWidth
+            value={profileName}
+            onChange={(e) => setProfileName(e.target.value)}
+          />
+          <TextField
+            className="my-4"
+            id="username"
+            label="Username"
+            name="username"
+            variant="standard"
+            fullWidth
+            value={profileUsername}
+            onChange={(e) => setProfileUsername(e.target.value)}
+          />
+          <TextField
+            className="my-4"
+            id="email"
+            label="Email"
+            name="email"
+            variant="standard"
+            fullWidth
+            value={profileEmail}
+            onChange={(e) => setProfileEmail(e.target.value)}
+          />
           </form>
         </DialogContent>
         <DialogActions className="mb-2 flex justify-between">
@@ -288,12 +369,21 @@ const InstructorDetail: React.FC<InstructorDetailProps> = ({
             type="submit"
             form="profile"
             variant="contained"
-            color="success"
+            sx={{
+              color: "#ffffff",
+              backgroundColor: "#1aaffb",
+              "&:hover": {
+                borderColor: "#00a6fb",
+                color: "#ffffff",
+              },
+            }}
+            disabled={!isSaveEditProfileButtonEnabled}
           >
             Simpan
           </Button>
         </DialogActions>
       </Dialog>
+
       <Dialog
           open={logoutOpen}
           onClose={handleLogoutClose}
@@ -308,7 +398,17 @@ const InstructorDetail: React.FC<InstructorDetailProps> = ({
             </DialogContentText>
           </DialogContent>
           <DialogActions className="flex p-6 justify-between w-full">
-            <Button onClick={handleLogoutClose} color="primary">
+            <Button 
+              onClick={handleLogoutClose}
+              sx={{
+                color: "#ffffff",
+                backgroundColor: "#1aaffb",
+                "&:hover": {
+                  borderColor: "#00a6fb",
+                  color: "#ffffff",
+                },
+              }}
+            >
               Batal
             </Button>
             <Button 

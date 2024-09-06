@@ -1,0 +1,28 @@
+{
+  "judul_penilaian": "Judul Penilaian",
+  "penilaian": [
+    {
+      "unit": 1,
+      "judul": "Unit kompetensi 1",
+      "disable": false,
+      "data": [
+        {
+          "no": 1,
+          "langkah_kerja": "Langkah kerja 1",
+          "disable": false,
+          "bobot": "1",
+          "poin": [
+            {
+              "observasi": "Poin observasi 1",
+              "id": "K1.1.1",
+              "nilai": 0,
+              "disable": false,
+              "bobot": "1"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "nilai_akhir": 0
+}

@@ -52,8 +52,7 @@ interface CustomLocation extends Location {
 }
 
 function Settings() {
-  const sourceSettingsPath =
-    "C:/Train Simulator/Data/settings_train - Copy.json";
+  const sourceSettingsPath = "src/config/settings_train.json";
   const sourceSettingsRead = fs.readFileSync(sourceSettingsPath, "utf-8");
   const sourceSettings = JSON.parse(sourceSettingsRead);
 

@@ -99,11 +99,6 @@ const ModulDialog: React.FC<ModulDialogProps> = ({
       setFormattedTime(formatted);
     }
   }, [time]);
-  useEffect(() => {
-    console.log('time', time);
-    console.log('kiwikwi',moduleName)
-  }
-  , [open]);
 
   return (
     <Dialog open={open} onClose={() => setOpen()}>
@@ -151,18 +146,11 @@ const ModulDialog: React.FC<ModulDialogProps> = ({
             margin="normal"
             id="Spesifikasi Kereta"
             label={<span>Berat Kereta (ton) <span style={{ color: 'red' }}>*</span></span>}
-            type="text"
+            type="number"
             fullWidth
             variant="standard"
-            inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
             value={trainWeight}
-            // onChange={(e) => setTrainWeight(e.target.value)}
-            onChange={(e) => {
-              const value = e.target.value;
-              if (/^\d*$/.test(value)) {
-                handletWeightChange(e);
-              }
-            }}
+            onChange={handletWeightChange}
           />
           
           <FormControl fullWidth variant="standard" margin="normal" disabled={!train}>
@@ -306,17 +294,11 @@ const ModulDialog: React.FC<ModulDialogProps> = ({
                 Speed Limit (km/h) {speedBuzzer && <span style={{ color: 'red' }}>*</span>}
               </span>
             }
-            type="text"
+            type="number"
             fullWidth
             variant="standard"
             value={speedLimit}
-            onChange={(e) => {
-              const value = e.target.value;
-              if (/^\d*$/.test(value)) {
-                handleSpeedLimitChange(e);
-              }
-            }}
-            inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+            onChange={handleSpeedLimitChange}
             error={!!error}
             helperText={error}
             disabled={!speedBuzzer}
@@ -326,7 +308,21 @@ const ModulDialog: React.FC<ModulDialogProps> = ({
           <Button onClick={() => setOpen()} color="error">
             Kembali
           </Button>
-          <Button onClick={handleRegister} disabled={!isAddButtonEnabled}>
+          <Button
+            onClick={handleRegister} 
+            disabled={!isAddButtonEnabled}
+            sx={{
+              color: "#ffffff",
+              backgroundColor: "#00a6fb",
+              borderColor: "#00a6fb",
+              "&:hover": {
+                borderColor: "#1aaffb",
+                color: "#ffffff",
+                backgroundColor: "#1aaffb",
+              },
+            }}
+            variant="contained"
+          >
             {mode === 'add' ? 'Tambah' : 'Simpan Perubahan'}
           </Button>
         </DialogActions>

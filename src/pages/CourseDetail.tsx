@@ -26,6 +26,14 @@ import ModulDialog from '@/components/ModulDialog';
 import dayjs from 'dayjs';
 import { currentInstructor } from '@/context/auth';
 
+interface ScoringData {
+	total: number;
+	results: {
+	  id: number;
+	  title: string;
+	}[];
+  }
+
 
 interface InfoRowProps {
 	label: string;
@@ -43,27 +51,27 @@ function useQuery() {
 
 const CourseDetail = () => {
 	const sourceSettingsPath = "src/config/settings_train.json";
-  const sourceSettingsRead = fs.readFileSync(sourceSettingsPath, "utf-8");
-  const sourceSettings = JSON.parse(sourceSettingsRead);
-	const navigate = useNavigate();
-	//get query params
-	const query = useQuery();
-	const courseId = query.get("id");
+	const sourceSettingsRead = fs.readFileSync(sourceSettingsPath, "utf-8");
+	const sourceSettings = JSON.parse(sourceSettingsRead);
+		const navigate = useNavigate();
+		//get query params
+		const query = useQuery();
+		const courseId = query.get("id");
 
-	type StationMapping = {
-    [key: string]: string;
-  };
+		type StationMapping = {
+		[key: string]: string;
+	};
   
-  const stationMapping: StationMapping = {
-    "Tegalluar": "Tegal Luar",
-    "Joint Workshop Tegalluar": "Tegal Luar Depot",
-    "Karawang": "Karawang",
-    "Padalarang": "Padalarang",
-    "Halim": "Halim",
-  };
+	const stationMapping: StationMapping = {
+		"Tegalluar": "Tegal Luar",
+		"Joint Workshop Tegalluar": "Tegal Luar Depot",
+		"Karawang": "Karawang",
+		"Padalarang": "Padalarang",
+		"Halim": "Halim",
+	};
 
-  const getDisplayStationName = (station: any) => stationMapping[station] || station;
-  const getPayloadStationName = (displayName: any) => Object.keys(stationMapping).find(key => stationMapping[key] === displayName) || displayName;
+  	const getDisplayStationName = (station: any) => stationMapping[station] || station;
+  	const getPayloadStationName = (displayName: any) => Object.keys(stationMapping).find(key => stationMapping[key] === displayName) || displayName;
 
 	const [payload, setPayload] = useState<any>([]);
 	const [moduleName, setModuleName] = useState("");
@@ -118,71 +126,65 @@ const CourseDetail = () => {
 	}
 
 	const handleMotionBaseChange = (event: any) => {
-    setMotionBase(event.target.checked);
-  };
+    	setMotionBase(event.target.checked);
+  	};
 
-  const handleSpeedBuzzerChange = (event: any) => {
-    setSpeedBuzzer(event.target.checked);
-    setSpeedLimit(""); // Reset speedLimit when speedBuzzer changes
-  };
+	const handleSpeedBuzzerChange = (event: any) => {
+		setSpeedBuzzer(event.target.checked);
+		setSpeedLimit(""); // Reset speedLimit when speedBuzzer changes
+	};
 
-  useEffect(() => {
-	  console.log("update isediting", isEditing)
-  }
-  , [isEditing]);
 	const collectDataAndPrepareFormData = async () => {
-    // Determine the description
-    const description = train.toUpperCase();
-  
-    // Prepare the data object
-    const data = {
-      module_name: moduleName,
-      train_type: train,
-      train: {
-        weight: trainWeight,
-        type: "6 Rangkaian"
-      },
-      time: dayjs(time).format('HH'),
-      weather: [
-        {
-          value: rainStatus,
-          location: [0, 0],
-          name: "rain"
-        },
-        {
-          value: fog,
-          location: [0, 0],
-          name: "fog"
-        }
-      ],
-      train_line: trainLine,
-      route: {
-        start: {
-          name: getPayloadStationName(startStation)
-        },
-        finish: {
-          name: getPayloadStationName(finishStation)
-        }
-      },
-      motion_base: motionBase,
-      speed_buzzer: speedBuzzer,
-      speed_limit: speedLimit,
-      status: "play"
-    };
-  
-    // Prepare the form data
-    const formData = new FormData();
-    formData.append('file', new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }), 'data.json');
-    formData.append('title', moduleName);
-    formData.append('description', description);
-    // formData.append('level', 1);
-  
-    return formData;
-  };  
+		const description = train.toUpperCase();
+	
+		const data = {
+		module_name: moduleName,
+		train_type: train,
+		train: {
+			weight: trainWeight,
+			type: "6 Rangkaian"
+		},
+		time: dayjs(time).format('HH'),
+		weather: [
+			{
+			value: rainStatus,
+			location: [0, 0],
+			name: "rain"
+			},
+			{
+			value: fog,
+			location: [0, 0],
+			name: "fog"
+			}
+		],
+		train_line: trainLine,
+		route: {
+			start: {
+			name: getPayloadStationName(startStation)
+			},
+			finish: {
+			name: getPayloadStationName(finishStation)
+			}
+		},
+		motion_base: motionBase,
+		speed_buzzer: speedBuzzer,
+		speed_limit: speedLimit,
+		status: "play"
+		};
+	
+		// Prepare the form data
+		const formData = new FormData();
+		formData.append('file', new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }), 'data.json');
+		formData.append('title', moduleName);
+		formData.append('description', description);
+		// formData.append('level', 1);
+	
+		return formData;
+	};  
 
 	const handleSave = async () => {
 		try {
-		const formData = await collectDataAndPrepareFormData();
+			const formData = await collectDataAndPrepareFormData();
 			const res = await editCourseAsAdmin(courseId, formData);
 			const res2 = await getCourseDetailByAdmin(courseId);
 			console.log("ressssss", res2);
@@ -197,76 +199,76 @@ const CourseDetail = () => {
 
 	useEffect(() => {
 		const fetchData = async () => {
-		try {
-			if (currentInstructor.isAdmin) {
-				let res = {
-					results: [] as any,
-					total: 0,
+			try {
+				if (currentInstructor.isAdmin) {
+					let res = {
+						results: [] as any,
+						total: 0,
+					}
+					res = await getCourseListbyAdmin(1, 100)
+					setCourses(res.results);
 				}
-				res = await getCourseListbyAdmin(1, 100)
-				setCourses(res.results);
-			}
-			else {
-				let res = {
-					results: [] as any,
-					total: 0,
-					pageExclusion: {} as any,
+				else {
+					let res = {
+						results: [] as any,
+						total: 0,
+						pageExclusion: {} as any,
+					}
+					res = await getAllCourseByInstructor(1, 1000, '', '', pageExclusion);
+					setCourses(res.results);
 				}
-				res = await getAllCourseByInstructor(1, 1000, '', '', pageExclusion);
-				setCourses(res.results);
+				
+			} catch (error) {
+				console.error(error);
 			}
-			
-		} catch (error) {
-			console.error(error);
-		}
 		};
 
 		const getRows = async (id: any) => {
-		try {
-			let res;
-			if (currentInstructor.isAdmin) {
-				res = await getCourseDetailByAdmin(id);
-				console.log("isEditing", isEditing)
-			} else {
-				res = await getCourseDetailByInstructor(id);
-			}	
-			console.log("courseDetail", res)
-			setPayload(res);
-		} catch (e) {
-			console.error(e);
-		}
+			try {
+				let res;
+				if (currentInstructor.isAdmin) {
+					res = await getCourseDetailByAdmin(id);
+					console.log("isEditing", isEditing)
+				} else {
+					res = await getCourseDetailByInstructor(id);
+				}	
+				console.log("courseDetail", res)
+				setPayload(res);
+			} catch (e) {
+				console.error(e);
+			}
 		};
 
 		const getModulePenilaianByAdmin = async (id: any, page: any, rowsPerPage: any) => {
-		try {
-			setIsLoading(true);
-			let res;
-			if (currentInstructor.isAdmin) {
-				res = await getScoringByCourse(id, page, rowsPerPage);
-			} else {
-				res = await getScoringByCourseInstructor(id, page, rowsPerPage);
+			try {
+				setIsLoading(true);
+				let res;
+				if (currentInstructor.isAdmin) {
+					res = await getScoringByCourse(id, page, rowsPerPage);
+				} else {
+					res = await getScoringByCourseInstructor(id, page, rowsPerPage);
+				}
+				console.log("Module Penilaian: ", res);
+				setRows(res.results);
+				setTotalData(res.total);
+			} catch (e) {
+				console.error(e);
+			} finally {
+				setIsLoading(false);
 			}
-			console.log("Module Penilaian: ", res);
-			setRows(res.results);
-			setTotalData(res.total);
-		} catch (e) {
-			console.error(e);
-		} finally {
-			setIsLoading(false);
-		}
 		};
 
 		const getModulePenilaianByInstructor = async (id: any, page: any, rowsPerPage: any) => {
 			try {
-			setIsLoading(true);
-			const res = await getScoringByCourseInstructor(id, page, rowsPerPage);
-			console.log("Module Penilaian: ", res);
-			setRows(res.results);
-			setTotalData(res.total);
+				setIsLoading(true);
+				const res = await getScoringByCourseInstructor(id, page, rowsPerPage);
+				console.log("Module Penilaian: ", res);
+				setRows(res.results);
+				setTotalData(res.total);
 			} catch (e) {
-			console.error(e);
+				console.error(e);
 			} finally {
-			setIsLoading(false);
+				setIsLoading(false);
 			}
 		};
 
@@ -304,82 +306,77 @@ const CourseDetail = () => {
 
 	useEffect(() => {
 		if (isEditing && payload) {
-			console.log("pamasukkkkkkkk")
-		  // Set fields from payload
-		  const newInitialValues = {
-			moduleName: payload.module_name || '',
-			train: payload.train_type || '',
-			trainWeight: payload.train?.weight || '',
-			trainLine: payload.train_line || '',
-			startStation: payload.route?.start?.name || '',
-			finishStation: payload.route?.finish?.name || '',
-			rainStatus: payload.weather?.find((item: any) => item.name === 'rain')?.value || '',
-			fog: payload.weather?.find((item: any) => item.name === 'fog')?.value || 0,
-			time: payload.time ? dayjs(new Date(1970, 0, 1, ...payload.time.split(':').map(Number))) : null,
-			motionBase: payload.motion_base || false,
-			speedBuzzer: payload.speed_buzzer || false,
-			speedLimit: payload.speed_limit || '',
-			jarakPandang: payload.weather[1]?.value >= 0.5 ? Math.round(Math.pow(payload.weather[1]?.value / 100, -0.914) * 50.6) : 0,
-		  };
-		  console.log("newInitialValues", newInitialValues)
-		  setInitialValues(newInitialValues);
-	  
-		  // Set form values
-		  setModuleName(newInitialValues.moduleName);
-		  setTrain(newInitialValues.train);
-		  setTrainWeight(newInitialValues.trainWeight);
-		  setTrainLine(newInitialValues.trainLine);
-		  setStartStation(newInitialValues.startStation);
-		  setFinishStation(newInitialValues.finishStation);
-		  setRainStatus(newInitialValues.rainStatus);
-		  setFog(newInitialValues.fog);
-		  setTime(newInitialValues.time);
-		  console.log("time", newInitialValues.time)
-		  setMotionBase(newInitialValues.motionBase);
-		  setSpeedBuzzer(newInitialValues.speedBuzzer);
-		  setSpeedLimit(newInitialValues.speedLimit);
-		  setJarakPandang(newInitialValues.jarakPandang);
+			const newInitialValues = {
+				moduleName: payload.module_name || '',
+				train: payload.train_type || '',
+				trainWeight: payload.train?.weight || '',
+				trainLine: payload.train_line || '',
+				startStation: payload.route?.start?.name || '',
+				finishStation: payload.route?.finish?.name || '',
+				rainStatus: payload.weather?.find((item: any) => item.name === 'rain')?.value || '',
+				fog: payload.weather?.find((item: any) => item.name === 'fog')?.value || 0,
+				time: payload.time ? dayjs(new Date(1970, 0, 1, ...payload.time.split(':').map(Number))) : null,
+				motionBase: payload.motion_base || false,
+				speedBuzzer: payload.speed_buzzer || false,
+				speedLimit: payload.speed_limit || '',
+				jarakPandang: payload.weather[1]?.value >= 0.5 ? Math.round(Math.pow(payload.weather[1]?.value / 100, -0.914) * 50.6) : 0,
+			};
+			console.log("newInitialValues", newInitialValues)
+			setInitialValues(newInitialValues);
+		
+			setModuleName(newInitialValues.moduleName);
+			setTrain(newInitialValues.train);
+			setTrainWeight(newInitialValues.trainWeight);
+			setTrainLine(newInitialValues.trainLine);
+			setStartStation(newInitialValues.startStation);
+			setFinishStation(newInitialValues.finishStation);
+			setRainStatus(newInitialValues.rainStatus);
+			setFog(newInitialValues.fog);
+			setTime(newInitialValues.time);
+			setMotionBase(newInitialValues.motionBase);
+			setSpeedBuzzer(newInitialValues.speedBuzzer);
+			setSpeedLimit(newInitialValues.speedLimit);
+			setJarakPandang(newInitialValues.jarakPandang);
 		} else {
-		  // Reset fields for adding new module
-		  setModuleName('');
-		  setTrain('');
-		  setTrainWeight('');
-		  setTrainLine('');
-		  setStartStation('');
-		  setFinishStation('');
-		  setRainStatus('');
-		  setFog(0);
-		  setTime(null);
-		  setMotionBase(false);
-		  setSpeedBuzzer(false);
-		  setSpeedLimit('');
-		  setJarakPandang(0);
-		  setTrainLines([]);
+			setModuleName('');
+			setTrain('');
+			setTrainWeight('');
+			setTrainLine('');
+			setStartStation('');
+			setFinishStation('');
+			setRainStatus('');
+			setFog(0);
+			setTime(null);
+			setMotionBase(false);
+			setSpeedBuzzer(false);
+			setSpeedLimit('');
+			setJarakPandang(0);
+			setTrainLines([]);
 		}
 	  }, [isEditing, payload]);
 
 	useEffect(() => {
 		const hasChanges = 
-		  moduleName !== initialValues.moduleName ||
-		  train !== initialValues.train ||
-		  trainWeight !== initialValues.trainWeight ||
-		  trainLine !== initialValues.trainLine ||
-		  startStation !== initialValues.startStation ||
-		  finishStation !== initialValues.finishStation ||
-		  rainStatus !== initialValues.rainStatus ||
-		  fog !== initialValues.fog ||
-		  time !== dayjs(initialValues.time).format('HH') ||
-		  motionBase !== initialValues.motionBase ||
-		  speedBuzzer !== initialValues.speedBuzzer ||
-		  speedLimit !== initialValues.speedLimit ||
-		  jarakPandang !== initialValues.jarakPandang;
+			moduleName !== initialValues.moduleName ||
+			train !== initialValues.train ||
+			trainWeight !== initialValues.trainWeight ||
+			trainLine !== initialValues.trainLine ||
+			startStation !== initialValues.startStation ||
+			finishStation !== initialValues.finishStation ||
+			rainStatus !== initialValues.rainStatus ||
+			fog !== initialValues.fog ||
+			//   time !== dayjs(initialValues.time).format('HH') ||
+			(time && initialValues.time && !time.isSame(initialValues.time, 'minute')) ||
+			motionBase !== initialValues.motionBase ||
+			speedBuzzer !== initialValues.speedBuzzer ||
+			speedLimit !== initialValues.speedLimit ||
+			jarakPandang !== initialValues.jarakPandang;
 	  
 		setIsAddButtonEnabled(hasChanges);
-	  }, [
-		moduleName, train, trainWeight, trainLine, startStation, finishStation, 
+	}, [moduleName, train, trainWeight, trainLine, startStation, finishStation, 
 		rainStatus, fog, time, motionBase, speedBuzzer, speedLimit, jarakPandang, 
 		initialValues
-	  ]);
+	]);
 
 	useEffect(() => {
 		if (train) {
@@ -452,7 +449,8 @@ const CourseDetail = () => {
 			title: null,
 		});
     const [courses, setCourses] = useState<any[]>([]);
-    const [scoring, setScoring] = useState<any[]>([]);
+    // const [scoring, setScoring] = useState<any[]>([]);
+	const [scoring, setScoring] = useState<ScoringData | null>(null);
 
 		const handleCreateScoring = () => {
 			setOpen(false);
@@ -470,19 +468,17 @@ const CourseDetail = () => {
 				let res;
 				if (currentInstructor.isAdmin) {
 					res = await getScoringByCourse(selectedCourse, 1, 100);
-				}
-				else {
+				} else {
 					res = await getScoringByCourseInstructor(selectedCourse, 1, 100);
 				}
-					console.log("scoringByCourse", res)
-					setScoring(res);
-				}
-				catch (e) {
+				console.log("scoringByCourse", res)
+				setScoring(res);
+				} catch (e) {
 					console.error(e);
 				}
 		}
 		if (!useDefault) {
-        fetchData(courseId);
+        	fetchData(courseId);
 		}
     }
     , [selectedCourse]);
@@ -550,14 +546,14 @@ const CourseDetail = () => {
 										<Button
 											type="button"
 											sx={{
-											color: "#ffffff",
-											backgroundColor: "#00a6fb",
-											borderColor: "#00a6fb",
-											"&:hover": {
-												borderColor: "#1aaffb",
 												color: "#ffffff",
-												backgroundColor: "#1aaffb",
-											},
+												backgroundColor: "#00a6fb",
+												borderColor: "#00a6fb",
+												"&:hover": {
+													borderColor: "#1aaffb",
+													color: "#ffffff",
+													backgroundColor: "#1aaffb",
+												},
 											}}
 											variant="contained"
 											onClick={toogleEdit}
@@ -704,45 +700,45 @@ const CourseDetail = () => {
 			
 			{/* pop up registrasi dan edit */}
 			<ModulDialog
-					open={openEdit}
-					setOpen={toogleEdit}
-					mode="edit"
-					moduleName={moduleName}
-					setModuleName={setModuleName}
-					train={train}
-					setTrain={setTrain}
-					trainWeight={trainWeight}
-					setTrainWeight={setTrainWeight}
-					trainLine={trainLine}
-					setTrainLine={setTrainLine}
-					startStation={startStation}
-					setStartStation={setStartStation}
-					finishStation={finishStation}
-					setFinishStation={setFinishStation}
-					rainStatus={rainStatus}
-					setRainStatus={setRainStatus}
-					time={time}
-					setTime={setTime}
-					motionBase={motionBase}
-					handleMotionBaseChange={handleMotionBaseChange}
-					speedBuzzer={speedBuzzer}
-					handleSpeedBuzzerChange={handleSpeedBuzzerChange}
-					fog={fog}
-					handleSliderChange={handleSliderChange}
-					jarakPandang={jarakPandang}
-					speedLimit={speedLimit}
-					setSpeedLimit={setSpeedLimit}
-					error={error}
-					handleSpeedLimitChange={handleSpeedLimitChange}
-					handletWeightChange={handleWeightChange}
-					handleRegister={handleSave}
-					isAddButtonEnabled={isAddButtonEnabled}
-					sourceSettings={sourceSettings}
-					trainLines={trainLines}
-					startStations={startStations}
-					finishStations={finishStations}
-					getDisplayStationName={getDisplayStationName}
-					getPayloadStationName={getPayloadStationName}
+				open={openEdit}
+				setOpen={toogleEdit}
+				mode="edit"
+				moduleName={moduleName}
+				setModuleName={setModuleName}
+				train={train}
+				setTrain={setTrain}
+				trainWeight={trainWeight}
+				setTrainWeight={setTrainWeight}
+				trainLine={trainLine}
+				setTrainLine={setTrainLine}
+				startStation={startStation}
+				setStartStation={setStartStation}
+				finishStation={finishStation}
+				setFinishStation={setFinishStation}
+				rainStatus={rainStatus}
+				setRainStatus={setRainStatus}
+				time={time}
+				setTime={setTime}
+				motionBase={motionBase}
+				handleMotionBaseChange={handleMotionBaseChange}
+				speedBuzzer={speedBuzzer}
+				handleSpeedBuzzerChange={handleSpeedBuzzerChange}
+				fog={fog}
+				handleSliderChange={handleSliderChange}
+				jarakPandang={jarakPandang}
+				speedLimit={speedLimit}
+				setSpeedLimit={setSpeedLimit}
+				error={error}
+				handleSpeedLimitChange={handleSpeedLimitChange}
+				handletWeightChange={handleWeightChange}
+				handleRegister={handleSave}
+				isAddButtonEnabled={isAddButtonEnabled}
+				sourceSettings={sourceSettings}
+				trainLines={trainLines}
+				startStations={startStations}
+				finishStations={finishStations}
+				getDisplayStationName={getDisplayStationName}
+				getPayloadStationName={getPayloadStationName}
 			/>
 
 			{/* pop up add scoring*/}
@@ -819,10 +815,10 @@ const CourseDetail = () => {
 				<Button
 					className="mx-2"
 					onClick={async () => {
-					if (selected.id) {
-						await handleDelete(selected.id);
-					}
-					setDeletePrompt(false);
+						if (selected.id) {
+							await handleDelete(selected.id);
+						}
+						setDeletePrompt(false);
 					}}
 					color="error"
 				>
@@ -832,7 +828,14 @@ const CourseDetail = () => {
 					className="mx-2"
 					onClick={() => setDeletePrompt(false)}
 					variant="contained"
-					// not disabled if default is selected or selectedScoring not null
+					sx={{
+						color: "#ffffff",
+						backgroundColor: "#1aaffb",
+						"&:hover": {
+						  borderColor: "#00a6fb",
+						  color: "#ffffff",
+						},
+					  }}
 				>
 					Batal
 				</Button>

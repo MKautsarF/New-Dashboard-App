@@ -141,7 +141,10 @@ const AdminStart = () => {
             </DialogContentText>
           </DialogContent>
           <DialogActions className="flex p-6 justify-between w-full">
-            <Button onClick={handleLogoutClose} color="primary">
+            <Button 
+              onClick={handleLogoutClose}
+              color="primary"
+            >
               Batal
             </Button>
             <Button 

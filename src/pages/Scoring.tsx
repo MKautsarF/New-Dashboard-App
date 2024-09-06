@@ -5,21 +5,17 @@ import {
   AlertColor,
   Box,
   Button,
-  FormControl,
   IconButton,
   TextField,
   Tooltip,
 } from "@mui/material";
 import { AddBox, Delete, Visibility, VisibilityOff } from "@mui/icons-material";
 import Container from "@/components/Container";
-import ConfirmationModal from "@/components/ConfirmationModal";
-// import { default as sourceKCIC } from "C:/Train Simulator/Data/MockJSON_MRT.json";
 import { flushSync } from "react-dom";
 import fs from "fs";
 import { createScoringAsAdmin, createScoringAsInstructor, editScoringAsInstructor } from "@/services/scoring.services";
 import { editScoringAsAdmin } from "@/services/scoring.services";
 import { getScoringDetail } from "@/services/scoring.services";
-import { get, set } from "lodash";
 
 interface ToastData {
   severity: AlertColor;
@@ -33,18 +29,16 @@ function useQuery() {
 }
 
 function EditKCIC() {
-  // const jsonPath = "C:/Train Simulator/Data/MockJSON_MRT.json";
   const query = useQuery();
 
   const navigate = useNavigate();
   const type = query.get("type");
-  console.log("type", type);
   const courseID = query.get("courseID");
   const train = query.get("train");
   const mode = query.get("mode");
-  const [scoringData, setScoringData] = useState<any>(null);
 
-  const jsonPath = "C:/Train Simulator/Data/ModuleTemplate.json"
+  // const jsonPath = "C:/Train Simulator/Data/ModuleTemplate.json"
+  const jsonPath = "src/config/ModuleTemplate.json"
   const [json, setJSON] = useState<any>(null);
 
   const rawData = fs.readFileSync(jsonPath, "utf-8");
@@ -52,13 +46,13 @@ function EditKCIC() {
   const getModule = async () => {
     try{
       const res = await getScoringDetail(type as string);
-      console.log("asd",res.judul_penilaian)
       return res;
     }
     catch (error) {
       console.error(`Error fetching Scoring list:`, error);
     }
   }
+
   const [jsonToWrite, setJsonToWrite] = useState(() => {
     if (type == "default") {
       return (JSON.parse(rawData));
@@ -71,26 +65,21 @@ function EditKCIC() {
     }
   });
 
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         const res = await getScoringDetail(type);
-        console.log("res", res?.judul_penilaian);
         setJsonToWrite(res);
-        console.log("json", jsonToWrite);
       } catch (e) {
         console.error(e);
       }
-    }; 
-    if (type !== "default")
-    {
+    };
+    if (type !== "default") {
       fetchData();
     }
-  }
-  , [type]);
+  }, [type]);
 
-
-  // const [isLoading, setIsLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const [toastData, setToastData] = useState<ToastData>({
     severity: "error",
@@ -104,35 +93,21 @@ function EditKCIC() {
       navigate("/scoringlist/coursedetail?id=" + courseID+"&type="+train);
     }
   };
-  const handleNext = () => {
-    navigate("/");
-  };
-  const [isLoading, setIsLoading] = useState(false);
 
-  const [modalOpen, setModalOpen] = useState(false);
-  const [modalType, setModalType] = useState("");
-  const [pendingAction, setPendingAction] = useState<Function | null>(null);
-  
-  const handleModalOpen = (type: string) => {
-    setModalType("edit");
-    setModalOpen(true);
-  }
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleConfirm = () => {
     document.getElementById('penilaian-form')?.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
-    setModalOpen(false);
   };
   
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // setNotesOpen(false);
     const { currentTarget } = e;
 
     try {
       setIsLoading(true);
 
-      // Get input data from form
       const data = new FormData(currentTarget);
       const judulAll = data.getAll("judul");
       const langkahKerjaAll = data.getAll("langkah_kerja");
@@ -168,40 +143,34 @@ function EditKCIC() {
         });
         judulIndex++;
       });
-
-      // const description = train.toUpperCase();
-  
-    // Prepare the data object
     
-  
-    // Prepare the form data
-    const formData = new FormData();
-    formData.append('file', new Blob([JSON.stringify(jsonToWrite, null, 2)], { type: 'application/json' }), 'data.json');
-    formData.append('courseId', courseID);
-    formData.append('title', jsonToWrite?.judul_penilaian);
-    formData.append('description', train);
-    console.log("form", formData);
+      // Prepare the form data
+      const formData = new FormData();
+      formData.append('file', new Blob([JSON.stringify(jsonToWrite, null, 2)], { type: 'application/json' }), 'data.json');
+      formData.append('courseId', courseID);
+      formData.append('title', jsonToWrite?.judul_penilaian);
+      formData.append('description', train);
+      console.log("form", formData);
 
 
-    // Create the course
-    if (mode === "new") {
-      console.log("role", currentInstructor.isAdmin);
-      if (currentInstructor.isAdmin) {
-        await createScoringAsAdmin(formData);
+      // Create the course
+      if (mode === "new") {
+        if (currentInstructor.isAdmin) {
+          await createScoringAsAdmin(formData);
+        } else {
+          await createScoringAsInstructor(formData);
+        }
       } else {
-        await createScoringAsInstructor(formData);
+        if (currentInstructor.isAdmin) {
+          await editScoringAsAdmin(type as string, formData);
+        } else {
+          await editScoringAsInstructor(type as string, formData);
+        }
       }
-    } else {
-      if (currentInstructor.isAdmin) {
-        await editScoringAsAdmin(type as string, formData);
-      } else {
-        await editScoringAsInstructor(type as string, formData);
-      }
-    }
-    setToastData({
-      severity: "success",
-      msg: `Successfully saved json.`,
-    });
+      setToastData({
+        severity: "success",
+        msg: `Successfully saved json.`,
+      });
     } catch (e) {
       console.error(e);
       setToastData({
@@ -210,8 +179,6 @@ function EditKCIC() {
       });
       setOpen(true);
     } finally {
-      // handlePrev();
-      // setIsLoading(false);
       navigate("/scoringlist/coursedetail?id=" + courseID+"&type="+train);
     }
   };
@@ -239,10 +206,7 @@ function EditKCIC() {
               className="w-full text-center pt-9 px-6"
               style={{ fontSize: "2rem", fontWeight: "bold" }}
             >
-              {/* Penilaian Kereta: {sourceKCIC.train_type} */}
               Penilaian Kereta
-              {/* Penilaian Kereta: KCIC */}
-              {/* {trainType} */}
               <IconButton
                 aria-label="add unit kompetensi"
                 size="large"
@@ -259,7 +223,6 @@ function EditKCIC() {
                   setJsonToWrite({ ...jsonToWrite });
 
                   flushSync;
-                  // bottom.current.scrollIntoView({ behavior: "smooth" });
                 }}
               >
                 <AddBox fontSize="inherit" />
@@ -269,7 +232,6 @@ function EditKCIC() {
             <TextField
               className="w-1/3 text-center px-6"
               style={{ fontSize: "2.75rem", fontWeight: "bold" }}
-              // defaultValue={jsonToWrite?.judul_penilaian}
               value={jsonToWrite?.judul_penilaian}
               onChange={(e) => {jsonToWrite.judul_penilaian = e.target.value; setJsonToWrite({ ...jsonToWrite });}}
             >
@@ -380,7 +342,6 @@ function EditKCIC() {
                                   {j + 1}.
                                 </p>
 
-                                {/* langkah kerja */}
                                 <Tooltip
                                   title="Langkah Kerja"
                                   placement="top-start"
@@ -402,7 +363,6 @@ function EditKCIC() {
                                     type="string"
                                     className="w-full mx-1"
                                     size="small"
-                                    // disabled={dataDisabled}
                                     name="langkah_kerja"
                                     inputProps={{
                                       readOnly: dataDisabled,
@@ -477,7 +437,6 @@ function EditKCIC() {
                                 {data.poin.map((poin: any, k: number) => {
                                   const { disable: poinDisabled } = poin;
 
-                                  // poin observasi
                                   return (
                                     <div
                                       key={poin.id}
@@ -526,7 +485,6 @@ function EditKCIC() {
                                           type="string"
                                           className="w-full"
                                           size="small"
-                                          // disabled={poinDisabled}
                                           name="observasi"
                                           inputProps={{
                                             readOnly: poinDisabled,
@@ -573,7 +531,6 @@ function EditKCIC() {
                                           data.poin.splice(k, 1);
                                           setJsonToWrite({ ...jsonToWrite });
                                         }}
-                                        // disabled
                                       >
                                         <Delete />
                                       </IconButton>
@@ -594,7 +551,6 @@ function EditKCIC() {
 
           <div className="flex w-full justify-center items-center fixed bottom-0 left-0 shadow-lg">
             <div className="w-[600px] rounded-full flex px-4 py-3 mb-4 border-2 border-solid border-blue-400 bg-slate-50">
-              {/* nav */}
               <div className="flex gap-4 justify-between w-full">
                 <Button
                   type="button"
@@ -612,56 +568,38 @@ function EditKCIC() {
                 >
                   Batal
                 </Button>
-                {
-                  mode === "edit" && (
-                <Button
-                  variant="text"
-                  // type="submit"
-                  // form="penilaian-form"
-                  onClick={() => {
-                    handleModalOpen("edit");
-                  }}
-                  sx={{
-                    color: "#00a6fb",
-                    "&:hover": {
+                {mode === "edit" && (
+                  <Button
+                    variant="text"
+                    onClick={handleConfirm}
+                    sx={{
                       color: "#00a6fb",
-                    },
-                  }}
-                >
-                  Simpan
-                </Button>
-                  )
-                }
-                {
-                  mode === "new" && (
-                    <Button
-                  variant="text"
-                  type="submit"
-                  form="penilaian-form"
-                  // onClick={() => {
-                  //   handleSubmit;
-                  // }}
-                  sx={{
-                    color: "#00a6fb",
-                    "&:hover": {
+                      "&:hover": {
+                        color: "#00a6fb",
+                      },
+                    }}
+                  >
+                    Simpan
+                  </Button>
+                )}
+                {mode === "new" && (
+                  <Button
+                    variant="text"
+                    type="submit"
+                    form="penilaian-form"
+                    sx={{
                       color: "#00a6fb",
-                    },
-                  }}
-                >
-                  Buat
-                </Button>
-                  )
-                }
+                      "&:hover": {
+                        color: "#00a6fb",
+                      },
+                    }}
+                  >
+                    Buat
+                  </Button>
+                )}
               </div>
             </div>
           </div>
-          <ConfirmationModal
-            open={modalOpen}
-            onClose={() => setModalOpen(false)}
-            onConfirm={handleConfirm}
-            type={modalType}
-            item={type}
-          />
         </div>
 
         <footer ref={bottom}></footer>

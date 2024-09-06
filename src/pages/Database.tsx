@@ -558,17 +558,11 @@ function Database() {
                 margin="normal"
                 id="nip"
                 label="NIP"
-                type="text"
+                type="number"
                 fullWidth
                 variant="standard"
-                inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
                 value={nip}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  if (/^\d*$/.test(value)) {
-                    handleNIPChange(e);
-                  }
-                }}
+                onChange={handleNIPChange}
               />
               <div className="flex gap-4 items-center">
                 <TextField

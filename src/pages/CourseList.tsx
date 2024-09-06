@@ -59,7 +59,6 @@ function useQuery() {
 const CourseList = () => {
   const navigate = useNavigate();
 
- // src/config/settings_train - Copy.json
   const sourceSettingsPath = "src/config/settings_train.json";
   const sourceSettingsRead = fs.readFileSync(sourceSettingsPath, "utf-8");
   const sourceSettings = JSON.parse(sourceSettingsRead);
@@ -580,6 +579,7 @@ const CourseList = () => {
                       {!row.published && (
                         <Button
                           variant="contained"
+                          className="w-28"
                           onClick={() => handlePublish(row.id)}
                           sx={{
                             color: "#ffffff",
@@ -593,6 +593,15 @@ const CourseList = () => {
                           }}
                         >
                           Publish
+                        </Button>
+                      )}
+                      {row.published && (
+                        <Button
+                          variant="contained"
+                          disabled
+                          className="w-28"
+                        >
+                          Published
                         </Button>
                       )}
                     </TableCell>

@@ -54,7 +54,6 @@ const TraineeDetail: React.FC<TraineeDetailProps> = ({
         } else {
           detailData = await getUserById(id);
         }
-        console.log("data peserta",detailData);
 
         userId = detailData.id;
 
@@ -62,9 +61,7 @@ const TraineeDetail: React.FC<TraineeDetailProps> = ({
           name: detailData.name,
           nip: detailData.username,
           bio: detailData.bio,
-          completion: Math.round(4/7 * 100 * 10) / 10,
         });
-    console.log("detail peserta", data)
 
       } catch (error) {
         console.error(error);
@@ -99,10 +96,6 @@ const TraineeDetail: React.FC<TraineeDetailProps> = ({
                   : '-'}
               </p>
               <p>Kedudukan: {(data.bio && data.bio.position) || '-'}</p>
-              <p>
-                Persentase kelulusan:{' '}
-                {data.completion ? `${data.completion}%` : '-'}
-              </p>
             </>
           ) : (
             <p>Data tidak ditemukan</p>
