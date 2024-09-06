@@ -190,10 +190,11 @@ const UserLog = () => {
         }
       }
       const scoring = {
-        title : diagramData[j].title,
-        score: (highestScore == -1) ? '-' : highestScore.toLocaleString(),
-        checkstate: (highestScore > -1)
-      }
+        title: diagramData[j].title,
+        score: highestScore == null || highestScore === -1 ? '-' : highestScore.toLocaleString(),
+        checkstate: highestScore != null && highestScore > -1
+      };
+      
       updatedLevels[j] = scoring
     };
     setLevels(updatedLevels)
@@ -754,33 +755,6 @@ const UserLog = () => {
                       >
                         PDF
                       </Button>
-                      {/* <Menu
-                        anchorEl={pdfAnchorEl}
-                        open={Boolean(pdfAnchorEl)}
-                        onClose={handlePDFUnclick}
-                        PaperProps={{
-                            style: {
-                              width: 'auto',
-                              boxShadow: 'none',
-                              border: '1px solid rgba(0, 0, 0, 0.12)',
-                            },
-                          }}
-                          anchorOrigin={{
-                            vertical: 'bottom',
-                            horizontal: 'center',
-                          }}
-                          transformOrigin={{
-                            vertical: 'top',
-                            horizontal: 'center',
-                          }}
-                        >
-                        <MenuItem onClick={() => handleOpenPDF(row.id)}>
-                            Preview
-                        </MenuItem>
-                        <MenuItem onClick={() => handleDownloadPDF(row.id, row.date, row.module)}>
-                            Download
-                        </MenuItem>
-                      </Menu> */}
                       <Button
                         type="button"
                         variant="outlined"
@@ -789,33 +763,6 @@ const UserLog = () => {
                       >
                         Excel
                       </Button>
-                      {/* <Menu
-                        anchorEl={excelAnchorEl}
-                        open={Boolean(excelAnchorEl)}
-                        onClose={handleExcelUnclick}
-                        PaperProps={{
-                            style: {
-                              width: 'auto',
-                              boxShadow: 'none',
-                              border: '1px solid rgba(0, 0, 0, 0.12)',
-                            },
-                          }}
-                          anchorOrigin={{
-                            vertical: 'bottom',
-                            horizontal: 'center',
-                          }}
-                          transformOrigin={{
-                            vertical: 'top',
-                            horizontal: 'center',
-                          }}
-                        >
-                        <MenuItem onClick={() => handleOpenExcel(row.id)}>
-                            Preview
-                        </MenuItem>
-                        <MenuItem>
-                            Download
-                        </MenuItem>
-                      </Menu> */}
                     </TableCell>
                     <TableCell align='center'>
                       <Button
