@@ -101,9 +101,9 @@ const TraineeList = () => {
     position: "",
   });
   const [newBirthDate, setNewBirthDate] = useState<Dayjs | null>(null);
+  const [nameError, setNameError] = useState(false);
+  const [nipError, setNipError] = useState(false);
 
-  // currentInstructor.isAdmin = true;
-  // currentInstructor.isInstructor = false;
 
   const handleClose = () => {
     setOpen(false);
@@ -160,6 +160,30 @@ const TraineeList = () => {
     setPage(newPage + 1);
   };
 
+  const handleNIPChange = (e: any) => {
+    const inputValue = e.target.value;
+
+    if (inputValue.length > 32) {
+      setNipError(true);
+      setNip(inputValue.slice(0, 32));
+    } else {
+      setNipError(false);
+      setNip(inputValue);  
+    }
+	};
+
+  const handleNameChange = (e: any) => {
+    const inputValue = e.target.value;
+
+    if (inputValue.length > 48) {
+      setNameError(true);
+      setNama(inputValue.slice(0, 48));
+    } else {
+      setNameError(false);
+      setNama(inputValue);
+    }
+  };
+
   const validateRegister = (): boolean => {
     return (
       nama !== "" &&
@@ -184,7 +208,6 @@ const TraineeList = () => {
     const payload = {
       name: nama,
       username: nip,
-
       email: email,
       scope: "trainee",
       password: "P@ssword!23",
@@ -231,10 +254,6 @@ const TraineeList = () => {
       setPageLoading(false);
     }
   };
-
-  const handleNIPChange = (e: any) => {
-		setNip(e.target.value);
-	};
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -548,7 +567,9 @@ const TraineeList = () => {
             fullWidth
             variant="standard"
             value={nama}
-            onChange={(e) => setNama(e.target.value)}
+            onChange={handleNameChange}
+            error={nameError}
+            helperText={nameError ? "Nama maksimal berisi 48 karakter" : ""}
           />
           <TextField
             margin="normal"
@@ -569,6 +590,8 @@ const TraineeList = () => {
             variant="standard"
             value={nip}
             onChange={handleNIPChange}
+            error={nipError}
+            helperText={nipError ? "NIP maksimal berisi 32 karakter" : ""}
           />
           <div className="flex gap-4 items-center">
             <TextField

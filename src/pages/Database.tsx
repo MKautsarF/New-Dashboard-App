@@ -171,6 +171,7 @@ function Database() {
 
       currentPeserta.id = userData.id;
       localStorage.setItem('selectedPesertaId', selectedPeserta.id);
+      localStorage.setItem('selectedPesertaName', selectedPeserta.name);
 
       const nextPage =
         trainType === "kcic" ? "/Modul?type=kcic" : "/Modul?type=lrt";

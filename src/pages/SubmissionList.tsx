@@ -32,9 +32,9 @@ import { currentPeserta } from '@/context/auth';
 import {
   getSubmissionById,
   getSubmissionList,
-  getAllSubmissionList,
-  getSubmissionLogByFileIndex,
-  getSubmissionLogByTag,
+  getAllSubmissionByInstructor,
+  getActiveSubmissionCount,
+  // getAllSubmissionList,
 } from '@/services/submission.services';
 import dayjs from 'dayjs';
 import SearchIcon from "@mui/icons-material/Search";
@@ -48,15 +48,7 @@ import { processFile, processFileExcel } from '@/services/file.services';
 import { toast } from 'react-toastify';
 import Logo from '@/components/Logo';
 import { NavigateBefore } from '@mui/icons-material';
-import { PieChart } from '@mui/x-charts/PieChart';
-import { LineChart } from '@mui/x-charts/LineChart';
-import SettingsIcon from '@mui/icons-material/Settings';
-import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
-import TaskAltIcon from '@mui/icons-material/TaskAlt';
-import { getUserById } from "@/services/user.services";
-import { getCourseByInstructor } from '@/services/course.services';
-import * as XLSX from 'xlsx';
-import ExcelGrid from '@/components/ExcelGrid';
+import { InteractableTableCell } from '@/components/InteractableTableCell';
 
 
 interface RowData {
@@ -71,6 +63,7 @@ interface RowData {
   courseId: string;
   instructor: any;
   name: any;
+  status: any;
 }
 
 interface UserLog {
@@ -126,6 +119,8 @@ const SubmissionList = () => {
   const [dateSort, setDateSort] = useState<'asc' | 'desc' | ''>('desc');
   const [trainSort, setTrainSort] = useState<'LRT' | 'KCIC' | ''>('');
 
+  const [isEllipsisEnabled, setIsEllipsisEnabled] = useState(true);
+
   const handleDateSort = () => {
     if (dateSort === 'asc') {
       setDateSort('desc');
@@ -156,81 +151,45 @@ const SubmissionList = () => {
     }
   };
     
-    const handleBack = () => {
-      navigate(-1);
-    };
-    
-    const [userLog, setUserLog] = useState<UserLog | null>(null);
-    const [submissionId, setSubmissionId] = useState(null);
-    
-    const [previewOpen, setPreviewOpen] = useState(false);
-    const [courseList, setCourseList] = useState<[]>([]);
+  const handleBack = () => {
+    navigate(-1);
+  };
 
-    const handleSearch = async (e: React.FormEvent<HTMLFormElement>) => {
-      e.preventDefault();
+  const handleSearch = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
   
-      setIsLoading(true);
-      setPage(1);
-      setTotalData(0);
+    setIsLoading(true);
+    setPage(1);
+    setTotalData(0);
   
-      const data = new FormData(e.currentTarget);
-      const query = data.get("query") as string;
+    const data = new FormData(e.currentTarget);
+    const query = data.get("query") as string;
   
-      try {
-        if (query != ''){
-          const res = await getUsersDatabase(1, 5, query);
-          const resRows = res.results.map((data: any) => ({
-            id: data.id,
-            name: data.name,
-            nip: data.username,
-            complition: 3,
-          }));
+    try {
+      if (query != ''){
+        const res = await getUsersDatabase(1, 5, query);
+        const resRows = res.results.map((data: any) => ({
+          id: data.id,
+          name: data.name,
+          nip: data.username,
+        }));
     
-          setOwnerId(resRows[0].id);
-          setTotalData(res.total);
-      }
-      else {
+        setOwnerId(resRows[0].id);
+        setTotalData(res.total);
+      } else {
         setOwnerId('');
       }
-      } catch (e) {
-        console.error(e);
-        setRows([]);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    
-    
-    useEffect(() => {
-      const getRows = async (page: number) => {
-        try {
-          console.log("OWNER ID", ownerId);
-          const res = await getAllSubmissionList(page, 9, ownerId, dateSort, trainSort);
-          console.log("RESSSSSSS", res);
-
-          const resRows = res.results.map((submission: any) => ({
-            id: submission.id,
-            date: submission.createdAt,
-            train: submission.objectType, 
-            start: submission.createdAt, 
-            finish: submission.finishedAt, 
-            module: '',
-            score: submission.score,
-            scoring: '',
-            courseId: submission.courseId
-          }));
-          setRows(resRows);
-          setTotalData(res.total);
-          setGetSubmission(true);
-        } catch (e) {
-          console.error(e);
-        }
-      };
-      
-      getRows(page);
+    } catch (e) {
+      console.error(e);
+      setRows([]);
+    } finally {
+      setIsLoading(false);
     }
-  , [page,dateSort,trainSort, ownerId]);
+  };
+
+  const [pageExclusions, setPageExclusions] = useState<{ [page: number]: Set<number> }>({0: new Set()});    
+    
+  const [activeData, setActiveData] = useState(0);
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage + 1);
@@ -239,23 +198,94 @@ const SubmissionList = () => {
 
   const [getSubmission, setGetSubmission] = useState(false);
   
+
   useEffect(() => {
     if (getSubmission) {
-      rows.map(async (row) => {
-        const res = await getSubmissionById(Number(row.id));
-        row.instructor = res.exam?.assessment?.nama_instruktur
-        row.name = res.exam?.assessment?.nama_crew
-        row.module = res.exam?.assessment?.judul_modul
-        row.scoring = res.exam?.assessment?.judul_penilaian
-        setRows([...rows]);
+      Promise.all(
+        rows.map(async (row) => {
+          const res = await getSubmissionById(Number(row.id));
+          return {
+            ...row,
+            instructor: res.exam?.setting?.instructor_name,
+            name: res.exam?.setting?.name,
+            module: res.exam?.setting?.module_name,
+            scoring: res.exam?.setting?.scoring_name,
+          };
+        })
+      )
+      .then((updatedRows) => {
+        setRows(updatedRows);
+        setGetSubmission(false);
+      })
+      .catch((error) => {
+        console.error('Error fetching submission details:', error);
+        setGetSubmission(false);
       });
-      setGetSubmission(false);
     }
-  }
-  , [getSubmission]);
+  }, [getSubmission, rows]);
+  
+  useEffect(() => {
+    const getRows = async (page: number) => {
+      try {
+        setIsLoading(true);
+  
+        const response = await getAllSubmissionByInstructor(
+          page,
+          9,
+          '',
+          dateSort,
+          trainSort,
+          pageExclusions
+        );
+        
+        console.log("wwwwww", response)
+
+        const { results, total, pageExclusion } = response;
+        
+        setPageExclusions(pageExclusion);
+  
+        const resRows: RowData[] = results.map((submission: any) => ({
+          id: submission.id,
+          date: submission.createdAt,
+          train: submission.objectType,
+          start: submission.createdAt,
+          finish: submission.finishedAt,
+          status: submission.status,
+          module: '',
+          score: submission.score,
+          scoring: '',
+          courseId: submission.courseId,
+          instructor: submission.instructor || '',
+          name: submission.name || ''
+        }));
+  
+        setRows(resRows);
+
+        
+  
+        if (activeData > 0) {
+          setTotalData(total - activeData);
+        } else {
+          setTotalData(total);
+        }
+  
+        setGetSubmission(true);
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+  
+    if (activeData !== null) {
+      getRows(page);
+    }
+  }, [page, dateSort, trainSort, activeData]);
+  
+  
   
   return (
-    <Container w={1250} h={875}>
+    <Container w={1500} h={875}>
       <div className="flex flex-col p-6 h-full">
         <h1 className="w-full text-center mb-2">
           Riwayat Submisi
@@ -310,31 +340,34 @@ const SubmissionList = () => {
                 aria-label="Tabel Peserta"
             >
             <colgroup>
-              <col width="19%" />
-              <col width="11%" />
+              <col width="13%"/>
+              <col width="8%"/>
+              <col width="11%"/>
               <col width='11%'/>
-              <col width="12%" />
-              <col width="23%" />
-              <col width="24%" />
+              <col width="12%"/>
+              <col width="22%"/>
+              <col width="23%"/>
             </colgroup>
             <TableHead>
               <TableRow>
                 <TableCell className="text-lg font-bold" >
                   <Button
                     onClick={handleDateSort}
-                    className="text-lg text-black font-bold"
+                    className="text-lg text-black font-bold w-full"
                     sx={{ 
                         textTransform: 'none', 
                         padding: '5px 2px', 
-                        border: '1px solid black' // Add this line for the border
+                        border: '1px solid black'
                     }}
                 >
-                    Tanggal Pengujian {dateSort == '' ? (<></>) : (dateSort == "desc" ? <ExpandLessIcon style={{fontSize: 19}}/> : <ExpandMoreIcon style={{fontSize: 19}}/>)}
+                    Tanggal <br /> 
+                    Pengujian {dateSort == '' ? (<></>) : (dateSort == "desc" ? <ExpandLessIcon style={{fontSize: 19,  marginLeft: 12}}/> : <ExpandMoreIcon style={{fontSize: 19,  marginLeft: 12}}/>)}
                   </Button>
                 </TableCell>
+                <TableCell className='text-lg font-bold'>Status</TableCell>
                 <TableCell className='text-lg font-bold'>Instruktur</TableCell>
                 <TableCell className="text-lg font-bold">Peserta</TableCell>
-                <TableCell className="text-lg font-bold">
+                <TableCell className="font-bold">
                   <Button
                     onClick={handleTrainSort}
                     className="text-lg text-black font-bold"
@@ -342,12 +375,12 @@ const SubmissionList = () => {
                         textTransform: 'none', 
                         padding: '5px 3px', 
                         border: '1px solid black', 
-                        width: '140px',  // Set the fixed width
-                        textAlign: 'center',  // Center the text
-                        justifyContent: 'center'  // Ensure content inside the button is centered
+                        width: '140px',
+                        textAlign: 'center',
+                        justifyContent: 'center'
                     }}
                 >
-                    {trainSort == '' ? ("Jenis Kereta") : (trainSort == "LRT" ? ("LRT") : ("KCIC"))}
+                    {trainSort == '' ? ("Jenis Kereta") : (trainSort == "LRT" ? ("Low Rapid Train") : ("High Speed Train"))}
                   </Button>
                 </TableCell>
                 <TableCell className="text-lg font-bold">Modul</TableCell>
@@ -370,11 +403,12 @@ const SubmissionList = () => {
                     <TableCell className="text-lg">
                         {dayjs(row.date).format('DD MMM YYYY, HH:mm')}
                     </TableCell>
-                    <TableCell className='text-lg'>{row.instructor}</TableCell>
-                    <TableCell className='text-lg'>{row.name}</TableCell>
-                    <TableCell className="text-lg">{row.train === "KCIC" ? "Kereta Cepat" : row.train}</TableCell>
-                    <TableCell className="text-lg">{row.module}</TableCell>
-                    <TableCell className='text-lg'>{row.scoring}</TableCell>
+                    <TableCell className='text-lg'>{row.status}</TableCell>
+                    <InteractableTableCell content={row.instructor} isEllipsisEnabled={isEllipsisEnabled} width="150px"/>
+                    <InteractableTableCell content={row.name} isEllipsisEnabled={isEllipsisEnabled} width="150px"/>
+                    <TableCell className="text-lg">{row.train === "KCIC" ? "High Speed Train" : row.train === "LRT" ? "Low Rapid Train" : row.train}</TableCell>
+                    <InteractableTableCell content={row.module} isEllipsisEnabled={isEllipsisEnabled} width="314px"/>
+                    <InteractableTableCell content={row.scoring} isEllipsisEnabled={isEllipsisEnabled} width="318px"/>
                   </TableRow>
                 ))}
               </TableBody>
@@ -383,7 +417,7 @@ const SubmissionList = () => {
                 <TableRow>
                   <TableCell colSpan={5}>
                     <div className="flex items-center justify-center h-full text-lg">
-                      Data log peserta tidak ditemukan
+                      Data log submisi peserta tidak ditemukan
                     </div>
                   </TableCell>
                 </TableRow>

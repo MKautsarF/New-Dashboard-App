@@ -217,7 +217,8 @@ function Settings() {
             className="w-full text-center my-4"
             style={{ fontSize: "1.75rem", fontWeight: "bold" }}
           >
-            Pengaturan Simulasi {trainType === "kcic" ? "Kereta Cepat" : trainType.toUpperCase()}
+            {/* Pengaturan Simulasi {trainType === "kcic" ? "Kereta Cepat" : trainType.toUpperCase()} */}
+            Pengaturan Simulasi {trainType === "kcic" ? "High Speed Train" : trainType === "lrt" ? "Low Rapid Train" : trainType}
           </h1>
 
           {/* Berat */}

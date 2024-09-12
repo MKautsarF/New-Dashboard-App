@@ -682,14 +682,14 @@ const CourseDetail = () => {
 						variant="outlined"
 						className="text-base absolute bottom-6 left-6"
 						sx={{
-						color: "#df2935",
-						borderColor: "#df2935",
-						backgroundColor: "#ffffff",
-						"&:hover": {
+							color: "#df2935",
 							borderColor: "#df2935",
-							backgroundColor: "#df2935",
-							color: "#ffffff",
-						},
+							backgroundColor: "#ffffff",
+							"&:hover": {
+								borderColor: "#df2935",
+								backgroundColor: "#df2935",
+								color: "#ffffff",
+							},
 						}}
 						onClick={() => navigateBack()}
 					>
@@ -809,36 +809,38 @@ const CourseDetail = () => {
 			{/* Delete Modul prompt */}
 			<Dialog open={deletePrompt} onClose={() => setDeletePrompt(false)}>
 				<DialogContent className="min-w-[260px]">
-				Hapus Modul: <b>{selected.title}</b>?
+					Hapus Modul: <b>{selected.title}</b>?
 				</DialogContent>
 				<DialogActions className="flex mb-2 justify-between">
-				<Button
-					className="mx-2"
-					onClick={async () => {
-						if (selected.id) {
-							await handleDelete(selected.id);
-						}
-						setDeletePrompt(false);
-					}}
-					color="error"
-				>
-					Hapus
-				</Button>
-				<Button
-					className="mx-2"
-					onClick={() => setDeletePrompt(false)}
-					variant="contained"
-					sx={{
-						color: "#ffffff",
-						backgroundColor: "#1aaffb",
-						"&:hover": {
-						  borderColor: "#00a6fb",
-						  color: "#ffffff",
-						},
-					  }}
-				>
-					Batal
-				</Button>
+					<Button
+						className="mx-2"
+						onClick={() => setDeletePrompt(false)}
+					>
+						Batal
+					</Button>
+					<Button
+						className="mx-2"
+						onClick={async () => {
+							if (selected.id) {
+								await handleDelete(selected.id);
+							}
+							setDeletePrompt(false);
+						}}
+						color="error"
+						variant='outlined'
+						sx={{
+							color: "#df2935",
+							borderColor: "#df2935",
+							backgroundColor: "#ffffff",
+							"&:hover": {
+								borderColor: "#df2935",
+								backgroundColor: "#df2935",
+								color: "#ffffff",
+							},
+						}}
+					>
+						Hapus
+					</Button>
 				</DialogActions>
 			</Dialog>
 		</Container>

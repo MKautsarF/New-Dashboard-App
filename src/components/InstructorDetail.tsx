@@ -400,14 +400,6 @@ const InstructorDetail: React.FC<InstructorDetailProps> = ({
           <DialogActions className="flex p-6 justify-between w-full">
             <Button 
               onClick={handleLogoutClose}
-              sx={{
-                color: "#ffffff",
-                backgroundColor: "#1aaffb",
-                "&:hover": {
-                  borderColor: "#00a6fb",
-                  color: "#ffffff",
-                },
-              }}
             >
               Batal
             </Button>

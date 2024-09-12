@@ -32,7 +32,8 @@ import {
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import Logo from "@/components/Logo";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useMemo } from "react";
 import Container from "@/components/Container";
 import SearchIcon from "@mui/icons-material/Search";
 import InputAdornment from "@mui/material/InputAdornment";
@@ -51,13 +52,21 @@ import TraineeDetail from "@/components/TraineeDetail";
 import dayjs, { Dayjs } from "dayjs";
 import { DatePicker } from "@mui/x-date-pickers";
 import { toast } from "react-toastify";
-import { getSubmissionList } from "@/services/submission.services";
+import { InteractableTableCell } from "@/components/InteractableTableCell";
+import { set } from "lodash";
 
 interface RowData {
   id: string;
   name: string;
   nip: string;
 }
+
+function useQuery() {
+  const { search } = useLocation();
+
+  return useMemo(() => new URLSearchParams(search), [search]);
+}
+
 
 const InstructorList = () => {
   const navigate = useNavigate();
@@ -111,9 +120,13 @@ const InstructorList = () => {
     position: "",
   });
   const [newBirthDate, setNewBirthDate] = useState<Dayjs | null>(null);
+  const [nameError, setNameError] = useState(false);
+  const [nipError, setNipError] = useState(false);
 
-  // currentInstructor.isAdmin = true;
-  // currentInstructor.isInstructor = true;
+  const query = useQuery();
+
+  const type = query.get("type");
+
 
   const handleClose = () => {
     setOpen(false);
@@ -121,11 +134,6 @@ const InstructorList = () => {
 
   const handleDaftar = () => {
     setOpen(true);
-  };
-
-  const handleLogout = () => {
-    logout();
-    navigate("/");
   };
 
   const handleKembali = () => {
@@ -154,7 +162,7 @@ const InstructorList = () => {
     try {
       const userData = await getUserByIdAsAdmin(selectedPeserta.id);
 
-      currentPeserta.id = userData.id; // owner id for use in submission
+      currentPeserta.id = userData.id;
     } catch (e) {
       console.error(e);
     } finally {
@@ -167,8 +175,28 @@ const InstructorList = () => {
   };
 
   const handleNIPChange = (e: any) => {
-		setNip(e.target.value);
+    const inputValue = e.target.value;
+
+    if (inputValue.length > 32) {
+      setNipError(true);
+      setNip(inputValue.slice(0, 32));
+    } else {
+      setNipError(false);
+      setNip(inputValue);  
+    }
 	};
+
+  const handleNameChange = (e: any) => {
+    const inputValue = e.target.value;
+
+    if (inputValue.length > 48) {
+      setNameError(true);
+      setNama(inputValue.slice(0, 48));
+    } else {
+      setNameError(false);
+      setNama(inputValue);
+    }
+  };
 
   const validateRegister = (): boolean => {
     return (
@@ -448,7 +476,7 @@ const InstructorList = () => {
 
         {/* tabel preview */}
         <TableContainer className="mt-5" component={Paper}>
-          <Table stickyHeader aria-label="Tabel Peserta">
+          <Table stickyHeader aria-label="Tabel Peserta" sx={{ tableLayout: 'fixed' }}>
             <colgroup>
               <col width="45%" />
               <col width="30%" />
@@ -630,7 +658,9 @@ const InstructorList = () => {
             fullWidth
             variant="standard"
             value={nama}
-            onChange={(e) => setNama(e.target.value)}
+            onChange={handleNameChange}
+            error={nameError}
+            helperText={nameError ? "Nama maksimal berisi 48 karakter" : ""}
           />
           <TextField
             margin="normal"
@@ -651,6 +681,8 @@ const InstructorList = () => {
             variant="standard"
             value={nip}
             onChange={handleNIPChange}
+            error={nipError}
+            helperText={nipError ? "NIP maksimal berisi 32 karakter" : ""}
           />
           <div className="flex gap-4">
             <TextField

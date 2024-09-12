@@ -18,32 +18,71 @@ export const getSubmissionList = async (
   return res.data;
 };
 
-export const getAllSubmissionList = async (
-  page: number = 1,
-  size: number = 9,
+export const getAllSubmissionByInstructor = async (
+  page: number,
+  size: number,
   nip_query: string = '',
   date_sort_query: string = "",
   train_filter_query: string = "",
+  pageExclusions: { [page: number]: Set<number> } = {},
 ) => {
-  const res = await services.get(
-    `/instructor/submission?page=${page}&size=${size}${nip_query == '' ? '' : `&owner:eq=${nip_query}`}${date_sort_query === "" ? "" : `&orderBy=createdAt&order=${date_sort_query}`}${train_filter_query === "" ? "" : `&objectType:eq=${train_filter_query}`}&status=finished`
-  );
+  try {
+    let pageExclusion = pageExclusions;
+    let filteredData: any[] = [];
+    let total=0;
+    let fetchpage = page;
+    // Fetch data from the server
+    while (filteredData.length < size ) {
+      const res = await services.get(
+        `/instructor/submission?page=${page}&size=${size}${nip_query == '' ? '' : `&owner:eq=${nip_query}`}${date_sort_query === "" ? "" : `&orderBy=createdAt&order=${date_sort_query}`}${train_filter_query === "" ? "" : `&objectType:eq=${train_filter_query}`}`
+      );
+    total = res.data.total;
 
-  return res.data;
+    // Initialize exclusions for the current page if not already done
+    pageExclusion[page] = new Set();
+    const data = res.data.results.filter((item: any) =>
+      item.status == "active" &&
+      !pageExclusion[page-1].has(item.id))
+
+    // Filter out unwanted items and items that have already been excluded for this page
+    const newData = res.data.results.filter(
+      (item: any) =>
+        item.status !== "active" &&
+        !pageExclusion[page-1].has(item.id)
+    );
+
+    // Add new filtered items to the list
+    filteredData = filteredData.concat(newData);
+    if (newData.length === 0) {break;}
+    if (filteredData.length == res.data.total) {break;}
+
+      // Increase the page count for the next iteration
+    fetchpage += 1;
+  }
+
+    // If there are more items than needed, slice the array to the requested size
+    const results = filteredData.slice(0, size);
+
+    // Track excluded IDs for this page
+    results.forEach((item) => pageExclusion[page].add(item.id));
+
+    // Return the correctly filtered data
+    return {results, total, pageExclusion};
+  } catch (error) {
+    console.error(`Error fetching submission list:`, error);
+    throw error;
+  }
 };
 
-// export const getSubmissionList = async (
-//   id: string,
-//   page: number = 1,
-//   size: number = 5,
-//   // user_query: string = ""
-// ) => {
-//   const res = await services.get(
-//     `/instructor/submission?id=${id}&page=${page}&size=${size}`
-//   );
-
-//   return res.data;
-// };
+export const getActiveSubmissionCount = async() => {
+  try {
+    const res = await services.get('instructor/submission?status=active')
+    return res.data.total
+  }
+  catch (error){
+    console.error('Error fetching count:', error)
+  }
+}
 
 export const getSubmissionById = async (id: number) => {
   const res = await services.get(`/instructor/submission/${id}`);
@@ -60,14 +99,23 @@ export const deleteSubmissionById = async (id: number) => {
 export const finishSubmissionById = async (id: number, payload: any) => {
   try{
     const res = await services.put(`/instructor/submission/${id}/finish`, payload);
-    console.log('finished submission: ' + res.data);
     return res;
   }
   catch(error){
     console.error('Upload failed:', error.response ? error.response.data : error.message);
   }
-
 };
+
+export const cancelSubmissionById = async (id: number, payload: any) => {
+  try{
+    const res = await services.put(`/instructor/submission/${id}/cancel`, payload);
+    return res;
+  }
+  catch(error){
+    console.error('Upload failed:', error.response ? error.response.data : error.message);
+  }
+};
+
 export const uploadLogSubmission = async (id: number, formData: FormData) => {
   try {
     const response = await services.post(`/instructor/submission/${id}/log`, formData);

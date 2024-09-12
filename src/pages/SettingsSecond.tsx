@@ -159,7 +159,8 @@ function SettingsSecond() {
         <div className="flex flex-col gap-4 w-full">
           <div className="flex flex-col text-left gap-4 px-6 pt-6 pb-2">
             <h1 style={{ fontSize: "1.75rem", fontWeight: "bold" }}>
-              Pengaturan {trainType === "kcic" ? "Kereta Cepat" : trainType.toUpperCase()}
+              {/* Pengaturan {trainType === "kcic" ? "Kereta Cepat" : trainType.toUpperCase()} */}
+              Pengaturan {trainType === "kcic" ? "High Speed Train" : trainType === "lrt" ? "Low Rapid Train" : trainType}
             </h1>
             <p style={{ fontSize: "1.25rem" }}>
               Pilih pembelajaran kereta yang akan digunakan:

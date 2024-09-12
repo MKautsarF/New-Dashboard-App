@@ -1,5 +1,5 @@
 import FullPageLoading from '@/components/FullPageLoading';
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
 import { getUsers } from '@/services/user.services';
 import {
   Box,
@@ -19,7 +19,8 @@ import {
   CircularProgress,
   Typography,
   Tab,
-  Tabs
+  Tabs,
+  Tooltip
 } from '@mui/material';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -39,10 +40,7 @@ import { sendTextToClients } from '@/socket';
 import FileSaver = require('file-saver');
 import { shell } from 'electron';
 import fs from 'fs';
-import { config } from '@/config';
-import { processFile, processFileExcel } from '@/services/file.services';
-import { toast } from 'react-toastify';
-import Logo from '@/components/Logo';
+import { InteractableTableCell } from '@/components/InteractableTableCell';
 import { NavigateBefore } from '@mui/icons-material';
 import { PieChart } from '@mui/x-charts/PieChart';
 import { LineChart } from '@mui/x-charts/LineChart';
@@ -65,6 +63,7 @@ interface RowData {
   score: string;
   scoring: string;
   courseId: string;
+  status: string;
 }
 
 interface UserLog {
@@ -121,6 +120,8 @@ const UserLog = () => {
 
   const [dateSort, setDateSort] = useState<'asc' | 'desc' | ''>('desc');
   const [trainSort, setTrainSort] = useState<'LRT' | 'KCIC' | ''>('');
+
+  const [isEllipsisEnabled, setIsEllipsisEnabled] = useState(true);
 
   const handleDateSort = () => {
     if (dateSort === 'asc') {
@@ -444,18 +445,7 @@ const UserLog = () => {
     }
     // setExcelAnchorEl(null);
   };
-  
-  // const handleExcelClick = (event: React.MouseEvent<HTMLElement>) => {
-  //   if (isExcelMenuOpen) {
-  //     setExcelAnchorEl(null);
-  //   } else {
-  //     setExcelAnchorEl(event.currentTarget);
-  //   }
-  // };
-  
-  // const handleExcelUnclick = () => {
-  //   setExcelAnchorEl(null);
-  // };
+
 
   const handleReplayClick = (event: React.MouseEvent<HTMLElement>) => {
     if (isReplayMenuOpen) {
@@ -513,7 +503,8 @@ const UserLog = () => {
           date: submission.createdAt,
           train: submission.objectType, 
           start: submission.createdAt, 
-          finish: submission.finishedAt, 
+          finish: submission.finishedAt,
+          status: submission.status, 
           module: '',
           score: submission.score,
           scoring: '',
@@ -548,27 +539,40 @@ const UserLog = () => {
     }
   }
   , [getSubmission]);
+
+  const userInfo = [
+    { label: 'Nama', value: userLog?.name },
+    { label: 'NIP', value: userLog?.username },
+    { label: 'Kedudukan', value: userLog?.bio.position },
+    { label: 'Tanggal Lahir', value: userLog?.bio.born ? dayjs(userLog?.bio.born).format('DD MMM YYYY') : '' }
+  ];
   
   return (
-    <Container w={1250} h={875}>
+    <Container w={1500} h={875}>
       <div className="flex flex-col p-6 h-full">
         <h1 className="w-full text-center mb-2">
           Log Peserta
         </h1>
         <Box component="form" className="grid gap-4 w-full mb-2">
           <div className="title grid grid-cols-4 gap-4">
-            <p className='text-xl'>
-              <b>Nama:</b> {userLog?.name}
-            </p>
-            <p className='text-xl'>
-              <b>NIP:</b> {userLog?.username}
-            </p>
-            <p className='text-xl'>
-              <b>Kedudukan:</b> {userLog?.bio.position}
-            </p>
-            <p className='text-xl'>
-              <b>Tanggal Lahir:</b> {dayjs(userLog?.bio.born).format('DD MMM YYYY')}
-            </p>
+            {userInfo.map((info: any, index: any) => (
+              <Tooltip 
+                key={index} 
+                placement="top" 
+                title={
+                  <Typography sx={{ fontSize: '1.125rem', color: 'white' }}>
+                    {info.value || ''}
+                  </Typography>
+              }>
+                <Typography 
+                  variant="body1" 
+                  className="truncate text-xl"
+                  style={{ maxWidth: index === 3 ? '300px' : '340px' }}
+                >
+                  <b>{info.label}:</b> {info.value}
+                </Typography>
+              </Tooltip>
+            ))}
           </div>
         </Box>
 
@@ -578,13 +582,13 @@ const UserLog = () => {
               <div>
                 <Typography className="pl-3 pt-2 text-xl" >Penyelesaian Modul:</Typography>  
               </div>
-              <div className='w-[229.44px]'>
+              <div className='w-[329.44px]'>
                 <Tabs
                   value={activeDiagramTab}
                   onChange={handleDiagramTabChange}
                 >
-                  <Tab label="Kereta Cepat" />
-                  <Tab label="LRT" />
+                  <Tab label="High Speed Train" />
+                  <Tab label="Low Rapid Train" />
                 </Tabs>
               </div>
             </div>
@@ -605,7 +609,7 @@ const UserLog = () => {
                 }}
               />
               {diagramData.length > 0 ? (
-                <Typography className="absolute text-center text-2xl" style={{ top: '223px', left: '220px' }}>
+                <Typography className="absolute text-center text-2xl" style={{ top: '223px', left: '285px' }}>
                   {completionPercentage.toFixed(1)}%<br />{completion} dari {totalModuls}<br />Modul
                 </Typography>
               ) : (
@@ -623,13 +627,13 @@ const UserLog = () => {
               <div>
                 <Typography className="pl-3 pt-2 text-xl" >Nilai Penyelesaian Modul Terbaik:</Typography>  
               </div>
-              <div className='w-[229.44px]'>
+              <div className='w-[329.44px]'>
                 <Tabs
                   value={activeModuleTab}
                   onChange={handleModuleTabChange}
                 >
-                  <Tab label="Kereta Cepat" />
-                  <Tab label="LRT" />
+                  <Tab label="High Speed Train" />
+                  <Tab label="Low Rapid Train" />
                 </Tabs>
               </div>
             </div>
@@ -680,42 +684,45 @@ const UserLog = () => {
             aria-label="Tabel Peserta"
           >
             <colgroup>
-              <col width="19%"/>
+              <col width="13%"/>
+              <col width="8%"/>
               <col width="12%"/>
               <col width='23%'/>
-              <col width="24%"/>
+              <col width="23%"/>
               <col width="5%"/>
-              <col width="13%"/>
-              <col width="4%"/>
+              <col width="11%"/>
+              <col width="5%"/>
             </colgroup>
             <TableHead>
               <TableRow>
-                <TableCell>
-                <Button
-                    onClick={handleDateSort}
-                    className="text-lg text-black font-bold"
-                    sx={{ 
-                        textTransform: 'none', 
-                        padding: '5px 3px', 
-                        border: '1px solid black' // Add this line for the border
-                    }}
-                >
-                    Tanggal Pengujian {dateSort == '' ? (<></>) : (dateSort == "desc" ? <ExpandLessIcon style={{fontSize: 19}}/> : <ExpandMoreIcon style={{fontSize: 19}}/>)}
+                <TableCell className="text-lg font-bold" >
+                  <Button
+                      onClick={handleDateSort}
+                      className="text-lg text-black font-bold w-full"
+                      sx={{ 
+                          textTransform: 'none', 
+                          padding: '5px 2px', 
+                          border: '1px solid black'
+                      }}
+                  >
+                    Tanggal <br /> 
+                    Pengujian {dateSort == '' ? (<></>) : (dateSort == "desc" ? <ExpandLessIcon style={{fontSize: 19,  marginLeft: 12}}/> : <ExpandMoreIcon style={{fontSize: 19,  marginLeft: 12}}/>)}
                   </Button>
                 </TableCell>
+                <TableCell className="text-lg font-bold">Status</TableCell>
                 <TableCell>
-                <Button
-                    onClick={handleTrainSort}
-                    className="text-lg text-black font-bold"
-                    sx={{ 
-                        textTransform: 'none', 
-                        padding: '5px 2px', 
-                        border: '1px solid black', 
-                        width: '140px',  // Set the fixed width
-                        textAlign: 'center',  // Center the text
-                        justifyContent: 'center'  // Ensure content inside the button is centered
-                    }}
-                >
+                  <Button
+                      onClick={handleTrainSort}
+                      className="text-lg text-black font-bold"
+                      sx={{ 
+                          textTransform: 'none', 
+                          padding: '5px 2px', 
+                          border: '1px solid black', 
+                          width: '140px', 
+                          textAlign: 'center',
+                          justifyContent: 'center' 
+                      }}
+                  >
                     {trainSort == '' ? ("Jenis Kereta") : (trainSort == "LRT" ? ("LRT") : ("KCIC"))}
                   </Button>
                 </TableCell>
@@ -742,9 +749,10 @@ const UserLog = () => {
                     <TableCell className="text-lg">
                         {dayjs(row.date).format('DD MMM YYYY, HH:mm')}
                     </TableCell>
-                    <TableCell className="text-lg">{row.train === "KCIC" ? "Kereta Cepat" : row.train}</TableCell>
-                    <TableCell className="text-lg">{row.module}</TableCell>
-                    <TableCell className='text-lg'>{row.scoring}</TableCell>
+                    <TableCell className='text-lg'>{row.status}</TableCell>
+                    <TableCell className="text-lg">{row.train === "KCIC" ? "High Speed Train" : row.train === "LRT" ? "Low Rapid Train" : row.train}</TableCell>
+                    <InteractableTableCell content={row.module} isEllipsisEnabled={isEllipsisEnabled} width="314px"/>
+                    <InteractableTableCell content={row.scoring} isEllipsisEnabled={isEllipsisEnabled} width="318px"/>
                     <TableCell className='text-lg'>{row.score}</TableCell>
                     <TableCell align='center' className='flex items-center gap-1'>
                       <Button

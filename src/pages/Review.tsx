@@ -14,6 +14,7 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
+  DialogContentText,
   DialogTitle,
   Snackbar,
   TextField,
@@ -23,11 +24,7 @@ import {
   formatDurationToString,
   getFilenameSafeDateString,
 } from "../utils/datestring";
-// import {
-//   processFile,
-//   processFileExcel,
-//   standbyCCTV,
-// } from "../services/file.services";
+
 import FullPageLoading from "../components/FullPageLoading";
 import { shell } from "electron";
 import {
@@ -42,7 +39,7 @@ import { useAuth } from "../context/auth";
 import { Assessment, EditNoteRounded, EditNoteSharp, Stop } from "@mui/icons-material";
 import { getScoringDetail } from "@/services/scoring.services";
 import { getUserById } from "@/services/user.services";
-import { uploadLogSubmission } from "@/services/submission.services";
+import { cancelSubmissionById, uploadLogSubmission } from "@/services/submission.services";
 import fs from "fs";
 
 import { finishSubmissionById } from "@/services/submission.services";
@@ -102,17 +99,10 @@ function Review() {
   // Notes
   const [notes, setNotes] = useState("");
   const [notesOpen, setNotesOpen] = useState(false);
+  const [cancelOpen, setCancelOpen] = useState(false);
 
   const startTime = useMemo(() => dayjs(), []);
   const [peserta, setPeserta] = useState<any>();
-
-  // async function loadCctv() {
-  //   try {
-  //     await standbyCCTV("config", "standby");
-  //   } catch (error) {
-  //     console.error(error);
-  //   }
-  // }
 
   useEffect(() => {
     async function fetchData() {
@@ -146,9 +136,6 @@ function Review() {
     try {
       setIsLoading(true);
       const endTime = dayjs();
-      
-      // reset CCTV mode
-      // await loadCctv();
       
       // Get input data from form
       const data = new FormData(currentTarget);
@@ -225,7 +212,6 @@ function Review() {
       let pdfname = null;
       let excelname = null;
       pdfname = generatePDF(jsonToWrite);
-      console.log("pdf", pdfname);
       await generateExcel(jsonToWrite).then((excel) => {
         excelname = excel;
       });
@@ -235,29 +221,6 @@ function Review() {
 
       // console.log("tes");
       const dir = "C:/Train Simulator/Data/penilaian";
-
-      // if (!fs.existsSync(dir)) {
-      //   await fs.mkdirSync(dir, { recursive: true });
-      // }
-
-      // fs.writeFileSync(
-      //   `${dir}/${fileName}.json`,
-      //   JSON.stringify(jsonToWrite, null, 2)
-      // );
-
-      // // Hit C# API for score pdf result generation
-      // console.log('tes');
-      // const res = await processFile(fileName, 'on');
-      // const resExcel = await processFileExcel(fileName, 'on');
-      // setToastData({
-      //   severity: 'success',
-      //   msg: `Successfuly saved scores as ${fileName}.pdf!`,
-      // });
-      // setOpen(true);
-      // console.log('tes');
-
-      // open pdf in dekstop
-      // navigate(`/finish?filename=${fileName}`);
 
       navigate(`/finishLRT?&submissionId=${submissionId}&url=${url}&trainType=${trainType}`);
 
@@ -273,7 +236,7 @@ function Review() {
       sendTextToClients(JSON.stringify({ status: "finish" }, null, 2));
     }
   };
-
+  
   const finishSubmission = async (jsonToWrite: any, pdfbuf: any, score: number, excelbuf:any) => {
     try {
       console.log("totalScore2", totalScore);
@@ -303,6 +266,100 @@ function Review() {
       console.error(error);
     }
   }
+
+  const handleConfirmedCancel = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    try {
+      setIsLoading(true);
+      const endTime = dayjs();
+    
+      // Copy krl json mock template
+      const jsonToWrite = {
+        ...json,
+        judul_modul: courseName,
+      };
+      
+      // Write metadata
+      // * Time
+      jsonToWrite.waktu_mulai = startTime.format("HH.mm");
+      jsonToWrite.waktu_selesai = endTime.format("HH.mm");
+      
+      const diff = endTime.diff(startTime, "second");
+      const hours = Math.floor(diff / 3600);
+      const minutes = Math.floor((diff % 3600) / 60);
+      const seconds = diff % 60;
+      
+      jsonToWrite.durasi = formatDurationToString(hours, minutes, seconds);
+      jsonToWrite.tanggal = startTime.format("DD/MM/YYYY");
+      
+      // * Crew data
+      jsonToWrite.nama_crew = peserta.name;
+      jsonToWrite.kedudukan =
+      (peserta.bio && peserta.bio.position) || "";
+      jsonToWrite.usia = `${
+        peserta.bio && peserta.bio.born
+        ? Math.abs(dayjs(peserta.bio.born).diff(dayjs(), "years"))
+        : "-"
+      } tahun`;
+      jsonToWrite.kode_kedinasan =
+      peserta.username ||
+      "";
+      
+      // * Train data
+      jsonToWrite.train_type = trainType.toUpperCase();
+      jsonToWrite.id_pengaturan
+      
+      jsonToWrite.no_ka = "-";
+      jsonToWrite.lintas =
+      settings.stasiunAsal + " - " + settings.stasiunTujuan;
+      
+      // * Instructor data
+      jsonToWrite.nama_instruktur = instructor.name;
+      
+      // * Notes
+      jsonToWrite.keterangan = notes === "" ? "-" : notes;
+      
+      // Write actual nilai to the copied krl json
+      let jsonIdx = 0;
+      
+      // nilai skor akhir
+      jsonToWrite.nilai_akhir = realTimeNilai < 0 ? 0 : realTimeNilai;
+      
+      
+      const res = await cancelSubmission(jsonToWrite);
+
+      // Save file to local
+
+      // console.log("tes");
+      const dir = "C:/Train Simulator/Data/penilaian";
+
+      navigate(`/finishLRT?&submissionId=${submissionId}&url=${url}&trainType=${trainType}`);
+
+    } catch (e) {
+      console.error(e);
+      setToastData({
+        severity: "error",
+        msg: `Failed to save scores. Please try again later.`,
+      });
+      setOpen(true);
+    } finally {
+      setIsLoading(false);
+      sendTextToClients(JSON.stringify({ status: "canceled" }, null, 2));
+      navigate(-1)
+    }
+  };
+
+  const cancelSubmission = async (jsonToWrite: any) => {
+    try {
+      const payload = {
+        score : "",
+        assessment : jsonToWrite
+      }
+      const res = await cancelSubmissionById(Number(submissionId), payload);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
 
   const generatePDF = (json: any) => {
     const doc = new jsPDF();
@@ -670,12 +727,7 @@ function Review() {
         lineColor: [0, 0, 0],
       },
     });
-    // Save PDF file using fs
-    
-    
-    // if (!fs.existsSync(dir)) {
-    //   fs.mkdirSync(dir, { recursive: true });
-    // }
+
     
     //rounding averageTotal to integer
     const score = Math.round(averageTotal);
@@ -683,22 +735,6 @@ function Review() {
     const pdfBuffer = doc.output("blob");
     console.log("pdfBuffer", pdfBuffer);
     return {pdfBuffer, score};
-    // const blob = new Blob([pdfBuffer], { type: 'application/pdf' });  // or any other appropriate MIME type
-    
-    // // Use the Blob as needed, e.g., append to FormData
-    //     formData.append('file', blob, 'data.pdf');
-    //     formData.append('tag', 'pdf');
-    //     console.log(formData)
-    //     try {
-      //       const res = await uploadLogSubmission(Number(submissionId), formData);
-      //       console.log(res)
-      //     }
-      //     catch (error) {
-        //       console.error(error);
-        //     }
-        
-        // fs.writeFileSync(`${dir}/${fileName}`, Buffer.from(pdfBuffer));
-        // return fileName;
     
   };
 
@@ -872,22 +908,6 @@ function Review() {
 
       const buf = await workbook.xlsx.writeBuffer();
       return buf;
-      // console.log("blob",buf)
-      // const blob = new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
-      // console.log("blob", blob)
-      // const formData = new FormData();
-      // formData.append("file", blob, "data.xlsx");
-      // formData.append("tag", "xlsx");
-      // const res = await uploadLogSubmission(Number(submissionId), formData);
-      // console.log("Excel uploaded:", res);
-      
-      // const dir = "C:/Train Simulator/Data/penilaian/Excel";
-      // const fileName = "LRT_" + getFilenameSafeDateString(new Date());
-
-      // if (!fs.existsSync(dir)) {
-      //   await fs.mkdirSync(dir, { recursive: true });
-      // }
-      // fs.writeFileSync(`${dir}/${fileName}.xlsx`, buf);
     } catch (err) {
       console.log(err);
     }
@@ -1004,15 +1024,16 @@ function Review() {
               <Button
                 variant="text"
                 color="error"
-                onClick={() => {
-                  if (simulation) {
-                    setSimulation(false);
-                    sendTextToClients(
-                      JSON.stringify({ status: "finish" }, null, 2)
-                    );
-                  }
-                  navigate(-1);
-                }}
+                // onClick={() => {
+                //   if (simulation) {
+                //     setSimulation(false);
+                //     sendTextToClients(
+                //       JSON.stringify({ status: "finish" }, null, 2)
+                //     );
+                //   }
+                //   navigate("/SecondPage");
+                // }}
+                onClick={() => setCancelOpen(true)}
                 sx={{
                   color: "#df2935",
                   borderColor: "#df2935",
@@ -1057,12 +1078,10 @@ function Review() {
                 className="ml-auto"
                 type="button"
                 onClick={() => setNotesOpen(true)}
-                // color="success"
 
                 sx={{
                   color: "#00a6fb",
                   borderColor: "#00a6fb",
-                  // backgroundColor: "#ffffff",
                   "&:hover": {
                     borderColor: "#00a6fb",
                     backgroundColor: "#00a6fb",
@@ -1098,6 +1117,45 @@ function Review() {
           </Button>
           <Button type="submit" form="penilaian-form" variant="contained">
             Selesai
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Cancel dialog */}
+      <Dialog
+        open={cancelOpen}
+        onClose={() => setCancelOpen(false)}
+        aria-labelledby="cancel-dialog-title"
+        aria-describedby="cancel-dialog-description"
+        className="p-6"
+      >
+        <DialogTitle id="cancel-dialog-title">Konfirmasi Batal Simulasi</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="cancel-dialog-description">
+            Apakah Anda yakin ingin membatalkan simulasi?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions className="flex p-6 justify-between w-full">
+          <Button 
+            onClick={() => setCancelOpen(false)}
+            color="primary"
+          >
+            Tidak
+          </Button>
+          <Button 
+            onClick={handleConfirmedCancel} color="error" variant="outlined"
+            sx={{
+              color: "#df2935",
+              borderColor: "#df2935",
+              backgroundColor: "#ffffff",
+              "&:hover": {
+                borderColor: "#df2935",
+                backgroundColor: "#df2935",
+                color: "#ffffff",
+              },
+            }}
+          >
+            Ya
           </Button>
         </DialogActions>
       </Dialog>

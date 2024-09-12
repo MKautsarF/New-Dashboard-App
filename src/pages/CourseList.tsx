@@ -573,7 +573,7 @@ const CourseList = () => {
                   >
                     <TableCell>{row.title}</TableCell>
                     <TableCell>
-                      {row.description === "KCIC" ? "Kereta Cepat" : row.description}
+                      {row.description === "KCIC" ? "High Speed Train" : row.description === "LRT" ? "Low Rapid Train" : row.description}
                     </TableCell>
                     <TableCell>
                       {!row.published && (
@@ -595,7 +595,7 @@ const CourseList = () => {
                           Publish
                         </Button>
                       )}
-                      {row.published && (
+                      {row.published && currentInstructor.isAdmin && (
                         <Button
                           variant="contained"
                           disabled
@@ -736,7 +736,6 @@ const CourseList = () => {
           <Button
             className="mx-2"
             onClick={() => setDeletePrompt(false)}
-            
           >
             Batal
           </Button>
@@ -749,7 +748,17 @@ const CourseList = () => {
               setDeletePrompt(false);
             }}
             color="error"
-            variant="contained"
+            variant='outlined'
+						sx={{
+							color: "#df2935",
+							borderColor: "#df2935",
+							backgroundColor: "#ffffff",
+							"&:hover": {
+								borderColor: "#df2935",
+								backgroundColor: "#df2935",
+								color: "#ffffff",
+							},
+						}}
           >
             Hapus
           </Button>

@@ -72,8 +72,8 @@ function AppMenu() {
 
   const query = useQuery();
 
-  const { logout } = useAuth();
-
+  const { instructor, logout } = useAuth();
+  localStorage.setItem('instructorName', instructor.name);
   
   const handleSimulation = () => {
     navigate("/ThirdPage");
@@ -204,6 +204,8 @@ function AppMenu() {
     name: "",
     nip: "",
   });
+
+  localStorage.setItem('selectedPesertaName', selectedPeserta.name);
 
   const [totalData, setTotalData] = useState(0);
   const [page, setPage] = useState(1);
@@ -378,10 +380,10 @@ function AppMenu() {
               }}
             >
               <MenuItem onClick={() => handleLearningOptionClick("kcic")}>
-                Kereta Cepat
+                High Speed Train
               </MenuItem>
               <MenuItem onClick={() => handleLearningOptionClick("lrt")}>
-                LRT
+                Low Rapid Train
               </MenuItem>
             </Menu>
             <Button
@@ -416,7 +418,7 @@ function AppMenu() {
                 onMouseEnter={() => handleMouseEnter(1)}
                 onMouseLeave={handleMouseLeave}
               >
-                <h1 className="text-white ">Kereta Cepat</h1>
+                <h1 className="text-white ">High Speed Train</h1>
                 <Button
                   variant={!selectedPeserta.id || isSelected ? "outlined" : "contained"}
                   onClick={handleStartClickKcic}
@@ -441,7 +443,7 @@ function AppMenu() {
               {hoveredBox === 1 && (
                 <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-center py-2">
                   <p className="text-white">
-                    Mengoperasikan eksplorasi Kereta Cepat.
+                    Mengoperasikan eksplorasi High Speed Train.
                   </p>
                 </div>
               )}
@@ -462,7 +464,7 @@ function AppMenu() {
                 onMouseEnter={() => handleMouseEnter(2)}
                 onMouseLeave={handleMouseLeave}
               >
-                <h1 className="text-white ">LRT</h1>
+                <h1 className="text-white ">Low Rapid Train</h1>
                 {/* {selectedValue2} */}
                 <Button
                   variant={!selectedPeserta.id || isSelected ? "outlined" : "contained"}
@@ -488,7 +490,7 @@ function AppMenu() {
               {hoveredBox === 2 && (
                 <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-center py-2">
                   <p className="text-white">
-                    Mengoperasikan eksplorasi kereta LRT.
+                    Mengoperasikan eksplorasi Low Rapid Train.
                   </p>
                 </div>
               )}

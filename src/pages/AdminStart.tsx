@@ -9,9 +9,16 @@ import {
  } from "@mui/material";
 import React, { useState } from "react";
 import Logo from "@/components/Logo";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useMemo } from "react";
 import Container from "@/components/Container";
 import { currentInstructor, useAuth } from "@/context/auth";
+
+function useQuery() {
+  const { search } = useLocation();
+
+  return useMemo(() => new URLSearchParams(search), [search]);
+}
 
 const AdminStart = () => {
   const navigate = useNavigate();
@@ -23,7 +30,7 @@ const AdminStart = () => {
   };
 
   const handleInstruktur = () => {
-    navigate("/instructorlist");
+    navigate("/instructorlist?type=instructor");
   };
 
   const handleCourse = () => {
@@ -31,6 +38,7 @@ const AdminStart = () => {
   };
 
   const [logoutOpen, setLogoutOpen] = useState(false);
+  const query = useQuery();
 
   const handleLogoutOpen = () => setLogoutOpen(true);
   const handleLogoutClose = () => setLogoutOpen(false);

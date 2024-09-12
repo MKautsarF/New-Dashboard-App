@@ -68,7 +68,7 @@ function Simulation() {
               onClick={handleKCIC} // Call handleNext when clicked
             >
               <Train style={{ fontSize: 75 }} />
-              <h1>Kereta Cepat</h1>
+              <h1>High Speed Train</h1>
             </div>
           </div>
 
@@ -99,7 +99,7 @@ function Simulation() {
               onClick={handleLRT} // Call handleNext when clicked
             >
               <DirectionsRailway style={{ fontSize: 75 }} />
-              <h1>LRT</h1>
+              <h1>Low Rapid Train</h1>
             </div>
           </div>
         </div>

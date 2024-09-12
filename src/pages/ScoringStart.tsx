@@ -141,6 +141,8 @@ function ScoringStart() {
   useEffect(() => {
     const fetchPayload = async () => {
       const selectedPesertaId = localStorage.getItem('selectedPesertaId');
+      const selectedPesertaName = localStorage.getItem('selectedPesertaName');
+      const instructorName = localStorage.getItem('instructorName');
       const moduleName = localStorage.getItem('moduleName');
       
       if (selectedCourse && selectedCourse.id) {
@@ -160,6 +162,14 @@ function ScoringStart() {
             courseExamId : selectedCourse.id,
             setting : payloadData
           }
+          if (fromEksplorasi) {
+            payloadS.setting.module_name = "Eksplorasi";
+          } else {
+            payloadS.setting.module_name = moduleName;
+          }
+          payloadS.setting.scoring_name = selectedCourse.title;
+          payloadS.setting.instructor_name = instructorName;
+          payloadS.setting.name = selectedPesertaName;
           console.log("Payload data:", payloadS);
           setSubmissionPayload(payloadS);
           const payloadAll = {
@@ -213,8 +223,8 @@ function ScoringStart() {
         <div className="flex flex-col gap-4 w-full">
           <div className="flex flex-col text-left gap-4 p-6 ">
             <h1 style={{ fontSize: "1.75rem", fontWeight: "bold" }}>
-              Modul Penilaian {trainType === "kcic" ? "Kereta Cepat" : trainType.toUpperCase()}
-
+              {/* Modul Penilaian {trainType === "kcic" ? "Kereta Cepat" : trainType.toUpperCase()} */}
+              Modul Penilaian {trainType === "kcic" ? "High Speed Train" : trainType === "lrt" ? "Low Rapid Train" : trainType}
             </h1>
             <p style={{ fontSize: "1.25rem" }}>
               Pilih pembelajaran kereta yang akan digunakan:

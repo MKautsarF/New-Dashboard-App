@@ -45,7 +45,8 @@ function Modul() {
         <div className="flex flex-col gap-4 w-full">
           <div className="flex flex-col text-left gap-4 p-6 ">
             <h1 style={{ fontSize: "1.75rem", fontWeight: "bold" }}>
-              Modul {trainType === "kcic" ? "Kereta Cepat" : trainType.toUpperCase()}
+              {/* Modul {trainType === "kcic" ? "Kereta Cepat" : trainType.toUpperCase()} */}
+              Modul {trainType === "kcic" ? "High Speed Train" : trainType === "lrt" ? "Low Rapid Train" : trainType}
             </h1>
             <p style={{ fontSize: "1.25rem" }}>
               Pilih modul yang akan digunakan:

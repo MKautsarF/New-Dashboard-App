@@ -30,13 +30,16 @@ function App() {
   return (
     <>
       <Container w={600}>
-        <div className="gap-2  pt-4 flex flex-col items-center justify-center h-full">
-          {/* <img src="\src\static\newLogo.jpg" alt="Logo" /> */}
+        <div className="gap-2 pt-8 flex flex-col items-center justify-center h-full">
           <Logo />
-          <h1>Kereta Cepat & LRT Launcher</h1>
-          <p>a simulation launcher for Kereta Cepat & LRT</p>
+          <h1 className="flex items-center justify-center text-center">
+            High Speed Train <br />&<br />Low Rapid Train Launcher
+          </h1>
+          <p className="text-center">
+            a simulation launcher for High Speed Train & Low Rapid Train
+          </p>
         </div>
-        <div className="flex flex-col gap-4 justify-center p-12">
+        <div className="flex flex-col gap-4 justify-center px-12 py-8">
           <Button
             type="button"
             variant="outlined"

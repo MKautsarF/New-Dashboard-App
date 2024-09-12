@@ -1,5 +1,6 @@
 import { currentInstructor } from '@/context/auth';
 import { getUserById, getUserByIdAsAdmin } from '@/services/user.services';
+import { useLocation } from 'react-router-dom';
 import {
   Button,
   CircularProgress,
@@ -20,7 +21,7 @@ interface UserDetail {
     officialCode: string;
     position: string;
   };
-  completion?: number;
+  // completion?: number;
 }
 
 interface TraineeDetailProps {
@@ -43,6 +44,11 @@ const TraineeDetail: React.FC<TraineeDetailProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [data, setData] = useState<UserDetail | null>(null);
 
+
+  const location = useLocation();
+  const query = new URLSearchParams(location.search);
+  const type = query.get("type");
+
   useEffect(() => {
     async function fetchDetail() {
       setIsLoading(true);
@@ -55,11 +61,13 @@ const TraineeDetail: React.FC<TraineeDetailProps> = ({
           detailData = await getUserById(id);
         }
 
+        console.log("detail data", detailData)
+
         userId = detailData.id;
 
         setData({
           name: detailData.name,
-          nip: detailData.username,
+          nip: type === 'instructor' ? detailData.bio.identityNumber : detailData.username,
           bio: detailData.bio,
         });
 
@@ -75,7 +83,7 @@ const TraineeDetail: React.FC<TraineeDetailProps> = ({
   return (
     <Dialog open={isOpen} onClose={handleClose}>
       <DialogTitle>
-        Detail {currentInstructor.isInstructor ? 'Peserta' : 'Peserta'}
+        Detail {type === 'instructor' ? 'Instruktur' : 'Peserta'}
       </DialogTitle>
       <DialogContent className="w-[400px]">
         <DialogContentText>
@@ -86,7 +94,8 @@ const TraineeDetail: React.FC<TraineeDetailProps> = ({
           ) : data ? (
             <>
               <p>Nama: {data.name}</p>
-              <p>NIP: {data.nip}</p>
+              {/* <p>NIP: {data.nip}</p> */}
+              <p>NIP: {type === 'instructor' ? data.nip : data.nip}</p>
               <p>
                 Tanggal lahir:{' '}
                 {data.bio && data.bio.born
