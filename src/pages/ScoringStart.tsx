@@ -203,6 +203,8 @@ function ScoringStart() {
       const res = await createSubmission(submissionPayload);
       console.log("Submission created:", res.id);
       setSubmission(res);
+      // communication to unreal engine
+      sendTextToClients(JSON.stringify(submissionPayload.setting, null, 2));
       navigate(`/FifthPage/review?type=${settings.score}&submissionId=${res.id}&scoringId=${selectedCourse.id}&courseId=${courseID}&trainType=${trainType}`);
     } catch (error) {
       console.error(error);
