@@ -18,12 +18,16 @@ export function InteractableTableCell({ content, isEllipsisEnabled, width }: Int
         contentRef.current.scrollWidth > contentRef.current.clientWidth
       );
     }
-  }, [content, width]); // Tambahkan width sebagai dependency agar efek dipicu saat width berubah
+  }, [content, width]);
 
-  const handleTooltipToggle = () => {
-    if (isEllipsis && isEllipsisEnabled) {
-      setIsTooltipOpen((prev) => !prev); 
+  const handleMouseEnter = () => {
+    if (isEllipsis) {
+      setIsTooltipOpen(true);
     }
+  };
+
+  const handleMouseLeave = () => {
+    setIsTooltipOpen(false);
   };
 
   return (
@@ -35,9 +39,10 @@ export function InteractableTableCell({ content, isEllipsisEnabled, width }: Int
         overflow: 'hidden',
         textOverflow: 'ellipsis',
         maxWidth: width,
-        cursor: isEllipsis && isEllipsisEnabled ? 'pointer' : 'default',
+        cursor: 'default',
       }}
-      onClick={handleTooltipToggle}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
       {isEllipsis ? (
         <Tooltip

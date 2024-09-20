@@ -113,19 +113,6 @@ const InstructorDetail: React.FC<InstructorDetailProps> = ({
   
   const [isSaveEditPasswordButtonEnabled, setIsSaveEditPasswordButtonEnabled] = useState(false);
   
-  const [password, setPassword] = useState("");
-  
-  const [initialPasswordValues, setInitialPasswordValues] = useState({
-    password: ''
-  });
-  
-	useEffect(() => {
-    if (passwordPrompt) {
-      setOldPassword('');
-      setNewPassword('');
-    }
-  }, [passwordPrompt]);
-  
   useEffect(() => {
     const hasChanges = newPassword !== '' && oldPassword !== '' && newPassword !== oldPassword;
     setIsSaveEditPasswordButtonEnabled(hasChanges);

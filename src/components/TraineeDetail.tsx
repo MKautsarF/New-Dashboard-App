@@ -9,9 +9,11 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
+  Tooltip,
+  Typography
 } from '@mui/material';
 import dayjs from 'dayjs';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react';
 
 interface UserDetail {
   name: string;
@@ -21,18 +23,15 @@ interface UserDetail {
     officialCode: string;
     position: string;
   };
-  // completion?: number;
 }
 
 interface TraineeDetailProps {
-  id: any;
+  id: string;
   isOpen: boolean;
   handleClose: () => void;
   handleLog: () => void;
   handleEdit: () => void;
 }
-
-let userId: string;
 
 const TraineeDetail: React.FC<TraineeDetailProps> = ({
   id,
@@ -43,80 +42,130 @@ const TraineeDetail: React.FC<TraineeDetailProps> = ({
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [data, setData] = useState<UserDetail | null>(null);
+  const [showTooltip, setShowTooltip] = useState([false, false, false, false]);
 
+  const nameRef = useRef<HTMLParagraphElement>(null);
+  const nipRef = useRef<HTMLParagraphElement>(null);
+  const bornRef = useRef<HTMLParagraphElement>(null);
+  const positionRef = useRef<HTMLParagraphElement>(null);
 
-  const location = useLocation();
-  const query = new URLSearchParams(location.search);
-  const type = query.get("type");
+  const refs = [nameRef, nipRef, bornRef, positionRef];
 
   useEffect(() => {
-    async function fetchDetail() {
+    const fetchDetail = async () => {
       setIsLoading(true);
-
       try {
-        let detailData: any;
-        if (currentInstructor.isAdmin) {
-          detailData = await getUserByIdAsAdmin(id);
-        } else {
-          detailData = await getUserById(id);
-        }
-
-        console.log("detail data", detailData)
-
-        userId = detailData.id;
+        const detailData = currentInstructor.isAdmin
+          ? await getUserByIdAsAdmin(id)
+          : await getUserById(id);
 
         setData({
           name: detailData.name,
-          nip: type === 'instructor' ? detailData.bio.identityNumber : detailData.username,
+          nip: detailData.username,
           bio: detailData.bio,
         });
-
       } catch (error) {
         console.error(error);
       } finally {
         setIsLoading(false);
       }
+    };
+
+    if (isOpen) {
+      fetchDetail();
     }
-    fetchDetail();
-  }, [isOpen]);
+  }, [id, isOpen]);
+
+  const checkEllipsis = () => {
+    refs.forEach((ref, index) => {
+      if (ref.current) {
+        const isOverflowing =
+          ref.current.scrollWidth > ref.current.clientWidth;
+        setShowTooltip((prev) => {
+          const newShowTooltip = [...prev];
+          newShowTooltip[index] = isOverflowing;
+          return newShowTooltip;
+        });
+      }
+    });
+  };
+
+  useEffect(() => {
+    if (data) {
+      checkEllipsis();
+    }
+  }, [data]);
+
+  const handleEditClick = useCallback(() => {
+    handleEdit();
+  }, [handleEdit]);
+
+  const handleLogClick = useCallback(() => {
+    handleLog();
+  }, [handleLog]);
+
+
+  const renderDetails = useMemo(() => {
+    if (isLoading) {
+      return (
+        <div className="flex w-full items-center justify-center">
+          <CircularProgress />
+        </div>
+      );
+    }
+
+    if (!data) {
+      return <p>Data tidak ditemukan</p>;
+    }
+
+    const fields = [
+      { label: 'Nama', value: data.name, ref: nameRef },
+      { label: 'NIP', value: data.nip, ref: nipRef },
+      {
+        label: 'Tanggal Lahir',
+        value: data.bio?.born
+          ? `${dayjs(data.bio.born).format('DD MMM YYYY')} (${Math.abs(
+              dayjs(data.bio.born).diff(dayjs(), 'year')
+            )} tahun)`
+          : '-',
+        ref: bornRef,
+      },
+      { label: 'Kedudukan', value: data.bio?.position, ref: positionRef },
+    ];
+
+    return fields.map((field, index) => (
+      <Tooltip
+        key={index}
+        title={
+          <Typography sx={{ fontSize: '1rem', color: 'white' }}>
+            {showTooltip[index] ? field.value : ''}
+          </Typography>
+        }
+        placement="top"
+        arrow={false}
+      >
+        <p
+          ref={field.ref}
+          className="truncate"
+        >
+          {field.label}: {field.value || '-'}
+        </p>
+      </Tooltip>
+    ));
+  }, [data, isLoading, showTooltip]);
 
   return (
     <Dialog open={isOpen} onClose={handleClose}>
-      <DialogTitle>
-        Detail {type === 'instructor' ? 'Instruktur' : 'Peserta'}
-      </DialogTitle>
+      <DialogTitle>Detail {currentInstructor.isAdmin ? 'Instruktur' : 'Peserta'}</DialogTitle>
       <DialogContent className="w-[400px]">
-        <DialogContentText>
-          {isLoading ? (
-            <div className="flex w-full items-center justify-center">
-              <CircularProgress />
-            </div>
-          ) : data ? (
-            <>
-              <p>Nama: {data.name}</p>
-              {/* <p>NIP: {data.nip}</p> */}
-              <p>NIP: {type === 'instructor' ? data.nip : data.nip}</p>
-              <p>
-                Tanggal lahir:{' '}
-                {data.bio && data.bio.born
-                  ? `${dayjs(data.bio.born).format('DD MMM YYYY')} (${Math.abs(
-                      dayjs(data.bio.born).diff(dayjs(), 'year')
-                    )} tahun)`
-                  : '-'}
-              </p>
-              <p>Kedudukan: {(data.bio && data.bio.position) || '-'}</p>
-            </>
-          ) : (
-            <p>Data tidak ditemukan</p>
-          )}
-        </DialogContentText>
+        <DialogContentText>{renderDetails}</DialogContentText>
       </DialogContent>
       <DialogActions className="flex justify-end pr-6">
         <Button onClick={handleClose}>Tutup</Button>
-        {currentInstructor.isAdmin ? null : (
+        {!currentInstructor.isAdmin && (
           <>
-            <Button onClick={handleEdit}>Edit</Button>
-            <Button onClick={handleLog}>Log</Button>
+            <Button onClick={handleEditClick}>Edit</Button>
+            <Button onClick={handleLogClick}>Log</Button>
           </>
         )}
       </DialogActions>

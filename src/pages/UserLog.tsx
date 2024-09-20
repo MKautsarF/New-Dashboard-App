@@ -146,7 +146,6 @@ const UserLog = () => {
   const fetchCourseData = async () => {
     try {
       const response  = await getCourseByInstructor(1,100);
-      console.log("resssss", response)
 
       // Filter courses based on the description
       const lrtData = response.results.filter((course: any) => course.description === "LRT")
@@ -160,7 +159,6 @@ const UserLog = () => {
             id: course.id,
             title: course.title,
           }));
-          console.log("kcic", kcicData)
       // Set state with the filtered data
       setKCICDiagramData(kcicData);
       setLrtDiagramData(lrtData);
@@ -380,8 +378,6 @@ const UserLog = () => {
     // setPDFAnchorEl(null);
   };
   
-  
-  
   const handleOpenExcel = async (id: any) => {
     setSubmissionId(id);
     try {
@@ -485,9 +481,6 @@ const UserLog = () => {
   }
   const [getSubmission, setGetSubmission] = useState(false);
   
-  const [courseMap, setCourseMap] = useState<Map<number, string>>(new Map());
-  const [scoringMap, setScoringMap] = useState<Map<number, string>>(new Map());
-  
   useEffect(() => {
     const fetchUserLog = async () => {
       setIsLoading(true);
@@ -530,7 +523,6 @@ const UserLog = () => {
     if (getSubmission) {
       rows.map(async (row) => {
         const res = await getSubmissionById(Number(row.id));
-        console.log("res", res);
         row.module = res.exam?.assessment?.judul_modul
         row.scoring = res.exam?.assessment?.judul_penilaian
         setRows([...rows]);

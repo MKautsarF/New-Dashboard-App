@@ -37,8 +37,8 @@ function EditKCIC() {
   const train = query.get("train");
   const mode = query.get("mode");
 
-  const jsonPath = "C:/Train Simulator/Data/ModuleTemplate.json"
-  // const jsonPath = "src/config/ModuleTemplate.json"
+  // const jsonPath = "C:/Train Simulator/Data/ModuleTemplate.json"
+  const jsonPath = "src/config/ModuleTemplate.json"
   const [json, setJSON] = useState<any>(null);
 
   const rawData = fs.readFileSync(jsonPath, "utf-8");

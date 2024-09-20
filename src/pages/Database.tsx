@@ -691,7 +691,14 @@ function Database() {
                 type="submit"
                 form="edit"
                 variant="contained"
-                color="success"
+                sx={{
+                  color: "#ffffff",
+                  backgroundColor: "#1aaffb",
+                  "&:hover": {
+                    borderColor: "#00a6fb",
+                    color: "#ffffff",
+                  },
+                }}
               >
                 Simpan
               </Button>

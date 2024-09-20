@@ -50,8 +50,8 @@ function useQuery() {
 }
 
 const CourseDetail = () => {
-	// const sourceSettingsPath = "src/config/settings_train.json";
-	const sourceSettingsPath = "C:/Train Simulator/Data/settings_train.json";
+	const sourceSettingsPath = "src/config/settings_train.json";
+	// const sourceSettingsPath = "C:/Train Simulator/Data/settings_train.json";
 	const sourceSettingsRead = fs.readFileSync(sourceSettingsPath, "utf-8");
 	const sourceSettings = JSON.parse(sourceSettingsRead);
 		const navigate = useNavigate();
@@ -453,15 +453,15 @@ const CourseDetail = () => {
     // const [scoring, setScoring] = useState<any[]>([]);
 	const [scoring, setScoring] = useState<ScoringData | null>(null);
 
-		const handleCreateScoring = () => {
-			setOpen(false);
-			if (useDefault) {
-				navigate(`/Scoring?type=default&courseID=${courseId}&train=${payload.train_type}&mode=new`);
-			}
-			else {
-				navigate(`/Scoring?type=${selectedScoring}&courseID=${courseId}&train=${payload.train_type}&mode=new`);
-			}
-		};
+	const handleCreateScoring = () => {
+		setOpen(false);
+		if (useDefault) {
+			navigate(`/Scoring?type=default&courseID=${courseId}&train=${payload.train_type}&mode=new`);
+		}
+		else {
+			navigate(`/Scoring?type=${selectedScoring}&courseID=${courseId}&train=${payload.train_type}&mode=new`);
+		}
+	};
 
     useEffect(() => {
         async function fetchData(courseId: any) {
