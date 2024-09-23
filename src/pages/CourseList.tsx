@@ -42,6 +42,7 @@ import { useLocation } from "react-router-dom";
 import { useMemo } from "react";
 import ModulDialog  from "@/components/ModulDialog";
 import dayjs from 'dayjs';
+import { InteractableTableCell } from "@/components/InteractableTableCell";
 
 interface RowData {
   id: string;
@@ -122,6 +123,7 @@ const CourseList = () => {
   const [speedLimit, setSpeedLimit] = useState("");
   const [error, setError] = useState('');
   const [isAddButtonEnabled, setIsAddButtonEnabled] = useState(false);
+  const [isEllipsisEnabled, setIsEllipsisEnabled] = useState(true);
 
   const resetForm = () => {
     setModuleName('');
@@ -572,7 +574,8 @@ const CourseList = () => {
                       "&:last-child td, &:last-child th": { border: 0 },
                     }}
                   >
-                    <TableCell>{row.title}</TableCell>
+                    <InteractableTableCell content={row.title} isEllipsisEnabled={isEllipsisEnabled} width="380px" textSize="1rem"/>
+                    {/* <TableCell>{row.title}</TableCell> */}
                     <TableCell>
                       {row.description === "KCIC" ? "High Speed Train" : row.description === "LRT" ? "Low Rapid Train" : row.description}
                     </TableCell>

@@ -1,6 +1,6 @@
 import { currentInstructor } from '@/context/auth';
 import { getUserById, getUserByIdAsAdmin } from '@/services/user.services';
-import { useLocation } from 'react-router-dom';
+import { useEffect, useState, useRef } from 'react';
 import {
   Button,
   CircularProgress,
@@ -13,7 +13,7 @@ import {
   Typography
 } from '@mui/material';
 import dayjs from 'dayjs';
-import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react';
+import React from 'react';
 
 interface UserDetail {
   name: string;
@@ -77,17 +77,13 @@ const TraineeDetail: React.FC<TraineeDetailProps> = ({
   }, [id, isOpen]);
 
   const checkEllipsis = () => {
-    refs.forEach((ref, index) => {
+    const tooltipStatus = refs.map(ref => {
       if (ref.current) {
-        const isOverflowing =
-          ref.current.scrollWidth > ref.current.clientWidth;
-        setShowTooltip((prev) => {
-          const newShowTooltip = [...prev];
-          newShowTooltip[index] = isOverflowing;
-          return newShowTooltip;
-        });
+        return ref.current.scrollWidth > ref.current.clientWidth;
       }
+      return false;
     });
+    setShowTooltip(tooltipStatus);
   };
 
   useEffect(() => {
@@ -96,16 +92,7 @@ const TraineeDetail: React.FC<TraineeDetailProps> = ({
     }
   }, [data]);
 
-  const handleEditClick = useCallback(() => {
-    handleEdit();
-  }, [handleEdit]);
-
-  const handleLogClick = useCallback(() => {
-    handleLog();
-  }, [handleLog]);
-
-
-  const renderDetails = useMemo(() => {
+  const renderDetails = () => {
     if (isLoading) {
       return (
         <div className="flex w-full items-center justify-center">
@@ -137,9 +124,13 @@ const TraineeDetail: React.FC<TraineeDetailProps> = ({
       <Tooltip
         key={index}
         title={
-          <Typography sx={{ fontSize: '1rem', color: 'white' }}>
-            {showTooltip[index] ? field.value : ''}
-          </Typography>
+          showTooltip[index] ? (
+            <Typography sx={{ fontSize: '1rem', color: 'white' }}>
+              {field.value}
+            </Typography>
+          ) : (
+            ''
+          )
         }
         placement="top"
         arrow={false}
@@ -152,20 +143,20 @@ const TraineeDetail: React.FC<TraineeDetailProps> = ({
         </p>
       </Tooltip>
     ));
-  }, [data, isLoading, showTooltip]);
+  };
 
   return (
     <Dialog open={isOpen} onClose={handleClose}>
       <DialogTitle>Detail {currentInstructor.isAdmin ? 'Instruktur' : 'Peserta'}</DialogTitle>
       <DialogContent className="w-[400px]">
-        <DialogContentText>{renderDetails}</DialogContentText>
+        <DialogContentText>{renderDetails()}</DialogContentText>
       </DialogContent>
       <DialogActions className="flex justify-end pr-6">
         <Button onClick={handleClose}>Tutup</Button>
         {!currentInstructor.isAdmin && (
           <>
-            <Button onClick={handleEditClick}>Edit</Button>
-            <Button onClick={handleLogClick}>Log</Button>
+            <Button onClick={handleEdit}>Edit</Button>
+            <Button onClick={handleLog}>Log</Button>
           </>
         )}
       </DialogActions>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useMemo } from "react";
 import Container from '../components/Container';
 import {Button, DialogContentText, TableContainer} from "@mui/material";
@@ -6,12 +6,8 @@ import { useNavigate, useLocation, Form } from "react-router-dom";
 import {getAllCourseByInstructor, getCourseByInstructor, getCourseDetail, getCourseDetailByAdmin, getCourseDetailByInstructor} from "../services/course.services";
 import {TextField, FormControl, Select, MenuItem} from "@mui/material";
 import { Visibility } from "@mui/icons-material";
-import { Slider, Input, InputAdornment } from "@mui/material";
-import { Checkbox, FormControlLabel, Dialog, DialogContent, DialogTitle, DialogActions } from "@mui/material";
-import Flatpickr from "react-flatpickr";
-import "flatpickr/dist/flatpickr.min.css";
 import TimePicker from "../components/TimePicker";
-import { CircularProgress, Paper, Table, TableBody, TableCell, TableHead, TableRow, TablePagination } from "@mui/material";
+import { CircularProgress, Paper, Table, TableBody, TableCell, TableHead, TableRow, TablePagination, Typography, Dialog, DialogContent, DialogTitle, DialogActions } from "@mui/material";
 import { BookmarkAdd } from "@mui/icons-material";
 import { IconButton } from "@mui/material";
 import { Info } from "@mui/icons-material";
@@ -25,6 +21,8 @@ import { deleteScoringAsAdmin } from '@/services/scoring.services';
 import ModulDialog from '@/components/ModulDialog';
 import dayjs from 'dayjs';
 import { currentInstructor } from '@/context/auth';
+import { InfoRow } from '@/components/InfoRow';
+import { InteractableTableCell } from '@/components/InteractableTableCell';
 
 interface ScoringData {
 	total: number;
@@ -34,14 +32,7 @@ interface ScoringData {
 	}[];
   }
 
-
-interface InfoRowProps {
-	label: string;
-	value: string | number | React.ReactNode; // Adjust the type based on your expected value types
-  }
-
 const fs = require("fs");
-
 
 function useQuery() {
   const { search } = useLocation();
@@ -110,6 +101,9 @@ const CourseDetail = () => {
 	const [reload, setReload] = useState(false);
 	const [error, setError] = useState('');
 	const [isAddButtonEnabled, setIsAddButtonEnabled] = useState(false);
+
+	const [isEllipsisEnabled, setIsEllipsisEnabled] = useState(true);
+	
 	
 	const toogleEdit = () => {
 		setIsEditing(!isEditing);
@@ -428,7 +422,6 @@ const CourseDetail = () => {
 	};
 	
 
-	const [openCreateScoring, setOpenCreateScoring] = useState(false);
 	const handleDaftar = () => {
 		setOpen(true);
 	}
@@ -502,17 +495,6 @@ const CourseDetail = () => {
 			console.error(e);
 		}
 	}
-
-	const InfoRow: React.FC<InfoRowProps> = ({ label, value }) => (
-		<div className="flex flex-col gap-2">
-			<span>{label}</span>
-			<div className="ml-2">
-				<div>
-					<h3>{value}</h3>
-				</div>
-			</div>
-		</div>
-	);
 		  
 	const getWeatherDisplayValue = (weatherValue: any) => {
 		const value = Math.round(Math.pow(weatherValue / 100, -0.914) * 50.6);
@@ -528,19 +510,19 @@ const CourseDetail = () => {
 						<div className='mb-4 text-2xl'>Konfigurasi Modul:</div>
 						<div className='flex flex-row gap-10'>
 							<div className="flex flex-col gap-5">
-								<InfoRow label="Nama Modul Pembelajaran" value={payload.module_name} />
-								<InfoRow label="Jenis Kereta" value={payload?.train_type?.toUpperCase() || ''} />
-								<InfoRow label="Berat Kereta" value={`${payload.train?.weight} kg`} />
-								<InfoRow label="Line Kereta" value={payload.train_line} />
-								<InfoRow label="Stasiun Mulai" value={payload.route?.start?.name} />
-								<InfoRow label="Stasiun Akhir" value={payload.route?.finish?.name} />
+								<InfoRow label="Nama Modul Pembelajaran" value={payload.module_name} isEllipsisEnabled={isEllipsisEnabled} width="198px"/>
+								<InfoRow label="Jenis Kereta" value={payload?.train_type?.toUpperCase() || ''} isEllipsisEnabled={isEllipsisEnabled} width="198px"/>
+								<InfoRow label="Berat Kereta" value={`${payload.train?.weight} kg`} isEllipsisEnabled={isEllipsisEnabled} width="198px"/>
+								<InfoRow label="Line Kereta" value={payload.train_line} isEllipsisEnabled={isEllipsisEnabled} width="198px"/>
+								<InfoRow label="Stasiun Mulai" value={payload.route?.start?.name} isEllipsisEnabled={isEllipsisEnabled} width="198px"/>
+								<InfoRow label="Stasiun Akhir" value={payload.route?.finish?.name} isEllipsisEnabled={isEllipsisEnabled} width="198px"/>
 							</div>
 							<div className="flex flex-col gap-5">
-								<InfoRow label="Status Hujan" value={payload.weather?.[0]?.value} />
-								<InfoRow label="Waktu" value={`${payload.time}:00`} />
-								<InfoRow label="Jarak Pandang" value={getWeatherDisplayValue(payload.weather?.[1]?.value)} />
-								<InfoRow label="Motion Base" value={payload.motion_base ? "On" : "Off"} />
-								<InfoRow label="Speed Buzzer" value={payload.speed_buzzer ? payload.speed_limit : "Off"} />
+								<InfoRow label="Status Hujan" value={payload.weather?.[0]?.value} isEllipsisEnabled={isEllipsisEnabled} width="96px"/>
+								<InfoRow label="Waktu" value={`${payload.time}:00`} isEllipsisEnabled={isEllipsisEnabled} width="96px"/>
+								<InfoRow label="Jarak Pandang" value={getWeatherDisplayValue(payload.weather?.[1]?.value)} isEllipsisEnabled={isEllipsisEnabled} width="96px"/>
+								<InfoRow label="Motion Base" value={payload.motion_base ? "On" : "Off"} isEllipsisEnabled={isEllipsisEnabled} width="96px"/>
+								<InfoRow label="Speed Buzzer" value={payload.speed_buzzer ? payload.speed_limit : "Off"} isEllipsisEnabled={isEllipsisEnabled} width="96px"/>
 								{currentInstructor.isAdmin && (
 									<div className="flex flex-col gap-2">
 										<span>Edit Konfigurasi:</span>
@@ -619,38 +601,39 @@ const CourseDetail = () => {
 										"&:last-child td, &:last-child th": { border: 0 },
 										}}
 									>
-										<TableCell>{row.title}</TableCell>
+										{/* <TableCell>{row.title}</TableCell> */}
+										<InteractableTableCell content={row.title} isEllipsisEnabled={isEllipsisEnabled} width="335px" textSize="1rem"/>
 										<TableCell>
-										<div className="flex gap-4 justify-end">
-											<Tooltip title="Detail dan Edit Modul Penilaian" placement="top">
-											<IconButton
-												size="small"
-												onClick={() => {
-												setSelected({
-													id: row.id,
-													title: row.title,
-												});
-												navigate(`/Scoring?type=${row.id}&courseID=${courseId}&train=${payload.train_type}&mode=edit`);
-												}}
-											>
-												<Info />
-											</IconButton>
-											</Tooltip>
-											<Tooltip title="Hapus Modul Penilaian" placement="top">
-											<IconButton
-												size="small"
-												onClick={() => {
-												setSelected({
-													id: row.id,
-													title: row.title,
-												});
-												setDeletePrompt(true);
-												}}
-											>
-												<Delete />
-											</IconButton>
-											</Tooltip>
-										</div>
+											<div className="flex gap-4 justify-end">
+												<Tooltip title="Detail dan Edit Modul Penilaian" placement="top">
+												<IconButton
+													size="small"
+													onClick={() => {
+													setSelected({
+														id: row.id,
+														title: row.title,
+													});
+													navigate(`/Scoring?type=${row.id}&courseID=${courseId}&train=${payload.train_type}&mode=edit`);
+													}}
+												>
+													<Info />
+												</IconButton>
+												</Tooltip>
+												<Tooltip title="Hapus Modul Penilaian" placement="top">
+												<IconButton
+													size="small"
+													onClick={() => {
+													setSelected({
+														id: row.id,
+														title: row.title,
+													});
+													setDeletePrompt(true);
+													}}
+												>
+													<Delete />
+												</IconButton>
+												</Tooltip>
+											</div>
 										</TableCell>
 									</TableRow>
 									))}

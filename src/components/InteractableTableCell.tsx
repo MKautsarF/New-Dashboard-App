@@ -4,10 +4,11 @@ import { TableCell, Box, Tooltip, Typography } from '@mui/material';
 interface InteractableTableCellProps {
   content: string;
   isEllipsisEnabled: boolean;
-  width: string | number;  // Tambahkan properti width
+  width: string | number;
+  textSize: string | number;
 }
 
-export function InteractableTableCell({ content, isEllipsisEnabled, width }: InteractableTableCellProps) {
+export function InteractableTableCell({ content, isEllipsisEnabled, width, textSize }: InteractableTableCellProps) {
   const [isEllipsis, setIsEllipsis] = useState(false);
   const [isTooltipOpen, setIsTooltipOpen] = useState(false); 
   const contentRef = useRef<HTMLDivElement>(null);
@@ -32,7 +33,6 @@ export function InteractableTableCell({ content, isEllipsisEnabled, width }: Int
 
   return (
     <TableCell
-      className="text-lg"
       sx={{
         position: 'relative',
         whiteSpace: 'nowrap',
@@ -40,6 +40,7 @@ export function InteractableTableCell({ content, isEllipsisEnabled, width }: Int
         textOverflow: 'ellipsis',
         maxWidth: width,
         cursor: 'default',
+        fontSize: textSize,
       }}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}

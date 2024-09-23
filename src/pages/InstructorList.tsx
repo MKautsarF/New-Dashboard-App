@@ -27,10 +27,8 @@ import {
   CircularProgress,
   IconButton,
   Tooltip,
-  Snackbar,
-  Alert,
 } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Logo from "@/components/Logo";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useMemo } from "react";
@@ -52,8 +50,7 @@ import TraineeDetail from "@/components/TraineeDetail";
 import dayjs, { Dayjs } from "dayjs";
 import { DatePicker } from "@mui/x-date-pickers";
 import { toast } from "react-toastify";
-import { InteractableTableCell } from "@/components/InteractableTableCell";
-import { set } from "lodash";
+import { PasswordDialog } from "@/components/PasswordDIalog";
 
 interface RowData {
   id: string;
@@ -70,8 +67,6 @@ function useQuery() {
 
 const InstructorList = () => {
   const navigate = useNavigate();
-  const { logout } = useAuth();
-  const { settings, setSettings } = useSettings();
 
   const [open, setOpen] = useState(false);
   const [selectedPeserta, setSelectedPeserta] = useState({
@@ -122,10 +117,9 @@ const InstructorList = () => {
   const [newBirthDate, setNewBirthDate] = useState<Dayjs | null>(null);
   const [nameError, setNameError] = useState(false);
   const [nipError, setNipError] = useState(false);
+  const [passwordError, setPasswordError] = useState(false);
 
   const query = useQuery();
-
-  const type = query.get("type");
 
 
   const handleClose = () => {
@@ -197,6 +191,18 @@ const InstructorList = () => {
       setNama(inputValue);
     }
   };
+
+  const handlePasswordChange = (e: any) => {
+    const inputValue = e.target.value;
+
+    if (inputValue.length > 32) {
+      setPasswordError(true);
+      setPassword(inputValue.slice(0, 32));
+    } else {
+      setPasswordError(false);
+      setPassword(inputValue);  
+    }
+	};
 
   const validateRegister = (): boolean => {
     return (
@@ -575,8 +581,6 @@ const InstructorList = () => {
                                 nip: row.nip,
                               });
                               setPasswordPrompt(true);
-
-                              console.log(row.name);
                             }}
                           >
                             <LockReset />
@@ -703,7 +707,7 @@ const InstructorList = () => {
               type={showPassword ? "text" : "password"}
               variant="standard"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={handlePasswordChange}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
@@ -713,6 +717,8 @@ const InstructorList = () => {
                   </InputAdornment>
                 ),
               }}
+              error={passwordError}
+              helperText={passwordError ? "Password maksimal berisi 32 karakter" : ""}
             />
           </div>
           <div className="flex gap-4 items-center">
@@ -776,59 +782,15 @@ const InstructorList = () => {
         </DialogActions>
       </Dialog>
 
-      {/* Change Password prompt */}
-      <Dialog open={passwordPrompt} onClose={() => setPasswordPrompt(false)}>
-        <DialogTitle className="min-w-[360px]">Ubah Password</DialogTitle>
-        <DialogContent className="m-2 justify-center max-w-[360px]">
-          <DialogContentText className="mb-4">
-            {selectedPeserta.name}
-          </DialogContentText>
-          <form id="new-password" onSubmit={handleSubmitPassword}>
-            <TextField
-              label="Password baru"
-              name="password"
-              variant="standard"
-              fullWidth
-              type={showPassword ? "text" : "password"}
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton onClick={() => setShowPassword(!showPassword)}>
-                      {showPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-            />
-          </form>
-        </DialogContent>
-        <DialogActions className="mb-2 flex justify-between">
-          <Button
-            className="mx-2"
-            onClick={() => setPasswordPrompt(false)}
-            color="error"
-          >
-            Batal
-          </Button>
-
-          <Button
-            className="mx-2"
-            type="submit"
-            form="new-password"
-            variant="contained"
-            sx={{
-              color: "#ffffff",
-              backgroundColor: "#1aaffb",
-              "&:hover": {
-                borderColor: "#00a6fb",
-                color: "#ffffff",
-              },
-            }}
-          >
-            Simpan
-          </Button>
-        </DialogActions>
-      </Dialog>
+      {/* Dialog Ubah Password */}
+      {selectedPeserta && (
+        <PasswordDialog
+          passwordPrompt={passwordPrompt}
+          setPasswordPrompt={setPasswordPrompt}
+          selectedPeserta={selectedPeserta}
+          handleSubmitPassword={handleSubmitPassword}
+        />
+      )}
 
       {/* Edit Peserta Prompt */}
       <Dialog open={editPrompt} onClose={() => setEditPrompt(false)} className="p-6">

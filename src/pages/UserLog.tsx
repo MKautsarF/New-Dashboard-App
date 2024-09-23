@@ -743,8 +743,8 @@ const UserLog = () => {
                     </TableCell>
                     <TableCell className='text-lg'>{row.status}</TableCell>
                     <TableCell className="text-lg">{row.train === "KCIC" ? "High Speed Train" : row.train === "LRT" ? "Low Rapid Train" : row.train}</TableCell>
-                    <InteractableTableCell content={row.module} isEllipsisEnabled={isEllipsisEnabled} width="314px"/>
-                    <InteractableTableCell content={row.scoring} isEllipsisEnabled={isEllipsisEnabled} width="318px"/>
+                    <InteractableTableCell content={row.module} isEllipsisEnabled={isEllipsisEnabled} width="314px" textSize="1.125rem"/>
+                    <InteractableTableCell content={row.scoring} isEllipsisEnabled={isEllipsisEnabled} width="318px" textSize="1.125rem"/>
                     <TableCell className='text-lg'>{row.score}</TableCell>
                     <TableCell align='center' className='flex items-center gap-1'>
                       <Button

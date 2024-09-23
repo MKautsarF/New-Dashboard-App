@@ -404,11 +404,11 @@ const SubmissionList = () => {
                         {dayjs(row.date).format('DD MMM YYYY, HH:mm')}
                     </TableCell>
                     <TableCell className='text-lg'>{row.status}</TableCell>
-                    <InteractableTableCell content={row.instructor} isEllipsisEnabled={isEllipsisEnabled} width="150px"/>
-                    <InteractableTableCell content={row.name} isEllipsisEnabled={isEllipsisEnabled} width="150px"/>
+                    <InteractableTableCell content={row.instructor} isEllipsisEnabled={isEllipsisEnabled} width="150px" textSize="1.125rem"/>
+                    <InteractableTableCell content={row.name} isEllipsisEnabled={isEllipsisEnabled} width="150px" textSize="1.125rem"/>
                     <TableCell className="text-lg">{row.train === "KCIC" ? "High Speed Train" : row.train === "LRT" ? "Low Rapid Train" : row.train}</TableCell>
-                    <InteractableTableCell content={row.module} isEllipsisEnabled={isEllipsisEnabled} width="314px"/>
-                    <InteractableTableCell content={row.scoring} isEllipsisEnabled={isEllipsisEnabled} width="318px"/>
+                    <InteractableTableCell content={row.module} isEllipsisEnabled={isEllipsisEnabled} width="314px" textSize="1.125rem"/>
+                    <InteractableTableCell content={row.scoring} isEllipsisEnabled={isEllipsisEnabled} width="318px" textSize="1.125rem"/>
                   </TableRow>
                 ))}
               </TableBody>
