@@ -14,6 +14,7 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
+  Typography
  } from "@mui/material";
  import { currentInstructor, useAuth } from "@/context/auth";
 
@@ -305,6 +306,10 @@ function SettingsSecond() {
                   color: "#00a6fb",
                   backgroundColor: "#ffffff",
                   borderColor: "#00a6fb",
+                  maxWidth: "415px",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
                   "&:hover": {
                     borderColor: "#00a6fb",
                     color: "#ffffff",
@@ -312,7 +317,15 @@ function SettingsSecond() {
                   },
                 }}
               >
-                Lanjut ({payload.module_name})
+                <Typography
+                  sx={{
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  Lanjut ({payload.module_name})
+                </Typography>
               </Button>
             ) : null}
           </div>
