@@ -5,7 +5,7 @@ import services from ".";
 
 export const getCourseByInstructor = async (page: number, size: number, title: string = '', description: string = '') => {  
   const res = await services.get(`/instructor/course?page=${page}&size=${size}${
-    title === '' ? '' : `&title:likeLower=${title}`}${ description === '' ? '' : `&description:likeLower=${description}`}`);
+    title === '' ? '' : `&title:likeLower=%${title}%`}${ description === '' ? '' : `&description:likeLower=%${description}%`}`);
 
   return res.data;
 };
@@ -26,7 +26,7 @@ export const getAllCourseByInstructor = async (
     while (filteredData.length < size) {
       const res = await services.get(
         `/instructor/course?page=${fetchpage}&size=${size}${
-          title ? `&title:likeLower=${title}` : ''
+          title ? `&title:likeLower=%${title}%` : ''
         }${description ? `&description:likeLower=${description}` : ''}`
       );
       total = res.data.total - 1;
@@ -112,7 +112,7 @@ export const getCourseListbyAdmin = async (
     while (filteredData.length < size) {
     const res = await services.get(
       `/admin/course?page=${fetchpage}&size=${size}${
-        title ? `&title:likeLower=${title}` : ''
+        title ? `&title:likeLower=%${title}%` : ''
       }${description ? `&description:likeLower=${description}` : ''}`
     );
     total = res.data.total - 1;

@@ -19,7 +19,7 @@ export const getUsers = async (
 ) => {
   const res = await services.get(
     `/instructor/user-account?page=${page}&size=${size}&isActive=true${
-      nip_query === '' ? '' : `&username:likeLower=${nip_query}`
+      nip_query === '' ? '' : `&username:likeLower=%${nip_query}%`
     }`
   );
 
@@ -33,7 +33,7 @@ export const getUsersDatabase = async (
 ) => {
   const res = await services.get(
     `/instructor/user-account?page=${page}&size=${size}&isActive=true${
-      nip_query === '' ? '' : `&username:likeLower=${nip_query}`
+      nip_query === '' ? '' : `&username:likeLower=%${nip_query}%`
     }`
   );
 
@@ -70,7 +70,7 @@ export const getUsersAsAdmin = async (
 ) => {
   const res = await services.get(
     `/admin/user-account/scope/trainee?page=${page}&size=${size}&isActive=true${
-      nip_query === '' ? '' : `&bio.officialCode=${nip_query}`
+      nip_query === '' ? '' : `&bio.officialCode:likeLower=%${nip_query}%`
     }`
   );
 
@@ -86,7 +86,7 @@ export const getInstructorList = async (
   try {
     const res = await services.get(
       `/admin/user-account/scope/instructor?page=${page}&size=${size}&isActive=true${
-        nip_query === '' ? '' : `&bio.identityNumber=${nip_query}`
+        nip_query === '' ? '' : `&bio.identityNumber:likeLower=%${nip_query}%`
       }`
     );
     console.log('Response data:', res.data);
