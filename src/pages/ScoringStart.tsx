@@ -229,7 +229,7 @@ function ScoringStart() {
               Modul Penilaian {trainType === "kcic" ? "High Speed Train" : trainType === "lrt" ? "Low Rapid Train" : trainType}
             </h1>
             <p style={{ fontSize: "1.25rem" }}>
-              Pilih pembelajaran kereta yang akan digunakan:
+              Pilih modul penilaian yang akan digunakan:
             </p>
           </div>
 

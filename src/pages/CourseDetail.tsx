@@ -511,7 +511,7 @@ const CourseDetail = () => {
 						<div className='flex flex-row gap-10'>
 							<div className="flex flex-col gap-5">
 								<InfoRow label="Nama Modul Pembelajaran" value={payload.module_name} isEllipsisEnabled={isEllipsisEnabled} width="198px"/>
-								<InfoRow label="Jenis Kereta" value={payload?.train_type?.toUpperCase() || ''} isEllipsisEnabled={isEllipsisEnabled} width="198px"/>
+								<InfoRow label="Jenis Kereta" value={payload?.train_type?.toUpperCase() === "KCIC" ? "High Speed Train" : payload?.train_type?.toUpperCase() === "LRT" ? "Low Rapid Train" : payload?.train_type?.toUpperCase()} isEllipsisEnabled={isEllipsisEnabled} width="198px"/>
 								<InfoRow label="Berat Kereta" value={`${payload.train?.weight} kg`} isEllipsisEnabled={isEllipsisEnabled} width="198px"/>
 								<InfoRow label="Line Kereta" value={payload.train_line} isEllipsisEnabled={isEllipsisEnabled} width="198px"/>
 								<InfoRow label="Stasiun Mulai" value={payload.route?.start?.name} isEllipsisEnabled={isEllipsisEnabled} width="198px"/>
