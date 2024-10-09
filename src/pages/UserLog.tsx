@@ -1,6 +1,6 @@
 import FullPageLoading from "@/components/FullPageLoading";
 import { useMemo, useRef } from "react";
-import { getUsers } from "@/services/user.services";
+import { getUserByIdAdmin, getUsers } from "@/services/user.services";
 import {
   Box,
   Button,
@@ -21,6 +21,10 @@ import {
   Tab,
   Tabs,
   Tooltip,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
 } from "@mui/material";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
@@ -30,6 +34,8 @@ import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { currentPeserta } from "@/context/auth";
 import {
+  deleteSubmissionAll,
+  deleteSubmissionById,
   getSubmissionById,
   getSubmissionList,
   getSubmissionLogByFileIndex,
@@ -48,9 +54,13 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
 import TaskAltIcon from "@mui/icons-material/TaskAlt";
 import { getUserById } from "@/services/user.services";
-import { getCourseByInstructor } from "@/services/course.services";
+import {
+  getCourseByAdmin,
+  getCourseByInstructor,
+} from "@/services/course.services";
 import * as XLSX from "xlsx";
 import ExcelGrid from "@/components/ExcelGrid";
+import { toast } from "react-toastify";
 
 interface RowData {
   id: any;
@@ -99,7 +109,7 @@ const UserLog = () => {
   const query = useQuery();
   const navigate = useNavigate();
   const userId = query.get("id");
-
+  console.log("userId", userId);
   //temporary
   const videopath = "";
 
@@ -110,7 +120,7 @@ const UserLog = () => {
   const [rows, setRows] = useState<RowData[]>([]);
   const [totalData, setTotalData] = useState(0);
   const [page, setPage] = useState(1);
-
+  const [reload, setReload] = useState(false);
   const [activeDiagramTab, setActiveDiagramTab] = useState(0);
   const [kcicDiagramData, setKCICDiagramData] = useState<any[]>([]);
   const [lrtDiagramData, setLrtDiagramData] = useState<any[]>([]);
@@ -170,7 +180,11 @@ const UserLog = () => {
 
   const fetchSubmissionData = async () => {
     try {
+      console.log("TES", userId);
+      console.log("TES", dateSort);
+      console.log("TES", trainSort);
       const response = await getSubmissionList(userId, dateSort, trainSort);
+      console.log("TES1", userId);
       setSubmissionList(response.results);
     } catch (error) {
       console.error("Error fetching submission data:", error);
@@ -224,6 +238,7 @@ const UserLog = () => {
 
   useEffect(() => {
     fetchCourseData();
+    console.log("User ID", userId);
     if (userId) {
       fetchSubmissionData();
     }
@@ -305,8 +320,10 @@ const UserLog = () => {
 
   const [userLog, setUserLog] = useState<UserLog | null>(null);
   const [submissionId, setSubmissionId] = useState(null);
+  const [submissionName, setSubmissionName] = useState("");
 
-  const [modalOpen, setModalOpen] = useState(false);
+  const [modalDeleteOpen, setModalDeleteOpen] = useState(false);
+  const [modalDeleteAllOpen, setModalDeleteAllOpen] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [url, setUrl] = useState<string>("");
   const [pdf, setPdf] = useState<any>(null);
@@ -535,6 +552,39 @@ const UserLog = () => {
   };
   const [getSubmission, setGetSubmission] = useState(false);
 
+  const handleDelete = async (id: number) => {
+    try {
+      console.log("submissionId", submissionId);
+      await deleteSubmissionById(id);
+      setModalDeleteOpen(false);
+      setReload(!reload);
+    } catch (error) {
+      console.error("Failed to publish the course:", error);
+      toast.error(
+        "Gagal menghapus modul karena modul ini memiliki modul penilaian",
+        {
+          position: "top-center",
+        }
+      );
+    }
+  };
+
+  const handleDeleteAll = async () => {
+    try {
+      await deleteSubmissionAll(userId);
+      setModalDeleteAllOpen(false);
+      setReload(!reload);
+    } catch (error) {
+      console.error("Failed to publish the course:", error);
+      toast.error(
+        "Gagal menghapus modul karena modul ini memiliki modul penilaian",
+        {
+          position: "top-center",
+        }
+      );
+    }
+  };
+
   useEffect(() => {
     const fetchUserLog = async () => {
       setIsLoading(true);
@@ -559,6 +609,7 @@ const UserLog = () => {
         }));
 
         setRows(resRows);
+        console.log(resRows);
         setGetSubmission(true);
       } catch (error) {
         console.error("Error fetching user log:", error);
@@ -570,7 +621,7 @@ const UserLog = () => {
     if (userId) {
       fetchUserLog();
     }
-  }, [userId, dateSort, trainSort]);
+  }, [userId, reload, dateSort, trainSort]);
 
   useEffect(() => {
     if (getSubmission) {
@@ -582,7 +633,7 @@ const UserLog = () => {
       });
       setGetSubmission(false);
     }
-  }, [getSubmission]);
+  }, [reload, getSubmission]);
 
   const userInfo = [
     { label: "Nama", value: userLog?.name },
@@ -599,9 +650,50 @@ const UserLog = () => {
   return (
     <Container w={1500} h={875}>
       <div className="flex flex-col p-6 h-full">
+        <Dialog open={modalDeleteAllOpen}>
+          <DialogTitle className="px-6 pt-6">
+            HAPUS SEMUA LOG PESERTA
+          </DialogTitle>
+          <DialogContent className="w-[600px] px-6">
+            <DialogContentText>
+              Semua log peserta akan dihapuskan
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions className="px-6 pb-4">
+            <Button
+              onClick={() => setModalDeleteAllOpen(false)}
+              color="primary"
+            >
+              Kembali
+            </Button>
+            <Button onClick={() => handleDeleteAll()} color="error">
+              Hapus
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        <Dialog
+          open={modalDeleteOpen}
+          // onSubmit={() => handleDelete(submissionId)}
+        >
+          <DialogTitle className="px-6 pt-6">HAPUS LOG PESERTA</DialogTitle>
+          <DialogContent className="w-[600px] px-6">
+            <DialogContentText>
+              Log modul {submissionName} akan dihapus
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions className="px-6 pb-4">
+            <Button onClick={() => setModalDeleteOpen(false)} color="primary">
+              Kembali
+            </Button>
+            <Button onClick={() => handleDelete(submissionId)} color="error">
+              Hapus
+            </Button>
+          </DialogActions>
+        </Dialog>
         <h1 className="w-full text-center mb-2">Log Peserta</h1>
         <Box component="form" className="grid gap-4 w-full mb-2">
-          <div className="title grid grid-cols-4 gap-4">
+          <div className="title grid grid-cols-5 gap-4">
             {userInfo.map((info: any, index: any) => (
               <Tooltip
                 key={index}
@@ -621,6 +713,18 @@ const UserLog = () => {
                 </Typography>
               </Tooltip>
             ))}
+            <div className="text-right">
+              <Button
+                className="w-fit"
+                variant="contained"
+                color="error"
+                onClick={() => {
+                  setModalDeleteAllOpen(true);
+                }}
+              >
+                DELETE ALL
+              </Button>
+            </div>
           </div>
         </Box>
 
@@ -840,6 +944,7 @@ const UserLog = () => {
                 <TableCell className="text-lg font-bold">Nilai </TableCell>
                 <TableCell className="text-lg font-bold">Hasil</TableCell>
                 <TableCell className="text-lg font-bold">Replay</TableCell>
+                <TableCell className="text-lg font-bold">Action</TableCell>
               </TableRow>
             </TableHead>
             {isLoading ? (
@@ -881,7 +986,7 @@ const UserLog = () => {
                     <TableCell className="text-lg">{row.score}</TableCell>
                     <TableCell
                       align="center"
-                      className="flex items-center gap-1"
+                      className="flex items-center gap-1 py-6"
                     >
                       <Button
                         type="button"
@@ -935,6 +1040,20 @@ const UserLog = () => {
                         </MenuItem>
                         <MenuItem>Download</MenuItem>
                       </Menu>
+                    </TableCell>
+                    <TableCell align="center">
+                      <Button
+                        variant="outlined"
+                        color="error"
+                        className="w-[60px]"
+                        onClick={() => {
+                          setModalDeleteOpen(true);
+                          setSubmissionId(row.id);
+                          setSubmissionName(row.module);
+                        }}
+                      >
+                        DELETE
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))}
