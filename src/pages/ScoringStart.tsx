@@ -9,8 +9,11 @@ import ButtonSettings from "@/components/ButtonSettings";
 import { getCourseByInstructor } from "@/services/course.services";
 import { createSubmission } from "@/services/submission.services";
 import { getCourseDetailByInstructor } from "@/services/course.services";
-import { getScoringByCourseInstructor, getScoringByInstructor } from "@/services/scoring.services";
-import FirstPageIcon from '@mui/icons-material/FirstPage';
+import {
+  getScoringByCourseInstructor,
+  getScoringByInstructor,
+} from "@/services/scoring.services";
+import FirstPageIcon from "@mui/icons-material/FirstPage";
 import { set } from "lodash";
 
 function useQuery() {
@@ -45,20 +48,20 @@ function ScoringStart() {
     navigate(-1);
   };
 
-
   const handleClick = (buttonName: string) => {
     console.log(`Currently pressed: ${buttonName}`);
-  
-    const selectedCourse = coursesData.find((course: any) => course.id === buttonName);
+
+    const selectedCourse = coursesData.find(
+      (course: any) => course.id === buttonName
+    );
     setSelectedCourse(selectedCourse || null);
-  
-    if (checkedButton == buttonName){
-        setCheckedButton(null)
+
+    if (checkedButton == buttonName) {
+      setCheckedButton(null);
+    } else {
+      setCheckedButton(buttonName);
     }
-      else{
-        setCheckedButton(buttonName);
-      }
-      setSelectedValue3(buttonName);
+    setSelectedValue3(buttonName);
   };
 
   useEffect(() => {
@@ -67,7 +70,7 @@ function ScoringStart() {
         let results;
         if (fromEksplorasi) {
           results = await getScoringByInstructor(trainType);
-          console.log("traintype", trainType)
+          console.log("traintype", trainType);
           console.log("results", results);
         } else {
           results = await getScoringByCourseInstructor(courseID, 1, 100);
@@ -77,29 +80,32 @@ function ScoringStart() {
         console.error("Failed to fetch course data:", error);
       }
     };
-  
+
     fetchData();
-  }, []); 
+  }, []);
 
   const [submission, setSubmission] = useState<any>({});
 
   type StationMapping = {
     [key: string]: string;
   };
-  
+
   const stationMapping: StationMapping = {
-    "Tegalluar": "Tegal Luar",
+    Tegalluar: "Tegal Luar",
     "Joint Workshop Tegalluar": "Tegal Luar Depot",
-    "Karawang": "Karawang",
-    "Padalarang": "Padalarang",
-    "Halim": "Halim",
+    Karawang: "Karawang",
+    Padalarang: "Padalarang",
+    Halim: "Halim",
   };
-  
-  const getPayloadStationName = (displayName: any) => Object.keys(stationMapping).find(key => stationMapping[key] === displayName) || displayName;
+
+  const getPayloadStationName = (displayName: any) =>
+    Object.keys(stationMapping).find(
+      (key) => stationMapping[key] === displayName
+    ) || displayName;
 
   const getPayloadExploration = () => {
     const rangkaianKereta = "6 Rangkaian";
-    const selectedPesertaId = localStorage.getItem('selectedPesertaId');
+    const selectedPesertaId = localStorage.getItem("selectedPesertaId");
     const payload = {
       id_user: selectedPesertaId,
       train_type: trainType.toUpperCase(),
@@ -140,11 +146,11 @@ function ScoringStart() {
   };
   useEffect(() => {
     const fetchPayload = async () => {
-      const selectedPesertaId = localStorage.getItem('selectedPesertaId');
-      const selectedPesertaName = localStorage.getItem('selectedPesertaName');
-      const instructorName = localStorage.getItem('instructorName');
-      const moduleName = localStorage.getItem('moduleName');
-      
+      const selectedPesertaId = localStorage.getItem("selectedPesertaId");
+      const selectedPesertaName = localStorage.getItem("selectedPesertaName");
+      const instructorName = localStorage.getItem("instructorName");
+      const moduleName = localStorage.getItem("moduleName");
+
       if (selectedCourse && selectedCourse.id) {
         try {
           let payloadData;
@@ -156,12 +162,12 @@ function ScoringStart() {
           // add scoring name in payloadData
           payloadData.scoring_name = selectedCourse.title;
           const payloadS = {
-            owner : selectedPesertaId,
-            objectType : trainType.toLocaleUpperCase(), 
-            courseId : courseID,
-            courseExamId : selectedCourse.id,
-            setting : payloadData
-          }
+            owner: selectedPesertaId,
+            objectType: trainType.toLocaleUpperCase(),
+            courseId: courseID,
+            courseExamId: selectedCourse.id,
+            setting: payloadData,
+          };
           if (fromEksplorasi) {
             payloadS.setting.module_name = "Eksplorasi";
           } else {
@@ -187,25 +193,24 @@ function ScoringStart() {
     fetchPayload();
   }, [selectedCourse]);
 
-
   useEffect(() => {
     console.log("Payload updated:", payload);
   }, [payload]);
 
   useEffect(() => {
     console.log("coursesData updated:", coursesData);
-  }
-  , [coursesData]);
+  }, [coursesData]);
 
   const handleStart = async () => {
     try {
-
       const res = await createSubmission(submissionPayload);
       console.log("Submission created:", res.id);
       setSubmission(res);
       // communication to unreal engine
       sendTextToClients(JSON.stringify(submissionPayload.setting, null, 2));
-      navigate(`/FifthPage/review?type=${settings.score}&submissionId=${res.id}&scoringId=${selectedCourse.id}&courseId=${courseID}&trainType=${trainType}`);
+      navigate(
+        `/FifthPage/review?type=${settings.score}&submissionId=${res.id}&scoringId=${selectedCourse.id}&courseId=${courseID}&trainType=${trainType}`
+      );
     } catch (error) {
       console.error(error);
     } finally {
@@ -216,7 +221,7 @@ function ScoringStart() {
 
   const handleNewScoring = async () => {
     // navigate(`/courselist?&type=${trainType}`);
-    navigate(`/scoringlist/coursedetail?id=${courseID}&type=${trainType}`)
+    navigate(`/scoringlist/coursedetail?id=${courseID}&type=${trainType}`);
   };
 
   return (
@@ -226,7 +231,12 @@ function ScoringStart() {
           <div className="flex flex-col text-left gap-4 p-6 ">
             <h1 style={{ fontSize: "1.75rem", fontWeight: "bold" }}>
               {/* Modul Penilaian {trainType === "kcic" ? "Kereta Cepat" : trainType.toUpperCase()} */}
-              Modul Penilaian {trainType === "kcic" ? "High Speed Train" : trainType === "lrt" ? "Low Rapid Train" : trainType}
+              Modul Penilaian{" "}
+              {trainType === "kcic"
+                ? "High Speed Train"
+                : trainType === "lrt"
+                ? "Light Rail Transit"
+                : trainType}
             </h1>
             <p style={{ fontSize: "1.25rem" }}>
               Pilih modul penilaian yang akan digunakan:
@@ -247,26 +257,26 @@ function ScoringStart() {
               ))
             ) : (
               <div className="w-full h-[400px] flex flex-col items-center justify-center">
-                  <p>Belum ada modul, silahkan buat modul penilaian baru.</p>
-                  <Button
-                    type="button"
-                    variant="outlined"
-                    className="mt-6"
-                    onClick={handleNewScoring}
-                    sx={{
-											color: "#ffffff",
-											backgroundColor: "#00a6fb",
-											borderColor: "#00a6fb",
-											"&:hover": {
-												borderColor: "#1aaffb",
-												color: "#ffffff",
-												backgroundColor: "#1aaffb",
-											},
-										}}
-                  >
-                    Buat Baru
-                  </Button>
-                </div>
+                <p>Belum ada modul, silahkan buat modul penilaian baru.</p>
+                <Button
+                  type="button"
+                  variant="outlined"
+                  className="mt-6"
+                  onClick={handleNewScoring}
+                  sx={{
+                    color: "#ffffff",
+                    backgroundColor: "#00a6fb",
+                    borderColor: "#00a6fb",
+                    "&:hover": {
+                      borderColor: "#1aaffb",
+                      color: "#ffffff",
+                      backgroundColor: "#1aaffb",
+                    },
+                  }}
+                >
+                  Buat Baru
+                </Button>
+              </div>
             )}
           </div>
         </div>
@@ -293,7 +303,8 @@ function ScoringStart() {
                 navigate("/SecondPage");
               }}
             >
-              <FirstPageIcon className="mr-2 ml-[-2px] text-xl text-opacity-80"/> Kembali ke Menu
+              <FirstPageIcon className="mr-2 ml-[-2px] text-xl text-opacity-80" />{" "}
+              Kembali ke Menu
             </Button>
             <Button
               type="button"

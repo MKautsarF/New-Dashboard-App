@@ -1,8 +1,4 @@
-import {
-  Delete,
-  Info,
-  BookmarkAdd,
-} from "@mui/icons-material";
+import { Delete, Info, BookmarkAdd } from "@mui/icons-material";
 import "pickerjs/dist/picker.css";
 import {
   Box,
@@ -28,20 +24,25 @@ import { useNavigate } from "react-router-dom";
 import Container from "@/components/Container";
 import SearchIcon from "@mui/icons-material/Search";
 import InputAdornment from "@mui/material/InputAdornment";
-import {currentInstructor } from "@/context/auth";
+import { currentInstructor } from "@/context/auth";
 import {
   getCourseListbyAdmin,
-  getCourseDetail
+  getCourseDetail,
 } from "@/services/course.services";
 import FullPageLoading from "@/components/FullPageLoading";
-import { createCourseAsAdmin, publishCourseAsAdmin, deleteCourseAsAdmin, createCourseAsInstructor } from "@/services/course.services";
+import {
+  createCourseAsAdmin,
+  publishCourseAsAdmin,
+  deleteCourseAsAdmin,
+  createCourseAsInstructor,
+} from "@/services/course.services";
 import { getCourseByInstructor } from "@/services/course.services";
 import fs from "fs";
-import { toast } from 'react-toastify';
+import { toast } from "react-toastify";
 import { useLocation } from "react-router-dom";
 import { useMemo } from "react";
-import ModulDialog  from "@/components/ModulDialog";
-import dayjs from 'dayjs';
+import ModulDialog from "@/components/ModulDialog";
+import dayjs from "dayjs";
 import { InteractableTableCell } from "@/components/InteractableTableCell";
 
 interface RowData {
@@ -61,7 +62,7 @@ const CourseList = () => {
   const navigate = useNavigate();
 
   const sourceSettingsPath = "src/config/settings_train.json";
-	// const sourceSettingsPath = "C:/Train Simulator/Data/settings_train.json";
+  // const sourceSettingsPath = "C:/Train Simulator/Data/settings_train.json";
   const sourceSettingsRead = fs.readFileSync(sourceSettingsPath, "utf-8");
   const sourceSettings = JSON.parse(sourceSettingsRead);
 
@@ -71,27 +72,34 @@ const CourseList = () => {
   type StationMapping = {
     [key: string]: string;
   };
-  
+
   const stationMapping: StationMapping = {
-    "Tegalluar": "Tegal Luar",
+    Tegalluar: "Tegal Luar",
     "Joint Workshop Tegalluar": "Tegal Luar Depot",
-    "Karawang": "Karawang",
-    "Padalarang": "Padalarang",
-    "Halim": "Halim",
+    Karawang: "Karawang",
+    Padalarang: "Padalarang",
+    Halim: "Halim",
   };
 
-  const getDisplayStationName = (station: any) => stationMapping[station] || station;
-  const getPayloadStationName = (displayName: any) => Object.keys(stationMapping).find(key => stationMapping[key] === displayName) || displayName;
+  const getDisplayStationName = (station: any) =>
+    stationMapping[station] || station;
+  const getPayloadStationName = (displayName: any) =>
+    Object.keys(stationMapping).find(
+      (key) => stationMapping[key] === displayName
+    ) || displayName;
 
   const [open, setOpen] = useState(false);
-  const [mode, setMode] = useState<'add' | 'edit'>('add');
+  const [mode, setMode] = useState<"add" | "edit">("add");
 
   const handleClose = () => {
     setOpen(false);
   };
 
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedModul, setSelectedModul] = useState<{ id: string | null; title: string | null }>({
+  const [selectedModul, setSelectedModul] = useState<{
+    id: string | null;
+    title: string | null;
+  }>({
     id: null,
     title: null,
   });
@@ -103,7 +111,7 @@ const CourseList = () => {
   const [totalData, setTotalData] = useState(0);
   const [page, setPage] = useState(1);
   const [payload, setPayload] = useState<any>({});
-  
+
   const [moduleName, setModuleName] = useState("");
   const [train, setTrain] = useState("");
   const [trainLine, setTrainLine] = useState("");
@@ -121,37 +129,48 @@ const CourseList = () => {
   const [motionBase, setMotionBase] = useState(false);
   const [speedBuzzer, setSpeedBuzzer] = useState(false);
   const [speedLimit, setSpeedLimit] = useState("");
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [isAddButtonEnabled, setIsAddButtonEnabled] = useState(false);
   const [isEllipsisEnabled, setIsEllipsisEnabled] = useState(true);
 
   const resetForm = () => {
-    setModuleName('');
-    setTrain('');
-    setTrainWeight('');
-    setTrainLine('');
-    setStartStation('');
-    setFinishStation('');
-    setRainStatus('');
+    setModuleName("");
+    setTrain("");
+    setTrainWeight("");
+    setTrainLine("");
+    setStartStation("");
+    setFinishStation("");
+    setRainStatus("");
     setTime(null);
     setMotionBase(false);
     setSpeedBuzzer(false);
-    setSpeedLimit('');
+    setSpeedLimit("");
     setFog(0);
   };
 
   const handleSliderChange = (event: Event, newValue: number | number[]) => {
-    if (typeof newValue === 'number') {
+    if (typeof newValue === "number") {
       const fogDistance =
-        newValue >= 0.5 ? Math.round(Math.pow(newValue / 100, -0.914) * 50.6) : 0;
+        newValue >= 0.5
+          ? Math.round(Math.pow(newValue / 100, -0.914) * 50.6)
+          : 0;
       setFog(Math.round(newValue));
       setJarakPandang(fogDistance);
     }
   };
-  
 
   const validateForm = () => {
-    if (!moduleName || !train || !trainWeight || !trainLine || !startStation || !finishStation || !rainStatus || !time || (speedBuzzer && !speedLimit)) {
+    if (
+      !moduleName ||
+      !train ||
+      !trainWeight ||
+      !trainLine ||
+      !startStation ||
+      !finishStation ||
+      !rainStatus ||
+      !time ||
+      (speedBuzzer && !speedLimit)
+    ) {
       setIsAddButtonEnabled(false);
     } else {
       setIsAddButtonEnabled(true);
@@ -160,7 +179,18 @@ const CourseList = () => {
 
   useEffect(() => {
     validateForm();
-  }, [moduleName, train, trainWeight, trainLine, startStation, finishStation, rainStatus, time, speedLimit, speedBuzzer]);
+  }, [
+    moduleName,
+    train,
+    trainWeight,
+    trainLine,
+    startStation,
+    finishStation,
+    rainStatus,
+    time,
+    speedLimit,
+    speedBuzzer,
+  ]);
 
   const handleMotionBaseChange = (event: any) => {
     setMotionBase(event.target.checked);
@@ -169,31 +199,30 @@ const CourseList = () => {
 
   const handleSpeedBuzzerChange = (event: any) => {
     setSpeedBuzzer(event.target.checked);
-    setSpeedLimit(''); // Reset speedLimit when speedBuzzer changes
+    setSpeedLimit(""); // Reset speedLimit when speedBuzzer changes
     validateForm();
   };
 
   const handleSpeedLimitChange = (event: any) => {
     setSpeedLimit(event.target.value);
     // Validate speed limit if speed buzzer is checked
-    if (speedBuzzer && event.target.value.trim() === '') {
-      setError('Speed limit perlu diisi ketika speed buzzer terceklis');
+    if (speedBuzzer && event.target.value.trim() === "") {
+      setError("Speed limit perlu diisi ketika speed buzzer terceklis");
     } else {
-      setError('');
+      setError("");
     }
   };
 
   const handleWeightChange = (event: any) => {
-		setTrainWeight(event.target.value);
-	};
+    setTrainWeight(event.target.value);
+  };
 
   useEffect(() => {
     if (!speedBuzzer) {
       // Hapus pesan error jika speedBuzzer tidak diceklis
-      setError('');
+      setError("");
     }
   }, [speedBuzzer]);
-
 
   const [deletePrompt, setDeletePrompt] = useState(false);
   const [configPrompt, setConfigPrompt] = useState(false);
@@ -204,87 +233,88 @@ const CourseList = () => {
 
   const [editPrompt, setEditPrompt] = useState(false);
 
-
   const toggleEdit = () => {
-    setOpen(!open)
-  }
-  
+    setOpen(!open);
+  };
+
   const formatTimeToHour = (time: dayjs.Dayjs | null) => {
-    if (time && typeof time.format === 'function') {
-      return time.format('HH'); // Extract the hour in 'HH' format
+    if (time && typeof time.format === "function") {
+      return time.format("HH"); // Extract the hour in 'HH' format
     }
-    return ''; // Return an empty string or a default value if time is null
+    return ""; // Return an empty string or a default value if time is null
   };
 
   const collectDataAndPrepareFormData = async () => {
     // Determine the description
     const description = train.toUpperCase();
-  
+
     // Prepare the data object
     const data = {
       module_name: moduleName,
       train_type: train,
       train: {
         weight: trainWeight,
-        type: "6 Rangkaian"
+        type: "6 Rangkaian",
       },
       time: formatTimeToHour(time),
       weather: [
         {
           value: rainStatus,
           location: [0, 0],
-          name: "rain"
+          name: "rain",
         },
         {
           value: fog,
           location: [0, 0],
-          name: "fog"
-        }
+          name: "fog",
+        },
       ],
       train_line: trainLine,
       route: {
         start: {
-          name: getPayloadStationName(startStation)
+          name: getPayloadStationName(startStation),
         },
         finish: {
-          name: getPayloadStationName(finishStation)
-        }
+          name: getPayloadStationName(finishStation),
+        },
       },
       motion_base: motionBase,
       speed_buzzer: speedBuzzer,
       speed_limit: speedLimit,
-      status: "play"
+      status: "play",
     };
-  
+
     // Prepare the form data
     const formData = new FormData();
-    formData.append('file', new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }), 'data.json');
-    formData.append('title', moduleName);
-    formData.append('description', description);
-  
-    return formData;
-  };  
+    formData.append(
+      "file",
+      new Blob([JSON.stringify(data, null, 2)], { type: "application/json" }),
+      "data.json"
+    );
+    formData.append("title", moduleName);
+    formData.append("description", description);
 
+    return formData;
+  };
 
   const handleDaftar = () => {
-    setMode('add');
+    setMode("add");
     setOpen(true);
   };
 
   const handleKembali = () => {
     if (currentInstructor.isAdmin) navigate("/admin");
-    else
-      navigate("/SecondPage");
-    };
+    else navigate("/SecondPage");
+  };
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage + 1);
-  };  
-  
+  };
+
   const handleRegister = async () => {
     try {
       const formData = await collectDataAndPrepareFormData();
-      
+
       let response;
       if (currentInstructor.isAdmin) {
         const response = await createCourseAsAdmin(formData);
@@ -299,7 +329,9 @@ const CourseList = () => {
       console.error("Upload failed", error);
     }
   };
-  const [pageExclusions, setPageExclusions] = useState<{ [page: number]: Set<number> }>({0: new Set()});
+  const [pageExclusions, setPageExclusions] = useState<{
+    [page: number]: Set<number>;
+  }>({ 0: new Set() });
 
   useEffect(() => {
     async function getRows(page: number) {
@@ -309,15 +341,21 @@ const CourseList = () => {
           results: [] as any,
           total: 0,
         };
-        
+
         if (currentInstructor.isAdmin) {
-          const response = await getCourseListbyAdmin(page, 5, '', '', pageExclusions);
+          const response = await getCourseListbyAdmin(
+            page,
+            5,
+            "",
+            "",
+            pageExclusions
+          );
           res.results = response.results;
           res.total = response.total;
           setPageExclusions(response.pageExclusion);
         } else {
-          console.log("trainType", trainType)
-          const response = await getCourseByInstructor(page, 5, '', trainType);
+          console.log("trainType", trainType);
+          const response = await getCourseByInstructor(page, 5, "", trainType);
           res.results = response.results;
           res.total = response.total;
         }
@@ -336,10 +374,9 @@ const CourseList = () => {
         setIsLoading(false);
       }
     }
-    console.log("now", currentInstructor)
+    console.log("now", currentInstructor);
     getRows(page);
   }, [page, reload, trainType]);
-  
 
   useEffect(() => {
     const fetchPayload = async () => {
@@ -369,14 +406,16 @@ const CourseList = () => {
     }
   };
 
-
   const handleDelete = async (id: string) => {
     try {
       await deleteCourseAsAdmin(id);
       setReload(!reload);
     } catch (error) {
       console.error("Failed to publish the course:", error);
-      toast.error("Gagal menghapus modul karena modul ini memiliki modul penilaian", { position: 'top-center' });
+      toast.error(
+        "Gagal menghapus modul karena modul ini memiliki modul penilaian",
+        { position: "top-center" }
+      );
     }
   };
 
@@ -389,10 +428,16 @@ const CourseList = () => {
         results: [] as any,
         total: 0,
       };
-      setPageExclusions({0: new Set()});
-      
+      setPageExclusions({ 0: new Set() });
+
       if (currentInstructor.isAdmin) {
-        const response = await getCourseListbyAdmin(1, 5, query, '', pageExclusions);
+        const response = await getCourseListbyAdmin(
+          1,
+          5,
+          query,
+          "",
+          pageExclusions
+        );
         res.results = response.results;
         res.total = response.total;
         setPageExclusions(response.pageExclusion);
@@ -417,43 +462,52 @@ const CourseList = () => {
     }
   };
 
-
   useEffect(() => {
-    if (mode === 'edit' && payload) {
-      setModuleName(payload.module_name || '');
-      
+    if (mode === "edit" && payload) {
+      setModuleName(payload.module_name || "");
+
       // Set train-related states
-      setTrain(payload.train_type || '');
-      setTrainWeight(payload.train?.weight || '');
-      setTrainLine(payload.train_line || '');
-      
+      setTrain(payload.train_type || "");
+      setTrainWeight(payload.train?.weight || "");
+      setTrainLine(payload.train_line || "");
+
       // Set start and finish stations based on the rute structure
-      setStartStation(payload.route?.start?.name || '');
-      setFinishStation(payload.route?.finish?.name || '');
-      
+      setStartStation(payload.route?.start?.name || "");
+      setFinishStation(payload.route?.finish?.name || "");
+
       // Other settings
-      setRainStatus(payload.weather?.find((item: { name: string, value: string | number }) => item.name === 'rain')?.value || '');
-      setFog(payload.weather?.find((item: { name: string, value: string | number }) => item.name === 'fog')?.value || 0);
-      
+      setRainStatus(
+        payload.weather?.find(
+          (item: { name: string; value: string | number }) =>
+            item.name === "rain"
+        )?.value || ""
+      );
+      setFog(
+        payload.weather?.find(
+          (item: { name: string; value: string | number }) =>
+            item.name === "fog"
+        )?.value || 0
+      );
+
       setTime(payload.time || null);
       setMotionBase(payload.motion_base || false);
       setSpeedBuzzer(payload.speed_buzzer || false);
-      setSpeedLimit(payload.speed_limit || '');
+      setSpeedLimit(payload.speed_limit || "");
       setJarakPandang(payload.jarak_pandang || 0);
     } else {
       // Reset fields for adding new module
-      setModuleName('');
-      setTrain('');
-      setTrainWeight('');
-      setTrainLine('');
-      setStartStation('');
-      setFinishStation('');
-      setRainStatus('');
+      setModuleName("");
+      setTrain("");
+      setTrainWeight("");
+      setTrainLine("");
+      setStartStation("");
+      setFinishStation("");
+      setRainStatus("");
       setFog(0);
       setTime(null);
       setMotionBase(false);
       setSpeedBuzzer(false);
-      setSpeedLimit('');
+      setSpeedLimit("");
       setJarakPandang(0);
     }
   }, [mode, payload]);
@@ -465,18 +519,22 @@ const CourseList = () => {
       setTrainLines([]);
     }
   }, [train]);
-  
+
   useEffect(() => {
     if (train && trainLine) {
-      setStartStations(Object.keys(sourceSettings[train]?.rute[trainLine] || {}));
+      setStartStations(
+        Object.keys(sourceSettings[train]?.rute[trainLine] || {})
+      );
     } else {
       setStartStations([]);
     }
   }, [train, trainLine]);
-  
+
   useEffect(() => {
     if (train && trainLine && startStation) {
-      setFinishStations(sourceSettings[train]?.rute[trainLine]?.[startStation] || []);
+      setFinishStations(
+        sourceSettings[train]?.rute[trainLine]?.[startStation] || []
+      );
     } else {
       setFinishStations([]);
     }
@@ -486,25 +544,31 @@ const CourseList = () => {
     <Container w={1000} h={700}>
       <div className="flex flex-col p-6 h-full gap-4">
         {/* Search bar */}
-        <Box component="form" onSubmit={handleSearch} className="flex gap-4 w-full ">
-          {currentInstructor.isAdmin && ( <Button
-            type="button"
-            variant="contained"
-            onClick={handleDaftar}
-            startIcon={<BookmarkAdd className="text-2xl" />}
-            sx={{
-              color: "#ffffff",
-              backgroundColor: "#00a6fb",
-              borderColor: "#00a6fb",
-              "&:hover": {
-                borderColor: "#1aaffb",
+        <Box
+          component="form"
+          onSubmit={handleSearch}
+          className="flex gap-4 w-full "
+        >
+          {currentInstructor.isAdmin && (
+            <Button
+              type="button"
+              variant="contained"
+              onClick={handleDaftar}
+              startIcon={<BookmarkAdd className="text-2xl" />}
+              sx={{
                 color: "#ffffff",
-                backgroundColor: "#1aaffb",
-              },
-            }}
-          >
-            Tambah Baru
-          </Button> )}
+                backgroundColor: "#00a6fb",
+                borderColor: "#00a6fb",
+                "&:hover": {
+                  borderColor: "#1aaffb",
+                  color: "#ffffff",
+                  backgroundColor: "#1aaffb",
+                },
+              }}
+            >
+              Tambah Baru
+            </Button>
+          )}
           <TextField
             id="input-with-icon-textfield"
             fullWidth
@@ -574,10 +638,19 @@ const CourseList = () => {
                       "&:last-child td, &:last-child th": { border: 0 },
                     }}
                   >
-                    <InteractableTableCell content={row.title} isEllipsisEnabled={isEllipsisEnabled} width="380px" textSize="1rem"/>
+                    <InteractableTableCell
+                      content={row.title}
+                      isEllipsisEnabled={isEllipsisEnabled}
+                      width="380px"
+                      textSize="1rem"
+                    />
                     {/* <TableCell>{row.title}</TableCell> */}
                     <TableCell>
-                      {row.description === "KCIC" ? "High Speed Train" : row.description === "LRT" ? "Low Rapid Train" : row.description}
+                      {row.description === "KCIC"
+                        ? "High Speed Train"
+                        : row.description === "LRT"
+                        ? "Light Rail Transit"
+                        : row.description}
                     </TableCell>
                     <TableCell>
                       {!row.published && (
@@ -600,18 +673,17 @@ const CourseList = () => {
                         </Button>
                       )}
                       {row.published && currentInstructor.isAdmin && (
-                        <Button
-                          variant="contained"
-                          disabled
-                          className="w-28"
-                        >
+                        <Button variant="contained" disabled className="w-28">
                           Published
                         </Button>
                       )}
                     </TableCell>
                     <TableCell>
                       <div className="flex gap-4 justify-end">
-                        <Tooltip title="Konfigurasi Modul Pembelajaran" placement="top">
+                        <Tooltip
+                          title="Konfigurasi Modul Pembelajaran"
+                          placement="top"
+                        >
                           <IconButton
                             size="small"
                             onClick={() => {
@@ -620,15 +692,20 @@ const CourseList = () => {
                                 title: row.title,
                               });
                               // setConfigPrompt(true);
-                              
-                              navigate(`/scoringlist/coursedetail?id=${row.id}&type=${trainType}`);
+
+                              navigate(
+                                `/scoringlist/coursedetail?id=${row.id}&type=${trainType}`
+                              );
                             }}
                           >
                             <Info />
                           </IconButton>
                         </Tooltip>
                         {currentInstructor.isAdmin && (
-                          <Tooltip title="Hapus Modul Pembelajaran" placement="top">
+                          <Tooltip
+                            title="Hapus Modul Pembelajaran"
+                            placement="top"
+                          >
                             <IconButton
                               size="small"
                               onClick={() => {
@@ -737,10 +814,7 @@ const CourseList = () => {
           Hapus Modul: <b>{selectedModul.title}</b>?
         </DialogContent>
         <DialogActions className="flex mb-2 justify-between">
-          <Button
-            className="mx-2"
-            onClick={() => setDeletePrompt(false)}
-          >
+          <Button className="mx-2" onClick={() => setDeletePrompt(false)}>
             Batal
           </Button>
           <Button
@@ -752,23 +826,22 @@ const CourseList = () => {
               setDeletePrompt(false);
             }}
             color="error"
-            variant='outlined'
-						sx={{
-							color: "#df2935",
-							borderColor: "#df2935",
-							backgroundColor: "#ffffff",
-							"&:hover": {
-								borderColor: "#df2935",
-								backgroundColor: "#df2935",
-								color: "#ffffff",
-							},
-						}}
+            variant="outlined"
+            sx={{
+              color: "#df2935",
+              borderColor: "#df2935",
+              backgroundColor: "#ffffff",
+              "&:hover": {
+                borderColor: "#df2935",
+                backgroundColor: "#df2935",
+                color: "#ffffff",
+              },
+            }}
           >
             Hapus
           </Button>
         </DialogActions>
       </Dialog>
-
 
       <FullPageLoading loading={pageLoading} />
     </Container>

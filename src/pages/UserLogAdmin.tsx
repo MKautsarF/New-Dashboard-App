@@ -1,6 +1,6 @@
 import FullPageLoading from "@/components/FullPageLoading";
 import { useMemo, useRef } from "react";
-import { getUsers } from "@/services/user.services";
+import { getUserByIdAdmin, getUsers } from "@/services/user.services";
 import {
   Box,
   Button,
@@ -30,10 +30,10 @@ import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { currentPeserta } from "@/context/auth";
 import {
-  getSubmissionById,
-  getSubmissionList,
-  getSubmissionLogByFileIndex,
-  getSubmissionLogByTag,
+  getSubmissionByIdAdmin,
+  getSubmissionListAdmin,
+  getSubmissionLogByFileIndexAdmin,
+  getSubmissionLogByTagAdmin,
 } from "@/services/submission.services";
 import dayjs from "dayjs";
 import { sendTextToClients } from "@/socket";
@@ -48,7 +48,10 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
 import TaskAltIcon from "@mui/icons-material/TaskAlt";
 import { getUserById } from "@/services/user.services";
-import { getCourseByInstructor } from "@/services/course.services";
+import {
+  getCourseByAdmin,
+  getCourseByInstructor,
+} from "@/services/course.services";
 import * as XLSX from "xlsx";
 import ExcelGrid from "@/components/ExcelGrid";
 
@@ -95,11 +98,11 @@ function useQuery() {
   return useMemo(() => new URLSearchParams(search), [search]);
 }
 
-const UserLog = () => {
+const UserLogAdmin = () => {
   const query = useQuery();
   const navigate = useNavigate();
   const userId = query.get("id");
-
+  console.log("userId", userId);
   //temporary
   const videopath = "";
 
@@ -144,7 +147,7 @@ const UserLog = () => {
 
   const fetchCourseData = async () => {
     try {
-      const response = await getCourseByInstructor(1, 100);
+      const response = await getCourseByAdmin(1, 100);
 
       // Filter courses based on the description
       const lrtData = response.results
@@ -170,7 +173,15 @@ const UserLog = () => {
 
   const fetchSubmissionData = async () => {
     try {
-      const response = await getSubmissionList(userId, dateSort, trainSort);
+      console.log("TES", userId);
+      console.log("TES", dateSort);
+      console.log("TES", trainSort);
+      const response = await getSubmissionListAdmin(
+        userId,
+        dateSort,
+        trainSort
+      );
+      console.log("TES1", userId);
       setSubmissionList(response.results);
     } catch (error) {
       console.error("Error fetching submission data:", error);
@@ -335,19 +346,22 @@ const UserLog = () => {
   useEffect(() => {
     const fetchSubmission = async () => {
       try {
-        const res = await getSubmissionById(Number(submissionId));
+        const res = await getSubmissionByIdAdmin(Number(submissionId));
         console.log("RESSSSSSS", res);
-        const pdfres = await getSubmissionLogByTag(Number(submissionId), "pdf");
-        const pdffile = await getSubmissionLogByFileIndex(
+        const pdfres = await getSubmissionLogByTagAdmin(
+          Number(submissionId),
+          "pdf"
+        );
+        const pdffile = await getSubmissionLogByFileIndexAdmin(
           Number(submissionId),
           pdfres.results[0].id
         );
         setPdf(pdffile);
-        const excelres = await getSubmissionLogByTag(
+        const excelres = await getSubmissionLogByTagAdmin(
           Number(submissionId),
           "xlsx"
         );
-        const excelfile = await getSubmissionLogByFileIndex(
+        const excelfile = await getSubmissionLogByFileIndexAdmin(
           Number(submissionId),
           excelres.results[0].id
         );
@@ -367,8 +381,8 @@ const UserLog = () => {
   const handleOpenPDF = async (id: any) => {
     setSubmissionId(id);
     try {
-      const pdfres = await getSubmissionLogByTag(Number(id), "pdf");
-      const pdffile = await getSubmissionLogByFileIndex(
+      const pdfres = await getSubmissionLogByTagAdmin(Number(id), "pdf");
+      const pdffile = await getSubmissionLogByFileIndexAdmin(
         Number(id),
         pdfres.results[0].id
       );
@@ -391,13 +405,13 @@ const UserLog = () => {
   ) => {
     setSubmissionId(id);
     try {
-      const pdfres = await getSubmissionLogByTag(id, "pdf");
+      const pdfres = await getSubmissionLogByTagAdmin(id, "pdf");
       if (pdfres.results.length === 0) {
         console.error("No PDF results found");
         return;
       }
 
-      const pdffile = await getSubmissionLogByFileIndex(
+      const pdffile = await getSubmissionLogByFileIndexAdmin(
         id,
         pdfres.results[0].id
       );
@@ -424,8 +438,8 @@ const UserLog = () => {
   const handleOpenExcel = async (id: any) => {
     setSubmissionId(id);
     try {
-      const excelres = await getSubmissionLogByTag(Number(id), "xlsx");
-      const excelfile = await getSubmissionLogByFileIndex(
+      const excelres = await getSubmissionLogByTagAdmin(Number(id), "xlsx");
+      const excelfile = await getSubmissionLogByFileIndexAdmin(
         Number(id),
         excelres.results[0].id
       );
@@ -506,11 +520,11 @@ const UserLog = () => {
   const handleOpenReplay = async (id: any) => {
     setSubmissionId(id);
     try {
-      const excelres = await getSubmissionLogByTag(
+      const excelres = await getSubmissionLogByTagAdmin(
         Number(submissionId),
         "xlsx"
       );
-      const excelfile = await getSubmissionLogByFileIndex(
+      const excelfile = await getSubmissionLogByFileIndexAdmin(
         Number(submissionId),
         excelres.results[0].id
       );
@@ -539,8 +553,12 @@ const UserLog = () => {
     const fetchUserLog = async () => {
       setIsLoading(true);
       try {
-        const response = await getUserById(userId);
-        const response2 = await getSubmissionList(userId, dateSort, trainSort);
+        const response = await getUserByIdAdmin(userId);
+        const response2 = await getSubmissionListAdmin(
+          userId,
+          dateSort,
+          trainSort
+        );
         console.log("response2", response2);
         setSubmissionList(response2.results);
         setUserLog(response);
@@ -559,6 +577,7 @@ const UserLog = () => {
         }));
 
         setRows(resRows);
+        console.log(resRows);
         setGetSubmission(true);
       } catch (error) {
         console.error("Error fetching user log:", error);
@@ -575,7 +594,7 @@ const UserLog = () => {
   useEffect(() => {
     if (getSubmission) {
       rows.map(async (row) => {
-        const res = await getSubmissionById(Number(row.id));
+        const res = await getSubmissionByIdAdmin(Number(row.id));
         row.module = res.exam?.assessment?.judul_modul;
         row.scoring = res.exam?.assessment?.judul_penilaian;
         setRows([...rows]);
@@ -601,7 +620,7 @@ const UserLog = () => {
       <div className="flex flex-col p-6 h-full">
         <h1 className="w-full text-center mb-2">Log Peserta</h1>
         <Box component="form" className="grid gap-4 w-full mb-2">
-          <div className="title grid grid-cols-4 gap-4">
+          <div className="title grid grid-cols-5 gap-4">
             {userInfo.map((info: any, index: any) => (
               <Tooltip
                 key={index}
@@ -621,6 +640,11 @@ const UserLog = () => {
                 </Typography>
               </Tooltip>
             ))}
+            <div className="text-right">
+              <Button className="w-fit" variant="contained" color="error">
+                DELETE ALL
+              </Button>
+            </div>
           </div>
         </Box>
 
@@ -840,6 +864,7 @@ const UserLog = () => {
                 <TableCell className="text-lg font-bold">Nilai </TableCell>
                 <TableCell className="text-lg font-bold">Hasil</TableCell>
                 <TableCell className="text-lg font-bold">Replay</TableCell>
+                <TableCell className="text-lg font-bold">Action</TableCell>
               </TableRow>
             </TableHead>
             {isLoading ? (
@@ -881,7 +906,7 @@ const UserLog = () => {
                     <TableCell className="text-lg">{row.score}</TableCell>
                     <TableCell
                       align="center"
-                      className="flex items-center gap-1"
+                      className="flex items-center gap-1 py-6"
                     >
                       <Button
                         type="button"
@@ -935,6 +960,15 @@ const UserLog = () => {
                         </MenuItem>
                         <MenuItem>Download</MenuItem>
                       </Menu>
+                    </TableCell>
+                    <TableCell align="center">
+                      <Button
+                        variant="outlined"
+                        color="error"
+                        className="w-[60px]"
+                      >
+                        DELETE
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -1000,4 +1034,4 @@ const UserLog = () => {
   );
 };
 
-export default UserLog;
+export default UserLogAdmin;

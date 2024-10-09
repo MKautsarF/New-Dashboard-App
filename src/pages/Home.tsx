@@ -1,10 +1,10 @@
 import { useState } from "react";
 // import "../App.css";
 import { useNavigate } from "react-router-dom";
-import { Button, Dialog, DialogActions, DialogContent, } from "@mui/material";
+import { Button, Dialog, DialogActions, DialogContent } from "@mui/material";
 import Container from "../components/Container";
 import Logo from "@/components/Logo";
-import { sendTextToClients } from '@/socket';
+import { sendTextToClients } from "@/socket";
 
 function App() {
   const navigate = useNavigate();
@@ -17,7 +17,7 @@ function App() {
       // processFile('config', 'off');
       window.close();
 
-      sendTextToClients(JSON.stringify({ status: 'exit' }));
+      sendTextToClients(JSON.stringify({ status: "exit" }));
     } catch (error) {
       console.error(error);
     }
@@ -33,10 +33,11 @@ function App() {
         <div className="gap-2 pt-8 flex flex-col items-center justify-center h-full">
           <Logo />
           <h1 className="flex items-center justify-center text-center">
-            High Speed Train <br />&<br />Low Rapid Train Launcher
+            High Speed Train <br />&<br />
+            Light Rail Transit Launcher
           </h1>
           <p className="text-center">
-            a simulation launcher for High Speed Train & Low Rapid Train
+            a simulation launcher for High Speed Train & Light Rail Transit
           </p>
         </div>
         <div className="flex flex-col gap-4 justify-center px-12 py-8">
@@ -94,7 +95,12 @@ function App() {
           >
             Tidak
           </Button>
-          <Button className="mx-2" onClick={() => offApp()} variant="contained" color="error">
+          <Button
+            className="mx-2"
+            onClick={() => offApp()}
+            variant="contained"
+            color="error"
+          >
             Ya
           </Button>
         </DialogActions>

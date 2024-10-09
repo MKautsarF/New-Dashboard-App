@@ -99,7 +99,7 @@ function Simulation() {
               onClick={handleLRT} // Call handleNext when clicked
             >
               <DirectionsRailway style={{ fontSize: 75 }} />
-              <h1>Low Rapid Train</h1>
+              <h1>Light Rail Transit</h1>
             </div>
           </div>
         </div>

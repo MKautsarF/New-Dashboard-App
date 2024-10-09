@@ -46,6 +46,12 @@ export const getUserById = async (id: string) => {
   return res.data;
 };
 
+export const getUserByIdAdmin = async (id: string) => {
+  const res = await services.get(`/admin/user-account/${id}`);
+
+  return res.data;
+};
+
 export const updateUserById = async (id: string, payload: any) => {
   const res = await services.put(`/instructor/user-account/${id}`, payload);
 

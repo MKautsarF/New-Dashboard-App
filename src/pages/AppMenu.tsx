@@ -28,7 +28,7 @@ import {
   getUserById,
   updateUserById,
 } from "../services/user.services";
-import { currentInstructor, useAuth } from '@/context/auth';
+import { currentInstructor, useAuth } from "@/context/auth";
 import Container from "@/components/Container";
 import { Train, DirectionsRailway, PeopleAlt } from "@mui/icons-material";
 import TraineeDetail from "../components/TraineeDetail";
@@ -73,8 +73,8 @@ function AppMenu() {
   const query = useQuery();
 
   const { instructor, logout } = useAuth();
-  localStorage.setItem('instructorName', instructor.name);
-  
+  localStorage.setItem("instructorName", instructor.name);
+
   const handleSimulation = () => {
     navigate("/ThirdPage");
   };
@@ -117,6 +117,7 @@ function AppMenu() {
     setPageLoading(true);
 
     try {
+      console.log("detailId", detailId);
       navigate(`/FourthPage/UserLog?id=${detailId}`);
     } catch (e) {
       console.error(e);
@@ -124,7 +125,6 @@ function AppMenu() {
       setPageLoading(false);
     }
   };
-  
 
   const handleEditPeserta = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -205,7 +205,7 @@ function AppMenu() {
     nip: "",
   });
 
-  localStorage.setItem('selectedPesertaName', selectedPeserta.name);
+  localStorage.setItem("selectedPesertaName", selectedPeserta.name);
 
   const [totalData, setTotalData] = useState(0);
   const [page, setPage] = useState(1);
@@ -312,12 +312,16 @@ function AppMenu() {
 
   const handleConfirmLogout = () => {
     logout();
-    navigate('/');
+    navigate("/");
   };
 
   const handleRiwayatClick = () => {
-    navigate('/SubmissionList');
+    navigate("/SubmissionList");
   };
+
+  useEffect(() => {
+    console.log("detailId", detailId);
+  }, [detailId]);
 
   return (
     <>
@@ -338,7 +342,8 @@ function AppMenu() {
                 },
               }}
             >
-              <PlayArrowIcon className="mr-2 ml-[-6px] text-[17px]" /> Mulai Simulasi
+              <PlayArrowIcon className="mr-2 ml-[-6px] text-[17px]" /> Mulai
+              Simulasi
             </Button>
             <Button
               variant="outlined"
@@ -383,7 +388,7 @@ function AppMenu() {
                 High Speed Train
               </MenuItem>
               <MenuItem onClick={() => handleLearningOptionClick("lrt")}>
-                Low Rapid Train
+                Light Rail Transit
               </MenuItem>
             </Menu>
             <Button
@@ -420,17 +425,21 @@ function AppMenu() {
               >
                 <h1 className="text-white ">High Speed Train</h1>
                 <Button
-                  variant={!selectedPeserta.id || isSelected ? "outlined" : "contained"}
+                  variant={
+                    !selectedPeserta.id || isSelected ? "outlined" : "contained"
+                  }
                   onClick={handleStartClickKcic}
                   disabled={!selectedPeserta.id || isSelected}
                   sx={{
-                    color: !selectedPeserta.id || isSelected ? "#00a6fb" : "#ffffff",
+                    color:
+                      !selectedPeserta.id || isSelected ? "#00a6fb" : "#ffffff",
                     borderColor: "#00a6fb",
-                    backgroundColor: !selectedPeserta.id || isSelected ? "#ffffff" : "#00a6fb",
+                    backgroundColor:
+                      !selectedPeserta.id || isSelected ? "#ffffff" : "#00a6fb",
                     fontSize: "1.2rem",
                     "&:hover": {
                       borderColor: "#ffffff",
-                      color: "#ffffff", 
+                      color: "#ffffff",
                       backgroundColor: "#00a6fb",
                     },
                   }}
@@ -464,20 +473,24 @@ function AppMenu() {
                 onMouseEnter={() => handleMouseEnter(2)}
                 onMouseLeave={handleMouseLeave}
               >
-                <h1 className="text-white ">Low Rapid Train</h1>
+                <h1 className="text-white ">Light Rail Transit</h1>
                 {/* {selectedValue2} */}
                 <Button
-                  variant={!selectedPeserta.id || isSelected ? "outlined" : "contained"}
+                  variant={
+                    !selectedPeserta.id || isSelected ? "outlined" : "contained"
+                  }
                   onClick={handleStartClick}
                   disabled={!selectedPeserta.id || isSelected}
                   sx={{
-                    color: !selectedPeserta.id || isSelected ? "#00a6fb" : "#ffffff",
+                    color:
+                      !selectedPeserta.id || isSelected ? "#00a6fb" : "#ffffff",
                     borderColor: "#00a6fb",
-                    backgroundColor: !selectedPeserta.id || isSelected ? "#ffffff" : "#00a6fb",
+                    backgroundColor:
+                      !selectedPeserta.id || isSelected ? "#ffffff" : "#00a6fb",
                     fontSize: "1.2rem",
                     "&:hover": {
                       borderColor: "#ffffff",
-                      color: "#ffffff", 
+                      color: "#ffffff",
                       backgroundColor: "#00a6fb",
                     },
                   }}
@@ -490,7 +503,7 @@ function AppMenu() {
               {hoveredBox === 2 && (
                 <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-center py-2">
                   <p className="text-white">
-                    Mengoperasikan eksplorasi Low Rapid Train.
+                    Mengoperasikan eksplorasi Light Rail Transit.
                   </p>
                 </div>
               )}
@@ -590,7 +603,9 @@ function AppMenu() {
                                 },
                               }}
                               type="button"
-                              variant={detailId === row.id ? "outlined" : "text"}
+                              variant={
+                                detailId === row.id ? "outlined" : "text"
+                              }
                               onClick={() => {
                                 setDetailId(row.id), setDetailOpen(true);
                               }}
@@ -613,7 +628,11 @@ function AppMenu() {
                                 },
                               }}
                               type="button"
-                              variant={selectedPeserta.nip === row.nip ? "outlined" : "text"}
+                              variant={
+                                selectedPeserta.nip === row.nip
+                                  ? "outlined"
+                                  : "text"
+                              }
                               onClick={() =>
                                 setSelectedPeserta((prevState) =>
                                   prevState.nip === row.nip
@@ -629,7 +648,6 @@ function AppMenu() {
                             >
                               Pilih
                             </Button>
-
                           </div>
                         </TableCell>
                       </TableRow>
@@ -642,66 +660,67 @@ function AppMenu() {
                 )}
               </Table>
             </TableContainer>
-              <TablePagination
-                component="div"
-                count={totalData}
-                rowsPerPage={4}
-                page={page - 1}
-                onPageChange={handleChangePage}
-                rowsPerPageOptions={[4]}
-                className="overflow-hidden"
-              />
-              {/* Detail peserta */}
-              <TraineeDetail
-                id={detailId}
-                isOpen={detailOpen}
-                handleClose={() => {
-                  setDetailOpen(false);
-                  setDetailId("");
-                }}
-                handleLog={() => {
-                  setDetailOpen(false);
-                  handleGetLog();
-                }}
-                handleEdit={async () => {
-                  const peserta = await getUserById(detailId);
-                  setDetailPeserta({
-                    username: peserta.username,
-                    name: peserta.name,
-                    email: peserta.email,
-                    nip: peserta.bio === null ? "" : peserta.bio.identityNumber,
-                    born: peserta.bio === null ? "" : peserta.bio.born,
-                    position: peserta.bio === null ? "" : peserta.bio.position,
-                  });
-                  setNewBirthDate(
-                    peserta.bio === null ? null : dayjs(peserta.bio.born)
-                  );
-                  setEditPrompt(true);
-                }}
-              />
+            <TablePagination
+              component="div"
+              count={totalData}
+              rowsPerPage={4}
+              page={page - 1}
+              onPageChange={handleChangePage}
+              rowsPerPageOptions={[4]}
+              className="overflow-hidden"
+            />
+            {/* Detail peserta */}
+            <TraineeDetail
+              id={detailId}
+              isOpen={detailOpen}
+              detail="Peserta"
+              handleClose={() => {
+                setDetailOpen(false);
+                setDetailId("");
+              }}
+              handleLog={() => {
+                setDetailOpen(false);
+                handleGetLog();
+              }}
+              handleEdit={async () => {
+                const peserta = await getUserById(detailId);
+                setDetailPeserta({
+                  username: peserta.username,
+                  name: peserta.name,
+                  email: peserta.email,
+                  nip: peserta.bio === null ? "" : peserta.bio.identityNumber,
+                  born: peserta.bio === null ? "" : peserta.bio.born,
+                  position: peserta.bio === null ? "" : peserta.bio.position,
+                });
+                setNewBirthDate(
+                  peserta.bio === null ? null : dayjs(peserta.bio.born)
+                );
+                setEditPrompt(true);
+              }}
+            />
           </div>
         </div>
 
         {/* nav */}
-          <Button
-            type="button"
-            color="error"
-            variant="outlined"
-            className="text-base absolute bottom-6 left-6"
-            sx={{
-              color: "#df2935",
+        <Button
+          type="button"
+          color="error"
+          variant="outlined"
+          className="text-base absolute bottom-6 left-6"
+          sx={{
+            color: "#df2935",
+            borderColor: "#df2935",
+            backgroundColor: "#ffffff",
+            "&:hover": {
               borderColor: "#df2935",
-              backgroundColor: "#ffffff",
-              "&:hover": {
-                borderColor: "#df2935",
-                backgroundColor: "#df2935",
-                color: "#ffffff",
-              },
-            }}
-            onClick={handleLogoutOpen}
-          >
-            Logout
-          </Button>
+              backgroundColor: "#df2935",
+              color: "#ffffff",
+            },
+          }}
+          onClick={handleLogoutOpen}
+        >
+          Logout
+        </Button>
 
         {/* Edit Peserta Prompt */}
         <Dialog open={editPrompt} onClose={() => setEditPrompt(false)}>
@@ -803,8 +822,10 @@ function AppMenu() {
             <Button onClick={handleLogoutClose} color="primary">
               Batal
             </Button>
-            <Button 
-              onClick={handleConfirmLogout} color="error" variant="outlined"
+            <Button
+              onClick={handleConfirmLogout}
+              color="error"
+              variant="outlined"
               sx={{
                 color: "#df2935",
                 borderColor: "#df2935",
@@ -815,7 +836,7 @@ function AppMenu() {
                   color: "#ffffff",
                 },
               }}
-              >
+            >
               Logout
             </Button>
           </DialogActions>

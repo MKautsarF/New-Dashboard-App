@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { Location } from 'react-router-dom';
+import { Location } from "react-router-dom";
 import { useNavigate, useLocation } from "react-router-dom";
 import { TimePicker } from "@mui/x-date-pickers";
 import Container from "@/components/Container";
@@ -32,7 +32,7 @@ import {
 import { useSettings } from "@/context/settings";
 import { sendTextToClients } from "@/socket";
 import FullPageLoading from "@/components/FullPageLoading";
-import { useAuth } from '@/context/auth';
+import { useAuth } from "@/context/auth";
 import fs from "fs";
 import { getCourseByInstructor } from "@/services/course.services";
 import { set } from "lodash";
@@ -53,7 +53,7 @@ interface CustomLocation extends Location {
 
 function Settings() {
   const sourceSettingsPath = "src/config/settings_train.json";
-	// const sourceSettingsPath = "C:/Train Simulator/Data/settings_train.json";
+  // const sourceSettingsPath = "C:/Train Simulator/Data/settings_train.json";
   const sourceSettingsRead = fs.readFileSync(sourceSettingsPath, "utf-8");
   const sourceSettings = JSON.parse(sourceSettingsRead);
 
@@ -68,17 +68,21 @@ function Settings() {
   type StationMapping = {
     [key: string]: string;
   };
-  
+
   const stationMapping: StationMapping = {
-    "Tegalluar": "Tegal Luar",
+    Tegalluar: "Tegal Luar",
     "Joint Workshop Tegalluar": "Tegal Luar Depot",
-    "Karawang": "Karawang",
-    "Padalarang": "Padalarang",
-    "Halim": "Halim",
+    Karawang: "Karawang",
+    Padalarang: "Padalarang",
+    Halim: "Halim",
   };
 
-  const getDisplayStationName = (station: any) => stationMapping[station] || station;
-  const getPayloadStationName = (displayName: any) => Object.keys(stationMapping).find(key => stationMapping[key] === displayName) || displayName;
+  const getDisplayStationName = (station: any) =>
+    stationMapping[station] || station;
+  const getPayloadStationName = (displayName: any) =>
+    Object.keys(stationMapping).find(
+      (key) => stationMapping[key] === displayName
+    ) || displayName;
 
   const handleSliderChange = (event: Event, newValue: number) => {
     const fogDistance =
@@ -100,28 +104,30 @@ function Settings() {
         // && settings.kereta
         false;
 
-        const handlePrev = () => {
-          if (location.state?.from === 'startClickKcic') {
-            navigate(`/SecondPage`);
-          } else if (location.state?.from === 'startClickLrt') {
-            navigate(`/SecondPage`);
-          } else {
-            navigate(`/Modul?type=${trainType}`);
-          }
-        };
+  const handlePrev = () => {
+    if (location.state?.from === "startClickKcic") {
+      navigate(`/SecondPage`);
+    } else if (location.state?.from === "startClickLrt") {
+      navigate(`/SecondPage`);
+    } else {
+      navigate(`/Modul?type=${trainType}`);
+    }
+  };
 
   const [modul, setModul] = useState("Testing");
   const rangkaianKereta = "6 Rangkaian";
   const [isLoading, setIsLoading] = useState(false);
 
   const handleLanjut = () => {
-    navigate(`/scoringStart?type=${trainType}&id=65`, { state: { fromEksplorasi: true } });
+    navigate(`/scoringStart?type=${trainType}&id=65`, {
+      state: { fromEksplorasi: true },
+    });
   };
 
   const handleMulai = async () => {
     let startStation = "";
     let finishStation = "";
-    const selectedPesertaId = localStorage.getItem('selectedPesertaId');
+    const selectedPesertaId = localStorage.getItem("selectedPesertaId");
 
     const payload = {
       id_user: selectedPesertaId,
@@ -175,12 +181,12 @@ function Settings() {
     setSettings(settings);
     const fetchDefaultID = async () => {
       try {
-        const res = await getCourseByInstructor(1, 1, '', 'Default');
+        const res = await getCourseByInstructor(1, 1, "", "Default");
         setCourseId(res.result[0].id);
       } catch (error) {
         console.error("Error fetching course list:", error);
       }
-    }
+    };
     fetchDefaultID();
     // assign module
     if (trainType === "lrt") {
@@ -219,7 +225,12 @@ function Settings() {
             style={{ fontSize: "1.75rem", fontWeight: "bold" }}
           >
             {/* Pengaturan Simulasi {trainType === "kcic" ? "Kereta Cepat" : trainType.toUpperCase()} */}
-            Pengaturan Simulasi {trainType === "kcic" ? "High Speed Train" : trainType === "lrt" ? "Low Rapid Train" : trainType}
+            Pengaturan Simulasi{" "}
+            {trainType === "kcic"
+              ? "High Speed Train"
+              : trainType === "lrt"
+              ? "Light Rail Transit"
+              : trainType}
           </h1>
 
           {/* Berat */}
@@ -300,11 +311,13 @@ function Settings() {
               >
                 {settings.line &&
                   trainSource.rute[settings.line] &&
-                  Object.keys(trainSource.rute[settings.line]).map((station, idx) => (
-                    <MenuItem key={idx} value={station}>
-                      {getDisplayStationName(station)}
-                    </MenuItem>
-                  ))}
+                  Object.keys(trainSource.rute[settings.line]).map(
+                    (station, idx) => (
+                      <MenuItem key={idx} value={station}>
+                        {getDisplayStationName(station)}
+                      </MenuItem>
+                    )
+                  )}
               </Select>
             </FormControl>
           </div>
@@ -333,11 +346,13 @@ function Settings() {
               >
                 {settings.stasiunAsal &&
                   trainSource.rute[settings.line]?.[settings.stasiunAsal] &&
-                  trainSource.rute[settings.line][settings.stasiunAsal].map((destination: any, idx: any) => (
-                    <MenuItem key={idx} value={destination}>
-                      {getDisplayStationName(destination)}
-                    </MenuItem>
-                  ))}
+                  trainSource.rute[settings.line][settings.stasiunAsal].map(
+                    (destination: any, idx: any) => (
+                      <MenuItem key={idx} value={destination}>
+                        {getDisplayStationName(destination)}
+                      </MenuItem>
+                    )
+                  )}
               </Select>
             </FormControl>
           </div>
@@ -516,7 +531,7 @@ function Settings() {
                 onClick={handleLanjut}
                 sx={{
                   color: "#f3f3f4",
-                  backgroundColor: "#00a6fb", 
+                  backgroundColor: "#00a6fb",
                   borderColor: "#f3f3f4",
                   "&:hover": {
                     borderColor: "#4dc1fc",

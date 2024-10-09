@@ -753,6 +753,7 @@ const InstructorList = () => {
       <TraineeDetail
         id={detailId}
         isOpen={detailOpen}
+        detail="Instruktur"
         handleClose={() => setDetailOpen(false)}
         handleLog={() => {}}
         handleEdit={() => {}}

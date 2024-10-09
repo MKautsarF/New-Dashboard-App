@@ -37,6 +37,7 @@ import { useAuth, currentPeserta, currentInstructor } from "@/context/auth";
 import {
   createUserAsAdmin,
   deactivateUserById,
+  getUserById,
   getUserByIdAsAdmin,
   getUsersAsAdmin,
   updateUserByIdAsAdmin,
@@ -69,8 +70,7 @@ const TraineeList = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   // Detail peserta
-  const [detailOpen, setDetailOpen] = useState(false);
-  const [detailId, setDetailId] = useState("");
+  
 
   // Full page loading
   const [pageLoading, setPageLoading] = useState(false);
@@ -90,7 +90,6 @@ const TraineeList = () => {
   const [deletePrompt, setDeletePrompt] = useState(false);
   const [reload, setReload] = useState(false);
 
-
   const [editPrompt, setEditPrompt] = useState(false);
   const [detailPeserta, setDetailPeserta] = useState({
     username: "",
@@ -103,7 +102,6 @@ const TraineeList = () => {
   const [newBirthDate, setNewBirthDate] = useState<Dayjs | null>(null);
   const [nameError, setNameError] = useState(false);
   const [nipError, setNipError] = useState(false);
-
 
   const handleClose = () => {
     setOpen(false);
@@ -130,7 +128,6 @@ const TraineeList = () => {
       // console.log("deactivated user: " + res.id);
 
       setRows(rows.filter((row) => row.id !== res.id));
-      
     } catch (e) {
       console.error(e);
       toast.error("Peserta tidak dapat dihapus karena sudah memiliki submisi", {
@@ -168,9 +165,9 @@ const TraineeList = () => {
       setNip(inputValue.slice(0, 32));
     } else {
       setNipError(false);
-      setNip(inputValue);  
+      setNip(inputValue);
     }
-	};
+  };
 
   const handleNameChange = (e: any) => {
     const inputValue = e.target.value;
@@ -283,6 +280,19 @@ const TraineeList = () => {
     }
   };
 
+  const handleGetLog = async () => {
+    setPageLoading(true);
+
+    try {
+      console.log("detailId", detailId);
+      navigate(`/FourthPage/UserLogAdmin?id=${detailId}`);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setPageLoading(false);
+    }
+  };
+
   const handleEditPeserta = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
@@ -304,16 +314,21 @@ const TraineeList = () => {
     };
 
     try {
-      const res = await updateUserByIdAsAdmin(selectedPeserta.id, payload);
+      // const res = await updateUserByIdAsAdmin(selectedPeserta.id, payload);
+      const res = await updateUserByIdAsAdmin(detailId, payload);
 
       setEditPrompt(false);
       toast.success("Data peserta berhasil diubah", { position: "top-center" });
       setReload(true);
+      setDetailId("");
     } catch (e) {
       const errMsg = e.response.data.errorMessage;
       toast.error(errMsg, { position: "top-center" });
     }
   };
+
+  const [detailOpen, setDetailOpen] = useState(false);
+  const [detailId, setDetailId] = useState("");
 
   useEffect(() => {
     async function getRows(page: number) {
@@ -328,6 +343,7 @@ const TraineeList = () => {
           nip: data.username,
         }));
         setRows(resRows);
+        console.log("resRows", resRows);
         setTotalData(res.total);
       } catch (e) {
         console.error(e);
@@ -339,6 +355,10 @@ const TraineeList = () => {
 
     getRows(page);
   }, [page, reload]);
+
+  useEffect(() => {
+    console.log("detailId", detailId);
+  }, [detailId]);
 
   return (
     <Container w={1000} h={700}>
@@ -412,8 +432,12 @@ const TraineeList = () => {
             </colgroup>
             <TableHead>
               <TableRow>
-                <TableCell sx={{ fontWeight: 'bold', fontSize: "17px" }}>Nama Peserta</TableCell>
-                <TableCell sx={{ fontWeight: 'bold', fontSize: "17px" }}>NIP Peserta</TableCell>
+                <TableCell sx={{ fontWeight: "bold", fontSize: "17px" }}>
+                  Nama Peserta
+                </TableCell>
+                <TableCell sx={{ fontWeight: "bold", fontSize: "17px" }}>
+                  NIP Peserta
+                </TableCell>
                 <TableCell></TableCell>
               </TableRow>
             </TableHead>
@@ -439,11 +463,11 @@ const TraineeList = () => {
                             size="small"
                             onClick={() => {
                               setDetailId(row.id), setDetailOpen(true);
-                              setSelectedPeserta({
-                                id: row.id,
-                                name: row.name,
-                                nip: row.nip,
-                              });
+                              // setSelectedPeserta({
+                              //   id: row.id,
+                              //   name: row.name,
+                              //   nip: row.nip,
+                              // });
                               handleGetUserDetail();
                             }}
                           >
@@ -625,9 +649,30 @@ const TraineeList = () => {
       <TraineeDetail
         id={detailId}
         isOpen={detailOpen}
-        handleClose={() => setDetailOpen(false)}
-        handleLog={() => {}}
-        handleEdit={() => {}}
+        detail="Peserta"
+        handleClose={() => {
+          setDetailOpen(false);
+          setDetailId("");
+        }}
+        handleLog={() => {
+          setDetailOpen(false);
+          handleGetLog();
+        }}
+        handleEdit={async () => {
+          const peserta = await getUserById(detailId);
+          setDetailPeserta({
+            username: peserta.username,
+            name: peserta.name,
+            email: peserta.email,
+            nip: peserta.bio === null ? "" : peserta.bio.identityNumber,
+            born: peserta.bio === null ? "" : peserta.bio.born,
+            position: peserta.bio === null ? "" : peserta.bio.position,
+          });
+          setNewBirthDate(
+            peserta.bio === null ? null : dayjs(peserta.bio.born)
+          );
+          setEditPrompt(true);
+        }}
       />
 
       {/* Delete User prompt */}

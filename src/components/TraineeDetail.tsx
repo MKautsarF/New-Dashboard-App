@@ -1,6 +1,6 @@
-import { currentInstructor } from '@/context/auth';
-import { getUserById, getUserByIdAsAdmin } from '@/services/user.services';
-import { useEffect, useState, useRef } from 'react';
+import { currentInstructor } from "@/context/auth";
+import { getUserById, getUserByIdAsAdmin } from "@/services/user.services";
+import { useEffect, useState, useRef } from "react";
 import {
   Button,
   CircularProgress,
@@ -10,10 +10,10 @@ import {
   DialogContentText,
   DialogTitle,
   Tooltip,
-  Typography
-} from '@mui/material';
-import dayjs from 'dayjs';
-import React from 'react';
+  Typography,
+} from "@mui/material";
+import dayjs from "dayjs";
+import React from "react";
 
 interface UserDetail {
   name: string;
@@ -28,6 +28,7 @@ interface UserDetail {
 interface TraineeDetailProps {
   id: string;
   isOpen: boolean;
+  detail: string;
   handleClose: () => void;
   handleLog: () => void;
   handleEdit: () => void;
@@ -36,6 +37,7 @@ interface TraineeDetailProps {
 const TraineeDetail: React.FC<TraineeDetailProps> = ({
   id,
   isOpen,
+  detail,
   handleClose,
   handleLog,
   handleEdit,
@@ -77,7 +79,7 @@ const TraineeDetail: React.FC<TraineeDetailProps> = ({
   }, [id, isOpen]);
 
   const checkEllipsis = () => {
-    const tooltipStatus = refs.map(ref => {
+    const tooltipStatus = refs.map((ref) => {
       if (ref.current) {
         return ref.current.scrollWidth > ref.current.clientWidth;
       }
@@ -106,18 +108,18 @@ const TraineeDetail: React.FC<TraineeDetailProps> = ({
     }
 
     const fields = [
-      { label: 'Nama', value: data.name, ref: nameRef },
-      { label: 'NIP', value: data.nip, ref: nipRef },
+      { label: "Nama", value: data.name, ref: nameRef },
+      { label: "NIP", value: data.nip, ref: nipRef },
       {
-        label: 'Tanggal Lahir',
+        label: "Tanggal Lahir",
         value: data.bio?.born
-          ? `${dayjs(data.bio.born).format('DD MMM YYYY')} (${Math.abs(
-              dayjs(data.bio.born).diff(dayjs(), 'year')
+          ? `${dayjs(data.bio.born).format("DD MMM YYYY")} (${Math.abs(
+              dayjs(data.bio.born).diff(dayjs(), "year")
             )} tahun)`
-          : '-',
+          : "-",
         ref: bornRef,
       },
-      { label: 'Kedudukan', value: data.bio?.position, ref: positionRef },
+      { label: "Kedudukan", value: data.bio?.position, ref: positionRef },
     ];
 
     return fields.map((field, index) => (
@@ -125,21 +127,18 @@ const TraineeDetail: React.FC<TraineeDetailProps> = ({
         key={index}
         title={
           showTooltip[index] ? (
-            <Typography sx={{ fontSize: '1rem', color: 'white' }}>
+            <Typography sx={{ fontSize: "1rem", color: "white" }}>
               {field.value}
             </Typography>
           ) : (
-            ''
+            ""
           )
         }
         placement="top"
         arrow={false}
       >
-        <p
-          ref={field.ref}
-          className="truncate"
-        >
-          {field.label}: {field.value || '-'}
+        <p ref={field.ref} className="truncate">
+          {field.label}: {field.value || "-"}
         </p>
       </Tooltip>
     ));
@@ -147,18 +146,16 @@ const TraineeDetail: React.FC<TraineeDetailProps> = ({
 
   return (
     <Dialog open={isOpen} onClose={handleClose}>
-      <DialogTitle>Detail {currentInstructor.isAdmin ? 'Instruktur' : 'Peserta'}</DialogTitle>
+      <DialogTitle>Detail {detail}</DialogTitle>
       <DialogContent className="w-[400px]">
         <DialogContentText>{renderDetails()}</DialogContentText>
       </DialogContent>
       <DialogActions className="flex justify-end pr-6">
         <Button onClick={handleClose}>Tutup</Button>
         {!currentInstructor.isAdmin && (
-          <>
-            <Button onClick={handleEdit}>Edit</Button>
-            <Button onClick={handleLog}>Log</Button>
-          </>
+          <Button onClick={handleEdit}>Edit</Button>
         )}
+        <Button onClick={handleLog}>Log</Button>
       </DialogActions>
     </Dialog>
   );

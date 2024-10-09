@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@mui/material";
 import Container from "@/components/Container";
 import { EditNote, School } from "@mui/icons-material";
-import FirstPageIcon from '@mui/icons-material/FirstPage';
+import FirstPageIcon from "@mui/icons-material/FirstPage";
 
 function useQuery() {
   const { search } = useLocation();
@@ -40,13 +40,18 @@ function Modul() {
   };
 
   return (
-    <>  
+    <>
       <Container w={900}>
         <div className="flex flex-col gap-4 w-full">
           <div className="flex flex-col text-left gap-4 p-6 ">
             <h1 style={{ fontSize: "1.75rem", fontWeight: "bold" }}>
               {/* Modul {trainType === "kcic" ? "Kereta Cepat" : trainType.toUpperCase()} */}
-              Modul {trainType === "kcic" ? "High Speed Train" : trainType === "lrt" ? "Low Rapid Train" : trainType}
+              Modul{" "}
+              {trainType === "kcic"
+                ? "High Speed Train"
+                : trainType === "lrt"
+                ? "Light Rail Transit"
+                : trainType}
             </h1>
             <p style={{ fontSize: "1.25rem" }}>
               Pilih modul yang akan digunakan:
@@ -134,7 +139,8 @@ function Modul() {
               navigate("/SecondPage");
             }}
           >
-            <FirstPageIcon className="mr-2 ml-[-2px] text-xl text-opacity-80"/> Kembali ke Menu
+            <FirstPageIcon className="mr-2 ml-[-2px] text-xl text-opacity-80" />{" "}
+            Kembali ke Menu
           </Button>
           <Button
             type="button"

@@ -597,6 +597,7 @@ function Database() {
           <TraineeDetail
             id={detailId}
             isOpen={detailOpen}
+            detail=""
             handleClose={() => {
               setDetailOpen(false);
               setDetailId("");

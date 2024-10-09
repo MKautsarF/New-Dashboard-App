@@ -16,6 +16,7 @@ import Admin from "./pages/AdminStart";
 import Instructor from "./pages/InstructorList";
 import Trainee from "./pages/TraineeList";
 import UserLog from "./pages/UserLog";
+import UserLogAdmin from "./pages/UserLogAdmin";
 import Finish from "./pages/Finish";
 import ScoringStart from "./pages/ScoringStart";
 import Course from "./pages/CourseList";
@@ -58,6 +59,10 @@ const routerData = [
   {
     path: "FourthPage/UserLog",
     element: <UserLog />,
+  },
+  {
+    path: "FourthPage/UserLogAdmin",
+    element: <UserLogAdmin />,
   },
   {
     path: "/FifthPage",
