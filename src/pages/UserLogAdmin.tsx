@@ -21,6 +21,10 @@ import {
   Tab,
   Tabs,
   Tooltip,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
 } from "@mui/material";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
@@ -54,6 +58,7 @@ import {
 } from "@/services/course.services";
 import * as XLSX from "xlsx";
 import ExcelGrid from "@/components/ExcelGrid";
+import { toast } from "react-toastify";
 
 interface RowData {
   id: any;
@@ -316,8 +321,10 @@ const UserLogAdmin = () => {
 
   const [userLog, setUserLog] = useState<UserLog | null>(null);
   const [submissionId, setSubmissionId] = useState(null);
+  const [submissionName, setSubmissionName] = useState("");
 
-  const [modalOpen, setModalOpen] = useState(false);
+  const [modalDeleteOpen, setModalDeleteOpen] = useState(false);
+  const [modalDeleteAllOpen, setModalDeleteAllOpen] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [url, setUrl] = useState<string>("");
   const [pdf, setPdf] = useState<any>(null);
@@ -549,6 +556,38 @@ const UserLogAdmin = () => {
   };
   const [getSubmission, setGetSubmission] = useState(false);
 
+  const handleDelete = async (id: string) => {
+    try {
+      // await deleteSubmissionAsAdmin(id);
+      setModalDeleteOpen(false);
+      // setReload(!reload);
+    } catch (error) {
+      console.error("Failed to publish the course:", error);
+      toast.error(
+        "Gagal menghapus modul karena modul ini memiliki modul penilaian",
+        {
+          position: "top-center",
+        }
+      );
+    }
+  };
+
+  const handleDeleteAll = async () => {
+    try {
+      // await deleteSubmissionAsAdmin(id);
+      setModalDeleteAllOpen(false);
+      // setReload(!reload);
+    } catch (error) {
+      console.error("Failed to publish the course:", error);
+      toast.error(
+        "Gagal menghapus modul karena modul ini memiliki modul penilaian",
+        {
+          position: "top-center",
+        }
+      );
+    }
+  };
+
   useEffect(() => {
     const fetchUserLog = async () => {
       setIsLoading(true);
@@ -618,6 +657,45 @@ const UserLogAdmin = () => {
   return (
     <Container w={1500} h={875}>
       <div className="flex flex-col p-6 h-full">
+      <Dialog
+          open={modalDeleteAllOpen}
+          onSubmit={() => handleDelete(submissionId)}
+        >
+          <DialogTitle className="px-6 pt-6">HAPUS SEMUA LOG PESERTA</DialogTitle>
+          <DialogContent className="w-[600px] px-6">
+            <DialogContentText>
+              Semua log peserta akan dihapuskan
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions className="px-6 pb-4">
+            <Button onClick={() => setModalDeleteAllOpen(false)} color="primary">
+              Kembali
+            </Button>
+            <Button type="submit" color="error">
+              Hapus
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        <Dialog
+          open={modalDeleteOpen}
+          onSubmit={() => handleDelete(submissionId)}
+        >
+          <DialogTitle className="px-6 pt-6">HAPUS LOG PESERTA</DialogTitle>
+          <DialogContent className="w-[600px] px-6">
+            <DialogContentText>
+              Log modul {submissionName} akan dihapus
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions className="px-6 pb-4">
+            <Button onClick={() => setModalDeleteOpen(false)} color="primary">
+              Kembali
+            </Button>
+            <Button type="submit" color="error">
+              Hapus
+            </Button>
+          </DialogActions>
+        </Dialog>
         <h1 className="w-full text-center mb-2">Log Peserta</h1>
         <Box component="form" className="grid gap-4 w-full mb-2">
           <div className="title grid grid-cols-5 gap-4">
@@ -641,7 +719,14 @@ const UserLogAdmin = () => {
               </Tooltip>
             ))}
             <div className="text-right">
-              <Button className="w-fit" variant="contained" color="error">
+              <Button
+                className="w-fit"
+                variant="contained"
+                color="error"
+                onClick={() => {
+                  setModalDeleteAllOpen(true);
+                }}
+              >
                 DELETE ALL
               </Button>
             </div>
@@ -966,6 +1051,10 @@ const UserLogAdmin = () => {
                         variant="outlined"
                         color="error"
                         className="w-[60px]"
+                        onClick={() => {
+                          setModalDeleteOpen(true);
+                          setSubmissionName(row.module);
+                        }}
                       >
                         DELETE
                       </Button>
