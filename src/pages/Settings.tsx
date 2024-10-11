@@ -102,12 +102,20 @@ function Settings() {
       ? settings.stasiunAsal &&
         settings.stasiunTujuan &&
         settings.line &&
-        (!settings.useMotionBase || hardwareStatus.kondisiMotion === 2)
+        (!settings.useMotionBase ||
+          (hardwareStatus.kondisiMotion === 2 &&
+            hardwareStatus.bridge === 0 &&
+            hardwareStatus.pintu === 1 &&
+            hardwareStatus.mouse3d === 1))
       : trainType === "lrt"
       ? settings.line &&
         settings.stasiunAsal &&
         settings.stasiunTujuan &&
-        (!settings.useMotionBase || hardwareStatus.kondisiMotion === 2)
+        (!settings.useMotionBase ||
+          (hardwareStatus.kondisiMotion === 2 &&
+            hardwareStatus.bridge === 0 &&
+            hardwareStatus.pintu === 1 &&
+            hardwareStatus.mouse3d === 1))
       : false;
 
   const handlePrev = () => {
