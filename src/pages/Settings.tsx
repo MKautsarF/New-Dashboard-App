@@ -36,6 +36,8 @@ import { useAuth } from "@/context/auth";
 import fs from "fs";
 import { getCourseByInstructor } from "@/services/course.services";
 import { set } from "lodash";
+import { useAtom } from "jotai";
+import { HardwareStatusAtom } from "@/context/atom";
 
 function useQuery() {
   const { search } = useLocation();
@@ -64,6 +66,7 @@ function Settings() {
   const trainSource = sourceSettings[trainType];
   const location = useLocation() as CustomLocation;
   const [courseId, setCourseId] = useState("");
+  const [hardwareStatus, setHardwareStatus] = useAtom(HardwareStatusAtom);
 
   type StationMapping = {
     [key: string]: string;
@@ -96,13 +99,16 @@ function Settings() {
 
   const canContinue =
     trainType === "kcic"
-      ? // settings.kereta &&
-        settings.stasiunAsal && settings.stasiunTujuan && settings.line
+      ? settings.stasiunAsal &&
+        settings.stasiunTujuan &&
+        settings.line &&
+        (!settings.useMotionBase || hardwareStatus.kondisiMotion === 2)
       : trainType === "lrt"
-      ? settings.line && settings.stasiunAsal && settings.stasiunTujuan
-      : // && settings.stasiunAsal && settings.stasiunTujuan
-        // && settings.kereta
-        false;
+      ? settings.line &&
+        settings.stasiunAsal &&
+        settings.stasiunTujuan &&
+        (!settings.useMotionBase || hardwareStatus.kondisiMotion === 2)
+      : false;
 
   const handlePrev = () => {
     if (location.state?.from === "startClickKcic") {
@@ -523,26 +529,25 @@ function Settings() {
             Kembali
           </Button>
           <div className="flex gap-4 pr-6">
-            {canContinue && (
-              <Button
-                variant="outlined"
-                className="bottom-0 mt-4"
-                endIcon={<NavigateNext />}
-                onClick={handleLanjut}
-                sx={{
-                  color: "#f3f3f4",
-                  backgroundColor: "#00a6fb",
-                  borderColor: "#f3f3f4",
-                  "&:hover": {
-                    borderColor: "#4dc1fc",
-                    color: "#f3f3f4",
-                    backgroundColor: "#4dc1fc",
-                  },
-                }}
-              >
-                Lanjut
-              </Button>
-            )}
+            <Button
+              variant="outlined"
+              className="bottom-0 mt-4"
+              endIcon={<NavigateNext />}
+              onClick={handleLanjut}
+              disabled={!canContinue} // Disable the button if canContinue is false
+              sx={{
+                color: canContinue ? "#f3f3f4" : "#a1a1a1", // Lighter color when disabled
+                backgroundColor: canContinue ? "#00a6fb" : "#d3d3d3", // Grey background when disabled
+                borderColor: canContinue ? "#f3f3f4" : "#a1a1a1", // Lighter border when disabled
+                "&:hover": {
+                  borderColor: canContinue ? "#4dc1fc" : "#a1a1a1",
+                  color: canContinue ? "#f3f3f4" : "#a1a1a1",
+                  backgroundColor: canContinue ? "#4dc1fc" : "#d3d3d3", // Disable hover effect if canContinue is false
+                },
+              }}
+            >
+              Lanjut
+            </Button>
           </div>
         </div>
         <FullPageLoading loading={isLoading} />

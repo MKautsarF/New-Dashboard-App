@@ -423,7 +423,14 @@ function AppMenu() {
                 onMouseEnter={() => handleMouseEnter(1)}
                 onMouseLeave={handleMouseLeave}
               >
-                <h1 className="text-white ">High Speed Train</h1>
+                <h1
+                  className="text-white "
+                  style={{
+                    textShadow: "2px 2px 0px black",
+                  }}
+                >
+                  High Speed Train
+                </h1>
                 <Button
                   variant={
                     !selectedPeserta.id || isSelected ? "outlined" : "contained"
@@ -473,7 +480,14 @@ function AppMenu() {
                 onMouseEnter={() => handleMouseEnter(2)}
                 onMouseLeave={handleMouseLeave}
               >
-                <h1 className="text-white ">Light Rail Transit</h1>
+                <h1
+                  className="text-white "
+                  style={{
+                    textShadow: "2px 2px 0px black",
+                  }}
+                >
+                  Light Rail Transit
+                </h1>
                 {/* {selectedValue2} */}
                 <Button
                   variant={
