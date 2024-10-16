@@ -718,7 +718,7 @@ const UserLogAdmin = () => {
                 </Typography>
               </Tooltip>
             ))}
-            <div className="text-right">
+            {/* <div className="text-right">
               <Button
                 className="w-fit"
                 variant="contained"
@@ -729,7 +729,7 @@ const UserLogAdmin = () => {
               >
                 DELETE ALL
               </Button>
-            </div>
+            </div> */}
           </div>
         </Box>
 
@@ -949,7 +949,7 @@ const UserLogAdmin = () => {
                 <TableCell className="text-lg font-bold">Nilai </TableCell>
                 <TableCell className="text-lg font-bold">Hasil</TableCell>
                 <TableCell className="text-lg font-bold">Replay</TableCell>
-                <TableCell className="text-lg font-bold">Action</TableCell>
+                {/* <TableCell className="text-lg font-bold">Action</TableCell> */}
               </TableRow>
             </TableHead>
             {isLoading ? (
@@ -1046,7 +1046,7 @@ const UserLogAdmin = () => {
                         <MenuItem>Download</MenuItem>
                       </Menu>
                     </TableCell>
-                    <TableCell align="center">
+                    {/* <TableCell align="center">
                       <Button
                         variant="outlined"
                         color="error"
@@ -1058,7 +1058,7 @@ const UserLogAdmin = () => {
                       >
                         DELETE
                       </Button>
-                    </TableCell>
+                    </TableCell> */}
                   </TableRow>
                 ))}
               </TableBody>
