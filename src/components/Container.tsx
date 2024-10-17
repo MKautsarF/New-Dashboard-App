@@ -31,57 +31,74 @@ const Container: React.FC<ContainerProps> = ({ children, h, w }) => {
 
   const [safetyEnabled, setSafetyEnabled] = useAtom(safetyEnabledAtom);
 
-  useEffect(() => {
-    const payloadSafety = {
-      status: "EnableSafety",
-      value: safetyEnabled,
-    };
+//   const [value, setValue] = useState(0);
 
-    // console.log(payload);
-    // sendTextToClients(JSON.stringify(payloadSafety, null, 2));
+//   const fetchValue = async () => {
+//     try {
+//         const response = await fetch('http://localhost:8003/Bridge');
+//         const data = await response.json();
+//         setValue(data.value);
+//     } catch (error) {
+//         console.error('Error fetching value:', error);
+//     }
+// };
 
-    /** reading hardware data from UE */
-    socketClients.forEach((socket) => {
-      socket.on("data", (data) => {
-        const stringData = data.toString();
-        const payload = stringData.split("|").slice(-1)[0];
-        const dataUE = JSON.parse(payload);
+// useEffect(() => {
+//     const interval = setInterval(fetchValue, 1000); // Fetch value every second
+//     return () => clearInterval(interval); // Cleanup on unmount
+// }, []);
 
-        if (dataUE.status === "safety") {
-          console.log("received hardware data: ", dataUE);
+  // useEffect(() => {
+  //   const payloadSafety = {
+  //     status: "EnableSafety",
+  //     value: safetyEnabled,
+  //   };
 
-          if (dataUE.receive) {
-            setHardwareStatus({
-              mode: dataUE.cabin,
-              pintu: dataUE.doorLock,
-              bridge: dataUE.bridge,
-              mouse3d: dataUE.mouse3d,
-              kondisiMotion: dataUE.KondisiMotion,
-            });
-          }
-          if (!dataUE.receive) {
-            setHardwareStatus({
-              mode: 99,
-              pintu: 99,
-              bridge: 99,
-              mouse3d: 99,
-              kondisiMotion: 99,
-            });
-          }
-        }
+  //   // console.log(payload);
+  //   // sendTextToClients(JSON.stringify(payloadSafety, null, 2));
 
-        if (dataUE.type === "Motion Test") {
-          console.log("received motion test data: ", dataUE);
+  //   /** reading hardware data from UE */
+  //   socketClients.forEach((socket) => {
+  //     socket.on("data", (data) => {
+  //       const stringData = data.toString();
+  //       const payload = stringData.split("|").slice(-1)[0];
+  //       const dataUE = JSON.parse(payload);
 
-          // setMotionTestStatus(dataUE.status);
-        }
-      });
-    });
-  }, [
-    safetyEnabled,
-    viewHardware,
-    // motionTestStatus,
-  ]);
+  //       if (dataUE.status === "safety") {
+  //         console.log("received hardware data: ", dataUE);
+
+  //         if (dataUE.receive) {
+  //           setHardwareStatus({
+  //             mode: dataUE.cabin,
+  //             pintu: dataUE.doorLock,
+  //             bridge: dataUE.bridge,
+  //             mouse3d: dataUE.mouse3d,
+  //             kondisiMotion: dataUE.KondisiMotion,
+  //           });
+  //         }
+  //         if (!dataUE.receive) {
+  //           setHardwareStatus({
+  //             mode: 99,
+  //             pintu: 99,
+  //             bridge: 99,
+  //             mouse3d: 99,
+  //             kondisiMotion: 99,
+  //           });
+  //         }
+  //       }
+
+  //       if (dataUE.type === "Motion Test") {
+  //         console.log("received motion test data: ", dataUE);
+
+  //         // setMotionTestStatus(dataUE.status);
+  //       }
+  //     });
+  //   });
+  // }, [
+  //   safetyEnabled,
+  //   viewHardware,
+  //   // motionTestStatus,
+  // ]);
 
   return (
     <>
@@ -143,7 +160,7 @@ const Container: React.FC<ContainerProps> = ({ children, h, w }) => {
                 marginRight: "15px",
               }}
             />
-            Status Perangkat Keras
+            Status Perangkat Keras 
           </DialogContent>
           <DialogContent className="flex flex-col mb-2 ">
             <div className="flex flex-row items-center">

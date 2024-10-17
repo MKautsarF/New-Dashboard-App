@@ -3,8 +3,8 @@ import { default as dashboardJson } from "./dashboard-config.json";
 import * as fs from "fs";
 
 
-const dashboardPath = "src/config/dashboard-config.json";
-// const dashboardPath = "C:/Train Simulator/Data/dashboard-config.json";
+// const dashboardPath = "src/config/dashboard-config.json";
+const dashboardPath = "C:/Train Simulator/Data/dashboard-config.json";
 
 // Function to read the JSON file dynamically
 function readDashboardConfig(): any {

@@ -229,7 +229,9 @@ function AppMenu() {
       }
     }
     getRows(page);
-  }, [page, reload]);
+    // console.log(selectedPeserta.nip)
+  // }, [page, reload, selectedPeserta]);
+}, [page, reload]);
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage + 1);
@@ -648,6 +650,15 @@ function AppMenu() {
                                   : "text"
                               }
                               onClick={() =>
+                                // setSelectedPeserta((prevState) =>
+                                //   prevState.nip === row.nip
+                                //     ? { id: "", name: "", nip: "" }
+                                //     : {
+                                //         id: row.id,
+                                //         name: row.name,
+                                //         nip: row.nip,
+                                //       }
+                                // )
                                 setSelectedPeserta((prevState) =>
                                   prevState.nip === row.nip
                                     ? { id: "", name: "", nip: "" }

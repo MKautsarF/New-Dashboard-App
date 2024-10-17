@@ -65,8 +65,8 @@ function useQuery() {
 }
 
 const CourseDetail = () => {
-  const sourceSettingsPath = "src/config/settings_train.json";
-  // const sourceSettingsPath = "C:/Train Simulator/Data/settings_train.json";
+  // const sourceSettingsPath = "src/config/settings_train.json";
+  const sourceSettingsPath = "C:/Train Simulator/Data/settings_train.json";
   const sourceSettingsRead = fs.readFileSync(sourceSettingsPath, "utf-8");
   const sourceSettings = JSON.parse(sourceSettingsRead);
   const navigate = useNavigate();

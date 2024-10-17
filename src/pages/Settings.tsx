@@ -54,8 +54,8 @@ interface CustomLocation extends Location {
 }
 
 function Settings() {
-  const sourceSettingsPath = "src/config/settings_train.json";
-  // const sourceSettingsPath = "C:/Train Simulator/Data/settings_train.json";
+  // const sourceSettingsPath = "src/config/settings_train.json";
+  const sourceSettingsPath = "C:/Train Simulator/Data/settings_train.json";
   const sourceSettingsRead = fs.readFileSync(sourceSettingsPath, "utf-8");
   const sourceSettings = JSON.parse(sourceSettingsRead);
 
@@ -133,7 +133,7 @@ function Settings() {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleLanjut = () => {
-    navigate(`/scoringStart?type=${trainType}&id=65`, {
+    navigate(`/scoringStart?type=${trainType}&id=76`, {
       state: { fromEksplorasi: true },
     });
   };
