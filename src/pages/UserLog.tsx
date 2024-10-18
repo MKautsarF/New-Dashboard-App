@@ -383,6 +383,7 @@ const UserLog = () => {
 
   const handleOpenPDF = async (id: any) => {
     setSubmissionId(id);
+    console.log("submission id: ",submissionId);
     try {
       const pdfres = await getSubmissionLogByTag(Number(id), "pdf");
       const pdffile = await getSubmissionLogByFileIndex(

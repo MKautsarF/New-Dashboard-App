@@ -332,7 +332,8 @@ function Review() {
       // console.log("tes");
       const dir = "C:/Train Simulator/Data/penilaian";
 
-      navigate(`/finishLRT?&submissionId=${submissionId}&url=${url}&trainType=${trainType}`);
+      // navigate(`/finishLRT?&submissionId=${submissionId}&url=${url}&trainType=${trainType}`);
+      // navigate('/SecondPage');
 
     } catch (e) {
       console.error(e);
@@ -344,7 +345,7 @@ function Review() {
     } finally {
       setIsLoading(false);
       sendTextToClients(JSON.stringify({ status: "canceled" }, null, 2));
-      navigate(-1)
+      navigate('/SecondPage');
     }
   };
 
