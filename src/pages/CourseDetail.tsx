@@ -601,7 +601,7 @@ const CourseDetail = () => {
                 />
                 <InfoRow
                   label="Berat Kereta"
-                  value={`${payload.train?.weight} kg`}
+                  value={`${payload.train?.weight} ton`}
                   isEllipsisEnabled={isEllipsisEnabled}
                   width="198px"
                 />
