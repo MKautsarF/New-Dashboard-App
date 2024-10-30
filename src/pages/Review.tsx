@@ -36,10 +36,18 @@ import {
 import dayjs from "dayjs";
 import { useSettings, useSettingsKCIC } from "../context/settings";
 import { useAuth } from "../context/auth";
-import { Assessment, EditNoteRounded, EditNoteSharp, Stop } from "@mui/icons-material";
+import {
+  Assessment,
+  EditNoteRounded,
+  EditNoteSharp,
+  Stop,
+} from "@mui/icons-material";
 import { getScoringDetail } from "@/services/scoring.services";
 import { getUserById } from "@/services/user.services";
-import { cancelSubmissionById, uploadLogSubmission } from "@/services/submission.services";
+import {
+  cancelSubmissionById,
+  uploadLogSubmission,
+} from "@/services/submission.services";
 import fs from "fs";
 
 import { finishSubmissionById } from "@/services/submission.services";
@@ -83,7 +91,6 @@ function Review() {
   const courseId = query.get("courseId");
   const trainType = query.get("trainType");
 
-
   const [json, setJson] = useState<any>();
   const [realTimeNilai, setRealTimeNilai] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
@@ -109,7 +116,9 @@ function Review() {
       try {
         // setIsLoading(true);
         const res = await getScoringDetail(scoringID);
-        const res2 = await getUserById(localStorage.getItem('selectedPesertaId'));
+        const res2 = await getUserById(
+          localStorage.getItem("selectedPesertaId")
+        );
         const res3 = await getCourseByID(courseId);
         console.log("res", res);
         console.log("res3", res3);
@@ -124,9 +133,8 @@ function Review() {
       }
     }
     fetchData();
-  }
-), [];
-  
+  }),
+    [];
 
   const handleFinish = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -136,60 +144,57 @@ function Review() {
     try {
       setIsLoading(true);
       const endTime = dayjs();
-      
+
       // Get input data from form
       const data = new FormData(currentTarget);
       const inputValues = data.getAll("penilaian");
-      
+
       // Copy krl json mock template
       const jsonToWrite = {
         ...json,
         judul_modul: courseName,
       };
-      
+
       // Write metadata
       // * Time
       jsonToWrite.waktu_mulai = startTime.format("HH.mm");
       jsonToWrite.waktu_selesai = endTime.format("HH.mm");
-      
+
       const diff = endTime.diff(startTime, "second");
       const hours = Math.floor(diff / 3600);
       const minutes = Math.floor((diff % 3600) / 60);
       const seconds = diff % 60;
-      
+
       jsonToWrite.durasi = formatDurationToString(hours, minutes, seconds);
       jsonToWrite.tanggal = startTime.format("DD/MM/YYYY");
-      
+
       // * Crew data
       jsonToWrite.nama_crew = peserta.name;
-      jsonToWrite.kedudukan =
-      (peserta.bio && peserta.bio.position) || "";
+      jsonToWrite.kedudukan = (peserta.bio && peserta.bio.position) || "";
       jsonToWrite.usia = `${
         peserta.bio && peserta.bio.born
-        ? Math.abs(dayjs(peserta.bio.born).diff(dayjs(), "years"))
-        : "-"
+          ? Math.abs(dayjs(peserta.bio.born).diff(dayjs(), "years"))
+          : "-"
       } tahun`;
-      jsonToWrite.kode_kedinasan =
-      peserta.username ||
-      "";
-      
+      jsonToWrite.kode_kedinasan = peserta.username || "";
+
       // * Train data
       jsonToWrite.train_type = trainType.toUpperCase();
-      jsonToWrite.id_pengaturan
-      
+      jsonToWrite.id_pengaturan;
+
       jsonToWrite.no_ka = "-";
       jsonToWrite.lintas =
-      settings.stasiunAsal + " - " + settings.stasiunTujuan;
-      
+        settings.stasiunAsal + " - " + settings.stasiunTujuan;
+
       // * Instructor data
       jsonToWrite.nama_instruktur = instructor.name;
-      
+
       // * Notes
       jsonToWrite.keterangan = notes === "" ? "-" : notes;
-      
+
       // Write actual nilai to the copied krl json
       let jsonIdx = 0;
-      
+
       jsonToWrite.penilaian.forEach((penilaian: any, i: number) => {
         // console.log('reading penilaian array');
         penilaian.data.forEach((data: any, j: number) => {
@@ -203,11 +208,10 @@ function Review() {
           });
         });
       });
-      
+
       // nilai skor akhir
       jsonToWrite.nilai_akhir = realTimeNilai < 0 ? 0 : realTimeNilai;
-      
-      
+
       //generate pdf
       let pdfname = null;
       let excelname = null;
@@ -215,15 +219,21 @@ function Review() {
       await generateExcel(jsonToWrite).then((excel) => {
         excelname = excel;
       });
-      const res = await finishSubmission(jsonToWrite, pdfname.pdfBuffer, pdfname.score, excelname);
+      const res = await finishSubmission(
+        jsonToWrite,
+        pdfname.pdfBuffer,
+        pdfname.score,
+        excelname
+      );
 
       // Save file to local
 
       // console.log("tes");
       const dir = "C:/Train Simulator/Data/penilaian";
 
-      navigate(`/finishLRT?&submissionId=${submissionId}&url=${url}&trainType=${trainType}`);
-
+      navigate(
+        `/finishLRT?&submissionId=${submissionId}&url=${url}&trainType=${trainType}`
+      );
     } catch (e) {
       console.error(e);
       setToastData({
@@ -236,95 +246,103 @@ function Review() {
       sendTextToClients(JSON.stringify({ status: "finish" }, null, 2));
     }
   };
-  
-  const finishSubmission = async (jsonToWrite: any, pdfbuf: any, score: number, excelbuf:any) => {
+
+  const finishSubmission = async (
+    jsonToWrite: any,
+    pdfbuf: any,
+    score: number,
+    excelbuf: any
+  ) => {
     try {
       console.log("totalScore2", totalScore);
       const payload = {
-        score : score,
-        assessment : jsonToWrite
-      }
+        score: score,
+        assessment: jsonToWrite,
+      };
       console.log("payload", payload);
       const res = await finishSubmissionById(Number(submissionId), payload);
-      console.log("Finish button clicked");   
+      console.log("Finish button clicked");
       console.log("Submission finished:", res);
       const formData = new FormData();
       console.log("pdfbuf", pdfbuf);
-      const blob = new Blob([pdfbuf], { type: 'application/pdf' });  // or any other appropriate MIME type
+      const blob = new Blob([pdfbuf], { type: "application/pdf" }); // or any other appropriate MIME type
       setUrl(URL.createObjectURL(blob));
       formData.append("file", blob, "data.pdf");
       formData.append("tag", "pdf");
       const resPDF = await uploadLogSubmission(Number(submissionId), formData);
       console.log(resPDF);
-      const blobExcel = new Blob([excelbuf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,' });  // or any other appropriate MIME type
+      const blobExcel = new Blob([excelbuf], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,",
+      }); // or any other appropriate MIME type
       const formDataExcel = new FormData();
       formDataExcel.append("file", blobExcel, "data.xlsx");
       formDataExcel.append("tag", "xlsx");
-      const resExcel = await uploadLogSubmission(Number(submissionId), formDataExcel);
+      const resExcel = await uploadLogSubmission(
+        Number(submissionId),
+        formDataExcel
+      );
       console.log(resExcel);
     } catch (error) {
       console.error(error);
     }
-  }
+  };
 
-  const handleConfirmedCancel = async (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleConfirmedCancel = async (
+    e: React.MouseEvent<HTMLButtonElement>
+  ) => {
     try {
       setIsLoading(true);
       const endTime = dayjs();
-    
+
       // Copy krl json mock template
       const jsonToWrite = {
         ...json,
         judul_modul: courseName,
       };
-      
+
       // Write metadata
       // * Time
       jsonToWrite.waktu_mulai = startTime.format("HH.mm");
       jsonToWrite.waktu_selesai = endTime.format("HH.mm");
-      
+
       const diff = endTime.diff(startTime, "second");
       const hours = Math.floor(diff / 3600);
       const minutes = Math.floor((diff % 3600) / 60);
       const seconds = diff % 60;
-      
+
       jsonToWrite.durasi = formatDurationToString(hours, minutes, seconds);
       jsonToWrite.tanggal = startTime.format("DD/MM/YYYY");
-      
+
       // * Crew data
       jsonToWrite.nama_crew = peserta.name;
-      jsonToWrite.kedudukan =
-      (peserta.bio && peserta.bio.position) || "";
+      jsonToWrite.kedudukan = (peserta.bio && peserta.bio.position) || "";
       jsonToWrite.usia = `${
         peserta.bio && peserta.bio.born
-        ? Math.abs(dayjs(peserta.bio.born).diff(dayjs(), "years"))
-        : "-"
+          ? Math.abs(dayjs(peserta.bio.born).diff(dayjs(), "years"))
+          : "-"
       } tahun`;
-      jsonToWrite.kode_kedinasan =
-      peserta.username ||
-      "";
-      
+      jsonToWrite.kode_kedinasan = peserta.username || "";
+
       // * Train data
       jsonToWrite.train_type = trainType.toUpperCase();
-      jsonToWrite.id_pengaturan
-      
+      jsonToWrite.id_pengaturan;
+
       jsonToWrite.no_ka = "-";
       jsonToWrite.lintas =
-      settings.stasiunAsal + " - " + settings.stasiunTujuan;
-      
+        settings.stasiunAsal + " - " + settings.stasiunTujuan;
+
       // * Instructor data
       jsonToWrite.nama_instruktur = instructor.name;
-      
+
       // * Notes
       jsonToWrite.keterangan = notes === "" ? "-" : notes;
-      
+
       // Write actual nilai to the copied krl json
       let jsonIdx = 0;
-      
+
       // nilai skor akhir
       jsonToWrite.nilai_akhir = realTimeNilai < 0 ? 0 : realTimeNilai;
-      
-      
+
       const res = await cancelSubmission(jsonToWrite);
 
       // Save file to local
@@ -334,7 +352,6 @@ function Review() {
 
       // navigate(`/finishLRT?&submissionId=${submissionId}&url=${url}&trainType=${trainType}`);
       // navigate('/SecondPage');
-
     } catch (e) {
       console.error(e);
       setToastData({
@@ -345,22 +362,21 @@ function Review() {
     } finally {
       setIsLoading(false);
       sendTextToClients(JSON.stringify({ status: "canceled" }, null, 2));
-      navigate('/SecondPage');
+      navigate("/SecondPage");
     }
   };
 
   const cancelSubmission = async (jsonToWrite: any) => {
     try {
       const payload = {
-        score : "",
-        assessment : jsonToWrite
-      }
+        score: "",
+        assessment: jsonToWrite,
+      };
       const res = await cancelSubmissionById(Number(submissionId), payload);
     } catch (error) {
       console.error(error);
     }
-  }
-
+  };
 
   const generatePDF = (json: any) => {
     const doc = new jsPDF();
@@ -697,7 +713,7 @@ function Review() {
     averageAkhir = Math.floor(averageAkhir * 10) / 10;
     const averageTotal = (averageAkhir + json.nilai_akhir) / 2;
     setTotalScore(averageTotal);
-    console.log("averagetotal",averageTotal)
+    console.log("averagetotal", averageTotal);
     console.log("totalscore1", totalScore);
     doc.addPage();
     doc.setFontSize(20);
@@ -729,22 +745,19 @@ function Review() {
       },
     });
 
-    
     //rounding averageTotal to integer
     const score = Math.round(averageTotal);
-    
+
     const pdfBuffer = doc.output("blob");
     console.log("pdfBuffer", pdfBuffer);
-    return {pdfBuffer, score};
-    
+    return { pdfBuffer, score };
   };
 
   async function uploadPDF(formData: FormData) {
     try {
       const res = await uploadLogSubmission(Number(submissionId), formData);
       console.log("PDF uploaded:", res);
-    }
-    catch (error) {
+    } catch (error) {
       console.error(error);
     }
   }
@@ -926,53 +939,59 @@ function Review() {
   };
 
   useEffect(() => {
-    server.on("connection", (socket) => {
-      console.log("Client connected - in start mode");
+    // server.on('connection', (socket) => {
+    //   console.log('Client connected - in start mode');
 
-      // Add the new client socket to the array
-      socketClients.push(socket);
+    //   // Add the new client socket to the array
+    //   socketClients.push(socket);
 
-      socket.on("data", (data) => {
-        const stringData = data.toString();
-        const payload = stringData.split("|").slice(-1)[0];
-        const jsonData = JSON.parse(payload);
+    //   socket.on('data', (data) => {
+    //     const stringData = data.toString();
+    //     const payload = stringData.split('|').slice(-1)[0];
+    //     const jsonData = JSON.parse(payload);
 
-        console.log("received data: ", jsonData);
+    //     console.log('score data: ', jsonData);
 
-        if (jsonData.id === "K1.1.1") {
-          setRealTimeNilai(Number(jsonData.nilai));
-        }
-      });
+    //     if (jsonData.id === 'K1.1.1') {
+    //       setRealTimeNilai(Number(jsonData.nilai));
+    //     }
+    //   });
 
-      socket.on("end", () => {
-        console.log("Client disconnected");
-        handleClientDisconnect(socket);
-      });
+    //   socket.on('end', () => {
+    //     console.log('Client disconnected');
+    //     handleClientDisconnect(socket);
+    //   });
 
-      socket.on("error", (err) => {
-        console.error("Socket error:", err.message);
-        handleClientDisconnect(socket);
-      });
-    });
+    //   socket.on('error', (err) => {
+    //     console.error('Socket error:', err.message);
+    //     handleClientDisconnect(socket);
+    //   });
+    // });
 
+    // Existing sockets
     socketClients.forEach((socket) => {
       socket.on("data", (data) => {
         const stringData = data.toString();
         const payload = stringData.split("|").slice(-1)[0];
-        const jsonData = JSON.parse(payload);
+        const dataUE = JSON.parse(payload);
 
-        if (jsonData.id === "M1.1.1") {
-          setRealTimeNilai(Number(jsonData.nilai));
+        if (dataUE.nilai) {
+          console.log(`${trainType} score data: `, dataUE);
+
+          if (dataUE.id === "K1.1.1") {
+            setRealTimeNilai(Number(dataUE.nilai));
+          }
         }
       });
     });
 
     return () => {
       socketClients.forEach((socket) => {
+        console.log("removing data listeners");
         socket.removeAllListeners("data");
       });
     };
-  }, []);
+  }, [realTimeNilai]);
 
   return (
     <Container w={1000}>
@@ -1079,7 +1098,6 @@ function Review() {
                 className="ml-auto"
                 type="button"
                 onClick={() => setNotesOpen(true)}
-
                 sx={{
                   color: "#00a6fb",
                   borderColor: "#00a6fb",
@@ -1130,21 +1148,22 @@ function Review() {
         aria-describedby="cancel-dialog-description"
         className="p-6"
       >
-        <DialogTitle id="cancel-dialog-title">Konfirmasi Batal Simulasi</DialogTitle>
+        <DialogTitle id="cancel-dialog-title">
+          Konfirmasi Batal Simulasi
+        </DialogTitle>
         <DialogContent>
           <DialogContentText id="cancel-dialog-description">
             Apakah Anda yakin ingin membatalkan simulasi?
           </DialogContentText>
         </DialogContent>
         <DialogActions className="flex p-6 justify-between w-full">
-          <Button 
-            onClick={() => setCancelOpen(false)}
-            color="primary"
-          >
+          <Button onClick={() => setCancelOpen(false)} color="primary">
             Tidak
           </Button>
-          <Button 
-            onClick={handleConfirmedCancel} color="error" variant="outlined"
+          <Button
+            onClick={handleConfirmedCancel}
+            color="error"
+            variant="outlined"
             sx={{
               color: "#df2935",
               borderColor: "#df2935",
