@@ -143,6 +143,8 @@ export const deleteSubmissionByIdAdmin = async (id: number) => {
 
 export const deleteSubmissionAll = async (userId: string) => {
   const res = await services.delete(`/instructor/submission/user/${userId}`)
+
+  return res.data;
 }
 
 export const finishSubmissionById = async (id: number, payload: any) => {
