@@ -37,7 +37,11 @@ import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
 import App from "./app";
-import { SettingsProvider, SettingsProviderKCIC } from "./context/settings";
+import {
+  SettingsProvider,
+  SettingsProviderKCIC,
+  MotionProvider,
+} from "./context/settings";
 
 const rootElement = document.getElementById("root");
 const root = createRoot(rootElement);
@@ -73,7 +77,9 @@ root.render(
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <SettingsProvider>
           <SettingsProviderKCIC>
-            <App />
+            <MotionProvider>
+              <App />
+            </MotionProvider>
           </SettingsProviderKCIC>
         </SettingsProvider>
       </LocalizationProvider>

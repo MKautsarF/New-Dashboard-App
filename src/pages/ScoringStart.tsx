@@ -15,6 +15,8 @@ import {
 } from "@/services/scoring.services";
 import FirstPageIcon from "@mui/icons-material/FirstPage";
 import { set } from "lodash";
+import { useAtom } from "jotai";
+import { HardwareStatusAtom } from "@/context/atom";
 
 function useQuery() {
   const { search } = useLocation();
@@ -41,6 +43,7 @@ function ScoringStart() {
   const [coursesData, setCoursesData] = useState<any[]>([]);
   const [selectedCourse, setSelectedCourse] = useState<any | null>(null);
   const [submissionPayload, setSubmissionPayload] = useState<any | null>(null);
+  const [hardwareStatus, setHardwareStatus] = useAtom(HardwareStatusAtom);
 
   const [payload, setPayload] = useState<any>({});
 
@@ -224,9 +227,13 @@ function ScoringStart() {
     navigate(`/scoringlist/coursedetail?id=${courseID}&type=${trainType}`);
   };
 
+  const handleMotionChange = (value: number) => {
+    setHardwareStatus({ ...hardwareStatus, kondisiMotion: value });
+  };
+
   return (
     <>
-      <Container w={900}>
+      <Container w={900} handleMotionChange={handleMotionChange}>
         <div className="flex flex-col gap-4 w-full">
           <div className="flex flex-col text-left gap-4 p-6 ">
             <h1 style={{ fontSize: "1.75rem", fontWeight: "bold" }}>

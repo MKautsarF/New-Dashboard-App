@@ -20,6 +20,8 @@ import {
   Typography,
 } from "@mui/material";
 import { currentInstructor, useAuth } from "@/context/auth";
+import { useAtom } from "jotai";
+import { HardwareStatusAtom } from "@/context/atom";
 
 function useQuery() {
   const { search } = useLocation();
@@ -47,6 +49,7 @@ function SettingsSecond() {
   const [kcicButtons, setKcicButtons] = useState<any[]>([]);
   const [coursesData, setCoursesData] = useState<any[]>([]);
   const [selectedCourse, setSelectedCourse] = useState<any | null>(null);
+  const [hardwareStatus, setHardwareStatus] = useAtom(HardwareStatusAtom);
 
   const [payload, setPayload] = useState<any>({});
 
@@ -159,9 +162,13 @@ function SettingsSecond() {
     }
   };
 
+  const handleMotionChange = (value: number) => {
+    setHardwareStatus({ ...hardwareStatus, kondisiMotion: value });
+  };
+
   return (
     <>
-      <Container w={900} h={700}>
+      <Container w={900} h={700} handleMotionChange={handleMotionChange}>
         <div className="flex flex-col gap-4 w-full">
           <div className="flex flex-col text-left gap-4 px-6 pt-6 pb-2">
             <h1 style={{ fontSize: "1.75rem", fontWeight: "bold" }}>

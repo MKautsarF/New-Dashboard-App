@@ -8,22 +8,40 @@ import {
   SettingsPower,
   CompareArrows,
 } from "@mui/icons-material";
-import { Button, Dialog, DialogContent } from "@mui/material";
+import {
+  Button,
+  Dialog,
+  DialogContent,
+  FormControl,
+  MenuItem,
+  Select,
+} from "@mui/material";
 import React, { useEffect, useState } from "react";
 import InstructorDetail from "./InstructorDetail";
 import { useAtom } from "jotai";
 import { HardwareStatusAtom, safetyEnabledAtom } from "@/context/atom";
 import { sendTextToClients, socketClients } from "@/socket";
+import { useMotion } from "@/context/settings";
+import { useLocation } from "react-router-dom";
 
 interface ContainerProps {
   children: React.ReactNode;
   h?: number;
   w?: number;
+  motion?: number;
+  handleMotionChange?: any;
 }
 
-const Container: React.FC<ContainerProps> = ({ children, h, w }) => {
+const Container: React.FC<ContainerProps> = ({
+  children,
+  h,
+  w,
+  motion,
+  handleMotionChange,
+}) => {
   const { instructor } = useAuth();
-
+  // const { motion, setMotion } = useMotion();
+  const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
   const [viewHardware, setviewHardware] = useState(false);
 
@@ -31,22 +49,22 @@ const Container: React.FC<ContainerProps> = ({ children, h, w }) => {
 
   const [safetyEnabled, setSafetyEnabled] = useAtom(safetyEnabledAtom);
 
-//   const [value, setValue] = useState(0);
+  //   const [value, setValue] = useState(0);
 
-//   const fetchValue = async () => {
-//     try {
-//         const response = await fetch('http://localhost:8003/Bridge');
-//         const data = await response.json();
-//         setValue(data.value);
-//     } catch (error) {
-//         console.error('Error fetching value:', error);
-//     }
-// };
+  //   const fetchValue = async () => {
+  //     try {
+  //         const response = await fetch('http://localhost:8003/Bridge');
+  //         const data = await response.json();
+  //         setValue(data.value);
+  //     } catch (error) {
+  //         console.error('Error fetching value:', error);
+  //     }
+  // };
 
-// useEffect(() => {
-//     const interval = setInterval(fetchValue, 1000); // Fetch value every second
-//     return () => clearInterval(interval); // Cleanup on unmount
-// }, []);
+  // useEffect(() => {
+  //     const interval = setInterval(fetchValue, 1000); // Fetch value every second
+  //     return () => clearInterval(interval); // Cleanup on unmount
+  // }, []);
 
   // useEffect(() => {
   //   const payloadSafety = {
@@ -113,6 +131,39 @@ const Container: React.FC<ContainerProps> = ({ children, h, w }) => {
         }}
       >
         <div>
+          <FormControl
+            sx={{
+              "& .MuiInputBase-root": {
+                fontSize: "1.4rem",
+              },
+              "& .MuiFormLabel-root": {
+                fontSize: "1.4rem",
+              },
+              "& .MuiOutlinedInput-notchedOutline": {
+                border: "none",
+              },
+            }}
+            className="absolute top-2 right-64 -translate-y-full flex flex-row items-center"
+          >
+            {(location.pathname === "/FifthPage" ||
+              location.pathname === "/Modul/learning" ||
+              location.pathname === "/scoringStart" ||
+              location.pathname === "/FifthPage/review") && (
+              <>
+                <p className="text-lg font-semibold text-black">Motion : </p>
+                <Select
+                  value={hardwareStatus.kondisiMotion}
+                  defaultValue={hardwareStatus.kondisiMotion}
+                  className="font-normal text-lg"
+                  onChange={(e) => handleMotionChange(e.target.value)}
+                >
+                  <MenuItem value={2}>2</MenuItem>
+                  <MenuItem value={1}>1</MenuItem>
+                  <MenuItem value={0}>0</MenuItem>
+                </Select>
+              </>
+            )}
+          </FormControl>
           {instructor.name !== "" && (
             <Button
               className="absolute top-0 right-2 -translate-y-full flex "
@@ -160,12 +211,12 @@ const Container: React.FC<ContainerProps> = ({ children, h, w }) => {
                 marginRight: "15px",
               }}
             />
-            Status Perangkat Keras 
+            Status Perangkat Keras d
           </DialogContent>
           <DialogContent className="flex flex-col mb-2 ">
             <div className="flex flex-row items-center">
               <Train style={{ color: "black", marginRight: "10px" }} />
-              Mode:{" "}
+              Mode: {hardwareStatus.mode}
               {hardwareStatus.mode === 0
                 ? "High Speed Train"
                 : hardwareStatus.mode === 1
@@ -177,7 +228,7 @@ const Container: React.FC<ContainerProps> = ({ children, h, w }) => {
             <br />
             <div className="flex flex-row items-center">
               <CompareArrows style={{ color: "black", marginRight: "10px" }} />
-              Jembatan:{" "}
+              Jembatan: {hardwareStatus.bridge}
               {hardwareStatus.bridge === 0
                 ? "Naik"
                 : hardwareStatus.bridge === 1
@@ -189,7 +240,7 @@ const Container: React.FC<ContainerProps> = ({ children, h, w }) => {
             <br />
             <div className="flex flex-row items-center">
               <Mouse style={{ color: "black", marginRight: "10px" }} />
-              3D Mouse:{" "}
+              3D Mouse: {hardwareStatus.mouse3d}
               {hardwareStatus.mouse3d === 0
                 ? "Aktif"
                 : hardwareStatus.mouse3d === 1
@@ -199,7 +250,7 @@ const Container: React.FC<ContainerProps> = ({ children, h, w }) => {
             <br />
             <div className="flex flex-row items-center">
               <SensorDoor style={{ color: "black", marginRight: "10px" }} />
-              Pintu:{" "}
+              Pintu: {hardwareStatus.pintu}
               {hardwareStatus.pintu === 0
                 ? "Terbuka"
                 : hardwareStatus.pintu === 1
@@ -209,7 +260,7 @@ const Container: React.FC<ContainerProps> = ({ children, h, w }) => {
             <br />
             <div className="flex flex-row items-center">
               <SettingsPower style={{ color: "black", marginRight: "10px" }} />
-              Motion:{" "}
+              Motion: {hardwareStatus.kondisiMotion}
               {hardwareStatus.kondisiMotion === 0
                 ? "Tidak Siap Pakai"
                 : hardwareStatus.kondisiMotion === 1

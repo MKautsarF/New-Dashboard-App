@@ -49,6 +49,8 @@ import {
   uploadLogSubmission,
 } from "@/services/submission.services";
 import fs from "fs";
+import { useAtom } from "jotai";
+import { HardwareStatusAtom } from "@/context/atom";
 
 import { finishSubmissionById } from "@/services/submission.services";
 import { set } from "lodash";
@@ -102,6 +104,7 @@ function Review() {
     msg: "",
   });
   const scoringID = query.get("scoringId");
+  const [hardwareStatus, setHardwareStatus] = useAtom(HardwareStatusAtom);
 
   // Notes
   const [notes, setNotes] = useState("");
@@ -993,8 +996,12 @@ function Review() {
     };
   }, [realTimeNilai]);
 
+  const handleMotionChange = (value: number) => {
+    setHardwareStatus({ ...hardwareStatus, kondisiMotion: value });
+  };
+
   return (
-    <Container w={1000}>
+    <Container w={1000} handleMotionChange={handleMotionChange}>
       {/* <div className="w-1/3 absolute -translate-y-full py-4">
         <Logo />
       </div> */}

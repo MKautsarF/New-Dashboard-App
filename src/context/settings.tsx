@@ -29,6 +29,14 @@ interface Settings {
   trainee: Trainee | null;
 }
 
+interface Motion {
+  mode: string;
+  bridge: string;
+  tdmouse: string;
+  pintu: string;
+  motion: number;
+}
+
 // Define the shape of your context
 interface SettingsContextType {
   settings: Settings;
@@ -41,6 +49,11 @@ interface SettingsContextTypeKCIC {
   setSettingsKCIC: React.Dispatch<React.SetStateAction<Settings>>;
 }
 
+interface MotionContextType {
+  motion: Motion;
+  setMotion: React.Dispatch<React.SetStateAction<Motion>>;
+}
+
 // Create the context
 const SettingsContext = createContext<SettingsContextType | undefined>(
   undefined
@@ -50,6 +63,8 @@ const SettingsContext = createContext<SettingsContextType | undefined>(
 const SettingsContextKCIC = createContext<SettingsContextTypeKCIC | undefined>(
   undefined
 );
+
+const MotionContext = createContext<MotionContextType | undefined>(undefined);
 
 // Custom hook to use the SettingsContext
 export const useSettings = () => {
@@ -71,8 +86,20 @@ export const useSettingsKCIC = () => {
   return context;
 };
 
+export const useMotion = () => {
+  const context = useContext(MotionContext);
+  if (!context) {
+    throw new Error("useMotion must be used within an MotionProvider");
+  }
+  return context;
+};
+
 // SettingsProvider component that will wrap your application
 interface SettingsProviderProps {
+  children: ReactNode;
+}
+
+interface MotionProviderProps {
   children: ReactNode;
 }
 
@@ -137,5 +164,26 @@ export const SettingsProviderKCIC: React.FC<SettingsProviderProps> = ({
     <SettingsContextKCIC.Provider value={contextValueKCIC}>
       {children}
     </SettingsContextKCIC.Provider>
+  );
+};
+
+export const MotionProvider: React.FC<MotionProviderProps> = ({ children }) => {
+  const [motion, setMotion] = useState<Motion>({
+    mode: "",
+    bridge: "",
+    tdmouse: "",
+    pintu: "",
+    motion: 0,
+  });
+
+  const contextValueMotion: MotionContextType = {
+    motion,
+    setMotion,
+  };
+
+  return (
+    <MotionContext.Provider value={contextValueMotion}>
+      {children}
+    </MotionContext.Provider>
   );
 };

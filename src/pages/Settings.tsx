@@ -19,6 +19,9 @@ import {
 import {
   Button,
   Checkbox,
+  Dialog,
+  DialogActions,
+  DialogContent,
   FormControl,
   FormControlLabel,
   Input,
@@ -28,8 +31,10 @@ import {
   Select,
   Slider,
   TextField,
+  Tooltip,
+  Typography,
 } from "@mui/material";
-import { useSettings } from "@/context/settings";
+import { useSettings, useMotion } from "@/context/settings";
 import { sendTextToClients } from "@/socket";
 import FullPageLoading from "@/components/FullPageLoading";
 import { useAuth } from "@/context/auth";
@@ -61,12 +66,15 @@ function Settings() {
 
   const navigate = useNavigate();
   const { settings, setSettings } = useSettings();
+  // const { motion, setMotion } = useMotion();
   const query = useQuery();
   const trainType = query.get("type") as "kcic" | "lrt";
   const trainSource = sourceSettings[trainType];
   const location = useLocation() as CustomLocation;
   const [courseId, setCourseId] = useState("");
+  const [motion, setMotion] = useState(0);
   const [hardwareStatus, setHardwareStatus] = useAtom(HardwareStatusAtom);
+  const [modal, setModal] = useState(false);
 
   type StationMapping = {
     [key: string]: string;
@@ -102,8 +110,10 @@ function Settings() {
       ? settings.stasiunAsal &&
         settings.stasiunTujuan &&
         settings.line &&
-        (!settings.useMotionBase ||
-          (hardwareStatus.kondisiMotion === 2 &&
+        ((!settings.useMotionBase && hardwareStatus.kondisiMotion === 0) ||
+          (!settings.useMotionBase && hardwareStatus.kondisiMotion === 1) ||
+          (settings.useMotionBase === true &&
+            hardwareStatus.kondisiMotion === 2 &&
             hardwareStatus.bridge === 0 &&
             hardwareStatus.pintu === 1 &&
             hardwareStatus.mouse3d === 1))
@@ -111,12 +121,17 @@ function Settings() {
       ? settings.line &&
         settings.stasiunAsal &&
         settings.stasiunTujuan &&
-        (!settings.useMotionBase ||
-          (hardwareStatus.kondisiMotion === 2 &&
+        ((!settings.useMotionBase && hardwareStatus.kondisiMotion === 0) ||
+          (!settings.useMotionBase && hardwareStatus.kondisiMotion === 1) ||
+          (settings.useMotionBase === true &&
+            hardwareStatus.kondisiMotion === 2 &&
             hardwareStatus.bridge === 0 &&
             hardwareStatus.pintu === 1 &&
             hardwareStatus.mouse3d === 1))
       : false;
+  // (settings.useMotionBase === true && hardwareStatus.kondisiMotion === 2) ||
+  //   (settings.useMotionBase === false && hardwareStatus.kondisiMotion === 0) ||
+  //   (settings.useMotionBase === false && hardwareStatus.kondisiMotion === 1);
 
   const handlePrev = () => {
     if (location.state?.from === "startClickKcic") {
@@ -229,9 +244,25 @@ function Settings() {
     }
   }, []);
 
+  useEffect(() => {
+    console.log(settings.useMotionBase, hardwareStatus.kondisiMotion);
+    if (
+      (settings.useMotionBase === false &&
+        hardwareStatus.kondisiMotion === 2) ||
+      (settings.useMotionBase === true && hardwareStatus.kondisiMotion === 0) ||
+      (settings.useMotionBase === true && hardwareStatus.kondisiMotion === 1)
+    ) {
+      setModal(true);
+    }
+  }, [settings.useMotionBase, hardwareStatus]);
+
+  const handleMotionChange = (value: number) => {
+    setHardwareStatus({ ...hardwareStatus, kondisiMotion: value });
+  };
+
   return (
     <>
-      <Container w={1500}>
+      <Container w={1500} handleMotionChange={handleMotionChange}>
         <div className="p-6 flex flex-wrap">
           {/* Judul */}
           <h1
@@ -537,26 +568,112 @@ function Settings() {
             Kembali
           </Button>
           <div className="flex gap-4 pr-6">
-            <Button
-              variant="outlined"
-              className="bottom-0 mt-4"
-              endIcon={<NavigateNext />}
-              onClick={handleLanjut}
-              disabled={!canContinue} // Disable the button if canContinue is false
-              sx={{
-                color: canContinue ? "#f3f3f4" : "#a1a1a1", // Lighter color when disabled
-                backgroundColor: canContinue ? "#00a6fb" : "#d3d3d3", // Grey background when disabled
-                borderColor: canContinue ? "#f3f3f4" : "#a1a1a1", // Lighter border when disabled
-                "&:hover": {
-                  borderColor: canContinue ? "#4dc1fc" : "#a1a1a1",
-                  color: canContinue ? "#f3f3f4" : "#a1a1a1",
-                  backgroundColor: canContinue ? "#4dc1fc" : "#d3d3d3", // Disable hover effect if canContinue is false
-                },
-              }}
-            >
-              Lanjut
-            </Button>
+            {settings.useMotionBase === false &&
+            hardwareStatus.kondisiMotion === 2 ? (
+              <Tooltip
+                placement="top"
+                title={
+                  <span style={{ fontSize: "1rem" }}>
+                    Harap aktifkan motion base atau set motion ke 0 atau 1
+                  </span>
+                }
+              >
+                <span>
+                  {/* Wrap Button in span to show tooltip even when disabled */}
+                  <Button
+                    variant="outlined"
+                    className="bottom-0 mt-4"
+                    endIcon={<NavigateNext />}
+                    onClick={handleLanjut}
+                    disabled={!canContinue} // Disable the button if canContinue is false
+                    sx={{
+                      color: canContinue ? "#f3f3f4" : "#a1a1a1", // Lighter color when disabled
+                      backgroundColor: canContinue ? "#00a6fb" : "#d3d3d3", // Grey background when disabled
+                      borderColor: canContinue ? "#f3f3f4" : "#a1a1a1", // Lighter border when disabled
+                      "&:hover": {
+                        borderColor: canContinue ? "#4dc1fc" : "#a1a1a1",
+                        color: canContinue ? "#f3f3f4" : "#a1a1a1",
+                        backgroundColor: canContinue ? "#4dc1fc" : "#d3d3d3", // Disable hover effect if canContinue is false
+                      },
+                    }}
+                  >
+                    Lanjut
+                  </Button>
+                </span>
+              </Tooltip>
+            ) : (settings.useMotionBase === true &&
+                hardwareStatus.kondisiMotion === 0) ||
+              (settings.useMotionBase === true &&
+                hardwareStatus.kondisiMotion === 1) ? (
+              <Tooltip
+                placement="top"
+                title={
+                  <span style={{ fontSize: "1rem" }}>
+                    Harap nonaktifkan motion base atau set motion ke 2
+                  </span>
+                }
+              >
+                <span>
+                  {/* Wrap Button in span to show tooltip even when disabled */}
+                  <Button
+                    variant="outlined"
+                    className="bottom-0 mt-4"
+                    endIcon={<NavigateNext />}
+                    onClick={handleLanjut}
+                    disabled={!canContinue} // Disable the button if canContinue is false
+                    sx={{
+                      color: canContinue ? "#f3f3f4" : "#a1a1a1", // Lighter color when disabled
+                      backgroundColor: canContinue ? "#00a6fb" : "#d3d3d3", // Grey background when disabled
+                      borderColor: canContinue ? "#f3f3f4" : "#a1a1a1", // Lighter border when disabled
+                      "&:hover": {
+                        borderColor: canContinue ? "#4dc1fc" : "#a1a1a1",
+                        color: canContinue ? "#f3f3f4" : "#a1a1a1",
+                        backgroundColor: canContinue ? "#4dc1fc" : "#d3d3d3", // Disable hover effect if canContinue is false
+                      },
+                    }}
+                  >
+                    Lanjut
+                  </Button>
+                </span>
+              </Tooltip>
+            ) : (
+              <Button
+                variant="outlined"
+                className="bottom-0 mt-4"
+                endIcon={<NavigateNext />}
+                onClick={handleLanjut}
+                disabled={!canContinue} // Disable the button if canContinue is false
+                sx={{
+                  color: canContinue ? "#f3f3f4" : "#a1a1a1", // Lighter color when disabled
+                  backgroundColor: canContinue ? "#00a6fb" : "#d3d3d3", // Grey background when disabled
+                  borderColor: canContinue ? "#f3f3f4" : "#a1a1a1", // Lighter border when disabled
+                  "&:hover": {
+                    borderColor: canContinue ? "#4dc1fc" : "#a1a1a1",
+                    color: canContinue ? "#f3f3f4" : "#a1a1a1",
+                    backgroundColor: canContinue ? "#4dc1fc" : "#d3d3d3", // Disable hover effect if canContinue is false
+                  },
+                }}
+              >
+                Lanjut
+              </Button>
+            )}
           </div>
+
+          <Dialog open={modal} onClose={() => setModal(false)}>
+            <DialogContent className="min-w-[260px] text-lg">
+              Jika motion base tidak diaktifkan, harap set motion ke 0 atau 1.
+              <br></br>Jika motion base diaktifkan, harap set motion ke 2.
+            </DialogContent>
+            <DialogActions className="flex mb-2 justify-between">
+              <Button
+                className="mx-2 text-lg"
+                onClick={() => setModal(false)}
+                color="error"
+              >
+                Kembali
+              </Button>
+            </DialogActions>
+          </Dialog>
         </div>
         <FullPageLoading loading={isLoading} />
       </Container>
