@@ -145,6 +145,10 @@ export const deleteSubmissionAll = async (userId: string) => {
   const res = await services.delete(`/instructor/submission/user/${userId}`)
 }
 
+export const deleteAllSubmissionByAdmin = async (userId: string) => {
+  const res = await services.delete(`/admin/submission/user/${userId}`)
+}
+
 export const finishSubmissionById = async (id: number, payload: any) => {
   try {
     const res = await services.put(

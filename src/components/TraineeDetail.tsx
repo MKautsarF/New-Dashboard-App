@@ -18,9 +18,10 @@ import React from "react";
 interface UserDetail {
   name: string;
   nip: string;
+  username: string;
   bio: {
     born: string;
-    officialCode: string;
+    identityNumber: string;
     position: string;
   };
 }
@@ -60,10 +61,12 @@ const TraineeDetail: React.FC<TraineeDetailProps> = ({
         const detailData = currentInstructor.isAdmin
           ? await getUserByIdAsAdmin(id)
           : await getUserById(id);
+          console.log("DETAIL DATA", detailData);
 
         setData({
           name: detailData.name,
-          nip: detailData.username,
+          nip: detailData.bio?.identityNumber,
+          username: detailData.username,
           bio: detailData.bio,
         });
       } catch (error) {
@@ -76,6 +79,7 @@ const TraineeDetail: React.FC<TraineeDetailProps> = ({
     if (isOpen) {
       fetchDetail();
     }
+
   }, [id, isOpen]);
 
   const checkEllipsis = () => {
@@ -119,6 +123,9 @@ const TraineeDetail: React.FC<TraineeDetailProps> = ({
           : "-",
         ref: bornRef,
       },
+      ...(detail === "Asesor"
+        ? [{ label: "Username", value: data.username, ref: positionRef }]
+        : []),
       { label: "Kedudukan", value: data.bio?.position, ref: positionRef },
     ];
 
@@ -155,7 +162,9 @@ const TraineeDetail: React.FC<TraineeDetailProps> = ({
         {!currentInstructor.isAdmin && (
           <Button onClick={handleEdit}>Edit</Button>
         )}
-        <Button onClick={handleLog}>Log</Button>
+        {detail === "Peserta" && (
+          <Button onClick={handleLog}>Log</Button>  
+        )}
       </DialogActions>
     </Dialog>
   );

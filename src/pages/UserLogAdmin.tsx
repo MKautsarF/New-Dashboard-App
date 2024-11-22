@@ -59,6 +59,7 @@ import {
 import * as XLSX from "xlsx";
 import ExcelGrid from "@/components/ExcelGrid";
 import { toast } from "react-toastify";
+import { deleteAllSubmissionByAdmin } from "@/services/submission.services";
 
 interface RowData {
   id: any;
@@ -80,7 +81,7 @@ interface UserLog {
   username: string;
   bio: {
     born: string;
-    officialCode: string;
+    identityNumber: string;
     position: string;
   };
   completion?: number;
@@ -331,6 +332,7 @@ const UserLogAdmin = () => {
   const [excel, setExcel] = useState<any>(null);
   const [isExcel, setIsExcel] = useState(false);
   const [courseList, setCourseList] = useState<[]>([]);
+  const [reload, setReload] = useState(false);
 
   // const [pdfAnchorEl, setPDFAnchorEl] = useState<null | HTMLElement>(
   //   null
@@ -349,6 +351,22 @@ const UserLogAdmin = () => {
   const isReplayMenuOpen = Boolean(replayAnchorEl);
 
   const [__html, setHTML] = useState("");
+
+  const handleDeleteAll = async () => {
+    try {
+      await deleteAllSubmissionByAdmin(userId);
+      setModalDeleteAllOpen(false);
+      setReload(!reload);
+    } catch (error) {
+      console.error("Failed to publish the course:", error);
+      toast.error(
+        "Gagal menghapus modul karena modul ini memiliki modul penilaian",
+        {
+          position: "top-center",
+        }
+      );
+    }
+  };
 
   useEffect(() => {
     const fetchSubmission = async () => {
@@ -399,43 +417,6 @@ const UserLogAdmin = () => {
       setUrl(urlfile);
       setIsExcel(false);
       setPreviewOpen(true);
-    } catch (error) {
-      console.error("Error fetching or opening PDF:", error);
-    }
-    // setPDFAnchorEl(null);
-  };
-
-  const handleDownloadPDF = async (
-    id: number,
-    date: string,
-    module: string
-  ) => {
-    setSubmissionId(id);
-    try {
-      const pdfres = await getSubmissionLogByTagAdmin(id, "pdf");
-      if (pdfres.results.length === 0) {
-        console.error("No PDF results found");
-        return;
-      }
-
-      const pdffile = await getSubmissionLogByFileIndexAdmin(
-        id,
-        pdfres.results[0].id
-      );
-
-      const blob = new Blob([pdffile], { type: "application/pdf" });
-
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = `${userLog?.name}_${dayjs(date).format(
-        "DD MMM YYYY"
-      )}_${module}.pdf`;
-
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-
-      setIsExcel(false);
     } catch (error) {
       console.error("Error fetching or opening PDF:", error);
     }
@@ -526,25 +507,24 @@ const UserLogAdmin = () => {
 
   const handleOpenReplay = async (id: any) => {
     setSubmissionId(id);
-    try {
-      const excelres = await getSubmissionLogByTagAdmin(
-        Number(submissionId),
-        "xlsx"
-      );
-      const excelfile = await getSubmissionLogByFileIndexAdmin(
-        Number(submissionId),
-        excelres.results[0].id
-      );
-      console.log("excelfile", excelfile);
-      const blob = new Blob([excelfile], { type: "application/vnd.ms-excel" });
-      const urlfile = URL.createObjectURL(blob);
-      setExcel(excelfile);
-      setUrl(urlfile);
-      setPreviewOpen(true);
-    } catch (error) {
-      console.error("Error fetching or opening PDF:", error);
-    }
-    // setExcelAnchorEl(null);
+    // try {
+    //   const excelres = await getSubmissionLogByTagAdmin(
+    //     Number(submissionId),
+    //     "xlsx"
+    //   );
+    //   const excelfile = await getSubmissionLogByFileIndexAdmin(
+    //     Number(submissionId),
+    //     excelres.results[0].id
+    //   );
+    //   console.log("excelfile", excelfile);
+    //   const blob = new Blob([excelfile], { type: "application/vnd.ms-excel" });
+    //   const urlfile = URL.createObjectURL(blob);
+    //   setExcel(excelfile);
+    //   setUrl(urlfile);
+    //   setPreviewOpen(true);
+    // } catch (error) {
+    //   console.error("Error fetching or opening PDF:", error);
+    // }
   };
 
   const handleVideoPreview = () => {
@@ -560,22 +540,6 @@ const UserLogAdmin = () => {
     try {
       // await deleteSubmissionAsAdmin(id);
       setModalDeleteOpen(false);
-      // setReload(!reload);
-    } catch (error) {
-      console.error("Failed to publish the course:", error);
-      toast.error(
-        "Gagal menghapus modul karena modul ini memiliki modul penilaian",
-        {
-          position: "top-center",
-        }
-      );
-    }
-  };
-
-  const handleDeleteAll = async () => {
-    try {
-      // await deleteSubmissionAsAdmin(id);
-      setModalDeleteAllOpen(false);
       // setReload(!reload);
     } catch (error) {
       console.error("Failed to publish the course:", error);
@@ -628,7 +592,7 @@ const UserLogAdmin = () => {
     if (userId) {
       fetchUserLog();
     }
-  }, [userId, dateSort, trainSort]);
+  }, [userId, reload, dateSort, trainSort]);
 
   useEffect(() => {
     if (getSubmission) {
@@ -640,7 +604,7 @@ const UserLogAdmin = () => {
       });
       setGetSubmission(false);
     }
-  }, [getSubmission]);
+  }, [getSubmission, reload]);
 
   const userInfo = [
     { label: "Nama", value: userLog?.name },
@@ -664,14 +628,14 @@ const UserLogAdmin = () => {
           <DialogTitle className="px-6 pt-6">HAPUS SEMUA LOG PESERTA</DialogTitle>
           <DialogContent className="w-[600px] px-6">
             <DialogContentText>
-              Semua log peserta akan dihapuskan
+              Apakah Anda yakin untuk menghapus semua log peserta
             </DialogContentText>
           </DialogContent>
           <DialogActions className="px-6 pb-4">
             <Button onClick={() => setModalDeleteAllOpen(false)} color="primary">
               Kembali
             </Button>
-            <Button type="submit" color="error">
+            <Button onClick={() => handleDeleteAll()} color="error">
               Hapus
             </Button>
           </DialogActions>
@@ -697,7 +661,7 @@ const UserLogAdmin = () => {
           </DialogActions>
         </Dialog>
         <h1 className="w-full text-center mb-2">Log Peserta</h1>
-        <Box component="form" className="grid gap-4 w-full mb-2">
+        {/* <Box component="form" className="grid gap-4 w-full mb-2">
           <div className="title grid grid-cols-5 gap-4">
             {userInfo.map((info: any, index: any) => (
               <Tooltip
@@ -718,7 +682,7 @@ const UserLogAdmin = () => {
                 </Typography>
               </Tooltip>
             ))}
-            {/* <div className="text-right">
+            <div className="text-right">
               <Button
                 className="w-fit"
                 variant="contained"
@@ -729,10 +693,44 @@ const UserLogAdmin = () => {
               >
                 DELETE ALL
               </Button>
-            </div> */}
+            </div>
           </div>
-        </Box>
+        </Box> */}
 
+        <div className="w-full flex mb-2 items-center">
+          <div className="title grid grid-cols-4 gap-4 w-11/12">
+            {userInfo.map((info: any, index: any) => (
+              <Tooltip 
+                key={index} 
+                placement="top" 
+                title={
+                  <Typography sx={{ fontSize: '1.125rem', color: 'white' }}>
+                    {info.value || ''}
+                  </Typography>
+              }>
+                <Typography 
+                  variant="body1" 
+                  className="truncate text-xl"
+                  style={{ maxWidth: index === 3 ? '300px' : '340px' }}
+                >
+                  <b>{info.label}:</b> {info.value}
+                </Typography>
+              </Tooltip>
+            ))}
+          </div>
+          <div className="w-1/12 flex justify-end">
+            <Button
+              className="w-fit"
+              variant="contained"
+              color="error"
+              onClick={() => {
+                setModalDeleteAllOpen(true);
+              }}
+            >
+              DELETE ALL
+            </Button>
+          </div>
+        </div>
         <div className="flex items-center gap-2 mb-2">
           <div className="w-1/2 h-[300px] flex flex-col border border-solid">
             <div className="flex w-full h-1/5 justify-between">
@@ -741,7 +739,7 @@ const UserLogAdmin = () => {
                   Penyelesaian Modul:
                 </Typography>
               </div>
-              <div className="w-[329.44px]">
+              <div className="w-[349px]">
                 <Tabs
                   value={activeDiagramTab}
                   onChange={handleDiagramTabChange}
@@ -809,7 +807,7 @@ const UserLogAdmin = () => {
                   Nilai Penyelesaian Modul Terbaik:
                 </Typography>
               </div>
-              <div className="w-[329.44px]">
+              <div className="w-[349px]">
                 <Tabs value={activeModuleTab} onChange={handleModuleTabChange}>
                   <Tab label="High Speed Train" />
                   <Tab label="Light Rail Transit" />
@@ -887,8 +885,8 @@ const UserLogAdmin = () => {
             aria-label="Tabel Peserta"
           >
             <colgroup>
-              <col width="13%" />
-              <col width="8%" />
+              <col width="15%" />
+              <col width="6%" />
               <col width="12%" />
               <col width="23%" />
               <col width="23%" />
@@ -901,24 +899,23 @@ const UserLogAdmin = () => {
                 <TableCell className="text-lg font-bold">
                   <Button
                     onClick={handleDateSort}
-                    className="text-lg text-black font-bold w-full"
+                    className="text text-black font-bold text-lg w-full"
                     sx={{
                       textTransform: "none",
                       padding: "5px 2px",
                       border: "1px solid black",
                     }}
                   >
-                    Tanggal <br />
-                    Pengujian{" "}
+                    Tanggal Pengujian
                     {dateSort == "" ? (
                       <></>
                     ) : dateSort == "desc" ? (
                       <ExpandLessIcon
-                        style={{ fontSize: 19, marginLeft: 12 }}
+                        style={{ fontSize: 19}}
                       />
                     ) : (
                       <ExpandMoreIcon
-                        style={{ fontSize: 19, marginLeft: 12 }}
+                        style={{ fontSize: 19}}
                       />
                     )}
                   </Button>

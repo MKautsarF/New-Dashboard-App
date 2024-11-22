@@ -203,7 +203,7 @@ const Container: React.FC<ContainerProps> = ({
       </div>
       <Dialog open={viewHardware} onClose={() => setviewHardware(false)}>
         <div className="flex flex-col justify-center items-center min-w-[260px]">
-          <DialogContent className="font-bold text-xl flex flex-row">
+          <DialogContent className="font-bold text-xl flex ">
             <Warning
               style={{
                 color: "red",
@@ -211,13 +211,12 @@ const Container: React.FC<ContainerProps> = ({
                 marginRight: "15px",
               }}
             />
-            Status Perangkat Keras d
+            Status Perangkat Keras
           </DialogContent>
           <DialogContent className="flex flex-col mb-2 ">
             <div className="flex flex-row items-center">
               <Train style={{ color: "black", marginRight: "10px" }} />
-              Mode: {hardwareStatus.mode}
-              {hardwareStatus.mode === 0
+              Mode: {hardwareStatus.mode === 0
                 ? "High Speed Train"
                 : hardwareStatus.mode === 1
                 ? "Light Rail Transit"
@@ -228,8 +227,7 @@ const Container: React.FC<ContainerProps> = ({
             <br />
             <div className="flex flex-row items-center">
               <CompareArrows style={{ color: "black", marginRight: "10px" }} />
-              Jembatan: {hardwareStatus.bridge}
-              {hardwareStatus.bridge === 0
+              Jembatan: {hardwareStatus.bridge === 0
                 ? "Naik"
                 : hardwareStatus.bridge === 1
                 ? "Transisi"
@@ -240,8 +238,7 @@ const Container: React.FC<ContainerProps> = ({
             <br />
             <div className="flex flex-row items-center">
               <Mouse style={{ color: "black", marginRight: "10px" }} />
-              3D Mouse: {hardwareStatus.mouse3d}
-              {hardwareStatus.mouse3d === 0
+              3D Mouse: {hardwareStatus.mouse3d === 0
                 ? "Aktif"
                 : hardwareStatus.mouse3d === 1
                 ? "Tidak Aktif"
@@ -250,8 +247,7 @@ const Container: React.FC<ContainerProps> = ({
             <br />
             <div className="flex flex-row items-center">
               <SensorDoor style={{ color: "black", marginRight: "10px" }} />
-              Pintu: {hardwareStatus.pintu}
-              {hardwareStatus.pintu === 0
+              Pintu: {hardwareStatus.pintu === 0
                 ? "Terbuka"
                 : hardwareStatus.pintu === 1
                 ? "Tertutup"
@@ -260,8 +256,7 @@ const Container: React.FC<ContainerProps> = ({
             <br />
             <div className="flex flex-row items-center">
               <SettingsPower style={{ color: "black", marginRight: "10px" }} />
-              Motion: {hardwareStatus.kondisiMotion}
-              {hardwareStatus.kondisiMotion === 0
+              Motion: {hardwareStatus.kondisiMotion === 0
                 ? "Tidak Siap Pakai"
                 : hardwareStatus.kondisiMotion === 1
                 ? "Motion Tidak Aktif"

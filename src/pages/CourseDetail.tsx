@@ -279,6 +279,7 @@ const CourseDetail = () => {
         console.log("Module Penilaian: ", res);
         setRows(res.results);
         setTotalData(res.total);
+
       } catch (e) {
         console.error(e);
       } finally {
@@ -314,7 +315,11 @@ const CourseDetail = () => {
         getModulePenilaianByInstructor(courseId, page, 5);
       }
     }
-  }, [courseId, reload]);
+  }, [courseId, reload, page]);
+
+  // useEffect(() => {
+  //   console.log("INI rowsss", rows);
+  // }, [rows]);
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage + 1);
@@ -881,13 +886,13 @@ const CourseDetail = () => {
           <DialogContentText>Pilih Modul Pembelajaran </DialogContentText>
           <FormControl fullWidth variant="standard" margin="none">
             <Select
-              labelId="rain-status"
-              id="rainStatus"
+              labelId="modul"
+              id="modul"
               value={selectedCourse}
               onChange={(e) => {
                 handleSelectedCourse(e.target.value);
               }}
-              label="Status Hujan"
+              label="Modul Pembelajaran"
             >
               {" "}
               <MenuItem value={"Default"}>Default</MenuItem>

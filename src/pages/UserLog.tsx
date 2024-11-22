@@ -82,7 +82,7 @@ interface UserLog {
   username: string;
   bio: {
     born: string;
-    officialCode: string;
+    identityNumber: string;
     position: string;
   };
   completion?: number;
