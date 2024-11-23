@@ -51,6 +51,11 @@ export const getScoringByCourseInstructor = async (id: string, page: number, siz
   return res.data;
 }
 
+export const getScoringListByCourseInstructor = async (id: string) => {
+  const res = await services.get(`/instructor/course-exam?courseId=${id}`);
+  return res.data;
+};
+
 
 
 // ADMIN
@@ -60,6 +65,12 @@ export const getScoringByCourse = async (id: string, page: number = 1, size: num
 
   return res.data;
 }
+
+export const getScoringListByCourse = async (id: string) => {
+  const res = await services.get(`/admin/course-exam?courseId=${id}`);
+  return res.data;
+};
+
 
 export const getScoringListbyAdmin = async (page: number, size: number) => {
   try {

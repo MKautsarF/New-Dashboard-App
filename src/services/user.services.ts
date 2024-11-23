@@ -76,7 +76,7 @@ export const getUsersAsAdmin = async (
 ) => {
   const res = await services.get(
     `/admin/user-account/scope/trainee?page=${page}&size=${size}&isActive=true${
-      nip_query === '' ? '' : `&bio.officialCode:likeLower=%${nip_query}%`
+      nip_query === '' ? '' : `&bio.identityNumber:likeLower=%${nip_query}%`
     }`
   );
 
@@ -117,10 +117,27 @@ export const updateUserByIdAsAdmin = async (id: string, payload: any) => {
 };
 
 export const deactivateUserById = async (id: string) => {
-  const res = await services.delete(`/admin/user-account/${id}`, {
-  });
+  try {
+    const sub = await services.get(`/admin/submission?owner:eq=${id}`);
+    if (sub.data.results.length > 0) {
+      const resSub = await services.delete(`/admin/submission/user/${id}`);
 
-  return res.data;
+      if (resSub.status === 200) {
+        const res = await services.delete(`/admin/user-account/${id}`);
+        return res.data;
+      } else {
+        throw new Error(
+          "Failed to delete submission. User account deletion aborted."
+        );
+      }
+    } else {
+      const res = await services.delete(`/admin/user-account/${id}`);
+      return res.data;
+    }
+  } catch (error) {
+    console.error("Error during deletion process:", error);
+    throw error;
+  }
 };
 
 export const activateUserById = async (id: string) => {

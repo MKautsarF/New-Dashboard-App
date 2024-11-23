@@ -48,7 +48,9 @@ import TraineeDetail from "@/components/TraineeDetail";
 import dayjs, { Dayjs } from "dayjs";
 import { DatePicker } from "@mui/x-date-pickers";
 import { toast } from "react-toastify";
+import { deleteAllSubmissionByAdmin } from "@/services/submission.services";
 import { getSubmissionList } from "@/services/submission.services";
+import { identity } from "lodash";
 
 interface RowData {
   id: string;
@@ -101,19 +103,37 @@ const TraineeList = () => {
   });
   const [newBirthDate, setNewBirthDate] = useState<Dayjs | null>(null);
   const [nameError, setNameError] = useState(false);
+  const [positionError, setPositionError] = useState(false);
+  const [emailError, setEmailError] = useState(false);
   const [nipError, setNipError] = useState(false);
+  const [newNameError, setNewNameError] = useState(false);
+  const [newPositionError, setNewPositionError] = useState(false);
+  const [newEmailError, setNewEmailError] = useState(false);
+  const [newNipError, setNewNipError] = useState(false);
 
   const handleClose = () => {
     setOpen(false);
+    setNameError(false);
+    setPositionError(false);
+    setEmailError(false);
+    setNipError(false);
+  };
+
+  const handleCloseEditPrompt = () => {
+    setEditPrompt(false);
+    setNewNameError(false);
+    setNewPositionError(false);
+    setNewEmailError(false);
+    setNewNipError(false);
   };
 
   const handleDaftar = () => {
+    setNama("");
+    setEmail("");
+    setPosition("");
+    setNip("");
+    setBirthDate(null);
     setOpen(true);
-  };
-
-  const handleLogout = () => {
-    logout();
-    navigate("/");
   };
 
   const handleKembali = () => {
@@ -122,10 +142,10 @@ const TraineeList = () => {
 
   const handleHapusUser = async () => {
     setIsLoading(true);
-    setReload(true);
     try {
       const res = await deactivateUserById(selectedPeserta.id);
-      // console.log("deactivated user: " + res.id);
+      toast.success("Peserta berhasil dihapus", { position: "top-center" });
+      setReload(!reload);
 
       setRows(rows.filter((row) => row.id !== res.id));
     } catch (e) {
@@ -138,6 +158,27 @@ const TraineeList = () => {
       setDeletePrompt(false);
     }
   };
+
+  // const handleHapusUser = async () => {
+  //   setIsLoading(true);
+  //   try {
+  //     await deleteAllSubmissionByAdmin(selectedPeserta.id);
+  
+  //     const res = await deactivateUserById(selectedPeserta.id);
+  
+  //     setRows(rows.filter((row) => row.id !== res.id));
+  //     setReload(!reload);
+  //   } catch (e) {
+  //     console.error(e);
+  //     toast.error("Peserta tidak dapat dihapus karena sudah memiliki submisi atau terjadi kesalahan", {
+  //       position: "top-center",
+  //     });
+  //   } finally {
+  //     setIsLoading(false);
+  //     setDeletePrompt(false);
+  //   }
+  // };
+  
 
   const handleGetUserDetail = async () => {
     setPageLoading(true);
@@ -157,27 +198,90 @@ const TraineeList = () => {
     setPage(newPage + 1);
   };
 
-  const handleNIPChange = (e: any) => {
+  useEffect(() => {
+    setNama(selectedPeserta.name || "");
+    setEmail(detailPeserta.email || "");
+    setNip(selectedPeserta.nip || "");
+    setPosition(detailPeserta.position || "");
+  }, [editPrompt]);
+
+  const handleNIPChange = (e: any, isEditing = false) => {
     const inputValue = e.target.value;
 
     if (inputValue.length > 32) {
-      setNipError(true);
+      if (isEditing) {
+        setNewNipError(true);
+      } else {
+        setNipError(true);
+      }
       setNip(inputValue.slice(0, 32));
     } else {
-      setNipError(false);
-      setNip(inputValue);
+      if (isEditing) {
+        setNewNipError(false)
+      } else {
+        setNipError(false);
+      }
+      setNip(inputValue);  
+    }
+	};
+
+  const handleEmailChange = (e: any, isEditing = false) => {
+    const inputValue = e.target.value;
+
+    if (inputValue.length > 72 || inputValue.length < 8) {
+      if (isEditing) {
+        setNewEmailError(true);
+      } else {
+        setEmailError(true);
+      }
+      setEmail(inputValue.slice(0, 72));
+    } else {
+      if (isEditing) {
+        setNewEmailError(false);
+      } else {
+        setEmailError(false);
+      }
+      setEmail(inputValue);
     }
   };
 
-  const handleNameChange = (e: any) => {
+  const handleNameChange = (e: any, isEditing = false) => {
+    const inputValue = e.target.value;
+  
+    if (inputValue.length > 48 || inputValue.length < 3) {
+      if (isEditing) {
+        setNewNameError(true);
+      } else {
+        setNameError(true);
+      }
+      setNama(inputValue.slice(0, 48));
+    } else {
+      if (isEditing) {
+        setNewNameError(false);
+      } else {
+        setNameError(false);
+      }
+      setNama(inputValue);
+    }
+  };
+
+  const handlePositionChange = (e: any, isEditing = false) => {
     const inputValue = e.target.value;
 
     if (inputValue.length > 48) {
-      setNameError(true);
-      setNama(inputValue.slice(0, 48));
+      if (isEditing) {
+        setNewPositionError(true);
+      } else {
+        setPositionError(true);
+      }
+      setPosition(inputValue.slice(0, 48));
     } else {
-      setNameError(false);
-      setNama(inputValue);
+      if (isEditing) {
+        setNewPositionError(false)
+      } else {
+        setPositionError(false);
+      }
+      setPosition(inputValue);
     }
   };
 
@@ -209,7 +313,7 @@ const TraineeList = () => {
       scope: "trainee",
       password: "P@ssword!23",
       bio: {
-        officialCode: nip,
+        identityNumber: nip,
         born: birthDate.format("YYYY-MM-DD"),
         position: position,
       },
@@ -307,15 +411,15 @@ const TraineeList = () => {
       username: newNIP,
       email: newEmail,
       bio: {
-        officialCode: newNIP,
+        identityNumber: newNIP,
         born: newBirthDate.format("YYYY-MM-DD"),
         position: newPosition,
       },
     };
 
     try {
-      // const res = await updateUserByIdAsAdmin(selectedPeserta.id, payload);
-      const res = await updateUserByIdAsAdmin(detailId, payload);
+      const res = await updateUserByIdAsAdmin(selectedPeserta.id, payload);
+      // const res = await updateUserByIdAsAdmin(detailId, payload);
 
       setEditPrompt(false);
       toast.success("Data peserta berhasil diubah", { position: "top-center" });
@@ -367,7 +471,7 @@ const TraineeList = () => {
         <Box
           component="form"
           onSubmit={handleSubmit}
-          className="flex gap-4 w-full "
+          className="flex gap-4 w-full"
         >
           <Button
             type="button"
@@ -399,7 +503,7 @@ const TraineeList = () => {
                 </InputAdornment>
               ),
               sx: {
-                backgroundColor: "#ffffff", // Change background color to #ffffff
+                backgroundColor: "#ffffff",
               },
             }}
           />
@@ -492,7 +596,7 @@ const TraineeList = () => {
                                 nip:
                                   peserta.bio === null
                                     ? ""
-                                    : peserta.bio.officialCode,
+                                    : peserta.bio.identityNumber,
                                 born:
                                   peserta.bio === null ? "" : peserta.bio.born,
                                 position:
@@ -591,9 +695,9 @@ const TraineeList = () => {
             fullWidth
             variant="standard"
             value={nama}
-            onChange={handleNameChange}
+            onChange={(e) => handleNameChange(e, false)}
             error={nameError}
-            helperText={nameError ? "Nama maksimal berisi 48 karakter" : ""}
+            helperText={nameError ? "Nama harus berisi setidaknya 3 karakter dan maksimal berisi 48 karakter" : ""}
           />
           <TextField
             margin="normal"
@@ -603,7 +707,9 @@ const TraineeList = () => {
             fullWidth
             variant="standard"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => handleEmailChange(e, false)}
+            error={emailError}
+            helperText={emailError ? "Email harus berisi setidaknya 8 karakter dan maksimal berisi 72 karakter" : ""}
           />
           <TextField
             margin="normal"
@@ -613,7 +719,7 @@ const TraineeList = () => {
             fullWidth
             variant="standard"
             value={nip}
-            onChange={handleNIPChange}
+            onChange={(e) => handleNIPChange(e, false)}
             error={nipError}
             helperText={nipError ? "NIP maksimal berisi 32 karakter" : ""}
           />
@@ -626,7 +732,9 @@ const TraineeList = () => {
               type="text"
               variant="standard"
               value={position}
-              onChange={(e) => setPosition(e.target.value)}
+              onChange={(e) => handlePositionChange(e, false)}
+              error={positionError}
+              helperText={positionError ? "Kedudukan maksimal berisi 48 karakter" : ""}
             />
             <DatePicker
               className="w-1/2"
@@ -677,8 +785,11 @@ const TraineeList = () => {
 
       {/* Delete User prompt */}
       <Dialog open={deletePrompt} onClose={() => setDeletePrompt(false)}>
-        <DialogContent className="min-w-[260px]">
-          Hapus User: <b>{selectedPeserta.name}</b> ?
+        <DialogTitle>
+          Hapus User: <b>{selectedPeserta.name}</b> ? <br />
+          </DialogTitle>
+        <DialogContent>
+          Jika anda menghapus user ini, seluruh log riwayat submisi user ini juga akan terhapus
         </DialogContent>
         <DialogActions className="flex mb-2 justify-between">
           <Button
@@ -700,7 +811,7 @@ const TraineeList = () => {
       </Dialog>
 
       {/* Edit Peserta Prompt */}
-      <Dialog open={editPrompt} onClose={() => setEditPrompt(false)}>
+      <Dialog open={editPrompt} onClose={handleCloseEditPrompt}>
         <DialogTitle className="min-w-[400px]">Edit Detail Peserta</DialogTitle>
         <DialogContent className="m-2 max-w-[400px]">
           <form id="edit" onSubmit={handleEditPeserta}>
@@ -711,7 +822,10 @@ const TraineeList = () => {
               name="new-name"
               variant="standard"
               fullWidth
-              defaultValue={selectedPeserta.name}
+              value={nama}
+              onChange={(e) => handleNameChange(e, true)}
+              error={newNameError}
+              helperText={newNameError ? "Nama baru harus berisi setidaknya 3 karakter dan maksimal berisi 48 karakter" : ""}
             />
             <TextField
               className="my-4"
@@ -720,7 +834,10 @@ const TraineeList = () => {
               name="new-email"
               variant="standard"
               fullWidth
-              defaultValue={detailPeserta.email}
+              value={email}
+              onChange={(e) => handleEmailChange(e, true)}
+              error={newEmailError}
+              helperText={newEmailError ? "Email baru harus berisi setidaknya 8 karakter dan maksimal berisi 72 karakter" : ""}
             />
             <TextField
               className="my-4"
@@ -729,7 +846,10 @@ const TraineeList = () => {
               name="new-nip"
               variant="standard"
               fullWidth
-              defaultValue={selectedPeserta.nip}
+              value={nip}
+              onChange={(e) => handleNIPChange(e, true)}
+              error={newNipError}
+              helperText={newNipError ? "NIP baru maksimal berisi 32 karakter" : ""}
             />
             <div className="my-4 flex gap-4 items-center">
               <TextField
@@ -739,7 +859,10 @@ const TraineeList = () => {
                 name="new-position"
                 variant="standard"
                 fullWidth
-                defaultValue={detailPeserta.position}
+                value={position}
+                onChange={(e) => handlePositionChange(e, true)}
+                error={newPositionError}
+                helperText={newPositionError ? "Kedudukan baru maksimal berisi 48 karakter" : ""}
               />
               <DatePicker
                 className="w-1/2"
@@ -754,7 +877,7 @@ const TraineeList = () => {
         <DialogActions className="mb-2 flex justify-between">
           <Button
             className="mx-2"
-            onClick={() => setEditPrompt(false)}
+            onClick={handleCloseEditPrompt}
             color="error"
           >
             Batal

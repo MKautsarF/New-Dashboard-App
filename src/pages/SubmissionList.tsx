@@ -65,29 +65,29 @@ interface RowData {
   status: any;
 }
 
-interface UserLog {
-  id: string;
-  name: string;
-  nip: string;
-  username: string;
-  bio: {
-    born: string;
-    officialCode: string;
-    position: string;
-  };
-  completion?: number;
-}
+// interface UserLog {
+//   id: string;
+//   name: string;
+//   nip: string;
+//   username: string;
+//   bio: {
+//     born: string;
+//     identityNumber: string;
+//     position: string;
+//   };
+//   completion?: number;
+// }
 
-interface Course {
-  id: number;
-  title: string;
-}
+// interface Course {
+//   id: number;
+//   title: string;
+// }
 
-interface Scoring {
-  title: string;
-  score: string;
-  checkstate: boolean;
-}
+// interface Scoring {
+//   title: string;
+//   score: string;
+//   checkstate: boolean;
+// }
 
 function useQuery() {
   const { search } = useLocation();

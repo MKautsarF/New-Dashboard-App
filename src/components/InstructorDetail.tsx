@@ -79,6 +79,9 @@ const InstructorDetail: React.FC<InstructorDetailProps> = ({
       const errMsg = e.response.data.errorMessage;
       toast.error(errMsg, { position: 'top-center' });
     }
+
+    setOldPassword("");
+    setNewPassword("");
   };
   
   const handleSubmitProfile = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -125,6 +128,59 @@ const InstructorDetail: React.FC<InstructorDetailProps> = ({
   const [profileName, setProfileName] = useState("");
   const [profileUsername, setProfileUsername] = useState("");
   const [profileEmail, setProfileEmail] = useState("");
+  const [newEmailError, setNewEmailError] = useState(false);
+  const [newNameError, setNewNameError] = useState(false);
+  const [newUsernameError, setNewUsernameError] = useState(false);
+
+  const handleEmailChange = (e: any, isEditing = false) => {
+    const inputValue = e.target.value;
+
+    if (inputValue.length > 72 || inputValue.length < 8) {
+      if (isEditing) {
+        setNewEmailError(true);
+      }
+      setProfileEmail(inputValue.slice(0, 72));
+    } else {
+      if (isEditing) {
+        setNewEmailError(false);
+      }
+      setProfileEmail(inputValue);
+    }
+  };
+
+  const handleNameChange = (e: any, isEditing = false) => {
+    const inputValue = e.target.value;
+  
+    if (inputValue.length > 48 || inputValue.length < 3) {
+      if (isEditing) {
+        setNewNameError(true);
+      }
+      setProfileName(inputValue.slice(0, 48));
+    } else {
+      if (isEditing) {
+        setNewNameError(false);
+      }
+      setProfileName(inputValue);
+    }
+  };
+  
+
+  const handleUsernameChange = (e: any, isEditing = false) => {
+    const inputValue = e.target.value;
+
+    if (inputValue.length > 32) {
+      if (isEditing) {
+        setNewUsernameError(true);
+      }
+      setProfileUsername(inputValue.slice(0, 32));
+    } else {
+      if (isEditing) {
+        setNewUsernameError(false);
+      }
+      setProfileUsername(inputValue);
+    }
+  };
+
 
   const [initialProfileValues, setInitialProfileValues] = useState({
     name: '',
@@ -306,7 +362,16 @@ const InstructorDetail: React.FC<InstructorDetailProps> = ({
       </Dialog>
 
       {/* Edit Profile Prompt */}
-      <Dialog open={editPrompt} onClose={() => setEditPrompt(false)} className='p-6'>
+      <Dialog 
+        open={editPrompt} 
+        onClose={() => {
+          setEditPrompt(false)
+          setNewNameError(false)
+          setNewEmailError(false)
+          setNewUsernameError(false)
+        }} 
+        className='p-6'
+      >
         <DialogTitle>Edit Profil</DialogTitle>
         <DialogContent className="flex justify-center max-w-[360px]">
           <form id="profile" onSubmit={handleSubmitProfile}>
@@ -318,7 +383,9 @@ const InstructorDetail: React.FC<InstructorDetailProps> = ({
             variant="standard"
             fullWidth
             value={profileName}
-            onChange={(e) => setProfileName(e.target.value)}
+            onChange={(e) => handleNameChange(e, true)}
+            error={newNameError}
+            helperText={newNameError ? "Nama harus berisi setidaknya 3 karakter dan maksimal berisi 48 karakter" : ""}
           />
           <TextField
             className="my-4"
@@ -328,7 +395,9 @@ const InstructorDetail: React.FC<InstructorDetailProps> = ({
             variant="standard"
             fullWidth
             value={profileUsername}
-            onChange={(e) => setProfileUsername(e.target.value)}
+            onChange={(e) => handleUsernameChange(e, true)}
+            error={newUsernameError}
+            helperText={newUsernameError ? "Username maksimal berisi 32 karakter" : ""}
           />
           <TextField
             className="my-4"
@@ -338,14 +407,21 @@ const InstructorDetail: React.FC<InstructorDetailProps> = ({
             variant="standard"
             fullWidth
             value={profileEmail}
-            onChange={(e) => setProfileEmail(e.target.value)}
+            onChange={(e) => handleEmailChange(e, false)}
+            error={newEmailError}
+            helperText={newEmailError ? "Email harus berisi setidaknya 8 karakter dan maksimal berisi 72 karakter" : ""}
           />
           </form>
         </DialogContent>
         <DialogActions className="mb-2 flex justify-between">
           <Button
             className="mx-2"
-            onClick={() => setEditPrompt(false)}
+            onClick={() => {
+              setEditPrompt(false)
+              setNewNameError(false)
+              setNewEmailError(false)
+              setNewUsernameError(false)
+            }}
             color="error"
           >
             Batal

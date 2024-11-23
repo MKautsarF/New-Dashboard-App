@@ -130,6 +130,7 @@ export const getCourseListbyAdmin = async (
     let filteredData: any[] = [];
     let total = 0;
     let fetchpage = page;
+    
     // Fetch data from the server
     while (filteredData.length < size) {
       const res = await services.get(
@@ -140,7 +141,12 @@ export const getCourseListbyAdmin = async (
       total = res.data.total - 1;
 
       // Initialize exclusions for the current page if not already done
-      pageExclusion[page] = new Set();
+      if (!pageExclusion[page]) {
+        pageExclusion[page] = new Set();
+      }
+      if (!pageExclusion[page - 1]) {
+        pageExclusion[page - 1] = new Set(); // Initialize previous page exclusion if it doesn't exist
+      }
 
       // Filter out unwanted items and items that have already been excluded for this page
       const newData = res.data.results.filter(
@@ -174,6 +180,7 @@ export const getCourseListbyAdmin = async (
     throw error;
   }
 };
+
 
 export const createCourseAsAdmin = async (formData: FormData) => {
   try {

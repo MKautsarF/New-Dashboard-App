@@ -16,6 +16,8 @@ import fs from "fs";
 import { createScoringAsAdmin, createScoringAsInstructor, editScoringAsInstructor } from "@/services/scoring.services";
 import { editScoringAsAdmin } from "@/services/scoring.services";
 import { getScoringDetail } from "@/services/scoring.services";
+import { getScoringByCourse, getScoringByCourseInstructor, getScoringListByCourse, getScoringListByCourseInstructor } from "@/services/scoring.services";
+import { toast } from 'react-toastify';
 
 interface ToastData {
   severity: AlertColor;
@@ -40,6 +42,8 @@ function EditKCIC() {
   const jsonPath = "C:/Train Simulator/Data/ModuleTemplate.json"
   // const jsonPath = "src/config/ModuleTemplate.json"
   const [json, setJSON] = useState<any>(null);
+
+  const [scoringModule, setScoringModule] = useState<any[]>([]);
 
   const rawData = fs.readFileSync(jsonPath, "utf-8");
 
@@ -71,6 +75,7 @@ function EditKCIC() {
       try {
         const res = await getScoringDetail(type);
         setJsonToWrite(res);
+
       } catch (e) {
         console.error(e);
       }
@@ -106,82 +111,105 @@ function EditKCIC() {
     const { currentTarget } = e;
 
     try {
-      setIsLoading(true);
+        setIsLoading(true);
 
-      const data = new FormData(currentTarget);
-      const judulAll = data.getAll("judul");
-      const langkahKerjaAll = data.getAll("langkah_kerja");
-      const observasiAll = data.getAll("observasi");
-      const bobotPoinAll = data.getAll("bobot-poin");
-      const bobotDataAll = data.getAll("bobot-data");
+        // Extract form data
+        const data = new FormData(currentTarget);
+        const judulAll = data.getAll("judul");
+        const langkahKerjaAll = data.getAll("langkah_kerja");
+        const observasiAll = data.getAll("observasi");
+        const bobotPoinAll = data.getAll("bobot-poin");
+        const bobotDataAll = data.getAll("bobot-data");
 
-      let judulIndex = 0;
-      let langkahKerjaIndex = 0;
-      let observasiIndex = 0;
-      let bobotPoinIndex = 0;
-      let bobotDataIndex = 0;
+        const newTitle = jsonToWrite?.judul_penilaian || "";
 
-      jsonToWrite?.penilaian.forEach((penilaian: any, i: number) => {
-        penilaian.judul = judulAll[judulIndex];
-        penilaian.unit = i + 1;
+        const existingTitles = scoringModule.map((item) => item.title);
 
-        penilaian.data.forEach((data: any, j: number) => {
-          data.langkah_kerja = langkahKerjaAll[langkahKerjaIndex];
-          data.no = j + 1;
-          data.bobot = bobotDataAll[bobotDataIndex];
-
-          data.poin.forEach((poin: any, k: number) => {
-            poin.observasi = observasiAll[observasiIndex];
-            poin.id = `K${i + 1}.${j + 1}.${k + 1}`;
-            poin.bobot = bobotPoinAll[bobotPoinIndex];
-
-            observasiIndex++;
-            bobotPoinIndex++;
+        if (existingTitles.includes(newTitle)) {
+          toast.error('Judul penilaian sudah tersedia, silahkan pilih judul lainnya', {
+            position: 'top-center',
           });
-          langkahKerjaIndex++;
-          bobotDataIndex++;
+          return;
+        }
+
+        if (!newTitle.trim()) {
+          toast.error('Judul penilaian tidak boleh kosong', {
+            position: 'top-center',
+          });
+          return;
+        }
+
+        let judulIndex = 0;
+        let langkahKerjaIndex = 0;
+        let observasiIndex = 0;
+        let bobotPoinIndex = 0;
+        let bobotDataIndex = 0;
+
+        jsonToWrite?.penilaian.forEach((penilaian: any, i: number) => {
+            penilaian.judul = judulAll[judulIndex];
+            penilaian.unit = i + 1;
+
+            penilaian.data.forEach((data: any, j: number) => {
+                data.langkah_kerja = langkahKerjaAll[langkahKerjaIndex];
+                data.no = j + 1;
+                data.bobot = bobotDataAll[bobotDataIndex];
+
+                data.poin.forEach((poin: any, k: number) => {
+                    poin.observasi = observasiAll[observasiIndex];
+                    poin.id = `K${i + 1}.${j + 1}.${k + 1}`;
+                    poin.bobot = bobotPoinAll[bobotPoinIndex];
+
+                    observasiIndex++;
+                    bobotPoinIndex++;
+                });
+                langkahKerjaIndex++;
+                bobotDataIndex++;
+            });
+            judulIndex++;
         });
-        judulIndex++;
-      });
-    
-      // Prepare the form data
-      const formData = new FormData();
-      formData.append('file', new Blob([JSON.stringify(jsonToWrite, null, 2)], { type: 'application/json' }), 'data.json');
-      formData.append('courseId', courseID);
-      formData.append('title', jsonToWrite?.judul_penilaian);
-      formData.append('description', train);
-      console.log("form", formData);
 
+        const formData = new FormData();
+        formData.append('file', new Blob([JSON.stringify(jsonToWrite, null, 2)], { type: 'application/json' }), 'data.json');
+        formData.append('courseId', courseID);
+        formData.append('title', newTitle);
+        formData.append('description', train);
+        console.log("form", formData);
 
-      // Create the course
-      if (mode === "new") {
-        if (currentInstructor.isAdmin) {
-          await createScoringAsAdmin(formData);
+        if (mode === "new") {
+            if (currentInstructor.isAdmin) {
+                await createScoringAsAdmin(formData);
+            } else {
+                await createScoringAsInstructor(formData);
+            }
         } else {
-          await createScoringAsInstructor(formData);
+            if (currentInstructor.isAdmin) {
+                await editScoringAsAdmin(type as string, formData);
+            } else {
+                await editScoringAsInstructor(type as string, formData);
+            }
         }
-      } else {
-        if (currentInstructor.isAdmin) {
-          await editScoringAsAdmin(type as string, formData);
-        } else {
-          await editScoringAsInstructor(type as string, formData);
-        }
-      }
-      setToastData({
-        severity: "success",
-        msg: `Successfully saved json.`,
-      });
+
+        setToastData({
+            severity: "success",
+            msg: `Successfully saved json.`,
+        });
+
+        navigate("/scoringlist/coursedetail?id=" + courseID + "&type=" + train);
+        
     } catch (e) {
-      console.error(e);
-      setToastData({
-        severity: "error",
-        msg: `Failed to save json. Please try again later.`,
-      });
-      setOpen(true);
+        console.error(e);
+        setToastData({
+            severity: "error",
+            msg: `Failed to save json. Please try again later.`,
+        });
+        setOpen(true);
     } finally {
-      navigate("/scoringlist/coursedetail?id=" + courseID+"&type="+train);
+        setIsLoading(false);
     }
-  };
+};
+
+  
+  
 
   const handleBlur = (
     e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement, Element>
@@ -196,6 +224,55 @@ function EditKCIC() {
   useEffect(() => {
     setJsonToWrite(jsonToWrite);
   }, [jsonToWrite]);
+
+  useEffect(() => {
+    console.log("INI SCORING", scoringModule);
+  }, [scoringModule]);
+
+  useEffect(() => {
+    const getModulePenilaianByAdmin = async (
+      id: any,
+    ) => {
+      try {
+        setIsLoading(true);
+        let res;
+        if (currentInstructor.isAdmin) {
+          res = await getScoringListByCourse(id);
+        } else {
+          res = await getScoringListByCourseInstructor(id);
+        }
+        console.log("Module Penilaian Admin: ", res);
+        setScoringModule(res.results);
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    const getModulePenilaianByInstructor = async (
+      id: any,
+    ) => {
+      try {
+        setIsLoading(true);
+        const res = await getScoringListByCourseInstructor(id);
+        console.log("Module Penilaian: ", res);
+        setScoringModule(res.results);
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (courseID) {
+      if (currentInstructor.isAdmin) {
+        getModulePenilaianByAdmin(courseID);
+      } else {
+        getModulePenilaianByInstructor(courseID);
+      }
+    }
+  }, []);
 
   return (
     <>

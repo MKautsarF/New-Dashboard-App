@@ -56,6 +56,7 @@ interface RowData {
   id: string;
   name: string;
   nip: string;
+  username: string;
 }
 
 function useQuery() {
@@ -114,19 +115,50 @@ const InstructorList = () => {
     born: "",
     position: "",
   });
+
   const [newBirthDate, setNewBirthDate] = useState<Dayjs | null>(null);
   const [nameError, setNameError] = useState(false);
+  const [usernameError, setUsernameError] = useState(false);
+  const [positionError, setPositionError] = useState(false);
+  const [emailError, setEmailError] = useState(false);
   const [nipError, setNipError] = useState(false);
   const [passwordError, setPasswordError] = useState(false);
+  const [newNameError, setNewNameError] = useState(false);
+  const [newUsernameError, setNewUsernameError] = useState(false);
+  const [newPositionError, setNewPositionError] = useState(false);
+  const [newEmailError, setNewEmailError] = useState(false);
+  const [newNipError, setNewNipError] = useState(false);
 
   const query = useQuery();
 
 
   const handleClose = () => {
     setOpen(false);
+    setNameError(false);
+    setEmailError(false);
+    setNipError(false);
+    setUsernameError(false);
+    setPasswordError(false);
+    setPositionError(false);
+  };
+
+  const handleCloseEditPrompt = () => {
+    setEditPrompt(false);
+    setNewNameError(false);
+    setNewEmailError(false);
+    setNewNipError(false);
+    setNewUsernameError(false);
+    setNewPositionError(false);
   };
 
   const handleDaftar = () => {
+    setNama("");
+    setEmail("");
+    setNip("");
+    setUsername("");
+    setPassword("");
+    setPosition("");
+    setBirthDate(null);
     setOpen(true);
   };
 
@@ -142,6 +174,7 @@ const InstructorList = () => {
 
       setRows(rows.filter((row) => row.id !== res.id));
       setReload(!reload);
+      toast.success("Instruktur berhasil dihapus", { position: "top-center" });
     } catch (e) {
       console.error(e);
     } finally {
@@ -168,31 +201,96 @@ const InstructorList = () => {
     setPage(newPage + 1);
   };
 
-  const handleNIPChange = (e: any) => {
+  useEffect(() => {
+    setNama(selectedPeserta.name || "");
+    setEmail(detailPeserta.email || "");
+    setNip(selectedPeserta.nip || "");
+    setUsername(detailPeserta.username || "");
+    setPosition(detailPeserta.position || "");
+  }, [editPrompt]);
+
+  const handleNIPChange = (e: any, isEditing = false) => {
     const inputValue = e.target.value;
 
     if (inputValue.length > 32) {
-      setNipError(true);
+      if (isEditing) {
+        setNewNipError(true);
+      } else {
+        setNipError(true);
+      }
       setNip(inputValue.slice(0, 32));
     } else {
-      setNipError(false);
+      if (isEditing) {
+        setNewNipError(false)
+      } else {
+        setNipError(false);
+      }
       setNip(inputValue);  
     }
 	};
 
-  const handleNameChange = (e: any) => {
+  const handleEmailChange = (e: any, isEditing = false) => {
     const inputValue = e.target.value;
 
-    if (inputValue.length > 48) {
-      setNameError(true);
-      setNama(inputValue.slice(0, 48));
+    if (inputValue.length > 72 || inputValue.length < 8) {
+      if (isEditing) {
+        setNewEmailError(true);
+      } else {
+        setEmailError(true);
+      }
+      setEmail(inputValue.slice(0, 72));
     } else {
-      setNameError(false);
-      setNama(inputValue);
+      if (isEditing) {
+        setNewEmailError(false);
+      } else {
+        setEmailError(false);
+      }
+      setEmail(inputValue);
     }
   };
 
-  const handlePasswordChange = (e: any) => {
+  const handleNameChange = (e: any, isEditing = false) => {
+    const inputValue = e.target.value;
+  
+    if (inputValue.length > 48 || inputValue.length < 3) {
+      if (isEditing) {
+        setNewNameError(true);
+      } else {
+        setNameError(true);
+      }
+      setNama(inputValue.slice(0, 48));
+    } else {
+      if (isEditing) {
+        setNewNameError(false);
+      } else {
+        setNameError(false);
+      }
+      setNama(inputValue);
+    }
+  };
+  
+
+  const handleUsernameChange = (e: any, isEditing = false) => {
+    const inputValue = e.target.value;
+
+    if (inputValue.length > 32) {
+      if (isEditing) {
+        setNewUsernameError(true);
+      } else {
+        setUsernameError(true);
+      }
+      setUsername(inputValue.slice(0, 32));
+    } else {
+      if (isEditing) {
+        setNewUsernameError(false);
+      } else {
+        setUsernameError(false);
+      }
+      setUsername(inputValue);
+    }
+  };
+
+  const handlePasswordChange = (e: any, isEditing = false) => {
     const inputValue = e.target.value;
 
     if (inputValue.length > 32) {
@@ -203,6 +301,28 @@ const InstructorList = () => {
       setPassword(inputValue);  
     }
 	};
+
+  const handlePositionChange = (e: any, isEditing = false) => {
+    const inputValue = e.target.value;
+
+    if (inputValue.length > 48) {
+      if (isEditing) {
+        setNewPositionError(true);
+      } else {
+        setPositionError(true);
+      }
+      setPosition(inputValue.slice(0, 48));
+    } else {
+      if (isEditing) {
+        setNewPositionError(false)
+      } else {
+        setPositionError(false);
+      }
+      setPosition(inputValue);
+    }
+  };
+
+  
 
   const validateRegister = (): boolean => {
     return (
@@ -250,6 +370,7 @@ const InstructorList = () => {
             id: res.id,
             name: res.name,
             nip: res.bio.identityNumber,
+            username: res.username,
           },
         ].concat(rows)
       );
@@ -297,6 +418,7 @@ const InstructorList = () => {
           id: user.id,
           name: user.name,
           nip: user.bio === null ? "" : user.bio.identityNumber,
+          username: user.username,
         };
         // console.log(row);
         resRows.push(row);
@@ -399,6 +521,7 @@ const InstructorList = () => {
             id: entry.id,
             name: entry.name,
             nip: entry.bio.identityNumber? entry.bio.identityNumber : " ", 
+            username: entry.username,
           };
           // console.log("row", row);
 
@@ -484,14 +607,16 @@ const InstructorList = () => {
         <TableContainer className="mt-5" component={Paper}>
           <Table stickyHeader aria-label="Tabel Peserta" sx={{ tableLayout: 'fixed' }}>
             <colgroup>
-              <col width="45%" />
               <col width="30%" />
+              <col width="20%" />
+              <col width="25%" />
               <col width="25%" />
             </colgroup>
             <TableHead>
               <TableRow>
                 <TableCell sx={{ fontWeight: 'bold', fontSize: "17px" }}>Nama Asesor</TableCell>
                 <TableCell sx={{ fontWeight: 'bold', fontSize: "17px" }}>NIP Asesor</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', fontSize: "17px" }}>Username Asesor</TableCell>
                 <TableCell></TableCell>
               </TableRow>
             </TableHead>
@@ -510,6 +635,7 @@ const InstructorList = () => {
                   >
                     <TableCell>{row.name}</TableCell>
                     <TableCell>{row.nip}</TableCell>
+                    <TableCell>{row.username}</TableCell>
                     <TableCell align="right">
                       <div className="flex gap-4 justify-end">
                         <Tooltip title="Detail User" placement="top">
@@ -662,9 +788,10 @@ const InstructorList = () => {
             fullWidth
             variant="standard"
             value={nama}
-            onChange={handleNameChange}
+            // onChange={handleNameChange}
+            onChange={(e) => handleNameChange(e, false)}
             error={nameError}
-            helperText={nameError ? "Nama maksimal berisi 48 karakter" : ""}
+            helperText={nameError ? "Nama harus berisi setidaknya 3 karakter dan maksimal berisi 48 karakter" : ""}
           />
           <TextField
             margin="normal"
@@ -674,7 +801,10 @@ const InstructorList = () => {
             fullWidth
             variant="standard"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            // onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => handleEmailChange(e, false)}
+            error={emailError}
+            helperText={emailError ? "Email harus berisi setidaknya 8 karakter dan maksimal berisi 72 karakter" : ""}
           />
           <TextField
             margin="normal"
@@ -684,7 +814,7 @@ const InstructorList = () => {
             fullWidth
             variant="standard"
             value={nip}
-            onChange={handleNIPChange}
+            onChange={(e) => handleNIPChange(e, false)}
             error={nipError}
             helperText={nipError ? "NIP maksimal berisi 32 karakter" : ""}
           />
@@ -697,7 +827,10 @@ const InstructorList = () => {
               type="text"
               variant="standard"
               value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              // onChange={(e) => setUsername(e.target.value)}
+              onChange={(e) => handleUsernameChange(e, false)}
+              error={usernameError}
+              helperText={usernameError ? "Username maksimal berisi 32 karakter" : ""}
             />
             <TextField
               className="w-1/2"
@@ -730,7 +863,10 @@ const InstructorList = () => {
               type="text"
               variant="standard"
               value={position}
-              onChange={(e) => setPosition(e.target.value)}
+              // onChange={(e) => setPosition(e.target.value)}
+              onChange={(e) => handlePositionChange(e, false)}
+              error={positionError}
+              helperText={positionError ? "Kedudukan maksimal berisi 48 karakter" : ""}
             />
             <DatePicker
               className="w-1/2"
@@ -753,7 +889,7 @@ const InstructorList = () => {
       <TraineeDetail
         id={detailId}
         isOpen={detailOpen}
-        detail="Instruktur"
+        detail="Asesor"
         handleClose={() => setDetailOpen(false)}
         handleLog={() => {}}
         handleEdit={() => {}}
@@ -794,7 +930,7 @@ const InstructorList = () => {
       )}
 
       {/* Edit Peserta Prompt */}
-      <Dialog open={editPrompt} onClose={() => setEditPrompt(false)} className="p-6">
+      <Dialog open={editPrompt} onClose={handleCloseEditPrompt} className="p-6">
         <DialogTitle className="min-w-[400px]">Edit Detail Asesor</DialogTitle>
         <DialogContent className="max-w-[400px]">
           <form id="edit" onSubmit={handleEditAsesor}>
@@ -805,7 +941,11 @@ const InstructorList = () => {
               name="new-name"
               variant="standard"
               fullWidth
-              defaultValue={selectedPeserta.name}
+              // defaultValue={selectedPeserta.name}
+              value={nama}
+              onChange={(e) => handleNameChange(e, true)}
+              error={newNameError}
+              helperText={newNameError ? "Nama baru harus berisi setidaknya 3 karakter dan maksimal berisi 48 karakter" : ""}
             />
             <TextField
               className="my-4"
@@ -814,7 +954,11 @@ const InstructorList = () => {
               name="new-email"
               variant="standard"
               fullWidth
-              defaultValue={detailPeserta.email}
+              // defaultValue={detailPeserta.email}
+              value={email}
+              onChange={(e) => handleEmailChange(e, true)}
+              error={newEmailError}
+              helperText={newEmailError ? "Email baru harus berisi setidaknya 8 karakter dan maksimal berisi 72 karakter" : ""}
             />
             <TextField
               className="my-4"
@@ -822,8 +966,13 @@ const InstructorList = () => {
               label="NIP"
               name="new-nip"
               variant="standard"
+              type="number"
               fullWidth
-              defaultValue={selectedPeserta.nip}
+              // defaultValue={selectedPeserta.nip}
+              value={nip}
+              onChange={(e) => handleNIPChange(e, true)}
+              error={newNipError}
+              helperText={newNipError ? "NIP baru maksimal berisi 32 karakter" : ""}
             />
             <TextField
               className="my-4"
@@ -832,7 +981,11 @@ const InstructorList = () => {
               name="new-username"
               variant="standard"
               fullWidth
-              defaultValue={detailPeserta.username}
+              // defaultValue={detailPeserta.username}
+              value={username}
+              onChange={(e) => handleUsernameChange(e, true)}
+              error={newUsernameError}
+              helperText={newUsernameError ? "Username baru maksimal berisi 32 karakter" : ""}
             />
             <div className="my-4 flex gap-4 items-center">
               <TextField
@@ -842,7 +995,11 @@ const InstructorList = () => {
                 name="new-position"
                 variant="standard"
                 fullWidth
-                defaultValue={detailPeserta.position}
+                // defaultValue={detailPeserta.position}
+                value={position}
+                onChange={(e) => handlePositionChange(e, true)}
+                error={newPositionError}
+                helperText={newPositionError ? "Kedudukan baru maksimal berisi 48 karakter" : ""}
               />
               <DatePicker
                 className="w-1/2"
@@ -856,7 +1013,7 @@ const InstructorList = () => {
         </DialogContent>
         <DialogActions className="mb-2 flex justify-between px-6">
           <Button
-            onClick={() => setEditPrompt(false)}
+            onClick={handleCloseEditPrompt}
             color="error"
           >
             Batal
