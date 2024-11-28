@@ -112,6 +112,15 @@ function Database() {
   const [newBirthDate, setNewBirthDate] = useState<Dayjs | null>(null);
   const [reload, setReload] = useState(false);
 
+  const [nameError, setNameError] = useState(false);
+  const [positionError, setPositionError] = useState(false);
+  const [emailError, setEmailError] = useState(false);
+  const [nipError, setNipError] = useState(false);
+  const [newNameError, setNewNameError] = useState(false);
+  const [newPositionError, setNewPositionError] = useState(false);
+  const [newEmailError, setNewEmailError] = useState(false);
+  const [newNipError, setNewNipError] = useState(false);
+
   // currentInstructor.isAdmin = false;
   // currentInstructor.isInstructor = false;
 
@@ -183,6 +192,86 @@ function Database() {
     }
   };
 
+  const handleNameChange = (e: any, isEditing = false) => {
+    const inputValue = e.target.value;
+  
+    if (inputValue.length > 48 || inputValue.length < 3) {
+      if (isEditing) {
+        setNewNameError(true);
+      } else {
+        setNameError(true);
+      }
+      setNama(inputValue.slice(0, 48));
+    } else {
+      if (isEditing) {
+        setNewNameError(false);
+      } else {
+        setNameError(false);
+      }
+      setNama(inputValue);
+    }
+  };
+
+  const handlePositionChange = (e: any, isEditing = false) => {
+    const inputValue = e.target.value;
+
+    if (inputValue.length > 48) {
+      if (isEditing) {
+        setNewPositionError(true);
+      } else {
+        setPositionError(true);
+      }
+      setPosition(inputValue.slice(0, 48));
+    } else {
+      if (isEditing) {
+        setNewPositionError(false)
+      } else {
+        setPositionError(false);
+      }
+      setPosition(inputValue);
+    }
+  };
+
+  const handleEmailChange = (e: any, isEditing = false) => {
+    const inputValue = e.target.value;
+
+    if (inputValue.length > 72 || inputValue.length < 8) {
+      if (isEditing) {
+        setNewEmailError(true);
+      } else {
+        setEmailError(true);
+      }
+      setEmail(inputValue.slice(0, 72));
+    } else {
+      if (isEditing) {
+        setNewEmailError(false);
+      } else {
+        setEmailError(false);
+      }
+      setEmail(inputValue);
+    }
+  };
+  
+  const handleNIPChange = (e: any, isEditing = false) => {
+    const inputValue = e.target.value;
+
+    if (inputValue.length > 32) {
+      if (isEditing) {
+        setNewNipError(true);
+      } else {
+        setNipError(true);
+      }
+      setNip(inputValue.slice(0, 32));
+    } else {
+      if (isEditing) {
+        setNewNipError(false)
+      } else {
+        setNipError(false);
+      }
+      setNip(inputValue);  
+    }
+  };
+
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage + 1);
   };
@@ -197,9 +286,6 @@ function Database() {
     );
   };
   
-  const handleNIPChange = (e: any) => {
-		setNip(e.target.value);
-	};
 
   const handleRegister = async () => {
     const isValid = validateRegister();
@@ -314,10 +400,12 @@ function Database() {
     };
 
     try {
-      const res = await updateUserById(selectedPeserta.id, payload);
+      const res = await updateUserById(detailId, payload);
 
       setEditPrompt(false);
       toast.success("Data peserta berhasil diubah", { position: "top-center" });
+      setReload(true);
+      setDetailOpen(false);
     } catch (e) {
       const errMsg = e.response.data.errorMessage;
       toast.error(errMsg, { position: "top-center" });
@@ -543,7 +631,9 @@ function Database() {
                 fullWidth
                 variant="standard"
                 value={nama}
-                onChange={(e) => setNama(e.target.value)}
+                onChange={(e) => handleNameChange(e, false)}
+                error={nameError}
+                helperText={nameError ? "Nama harus berisi setidaknya 3 karakter dan maksimal berisi 48 karakter" : ""}
               />
               <TextField
                 margin="normal"
@@ -553,7 +643,9 @@ function Database() {
                 fullWidth
                 variant="standard"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => handleEmailChange(e, false)}
+                error={emailError}
+                helperText={emailError ? "Email harus berisi setidaknya 8 karakter dan maksimal berisi 72 karakter" : ""}
               />
               <TextField
                 margin="normal"
@@ -563,7 +655,9 @@ function Database() {
                 fullWidth
                 variant="standard"
                 value={nip}
-                onChange={handleNIPChange}
+                onChange={(e) => handleNIPChange(e, false)}
+                error={nipError}
+                helperText={nipError ? "NIP maksimal berisi 32 karakter" : ""}
               />
               <div className="flex gap-4 items-center">
                 <TextField
@@ -574,7 +668,9 @@ function Database() {
                   type="text"
                   variant="standard"
                   value={position}
-                  onChange={(e) => setPosition(e.target.value)}
+                  onChange={(e) => handlePositionChange(e, false)}
+                  error={positionError}
+                  helperText={positionError ? "Kedudukan maksimal berisi 48 karakter" : ""}
                 />
                 <DatePicker
                   className="w-1/2"

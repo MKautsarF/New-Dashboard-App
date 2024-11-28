@@ -138,6 +138,7 @@ export const getCourseListbyAdmin = async (
           title ? `&title:likeLower=%${title}%` : ""
         }${description ? `&description:likeLower=${description}` : ""}`
       );
+      
       total = res.data.total - 1;
 
       // Initialize exclusions for the current page if not already done
@@ -242,6 +243,18 @@ export const getCourseDetail = async (id: string) => {
   try {
     console.log(id);
     const res = await services.get(`/public/course/${id}/download`);
+
+    return res.data;
+  } catch (error) {
+    console.error(`Error fetching course list:`, error);
+    throw error;
+  }
+};
+
+
+export const getCourseData = async () => {
+  try {
+    const res = await services.get(`/course-data`);
 
     return res.data;
   } catch (error) {
