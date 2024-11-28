@@ -156,7 +156,7 @@ const Container: React.FC<ContainerProps> = ({
         }}
       >
         <div>
-          <FormControl
+          {/* <FormControl
             sx={{
               "& .MuiInputBase-root": {
                 fontSize: "1.4rem",
@@ -188,7 +188,7 @@ const Container: React.FC<ContainerProps> = ({
                 </Select>
               </>
             )}
-          </FormControl>
+          </FormControl> */}
           {instructor.name !== "" && (
             <Button
               className="absolute top-0 right-2 -translate-y-full flex "

@@ -113,7 +113,7 @@ function Settings() {
         ((!settings.useMotionBase && hardwareStatus.kondisiMotion === 0) ||
           (!settings.useMotionBase && hardwareStatus.kondisiMotion === 1) ||
           (settings.useMotionBase === true &&
-            hardwareStatus.kondisiMotion === 2 &&
+            // hardwareStatus.kondisiMotion === 2 &&
             hardwareStatus.bridge === 0 &&
             hardwareStatus.pintu === 1 &&
             hardwareStatus.mouse3d === 1))
@@ -124,7 +124,7 @@ function Settings() {
         ((!settings.useMotionBase && hardwareStatus.kondisiMotion === 0) ||
           (!settings.useMotionBase && hardwareStatus.kondisiMotion === 1) ||
           (settings.useMotionBase === true &&
-            hardwareStatus.kondisiMotion === 2 &&
+            // hardwareStatus.kondisiMotion === 2 &&
             hardwareStatus.bridge === 0 &&
             hardwareStatus.pintu === 1 &&
             hardwareStatus.mouse3d === 1))
@@ -253,7 +253,7 @@ function Settings() {
       (settings.useMotionBase === true && hardwareStatus.kondisiMotion === 0) ||
       (settings.useMotionBase === true && hardwareStatus.kondisiMotion === 1)
     ) {
-      setModal(true);
+      // setModal(true);
     }
   }, [settings.useMotionBase, hardwareStatus]);
 
