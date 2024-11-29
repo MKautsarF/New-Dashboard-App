@@ -513,14 +513,16 @@ const InstructorList = () => {
       try {
         setIsLoading(true);
         const res = await getInstructorList(page, 5);
-        // console.log('tes', res.results)
+        console.log('tes', res.results);
 
         const resRows: RowData[] = [];
+        console.log('tes 2', resRows);
         for (let entry of res.results) {
           const row: RowData = {
             id: entry.id,
             name: entry.name,
-            nip: entry.bio.identityNumber? entry.bio.identityNumber : " ", 
+            // nip: entry.bio.identityNumber? entry.bio.identityNumber : " ", 
+            nip: "test", 
             username: entry.username,
           };
           // console.log("row", row);
