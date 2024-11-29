@@ -148,7 +148,8 @@ function Settings() {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleLanjut = () => {
-    navigate(`/scoringStart?type=${trainType}&id=76`, {
+    // HARDCODE ID COURSE
+    navigate(`/scoringStart?type=${trainType}&id=1`, {
       state: { fromEksplorasi: true },
     });
   };

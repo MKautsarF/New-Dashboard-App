@@ -798,7 +798,11 @@ function Database() {
                   },
                 }}
               >
-                Lanjut ({selectedPeserta.name}) {trainType}
+                Lanjut ({selectedPeserta.name}) {trainType === "kcic"
+                ? "HST"
+                : trainType === "lrt"
+                ? "LRT"
+                : trainType}
               </Button>
             )}
           </div>
