@@ -27,6 +27,21 @@ interface ToastData {
   msg: string;
 }
 
+interface Penilaian {
+  unit: number;
+  judul: string;
+  disable: boolean;
+  data: any[];
+}
+
+interface Poin {
+  observasi: string;
+  id: string;
+  nilai: number;
+  bobot: string;
+  disable: boolean;
+}
+
 function useQuery() {
   const { search } = useLocation();
 
@@ -258,7 +273,7 @@ function EditKCIC() {
     } finally {
         setIsLoading(false);
     }
-};
+  };
 
   
   
@@ -326,6 +341,121 @@ function EditKCIC() {
     }
   }, []);
 
+  const handleAddUnit = () => {
+    const newNilai = {
+      unit: jsonToWrite?.penilaian?.length + 1,
+      judul: `Unit Kompetensi ${jsonToWrite?.penilaian.length + 1}`,
+      disable: false,
+      data: Array<any>(),
+    };
+    setJsonToWrite((prev: any) => ({
+      ...prev,
+      penilaian: [...prev.penilaian, newNilai],
+    }));
+  };
+
+  const handleJudulUnitChange = (index: number, newJudul: string) => {
+    setJsonToWrite((prev: { penilaian: Penilaian[] }) => {
+      const updatedPenilaian = [...prev.penilaian];
+      updatedPenilaian[index].judul = newJudul; // Update judul untuk unit yang sesuai
+      return { ...prev, penilaian: updatedPenilaian };
+    });
+  };
+
+  const handleDeleteUnit = (index: number) => {
+    setJsonToWrite((prev: { penilaian: Penilaian[] }) => {
+      const updatedPenilaian = prev.penilaian.filter((_, i: number) => i !== index);
+      
+      const updatedUnits = updatedPenilaian.map((penilaian, i: number) => ({
+        ...penilaian,
+        unit: i + 1,
+      }));
+  
+      return { ...prev, penilaian: updatedUnits };
+    });
+  };
+
+  const handleAddLangkahKerja = (unitIndex: number) => {
+    setJsonToWrite((prev: { penilaian: Penilaian[] }) => {
+      const updatedPenilaian = [...prev.penilaian];
+      const newData = {
+        no: updatedPenilaian[unitIndex].data.length + 1,
+        langkah_kerja: `Langkah Kerja ${updatedPenilaian[unitIndex].data.length + 1}`,
+        bobot: "1",
+        disable: updatedPenilaian[unitIndex].disable,
+        poin: Array<any>(),
+      };
+      
+      updatedPenilaian[unitIndex].data.push(newData);
+  
+      updatedPenilaian[unitIndex].data.forEach((data, index) => {
+        data.no = index + 1;
+      });
+  
+      return { ...prev, penilaian: updatedPenilaian };
+    });
+  };
+
+  const handleJudulLangkahKerjaChange = (unitIndex: number, langkahKerjaIndex: number, newJudul: string) => {
+    setJsonToWrite((prev: { penilaian: Penilaian[] }) => {
+      const updatedPenilaian = [...prev.penilaian];
+      updatedPenilaian[unitIndex].data[langkahKerjaIndex].langkah_kerja = newJudul;
+      return { ...prev, penilaian: updatedPenilaian };
+    });
+  };
+  
+  const handleDeleteLangkahKerja = (unitIndex: number, dataIndex: number) => {
+    setJsonToWrite((prev: { penilaian: Penilaian[] }) => {
+      const updatedPenilaian = [...prev.penilaian];
+      
+      updatedPenilaian[unitIndex].data.splice(dataIndex, 1);
+      
+      updatedPenilaian[unitIndex].data.forEach((data, index) => {
+        data.no = index + 1;
+      });
+  
+      return { ...prev, penilaian: updatedPenilaian };
+    });
+  };
+
+  const handleAddPoinObservasi = (unitIndex: number, langkahKerjaIndex: number) => {
+    setJsonToWrite((prev: { penilaian: Penilaian[] }) => {
+      const updatedPenilaian = [...prev.penilaian];
+      const newPoin = {
+        observasi: `Poin Observasi ${updatedPenilaian[unitIndex].data[langkahKerjaIndex].poin.length + 1}`,
+        id: `K${unitIndex + 1}.${langkahKerjaIndex + 1}.${updatedPenilaian[unitIndex].data[langkahKerjaIndex].poin.length + 1}`,
+        nilai: 0,
+        bobot: "1",
+        disable: false,
+      };
+      updatedPenilaian[unitIndex].data[langkahKerjaIndex].poin.push(newPoin);
+
+      return { ...prev, penilaian: updatedPenilaian };
+    });
+  };
+  
+  const handleJudulPoinObservasiChange = (unitIndex: number, langkahKerjaIndex: number, poinIndex: number, newJudul: string) => {
+    setJsonToWrite((prev: { penilaian: Penilaian[] }) => {
+      const updatedPenilaian = [...prev.penilaian];
+      updatedPenilaian[unitIndex].data[langkahKerjaIndex].poin[poinIndex].observasi = newJudul; // Update judul poin observasi
+      return { ...prev, penilaian: updatedPenilaian };
+    });
+  };
+  
+  const handleDeletePoinObservasi = (unitIndex: number, langkahKerjaIndex: number, poinIndex: number) => {
+    setJsonToWrite((prev: { penilaian: Penilaian[] }) => {
+      const updatedPenilaian = [...prev.penilaian];
+      updatedPenilaian[unitIndex].data[langkahKerjaIndex].poin.splice(poinIndex, 1); // Hapus poin observasi berdasarkan indeks
+  
+      // Memperbarui ID untuk poin observasi yang tersisa
+      updatedPenilaian[unitIndex].data[langkahKerjaIndex].poin.forEach((poin: Poin, index: number) => {
+        poin.id = `K${unitIndex + 1}.${langkahKerjaIndex + 1}.${index + 1}`; // Memperbarui ID poin
+      });
+  
+      return { ...prev, penilaian: updatedPenilaian };
+    });
+  };
+
   return (
     <>
       <Container w={1000}>
@@ -341,20 +471,19 @@ function EditKCIC() {
                 size="large"
                 color="success"
                 className="mb-1"
-                onClick={() => {
-                  const newNilai = {
-                    unit: jsonToWrite?.penilaian?.length + 1,
-                    judul: `Unit Kompetensi ${
-                      jsonToWrite?.penilaian.length + 1
-                    }`,
-                    disable: false,
-                    data: new Array<any>(),
-                  };
-                  jsonToWrite.penilaian.push(newNilai);
-                  setJsonToWrite({ ...jsonToWrite });
+                // onClick={() => {
+                //   const newNilai = {
+                //     unit: jsonToWrite?.penilaian?.length + 1,
+                //     judul: `Unit Kompetensi ${jsonToWrite?.penilaian.length + 1}`,
+                //     disable: false,
+                //     data: Array<any>(),
+                //   };
+                //   jsonToWrite.penilaian.push(newNilai);
+                //   setJsonToWrite({ ...jsonToWrite });
 
-                  flushSync;
-                }}
+                //   flushSync;
+                // }}
+                onClick={handleAddUnit}
               >
                 <AddBox fontSize="inherit" />
               </IconButton>
@@ -402,7 +531,7 @@ function EditKCIC() {
                           Unit Kompetensi {nilai.unit}:
                         </h2>
                         <TextField
-                          defaultValue={nilai.judul}
+                          value={nilai.judul}
                           type="string"
                           className="flex-auto  mx-1"
                           size="small"
@@ -411,31 +540,34 @@ function EditKCIC() {
                             readOnly: nilaiDisabled,
                           }}
                           multiline
+                          onChange={(e) => handleJudulUnitChange(i, e.target.value)}
                         />
                         <IconButton
                           color="success"
-                          onClick={() => {
-                            const newData = {
-                              no: nilai.data.length + 1,
-                              langkah_kerja: `Langkah Kerja ${
-                                nilai.data.length + 1
-                              }`,
-                              bobot: "1",
-                              disable: nilaiDisabled,
-                              poin: new Array<any>(),
-                            };
-                            nilai.data.push(newData);
-                            setJsonToWrite({ ...jsonToWrite });
-                          }}
+                          // onClick={() => {
+                          //   const newData = {
+                          //     no: nilai.data.length + 1,
+                          //     langkah_kerja: `Langkah Kerja ${
+                          //       nilai.data.length + 1
+                          //     }`,
+                          //     bobot: "1",
+                          //     disable: nilaiDisabled,
+                          //     poin: new Array<any>(),
+                          //   };
+                          //   nilai.data.push(newData);
+                          //   setJsonToWrite({ ...jsonToWrite });
+                          // }}
+                          onClick={() => handleAddLangkahKerja(i)}
                         >
                           <AddBox />
                         </IconButton>
                         <IconButton
                           color="error"
-                          onClick={() => {
-                            jsonToWrite.penilaian.splice(i, 1);
-                            setJsonToWrite({ ...jsonToWrite });
-                          }}
+                          // onClick={() => {
+                          //   jsonToWrite.penilaian.splice(i, 1);
+                          //   setJsonToWrite({ ...jsonToWrite });
+                          // }}
+                          onClick={() => handleDeleteUnit(i)}
                         >
                           <Delete />
                         </IconButton>
@@ -493,7 +625,7 @@ function EditKCIC() {
                                   }}
                                 >
                                   <TextField
-                                    defaultValue={data.langkah_kerja}
+                                    value={data.langkah_kerja}
                                     type="string"
                                     className="w-full mx-1"
                                     size="small"
@@ -502,6 +634,7 @@ function EditKCIC() {
                                       readOnly: dataDisabled,
                                     }}
                                     multiline
+                                    onChange={(e) => handleJudulLangkahKerjaChange(i, j, e.target.value)}
                                   >
                                     {data.langkah_kerja}
                                   </TextField>
@@ -540,31 +673,33 @@ function EditKCIC() {
 
                                 <IconButton
                                   color="success"
-                                  onClick={() => {
-                                    const newPoin = {
-                                      observasi: `Poin Observasi ${
-                                        data.poin.length + 1
-                                      }`,
-                                      id: `K${i + 1}.${j + 1}.${
-                                        data.poin.length + 1
-                                      }`,
-                                      nilai: 0,
-                                      bobot: "1",
-                                      disable: dataDisabled,
-                                    };
-                                    data.poin.push(newPoin);
-                                    setJsonToWrite({ ...jsonToWrite });
-                                  }}
+                                  // onClick={() => {
+                                  //   const newPoin = {
+                                  //     observasi: `Poin Observasi ${
+                                  //       data.poin.length + 1
+                                  //     }`,
+                                  //     id: `K${i + 1}.${j + 1}.${
+                                  //       data.poin.length + 1
+                                  //     }`,
+                                  //     nilai: 0,
+                                  //     bobot: "1",
+                                  //     disable: dataDisabled,
+                                  //   };
+                                  //   data.poin.push(newPoin);
+                                  //   setJsonToWrite({ ...jsonToWrite });
+                                  // }}
+                                  onClick={() => handleAddPoinObservasi(i, j)}
                                 >
                                   <AddBox />
                                 </IconButton>
 
                                 <IconButton
                                   color="error"
-                                  onClick={() => {
-                                    nilai.data.splice(j, 1);
-                                    setJsonToWrite({ ...jsonToWrite });
-                                  }}
+                                  // onClick={() => {
+                                  //   nilai.data.splice(j, 1);
+                                  //   setJsonToWrite({ ...jsonToWrite });
+                                  // }}
+                                  onClick={() => handleDeleteLangkahKerja(i, j)}
                                 >
                                   <Delete />
                                 </IconButton>
@@ -618,7 +753,7 @@ function EditKCIC() {
                                         }}
                                       >
                                         <TextField
-                                          defaultValue={poin.observasi}
+                                          value={poin.observasi}
                                           type="string"
                                           className="w-full"
                                           size="small"
@@ -627,6 +762,7 @@ function EditKCIC() {
                                             readOnly: poinDisabled,
                                           }}
                                           multiline
+                                          onChange={(e) => handleJudulPoinObservasiChange(i, j, k, e.target.value)}
                                         />
                                       </Tooltip>
 
@@ -664,10 +800,11 @@ function EditKCIC() {
                                       <IconButton
                                         aria-label="delete poin"
                                         color="error"
-                                        onClick={() => {
-                                          data.poin.splice(k, 1);
-                                          setJsonToWrite({ ...jsonToWrite });
-                                        }}
+                                        // onClick={() => {
+                                        //   data.poin.splice(k, 1);
+                                        //   setJsonToWrite({ ...jsonToWrite });
+                                        // }}
+                                        onClick={() => handleDeletePoinObservasi(i, j, k)}
                                       >
                                         <Delete />
                                       </IconButton>
