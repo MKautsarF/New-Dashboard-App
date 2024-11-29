@@ -8,6 +8,9 @@ import {
   IconButton,
   TextField,
   Tooltip,
+  Dialog,
+  DialogActions,
+  DialogContent,
 } from "@mui/material";
 import { AddBox, Delete, Visibility, VisibilityOff } from "@mui/icons-material";
 import Container from "@/components/Container";
@@ -38,6 +41,7 @@ function EditKCIC() {
   const courseID = query.get("courseID");
   const train = query.get("train");
   const mode = query.get("mode");
+  const [formatPrompt, setFormatPrompt] = useState(false);
 
   const jsonPath = "C:/Train Simulator/Data/ModuleTemplate.json"
   // const jsonPath = "src/config/ModuleTemplate.json"
@@ -104,6 +108,36 @@ function EditKCIC() {
   const handleConfirm = () => {
     document.getElementById('penilaian-form')?.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
   };
+
+  const handleEmptyFormat = (obj: any) => {
+    if (
+      obj === null ||
+      obj === "" ||
+      (Array.isArray(obj) && obj.length === 0)
+    ) {
+      return true;
+    }
+
+    if (typeof obj === "object") {
+      for (const key in obj) {
+        if (obj.hasOwnProperty(key) && key !== "log_eror") {
+          if (handleEmptyFormat(obj[key])) {
+            return true;
+          }
+        }
+      }
+    }
+
+    if (Array.isArray(obj)) {
+      for (let i = 0; i < obj.length; i++) {
+        if (handleEmptyFormat(obj[i])) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  };
   
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -125,11 +159,13 @@ function EditKCIC() {
 
         const existingTitles = scoringModule.map((item) => item.title);
 
-        if (existingTitles.includes(newTitle)) {
-          toast.error('Judul penilaian sudah tersedia, silahkan pilih judul lainnya', {
-            position: 'top-center',
-          });
-          return;
+        if (mode === "new") {
+          if (existingTitles.includes(newTitle)) {
+            toast.error('Judul penilaian sudah tersedia, silahkan pilih judul lainnya', {
+              position: 'top-center',
+            });
+            return;
+          }
         }
 
         if (!newTitle.trim()) {
@@ -168,6 +204,21 @@ function EditKCIC() {
             judulIndex++;
         });
 
+        const isFormatValid = jsonToWrite.penilaian.every((penilaian: any, i: number) => {
+          const langkahKerjaCount = penilaian.data.length;
+          return langkahKerjaCount > 0 && penilaian.data.every((data: any) => {
+              return data.poin.length > 0; // Pastikan ada poin untuk setiap langkah kerja
+          });
+        });
+
+        if (!isFormatValid) {
+            setFormatPrompt(true);
+            toast.error('Format data tidak sesuai. Pastikan setiap judul penilaian memiliki unit kompetensi dan setiap unit kompetensi memiliki langkah kerja dan setiap langkah kerja memiliki poin observasi observasi.', {
+                position: 'top-center',
+            });
+            return;
+        }
+
         const formData = new FormData();
         formData.append('file', new Blob([JSON.stringify(jsonToWrite, null, 2)], { type: 'application/json' }), 'data.json');
         formData.append('courseId', courseID);
@@ -195,6 +246,7 @@ function EditKCIC() {
         });
 
         navigate("/scoringlist/coursedetail?id=" + courseID + "&type=" + train);
+        
         
     } catch (e) {
         console.error(e);
@@ -292,7 +344,9 @@ function EditKCIC() {
                 onClick={() => {
                   const newNilai = {
                     unit: jsonToWrite?.penilaian?.length + 1,
-                    judul: "",
+                    judul: `Unit Kompetensi ${
+                      jsonToWrite?.penilaian.length + 1
+                    }`,
                     disable: false,
                     data: new Array<any>(),
                   };
@@ -306,13 +360,13 @@ function EditKCIC() {
               </IconButton>
             </h1>
             <div className="flex flex-col justify-center items-center">
-            <TextField
-              className="w-1/3 text-center px-6"
-              style={{ fontSize: "2.75rem", fontWeight: "bold" }}
-              value={jsonToWrite?.judul_penilaian}
-              onChange={(e) => {jsonToWrite.judul_penilaian = e.target.value; setJsonToWrite({ ...jsonToWrite });}}
-            >
-            </TextField>
+              <TextField
+                className="w-1/3 text-center px-6"
+                style={{ fontSize: "2.75rem", fontWeight: "bold" }}
+                value={jsonToWrite?.judul_penilaian}
+                onChange={(e) => {jsonToWrite.judul_penilaian = e.target.value; setJsonToWrite({ ...jsonToWrite });}}
+              >
+              </TextField>
             </div>
             <Box component="form" id="penilaian-form" onSubmit={handleSubmit}>
               <div>
@@ -363,7 +417,10 @@ function EditKCIC() {
                           onClick={() => {
                             const newData = {
                               no: nilai.data.length + 1,
-                              langkah_kerja: "",
+                              langkah_kerja: `Langkah Kerja ${
+                                nilai.data.length + 1
+                              }`,
+                              bobot: "1",
                               disable: nilaiDisabled,
                               poin: new Array<any>(),
                             };
@@ -485,11 +542,14 @@ function EditKCIC() {
                                   color="success"
                                   onClick={() => {
                                     const newPoin = {
-                                      observasi: "",
+                                      observasi: `Poin Observasi ${
+                                        data.poin.length + 1
+                                      }`,
                                       id: `K${i + 1}.${j + 1}.${
                                         data.poin.length + 1
                                       }`,
                                       nilai: 0,
+                                      bobot: "1",
                                       disable: dataDisabled,
                                     };
                                     data.poin.push(newPoin);
@@ -677,6 +737,25 @@ function EditKCIC() {
               </div>
             </div>
           </div>
+
+          {/* <Dialog open={formatPrompt} onClose={() => setFormatPrompt(false)}>
+            <DialogContent className="min-w-[260px] text-lg">
+              Format modul penilaian yang anda masukkan masih salah.
+              <br></br>Harap lengkapi terlebih dahulu.
+            </DialogContent>
+            <DialogActions className="flex mb-2 justify-between">
+              <Button
+                className="mx-2 text-lg"
+                onClick={() => {
+                  setFormatPrompt(false);
+                  setIsLoading(false);
+                }}
+                color="error"
+              >
+                Kembali
+              </Button>
+            </DialogActions>
+          </Dialog> */}
         </div>
 
         <footer ref={bottom}></footer>

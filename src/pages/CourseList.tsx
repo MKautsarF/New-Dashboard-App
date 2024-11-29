@@ -421,7 +421,9 @@ const CourseList = () => {
 
   const handleSearch = async (e: any) => {
     e.preventDefault();
-    const query = e.target.query.value;
+    // const query = e.target.query.value;
+    const query = encodeURIComponent(e.target.query.value).replace(/%20/g, '+');
+
     try {
       setIsLoading(true);
       let res = {

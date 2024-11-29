@@ -937,8 +937,8 @@ const UserLogAdmin = () => {
                     {trainSort == ""
                       ? "Jenis Kereta"
                       : trainSort == "LRT"
-                      ? "LRT"
-                      : "KCIC"}
+                      ? "Low Rapid"
+                      : "High Speed"}
                   </Button>
                 </TableCell>
                 <TableCell className="text-lg font-bold">Modul</TableCell>

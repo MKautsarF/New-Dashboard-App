@@ -15,13 +15,13 @@ import {
   FormControl,
   MenuItem,
   Select,
+  CircularProgress,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import InstructorDetail from "./InstructorDetail";
 import { useAtom } from "jotai";
 import { HardwareStatusAtom, safetyEnabledAtom } from "@/context/atom";
-import { sendTextToClients, socketClients } from "@/socket";
-import { useMotion } from "@/context/settings";
+import { getCourseData } from "@/services/course.services";
 import { useLocation } from "react-router-dom";
 
 interface ContainerProps {
@@ -46,6 +46,7 @@ const Container: React.FC<ContainerProps> = ({
   const [viewHardware, setviewHardware] = useState(false);
 
   const [hardwareStatus, setHardwareStatus] = useAtom(HardwareStatusAtom);
+  const [isLoading, setIsLoading] = useState(false);
 
   const [safetyEnabled, setSafetyEnabled] = useAtom(safetyEnabledAtom);
 
@@ -61,10 +62,34 @@ const Container: React.FC<ContainerProps> = ({
   //     }
   // };
 
-  // useEffect(() => {
-  //     const interval = setInterval(fetchValue, 1000); // Fetch value every second
-  //     return () => clearInterval(interval); // Cleanup on unmount
-  // }, []);
+  useEffect(() => {
+    async function getData() {
+      try {
+        setIsLoading(true);
+  
+        const res = await getCourseData();
+        console.log("Course DATAAAAAA", res);
+  
+        // Mencari id terbesar
+        const maxId = res.reduce((max: any, item: any) => {
+          return item.id > max ? item.id : max;
+        }, 0);
+        console.log("ID Terbesar:", maxId);
+  
+        // Mengekstrak filename
+        const filenames = res.map((item: any) => item.filename);
+        console.log("Filenames:", filenames);
+  
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  
+    getData();
+  }, []);
+
 
   // useEffect(() => {
   //   const payloadSafety = {
@@ -214,56 +239,64 @@ const Container: React.FC<ContainerProps> = ({
             Status Perangkat Keras
           </DialogContent>
           <DialogContent className="flex flex-col mb-2 ">
-            <div className="flex flex-row items-center">
-              <Train style={{ color: "black", marginRight: "10px" }} />
-              Mode: {hardwareStatus.mode === 0
-                ? "High Speed Train"
-                : hardwareStatus.mode === 1
-                ? "Light Rail Transit"
-                : hardwareStatus.mode === 2
-                ? "Transisi"
-                : "Tidak ada data"}
-            </div>
-            <br />
-            <div className="flex flex-row items-center">
-              <CompareArrows style={{ color: "black", marginRight: "10px" }} />
-              Jembatan: {hardwareStatus.bridge === 0
-                ? "Naik"
-                : hardwareStatus.bridge === 1
-                ? "Transisi"
-                : hardwareStatus.bridge === 2
-                ? "Turun"
-                : "Tidak ada data"}
-            </div>
-            <br />
-            <div className="flex flex-row items-center">
-              <Mouse style={{ color: "black", marginRight: "10px" }} />
-              3D Mouse: {hardwareStatus.mouse3d === 0
-                ? "Aktif"
-                : hardwareStatus.mouse3d === 1
-                ? "Tidak Aktif"
-                : "Tidak ada data"}
-            </div>
-            <br />
-            <div className="flex flex-row items-center">
-              <SensorDoor style={{ color: "black", marginRight: "10px" }} />
-              Pintu: {hardwareStatus.pintu === 0
-                ? "Terbuka"
-                : hardwareStatus.pintu === 1
-                ? "Tertutup"
-                : "Tidak ada data"}
-            </div>
-            <br />
-            <div className="flex flex-row items-center">
-              <SettingsPower style={{ color: "black", marginRight: "10px" }} />
-              Motion: {hardwareStatus.kondisiMotion === 0
-                ? "Tidak Siap Pakai"
-                : hardwareStatus.kondisiMotion === 1
-                ? "Motion Tidak Aktif"
-                : hardwareStatus.kondisiMotion === 2
-                ? "Motion Aktif"
-                : "Tidak ada data"}
-            </div>
+            {isLoading ? (
+              <div>
+                <CircularProgress />
+              </div>
+            ) : (
+              <>
+                <div className="flex flex-row items-center">
+                  <Train style={{ color: "black", marginRight: "10px" }} />
+                  Mode: {hardwareStatus.mode === 0
+                    ? "High Speed Train"
+                    : hardwareStatus.mode === 1
+                    ? "Light Rail Transit"
+                    : hardwareStatus.mode === 2
+                    ? "Transisi"
+                    : "Tidak ada data"}
+                </div>
+                <br />
+                <div className="flex flex-row items-center">
+                  <CompareArrows style={{ color: "black", marginRight: "10px" }} />
+                  Jembatan: {hardwareStatus.bridge === 0
+                    ? "Naik"
+                    : hardwareStatus.bridge === 1
+                    ? "Transisi"
+                    : hardwareStatus.bridge === 2
+                    ? "Turun"
+                    : "Tidak ada data"}
+                </div>
+                <br />
+                <div className="flex flex-row items-center">
+                  <Mouse style={{ color: "black", marginRight: "10px" }} />
+                  3D Mouse: {hardwareStatus.mouse3d === 0
+                    ? "Aktif"
+                    : hardwareStatus.mouse3d === 1
+                    ? "Tidak Aktif"
+                    : "Tidak ada data"}
+                </div>
+                <br />
+                <div className="flex flex-row items-center">
+                  <SensorDoor style={{ color: "black", marginRight: "10px" }} />
+                  Pintu: {hardwareStatus.pintu === 0
+                    ? "Terbuka"
+                    : hardwareStatus.pintu === 1
+                    ? "Tertutup"
+                    : "Tidak ada data"}
+                </div>
+                <br />
+                <div className="flex flex-row items-center">
+                  <SettingsPower style={{ color: "black", marginRight: "10px" }} />
+                  Motion: {hardwareStatus.kondisiMotion === 0
+                    ? "Tidak Siap Pakai"
+                    : hardwareStatus.kondisiMotion === 1
+                    ? "Motion Tidak Aktif"
+                    : hardwareStatus.kondisiMotion === 2
+                    ? "Motion Aktif"
+                    : "Tidak ada data"}
+                </div>
+              </>
+            )}
           </DialogContent>
         </div>
       </Dialog>
