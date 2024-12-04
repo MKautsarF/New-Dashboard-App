@@ -106,6 +106,12 @@ function Review() {
   const scoringID = query.get("scoringId");
   const [hardwareStatus, setHardwareStatus] = useAtom(HardwareStatusAtom);
 
+  const [lkAvg, setLKAvg] = useState<number[][]>([[]]);
+  const [weightedAvg, setWeightedAvg] = useState<number[][]>([[]]);
+  const [ukAvg, setUKAvg] = useState<number[]>([]);
+  const [dataBobotSum, setDataBobotSum] = useState<number[]>([]);
+  const [overallAvg, setOverallAvg] = useState(0);
+
   // Notes
   const [notes, setNotes] = useState("");
   const [notesOpen, setNotesOpen] = useState(false);
@@ -198,19 +204,126 @@ function Review() {
       // Write actual nilai to the copied krl json
       let jsonIdx = 0;
 
+      let arrPoinNilai0: number[][][] = [];
+      let arrPoinBobot0: number[][][] = [];
+      let arrDataBobot0: number[][] = [];
       jsonToWrite.penilaian.forEach((penilaian: any, i: number) => {
-        // console.log('reading penilaian array');
+        console.log("PENILAIAN DATA", penilaian.data);
+        let arrPoinNilai1: number[][] = [];
+        let arrPoinBobot1: number[][] = [];
+        let arrDataBobot1: number[] = [];
         penilaian.data.forEach((data: any, j: number) => {
-          // console.log('reading data array');
+          let arrPoinNilai2: number[] = [];
+          let arrPoinBobot2: number[] = [];
           data.poin.forEach((poin: any, k: number) => {
-            // console.log('reading poin array');
-            if (poin.nilai !== null) {
+            if (poin.nilai !== null && poin.bobot !== null) {
               poin.nilai = Number(inputValues[jsonIdx]);
+              console.log("poin nilai", poin.nilai);
+              console.log("poin bobot", poin.bobot);
+              arrPoinNilai2.push(Number(poin.nilai));
+              arrPoinBobot2.push(Number(poin.bobot));
               jsonIdx += 1;
             }
           });
+  
+          arrPoinNilai1 = [...arrPoinNilai1, arrPoinNilai2];
+          arrPoinBobot1 = [...arrPoinBobot1, arrPoinBobot2];
+          arrDataBobot1.push(Number(data.bobot));
+          console.log("arrPoinNilai2", arrPoinNilai2);
+          console.log("arrPoinBobot2", arrPoinBobot2);
         });
+  
+        arrPoinNilai0 = [...arrPoinNilai0, arrPoinNilai1];
+        arrPoinBobot0 = [...arrPoinBobot0, arrPoinBobot1];
+        arrDataBobot0 = [...arrDataBobot0, arrDataBobot1];
+        console.log("arrPoinNilai1", arrPoinNilai1);
+        console.log("arrPoinBobot1", arrPoinBobot1);
       });
+
+      console.log("arrPoinNilai0", JSON.stringify(arrPoinNilai0, null, 0));
+      console.log("arrPoinBobot0", JSON.stringify(arrPoinBobot0, null, 0));
+      console.log("arrDataBobot0", JSON.stringify(arrDataBobot0, null, 0));
+
+      function calculateLKAverage(
+        arrPoinNilai: number[][][],
+        arrPoinBobot: number[][][]
+      ): number[][] {
+        return arrPoinNilai.map((outerArray, i) =>
+          outerArray.map((middleArray, j) => {
+            // Calculate the weighted sum and the total weight (bobot) sum for each sub-array
+            const weightedSum = middleArray.reduce(
+              (sum, value, k) => sum + value * arrPoinBobot[i][j][k],
+              0
+            );
+            const totalWeight = arrPoinBobot[i][j].reduce(
+              (sum, weight) => sum + weight,
+              0
+            );
+  
+            // Calculate the weighted average
+            return totalWeight !== 0 ? weightedSum / totalWeight : 0; // Avoid division by zero
+          })
+        );
+      }
+  
+      // Calculate the result
+      const lkAverage = calculateLKAverage(arrPoinNilai0, arrPoinBobot0);
+      setLKAvg(lkAverage);
+      console.log("RESULT AVERAGE", JSON.stringify(lkAverage, null, 0));
+  
+      // Function to multiply each value in the first array with the corresponding value in the second array
+      function multiplyWithArrDataBobot0(
+        lkAverage: number[][],
+        arrDataBobot0: number[][]
+      ): number[][] {
+        return lkAverage.map(
+          (row, i) => row.map((value, j) => value * (arrDataBobot0[i][j] || 1)) // Fallback to 1 if arrDataBobot0[i][j] is undefined
+        );
+      }
+  
+      const weightedAverages = multiplyWithArrDataBobot0(
+        lkAverage,
+        arrDataBobot0
+      );
+      setWeightedAvg(weightedAverages);
+      console.log("WEIGHTED AVERAGE", JSON.stringify(weightedAverages, null, 0));
+  
+      function sumDataBobot(arr: number[][]): number[] {
+        return arr.map((innerArray) =>
+          innerArray.reduce((sum, value) => sum + value, 0)
+        );
+      }
+
+      const arrDataBobobot = sumDataBobot(arrDataBobot0);
+      setDataBobotSum(arrDataBobobot);
+
+      // Function to calculate inner averages
+      function calculateUKAverage(
+        weightedAverages: number[][],
+        arrDataBobobot: number[]
+      ): number[] {
+        return weightedAverages.map((innerArray, i) => {
+          const sum = innerArray.reduce((acc, value) => acc + value, 0);
+          const divisor = arrDataBobobot[i] || 1; // Fallback to 1 if no corresponding value exists
+          return divisor !== 0 ? sum / divisor : 0; // Avoid division by zero
+        });
+      }
+  
+      // Calculate the inner average
+      const ukAverage = calculateUKAverage(weightedAverages, arrDataBobobot);
+      setUKAvg(ukAverage);
+      console.log("INNER AVERAGE", JSON.stringify(ukAverage, null, 0));
+  
+      // Function to calculate the overall average of the inner averages
+      function calculateOverallAverage(innerAverages: number[]): number {
+        const totalSum = innerAverages.reduce((sum, value) => sum + value, 0);
+        const count = innerAverages.length;
+        return count !== 0 ? totalSum / count : 0; // Avoid division by zero
+      }
+  
+      const overallAverage = calculateOverallAverage(ukAverage);
+      setOverallAvg(overallAverage);
+      console.log("OVERALL AVERAGE", JSON.stringify(overallAverage, null, 0));
 
       // nilai skor akhir
       jsonToWrite.nilai_akhir = realTimeNilai < 0 ? 0 : realTimeNilai;
@@ -218,7 +331,7 @@ function Review() {
       //generate pdf
       let pdfname = null;
       let excelname = null;
-      pdfname = generatePDF(jsonToWrite);
+      pdfname = generatePDF(jsonToWrite, lkAverage, ukAverage, overallAverage);
       await generateExcel(jsonToWrite).then((excel) => {
         excelname = excel;
       });
@@ -381,7 +494,13 @@ function Review() {
     }
   };
 
-  const generatePDF = (json: any) => {
+  const generatePDF = (
+    json: any,
+    // i: number,
+    lkAverage: number[][],
+    ukAverage: number[],
+    overallAverage: number
+  ) => {
     const doc = new jsPDF();
 
     let nilaiAkhir = 0;
@@ -421,7 +540,7 @@ function Review() {
       // Iterate through each data in the unit and add rows to unitBodyData
       let currentY = startY + 15;
       unit.data.forEach((datas: any) => {
-        const { bodyData, rataRataRow } = addData(datas);
+        const { bodyData, rataRataRow } = addData(unit, datas);
         unitBodyData.push(...bodyData);
         unitBodyData.push(rataRataRow); // Add rata-rata langkah kerja row
         nilaiData = 0;
@@ -441,7 +560,7 @@ function Review() {
           styles: { fillColor: [220, 220, 220], fontStyle: "bold" },
         },
         {
-          content: rataRataUnit.toFixed(2),
+          content: ukAverage[unit.unit - 1].toFixed(2),
           styles: { fillColor: [220, 220, 220], fontStyle: "bold" },
         },
       ];
@@ -503,16 +622,6 @@ function Review() {
                 if ((rataRataCell.text[0] = "R")) {
                   const langkahKerja = unit.data[rowIndex]?.disable;
                   if (langkahKerja) {
-                    console.log(
-                      "yang ini yg rata row: ",
-                      data.row.index,
-                      "column: ",
-                      data.column.index,
-                      "cell: ",
-                      cellContent,
-                      "numberOfLines: ",
-                      numberOfLines
-                    );
                     doc.setDrawColor(0, 0, 0);
                     doc.setLineWidth(1);
                     for (let i = 0; i < numberOfLines; i++) {
@@ -531,16 +640,6 @@ function Review() {
             if (column.index <= 1) {
               const langkahKerja = unit.data[rowIndex]?.disable;
               if (langkahKerja) {
-                console.log(
-                  "row: ",
-                  data.row.index,
-                  "column: ",
-                  data.column.index,
-                  "cell: ",
-                  cellContent,
-                  "numberOfLines: ",
-                  numberOfLines
-                );
                 doc.setDrawColor(0, 0, 0);
                 doc.setLineWidth(1);
                 for (let i = 0; i < numberOfLines; i++) {
@@ -576,7 +675,8 @@ function Review() {
     };
 
     const addData = (
-      datas: any
+      unit: any, 
+      datas: any,
     ): { bodyData: TableRow[][]; rataRataRow: TableRow[] } => {
       const bodyData: TableRow[][] = [];
 
@@ -627,7 +727,7 @@ function Review() {
           styles: { fillColor: [220, 220, 220] },
         },
         {
-          content: averageNilai.toFixed(2),
+          content: lkAverage[unit.unit - 1][datas.no - 1].toFixed(2),
           styles: { fillColor: [220, 220, 220] },
         },
       ];

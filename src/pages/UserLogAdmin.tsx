@@ -773,7 +773,7 @@ const UserLogAdmin = () => {
                 {diagramData.length > 0 ? (
                   <Typography
                     className="absolute text-center text-2xl"
-                    style={{ top: "223px", left: "285px" }}
+                    style={{ top: "230px", left: "285px" }}
                   >
                     {completionPercentage.toFixed(1)}%<br />
                     {completion} dari {totalModuls}
@@ -783,7 +783,7 @@ const UserLogAdmin = () => {
                 ) : (
                   <Typography
                     className="absolute text-center text-xl"
-                    style={{ top: "223px", left: "220px" }}
+                    style={{ top: "230px", left: "220px" }}
                   >
                     0%
                     <br />

@@ -227,7 +227,7 @@ const Finish: React.FC = () => {
 
   return (
     <Container w={800}>
-      <div className="w-fit absolute -translate-y-full pb-2">
+      <div className="w-fit absolute -translate-y-full pb-8 -ml-4">
         <LogoWithText />
       </div>
 

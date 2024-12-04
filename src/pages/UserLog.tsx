@@ -29,6 +29,7 @@ import {
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
+import DeleteIcon from "@mui/icons-material/Delete"
 import Container from "@/components/Container";
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -649,7 +650,7 @@ const UserLog = () => {
   ];
 
   return (
-    <Container w={1500} h={875}>
+    <Container w={1600} h={875}>
       <div className="flex flex-col p-6 h-full">
         <Dialog open={modalDeleteAllOpen}>
           <DialogTitle className="px-6 pt-6">
@@ -737,7 +738,7 @@ const UserLog = () => {
                   Penyelesaian Modul:
                 </Typography>
               </div>
-              <div className="w-[329.44px]">
+              <div className="w-[349px]">
                 <Tabs
                   value={activeDiagramTab}
                   onChange={handleDiagramTabChange}
@@ -771,7 +772,7 @@ const UserLog = () => {
                 {diagramData.length > 0 ? (
                   <Typography
                     className="absolute text-center text-2xl"
-                    style={{ top: "223px", left: "285px" }}
+                    style={{ top: "230px", left: "310px" }}
                   >
                     {completionPercentage.toFixed(1)}%<br />
                     {completion} dari {totalModuls}
@@ -781,7 +782,7 @@ const UserLog = () => {
                 ) : (
                   <Typography
                     className="absolute text-center text-xl"
-                    style={{ top: "223px", left: "220px" }}
+                    style={{ top: "230px", left: "220px" }}
                   >
                     0%
                     <br />
@@ -805,7 +806,7 @@ const UserLog = () => {
                   Nilai Penyelesaian Modul Terbaik:
                 </Typography>
               </div>
-              <div className="w-[329.44px]">
+              <div className="w-[349px]">
                 <Tabs value={activeModuleTab} onChange={handleModuleTabChange}>
                   <Tab label="High Speed Train" />
                   <Tab label="Light Rail Transit" />
@@ -883,13 +884,14 @@ const UserLog = () => {
             aria-label="Tabel Peserta"
           >
             <colgroup>
-              <col width="13%" />
-              <col width="8%" />
-              <col width="12%" />
+              <col width="15%" />
+              <col width="5%" />
+              <col width="11%" />
               <col width="23%" />
               <col width="23%" />
               <col width="5%" />
-              <col width="11%" />
+              <col width="7%" />
+              <col width="5%" />
               <col width="5%" />
             </colgroup>
             <TableHead>
@@ -904,17 +906,16 @@ const UserLog = () => {
                       border: "1px solid black",
                     }}
                   >
-                    Tanggal <br />
-                    Pengujian{" "}
+                    Tanggal Pengujian
                     {dateSort == "" ? (
                       <></>
                     ) : dateSort == "desc" ? (
                       <ExpandLessIcon
-                        style={{ fontSize: 19, marginLeft: 12 }}
+                        style={{ fontSize: 19 }}
                       />
                     ) : (
                       <ExpandMoreIcon
-                        style={{ fontSize: 19, marginLeft: 12 }}
+                        style={{ fontSize: 19 }}
                       />
                     )}
                   </Button>
@@ -936,16 +937,16 @@ const UserLog = () => {
                     {trainSort == ""
                       ? "Jenis Kereta"
                       : trainSort == "LRT"
-                      ? "LRT"
-                      : "KCIC"}
+                      ? "Low Rapid"
+                      : "High Speed"}
                   </Button>
                 </TableCell>
-                <TableCell className="text-lg font-bold">Modul</TableCell>
-                <TableCell className="text-lg font-bold">Penilaian</TableCell>
-                <TableCell className="text-lg font-bold">Nilai </TableCell>
-                <TableCell className="text-lg font-bold">Hasil</TableCell>
-                <TableCell className="text-lg font-bold">Replay</TableCell>
-                <TableCell className="text-lg font-bold">Action</TableCell>
+                <TableCell className="text-lg font-bold ">Modul</TableCell>
+                <TableCell className="text-lg font-bold ">Penilaian</TableCell>
+                <TableCell className="text-lg font-bold ">Nilai </TableCell>
+                <TableCell className="text-lg font-bold ">Hasil</TableCell>
+                <TableCell className="text-lg font-bold ">Replay</TableCell>
+                <TableCell className="text-lg font-bold ">Action</TableCell>
               </TableRow>
             </TableHead>
             {isLoading ? (
@@ -1046,14 +1047,14 @@ const UserLog = () => {
                       <Button
                         variant="outlined"
                         color="error"
-                        className="w-[60px]"
+                        className="w-[60px] h-[36px]"
                         onClick={() => {
                           setModalDeleteOpen(true);
                           setSubmissionId(row.id);
                           setSubmissionName(row.module);
                         }}
                       >
-                        DELETE
+                        <DeleteIcon style={{ fontSize: 17 }}/>
                       </Button>
                     </TableCell>
                   </TableRow>
