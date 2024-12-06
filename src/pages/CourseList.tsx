@@ -651,7 +651,7 @@ const CourseList = () => {
                       {row.description === "KCIC"
                         ? "High Speed Train"
                         : row.description === "LRT"
-                        ? "Light Rail Transit"
+                        ? "Light Rapid Transit"
                         : row.description}
                     </TableCell>
                     <TableCell>

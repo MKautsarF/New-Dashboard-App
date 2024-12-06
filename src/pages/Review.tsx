@@ -735,8 +735,9 @@ function Review() {
       return { bodyData, rataRataRow };
     };
 
+
     // Add header to the first page
-    addHeader(doc, "Hasil Simulasi Penilaian " + json.train_type);
+    addHeader(doc, "Hasil Simulasi Penilaian " + (json.train_type === "KCIC" ? "High Speed Train" : "Light Rapid Transit"));
     let totalScore = 0;
     doc.setFontSize(16);
     doc.text("Overview", 14, 40);
@@ -885,7 +886,7 @@ function Review() {
       worksheet.mergeCells("A1:G1");
 
       worksheet.getCell("A1").value =
-        "Hasil Simulasi Penilaian " + json.train_type;
+        "Hasil Simulasi Penilaian " + (json.train_type === "KCIC" ? "High Speed Train" : "Light Rapid Transit");
       worksheet.getCell("A1").alignment = { horizontal: "center" };
       worksheet.getCell("A1").font = { bold: true, size: 20 };
 

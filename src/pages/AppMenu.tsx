@@ -390,7 +390,7 @@ function AppMenu() {
                 High Speed Train
               </MenuItem>
               <MenuItem onClick={() => handleLearningOptionClick("lrt")}>
-                Light Rail Transit
+                Light Rapid Transit
               </MenuItem>
             </Menu>
             <Button
@@ -488,7 +488,7 @@ function AppMenu() {
                     textShadow: "2px 2px 0px black",
                   }}
                 >
-                  Light Rail Transit
+                  Light Rapid Transit
                 </h1>
                 {/* {selectedValue2} */}
                 <Button
@@ -519,7 +519,7 @@ function AppMenu() {
               {hoveredBox === 2 && (
                 <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-center py-2">
                   <p className="text-white">
-                    Mengoperasikan eksplorasi Light Rail Transit.
+                    Mengoperasikan eksplorasi Light Rapid Transit.
                   </p>
                 </div>
               )}

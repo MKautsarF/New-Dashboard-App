@@ -745,7 +745,7 @@ const UserLogAdmin = () => {
                   onChange={handleDiagramTabChange}
                 >
                   <Tab label="High Speed Train" />
-                  <Tab label="Light Rail Transit" />
+                  <Tab label="Light Rapid Transit" />
                 </Tabs>
               </div>
             </div>
@@ -810,7 +810,7 @@ const UserLogAdmin = () => {
               <div className="w-[349px]">
                 <Tabs value={activeModuleTab} onChange={handleModuleTabChange}>
                   <Tab label="High Speed Train" />
-                  <Tab label="Light Rail Transit" />
+                  <Tab label="Light Rapid Transit" />
                 </Tabs>
               </div>
             </div>
@@ -937,7 +937,7 @@ const UserLogAdmin = () => {
                     {trainSort == ""
                       ? "Jenis Kereta"
                       : trainSort == "LRT"
-                      ? "Low Rapid"
+                      ? "Light Rail"
                       : "High Speed"}
                   </Button>
                 </TableCell>
@@ -970,7 +970,7 @@ const UserLogAdmin = () => {
                       {row.train === "KCIC"
                         ? "High Speed Train"
                         : row.train === "LRT"
-                        ? "Light Rail Transit"
+                        ? "Light Rapid Transit"
                         : row.train}
                     </TableCell>
                     <InteractableTableCell

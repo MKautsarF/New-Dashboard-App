@@ -163,7 +163,7 @@ const ModulDialog: React.FC<ModulDialogProps> = ({
                 {key.toUpperCase() === "KCIC"
                   ? "High Speed Train"
                   : key.toUpperCase() === "LRT"
-                  ? "Light Rail Transit"
+                  ? "Light Rapid Transit"
                   : key.toUpperCase()}
               </MenuItem>
             ))}

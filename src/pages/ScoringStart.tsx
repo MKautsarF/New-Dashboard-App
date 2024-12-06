@@ -242,7 +242,7 @@ function ScoringStart() {
               {trainType === "kcic"
                 ? "High Speed Train"
                 : trainType === "lrt"
-                ? "Light Rail Transit"
+                ? "Light Rapid Transit"
                 : trainType}
             </h1>
             <p style={{ fontSize: "1.25rem" }}>

@@ -250,7 +250,7 @@ const Container: React.FC<ContainerProps> = ({
                   Mode: {hardwareStatus.mode === 0
                     ? "High Speed Train"
                     : hardwareStatus.mode === 1
-                    ? "Light Rail Transit"
+                    ? "Light Rapid Transit"
                     : hardwareStatus.mode === 2
                     ? "Transisi"
                     : "Tidak ada data"}

@@ -275,7 +275,7 @@ function Settings() {
             {trainType === "kcic"
               ? "High Speed Train"
               : trainType === "lrt"
-              ? "Light Rail Transit"
+              ? "Light Rapid Transit"
               : trainType}
           </h1>
 

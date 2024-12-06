@@ -34,10 +34,10 @@ function App() {
           <Logo />
           <h1 className="flex items-center justify-center text-center">
             High Speed Train <br />&<br />
-            Light Rail Transit Launcher
+            Light Rapid Transit Launcher
           </h1>
           <p className="text-center">
-            a simulation launcher for High Speed Train & Light Rail Transit
+            a simulation launcher for High Speed Train & Light Rapid Transit
           </p>
         </div>
         <div className="flex flex-col gap-4 justify-center px-12 py-8">

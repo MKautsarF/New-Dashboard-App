@@ -385,7 +385,7 @@ const SubmissionList = () => {
                     {trainSort == ""
                       ? "Jenis Kereta"
                       : trainSort == "LRT"
-                      ? "Light Rail Transit"
+                      ? "Light Rapid Transit"
                       : "High Speed Train"}
                   </Button>
                 </TableCell>
@@ -426,7 +426,7 @@ const SubmissionList = () => {
                       {row.train === "KCIC"
                         ? "High Speed Train"
                         : row.train === "LRT"
-                        ? "Light Rail Transit"
+                        ? "Light Rapid Transit"
                         : row.train}
                     </TableCell>
                     <InteractableTableCell

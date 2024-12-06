@@ -598,7 +598,7 @@ const CourseDetail = () => {
                     payload?.train_type?.toUpperCase() === "KCIC"
                       ? "High Speed Train"
                       : payload?.train_type?.toUpperCase() === "LRT"
-                      ? "Light Rail Transit"
+                      ? "Light Rapid Transit"
                       : payload?.train_type?.toUpperCase()
                   }
                   isEllipsisEnabled={isEllipsisEnabled}
