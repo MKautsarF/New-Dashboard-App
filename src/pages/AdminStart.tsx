@@ -1,12 +1,17 @@
-import { ManageAccounts, Groups, School, WorkspacePremium } from "@mui/icons-material";
-import { 
+import {
+  ManageAccounts,
+  Groups,
+  School,
+  WorkspacePremium,
+} from "@mui/icons-material";
+import {
   Button,
   Dialog,
   DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
- } from "@mui/material";
+} from "@mui/material";
 import React, { useState } from "react";
 import Logo from "@/components/Logo";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -23,7 +28,6 @@ function useQuery() {
 const AdminStart = () => {
   const navigate = useNavigate();
   const { instructor, logout } = useAuth();
-
 
   const handlePeserta = () => {
     navigate("/traineelist");
@@ -45,15 +49,17 @@ const AdminStart = () => {
 
   const handleConfirmLogout = () => {
     logout();
-    navigate('/');
+    navigate("/");
   };
 
-  console.log("now", currentInstructor)
+  console.log("now", currentInstructor);
 
   return (
     <Container w={800}>
       <div className="p-6">
-        <h4 className="pt-3 mb-2 text-2xl">{"Halo, " + instructor.name + "."}</h4>
+        <h4 className="pt-3 mb-2 text-2xl">
+          {"Halo, " + instructor.name + "."}
+        </h4>
         <div className="flex flex-col">
           <p className="mb-2">
             Pilih kategori peserta yang ingin dipersunting:
@@ -71,7 +77,7 @@ const AdminStart = () => {
                 },
               }}
             >
-              Asesor
+              Asesor/Instruktur
             </Button>
             <Button
               variant="contained"
@@ -107,7 +113,7 @@ const AdminStart = () => {
                 },
               }}
             >
-              Pembelajaran
+              Pembelajaran & Penilaian
             </Button>
           </div>
         </div>
@@ -136,42 +142,41 @@ const AdminStart = () => {
 
       {/* Logout Confirmation Dialog */}
       <Dialog
-          open={logoutOpen}
-          onClose={handleLogoutClose}
-          aria-labelledby="logout-dialog-title"
-          aria-describedby="logout-dialog-description"
-          className="p-6"
-        >
-          <DialogTitle id="logout-dialog-title">Konfirmasi Logout</DialogTitle>
-          <DialogContent>
-            <DialogContentText id="logout-dialog-description">
-              Apakah Anda yakin ingin logout?
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions className="flex p-6 justify-between w-full">
-            <Button 
-              onClick={handleLogoutClose}
-              color="primary"
-            >
-              Batal
-            </Button>
-            <Button 
-              onClick={handleConfirmLogout} color="error" variant="outlined"
-              sx={{
-                color: "#df2935",
+        open={logoutOpen}
+        onClose={handleLogoutClose}
+        aria-labelledby="logout-dialog-title"
+        aria-describedby="logout-dialog-description"
+        className="p-6"
+      >
+        <DialogTitle id="logout-dialog-title">Konfirmasi Logout</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="logout-dialog-description">
+            Apakah Anda yakin ingin logout?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions className="flex p-6 justify-between w-full">
+          <Button onClick={handleLogoutClose} color="primary">
+            Batal
+          </Button>
+          <Button
+            onClick={handleConfirmLogout}
+            color="error"
+            variant="outlined"
+            sx={{
+              color: "#df2935",
+              borderColor: "#df2935",
+              backgroundColor: "#ffffff",
+              "&:hover": {
                 borderColor: "#df2935",
-                backgroundColor: "#ffffff",
-                "&:hover": {
-                  borderColor: "#df2935",
-                  backgroundColor: "#df2935",
-                  color: "#ffffff",
-                },
-              }}
-              >
-              Logout
-            </Button>
-          </DialogActions>
-        </Dialog>
+                backgroundColor: "#df2935",
+                color: "#ffffff",
+              },
+            }}
+          >
+            Logout
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Container>
   );
 };

@@ -422,7 +422,7 @@ const CourseList = () => {
   const handleSearch = async (e: any) => {
     e.preventDefault();
     // const query = e.target.query.value;
-    const query = encodeURIComponent(e.target.query.value).replace(/%20/g, '+');
+    const query = encodeURIComponent(e.target.query.value).replace(/%20/g, "+");
 
     try {
       setIsLoading(true);
@@ -623,8 +623,12 @@ const CourseList = () => {
                 <TableCell sx={{ fontWeight: "bold", fontSize: "17px" }}>
                   Tipe Kereta
                 </TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
+                <TableCell sx={{ fontWeight: "bold", fontSize: "17px" }}>
+                  Publikasi
+                </TableCell>
+                <TableCell sx={{ fontWeight: "bold", fontSize: "17px" }}>
+                  Detail
+                </TableCell>
               </TableRow>
             </TableHead>
             {isLoading ? (
@@ -682,6 +686,17 @@ const CourseList = () => {
                     </TableCell>
                     <TableCell>
                       <div className="flex gap-4 justify-end">
+                        <Button
+                          variant="outlined"
+                          className="w-28"
+                          onClick={() => {
+                            navigate(
+                              `/Scoring?type=default&courseID=${row.id}&train=${row.description}&mode=new`
+                            );
+                          }}
+                        >
+                          Penilaian
+                        </Button>
                         <Tooltip
                           title="Konfigurasi Modul Pembelajaran"
                           placement="top"
