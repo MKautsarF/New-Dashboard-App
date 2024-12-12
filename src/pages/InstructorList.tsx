@@ -685,13 +685,13 @@ const InstructorList = () => {
             <TableHead>
               <TableRow>
                 <TableCell sx={{ fontWeight: "bold", fontSize: "17px" }}>
-                  Nama Asesor/Instruktur
+                  Nama Instruktur
                 </TableCell>
                 <TableCell sx={{ fontWeight: "bold", fontSize: "17px" }}>
-                  NIP Asesor/Instruktur
+                  NIP Instruktur
                 </TableCell>
                 <TableCell sx={{ fontWeight: "bold", fontSize: "17px" }}>
-                  Username Asesor/Instruktur
+                  Username Instruktur
                 </TableCell>
                 <TableCell></TableCell>
               </TableRow>
@@ -850,7 +850,7 @@ const InstructorList = () => {
 
       {/* pop up registrasi */}
       <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>Daftar Asesor/Instruktur Baru</DialogTitle>
+        <DialogTitle>Daftar Instruktur Baru</DialogTitle>
         <DialogContent className="w-[400px]">
           <DialogContentText>Pendaftaran kandidat</DialogContentText>
           <TextField
@@ -977,7 +977,7 @@ const InstructorList = () => {
       <TraineeDetail
         id={detailId}
         isOpen={detailOpen}
-        detail="Asesor/Instruktur"
+        detail="Instruktur"
         handleClose={() => setDetailOpen(false)}
         handleLog={() => {}}
         handleEdit={() => {}}
@@ -1020,7 +1020,7 @@ const InstructorList = () => {
       {/* Edit Peserta Prompt */}
       <Dialog open={editPrompt} onClose={handleCloseEditPrompt} className="p-6">
         <DialogTitle className="min-w-[400px]">
-          Edit Detail Asesor/Instruktur
+          Edit Detail Instruktur
         </DialogTitle>
         <DialogContent className="max-w-[400px]">
           <form id="edit" onSubmit={handleEditAsesor}>

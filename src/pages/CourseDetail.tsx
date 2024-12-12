@@ -279,7 +279,6 @@ const CourseDetail = () => {
         console.log("Module Penilaian: ", res);
         setRows(res.results);
         setTotalData(res.total);
-
       } catch (e) {
         console.error(e);
       } finally {
@@ -654,12 +653,12 @@ const CourseDetail = () => {
                   isEllipsisEnabled={isEllipsisEnabled}
                   width="96px"
                 />
-                <InfoRow
+                {/* <InfoRow
                   label="Speed Buzzer"
                   value={payload.speed_buzzer ? payload.speed_limit : "Off"}
                   isEllipsisEnabled={isEllipsisEnabled}
                   width="96px"
-                />
+                /> */}
                 {currentInstructor.isAdmin && (
                   <div className="flex flex-col gap-2">
                     <span>Edit Konfigurasi:</span>

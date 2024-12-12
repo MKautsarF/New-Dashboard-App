@@ -115,6 +115,11 @@ const ModulDialog: React.FC<ModulDialogProps> = ({
     }
   }, [time]);
 
+  // default value
+  useEffect(() => {
+    setTrainWeight("30");
+  }, [open]);
+
   return (
     <Dialog open={open} onClose={() => setOpen()}>
       <DialogTitle className="px-6 pt-6">
@@ -299,28 +304,6 @@ const ModulDialog: React.FC<ModulDialogProps> = ({
             timeSteps={{ minutes: 60 }}
           />
         </div>
-        <div className="flex items-center justify-center mt-4 space-x-4">
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={motionBase}
-                onChange={handleMotionBaseChange}
-                name="motionBase"
-              />
-            }
-            label="Motion Base"
-          />
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={speedBuzzer}
-                onChange={handleSpeedBuzzerChange}
-                name="speedBuzzer"
-              />
-            }
-            label="Speed Buzzer"
-          />
-        </div>
         <div className="flex items-center mt-5">Jarak Pandang</div>
         <div className="flex items-center mt-3 gap-3">
           <Visibility className="my-[0.5px] mr-2 text-gray-600" />
@@ -350,7 +333,29 @@ const ModulDialog: React.FC<ModulDialogProps> = ({
             }
           />
         </div>
-        <TextField
+        <div className="flex items-center justify-center mt-4 space-x-4">
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={motionBase}
+                onChange={handleMotionBaseChange}
+                name="motionBase"
+              />
+            }
+            label="Motion Base"
+          />
+          {/* <FormControlLabel
+            control={
+              <Checkbox
+                checked={speedBuzzer}
+                onChange={handleSpeedBuzzerChange}
+                name="speedBuzzer"
+              />
+            }
+            label="Speed Buzzer"
+          /> */}
+        </div>
+        {/* <TextField
           margin="normal"
           id="Speed Limit"
           label={
@@ -367,7 +372,7 @@ const ModulDialog: React.FC<ModulDialogProps> = ({
           error={!!error}
           helperText={error}
           disabled={!speedBuzzer}
-        />
+        /> */}
       </DialogContent>
       <DialogActions className="px-6 pb-4">
         <Button onClick={() => setOpen()} color="error">

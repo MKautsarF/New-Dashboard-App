@@ -502,7 +502,7 @@ function Settings() {
           </div>
 
           {/* buzzer speed */}
-          <div className="flex items-center p-2">
+          {/* <div className="flex items-center p-2">
             <NotificationsActive className="my-[0.5px] mr-2 text-gray-600" />
             <FormControlLabel
               className="text-[#00000099] min-w-[180px]"
@@ -543,7 +543,7 @@ function Settings() {
               disabled={!settings.useSpeedBuzzer}
             />
             <span className="text-[#00000099]">km/jam</span>
-          </div>
+          </div> */}
         </div>
         {/* Back Button */}
         <div className="flex justify-between pl-6 pb-6 w-full">

@@ -77,7 +77,7 @@ const AdminStart = () => {
                 },
               }}
             >
-              Asesor/Instruktur
+              Instruktur
             </Button>
             <Button
               variant="contained"
