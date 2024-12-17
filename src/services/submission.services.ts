@@ -142,12 +142,12 @@ export const deleteSubmissionByIdAdmin = async (id: number) => {
 };
 
 export const deleteSubmissionAll = async (userId: string) => {
-  const res = await services.delete(`/instructor/submission/user/${userId}`)
-}
+  const res = await services.delete(`/instructor/submission/user/${userId}`);
+};
 
 export const deleteAllSubmissionByAdmin = async (userId: string) => {
-  const res = await services.delete(`/admin/submission/user/${userId}`)
-}
+  const res = await services.delete(`/admin/submission/user/${userId}`);
+};
 
 export const finishSubmissionById = async (id: number, payload: any) => {
   try {
@@ -254,10 +254,9 @@ export const getSubmissionLogByFileIndexAdmin = async (
   id: number,
   fileIndex: number
 ) => {
-  const res = await services.get(
-    `/admin/submission/${id}/log/${fileIndex}`,
-    { responseType: "blob" }
-  );
+  const res = await services.get(`/admin/submission/${id}/log/${fileIndex}`, {
+    responseType: "blob",
+  });
   return res.data;
 };
 

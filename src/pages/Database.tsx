@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 // import "../App.css";
 import { useLocation, useNavigate } from "react-router-dom";
-import {PersonAdd } from "@mui/icons-material";
+import { PersonAdd } from "@mui/icons-material";
 import {
   Box,
   Button,
@@ -42,7 +42,7 @@ import TraineeDetail from "../components/TraineeDetail";
 import dayjs, { Dayjs } from "dayjs";
 import { DatePicker } from "@mui/x-date-pickers";
 import { toast } from "react-toastify";
-import FirstPageIcon from '@mui/icons-material/FirstPage';
+import FirstPageIcon from "@mui/icons-material/FirstPage";
 
 interface RowData {
   id: string;
@@ -59,7 +59,7 @@ function useQuery() {
 
 function Database() {
   const navigate = useNavigate();
-  const query = useQuery(); 
+  const query = useQuery();
   const location = useLocation();
   const fromAppMenu = location.state?.fromAppMenu || false;
 
@@ -132,15 +132,13 @@ function Database() {
     setOpen(true);
   };
 
-
   const handlePrev = () => {
     if (fromAppMenu) {
-        navigate(-1);
+      navigate(-1);
     } else {
-        navigate("/ThirdPage");
+      navigate("/ThirdPage");
     }
   };
-
 
   const handleGetLog = async () => {
     setPageLoading(true);
@@ -179,8 +177,8 @@ function Database() {
       });
 
       currentPeserta.id = userData.id;
-      localStorage.setItem('selectedPesertaId', selectedPeserta.id);
-      localStorage.setItem('selectedPesertaName', selectedPeserta.name);
+      localStorage.setItem("selectedPesertaId", selectedPeserta.id);
+      localStorage.setItem("selectedPesertaName", selectedPeserta.name);
 
       const nextPage =
         trainType === "kcic" ? "/Modul?type=kcic" : "/Modul?type=lrt";
@@ -194,7 +192,7 @@ function Database() {
 
   const handleNameChange = (e: any, isEditing = false) => {
     const inputValue = e.target.value;
-  
+
     if (inputValue.length > 48 || inputValue.length < 3) {
       if (isEditing) {
         setNewNameError(true);
@@ -224,7 +222,7 @@ function Database() {
       setPosition(inputValue.slice(0, 48));
     } else {
       if (isEditing) {
-        setNewPositionError(false)
+        setNewPositionError(false);
       } else {
         setPositionError(false);
       }
@@ -251,7 +249,7 @@ function Database() {
       setEmail(inputValue);
     }
   };
-  
+
   const handleNIPChange = (e: any, isEditing = false) => {
     const inputValue = e.target.value;
 
@@ -264,11 +262,11 @@ function Database() {
       setNip(inputValue.slice(0, 32));
     } else {
       if (isEditing) {
-        setNewNipError(false)
+        setNewNipError(false);
       } else {
         setNipError(false);
       }
-      setNip(inputValue);  
+      setNip(inputValue);
     }
   };
 
@@ -285,7 +283,6 @@ function Database() {
       position !== ""
     );
   };
-  
 
   const handleRegister = async () => {
     const isValid = validateRegister();
@@ -516,10 +513,7 @@ function Database() {
                 <colgroup>
                   <col width="50%" />
                   <col width="20%" />
-                  {
-                    !fromAppMenu ? 
-                    <col width="20%" /> : <col width="10%" />
-                  }
+                  {!fromAppMenu ? <col width="20%" /> : <col width="10%" />}
                 </colgroup>
                 <TableHead>
                   <TableRow>
@@ -548,7 +542,9 @@ function Database() {
                           <div className="flex gap-2">
                             <Button
                               type="button"
-                              variant={detailId === row.id ? "outlined" : "text"}
+                              variant={
+                                detailId === row.id ? "outlined" : "text"
+                              }
                               onClick={() => {
                                 setDetailId(row.id), setDetailOpen(true);
                               }}
@@ -566,34 +562,40 @@ function Database() {
                             >
                               Detail
                             </Button>
-                            {!fromAppMenu && (<Button
-                              sx={{
-                                color: "#00a6fb",
-                                backgroundColor: "#ffffff",
-                                borderColor: "#00a6fb",
-                                "&:hover": {
+                            {!fromAppMenu && (
+                              <Button
+                                sx={{
+                                  color: "#00a6fb",
+                                  backgroundColor: "#ffffff",
                                   borderColor: "#00a6fb",
-                                  color: "#ffffff",
-                                  backgroundColor: "#00a6fb",
-                                },
-                                "&:active": {
-                                  backgroundColor: "#00a6fb", // Change background color when clicked
-                                },
-                              }}
-                              type="button"
-                              variant={selectedPeserta.nip === row.nip ? "outlined" : "text"}
-                              onClick={() =>
-                                setSelectedPeserta({
-                                  id: row.id,
-                                  name: row.name,
-                                  nip: row.nip,
-                                  complition: row.complition,
-                                })
-                              }
-                              className="w-20 ml-2"
-                            >
-                              Pilih
-                            </Button>)}
+                                  "&:hover": {
+                                    borderColor: "#00a6fb",
+                                    color: "#ffffff",
+                                    backgroundColor: "#00a6fb",
+                                  },
+                                  "&:active": {
+                                    backgroundColor: "#00a6fb", // Change background color when clicked
+                                  },
+                                }}
+                                type="button"
+                                variant={
+                                  selectedPeserta.nip === row.nip
+                                    ? "outlined"
+                                    : "contained"
+                                }
+                                onClick={() =>
+                                  setSelectedPeserta({
+                                    id: row.id,
+                                    name: row.name,
+                                    nip: row.nip,
+                                    complition: row.complition,
+                                  })
+                                }
+                                className="w-20 ml-2"
+                              >
+                                Pilih
+                              </Button>
+                            )}
                           </div>
                         </TableCell>
                       </TableRow>
@@ -633,7 +635,11 @@ function Database() {
                 value={nama}
                 onChange={(e) => handleNameChange(e, false)}
                 error={nameError}
-                helperText={nameError ? "Nama harus berisi setidaknya 3 karakter dan maksimal berisi 48 karakter" : ""}
+                helperText={
+                  nameError
+                    ? "Nama harus berisi setidaknya 3 karakter dan maksimal berisi 48 karakter"
+                    : ""
+                }
               />
               <TextField
                 margin="normal"
@@ -645,7 +651,11 @@ function Database() {
                 value={email}
                 onChange={(e) => handleEmailChange(e, false)}
                 error={emailError}
-                helperText={emailError ? "Email harus berisi setidaknya 8 karakter dan maksimal berisi 72 karakter" : ""}
+                helperText={
+                  emailError
+                    ? "Email harus berisi setidaknya 8 karakter dan maksimal berisi 72 karakter"
+                    : ""
+                }
               />
               <TextField
                 margin="normal"
@@ -670,7 +680,9 @@ function Database() {
                   value={position}
                   onChange={(e) => handlePositionChange(e, false)}
                   error={positionError}
-                  helperText={positionError ? "Kedudukan maksimal berisi 48 karakter" : ""}
+                  helperText={
+                    positionError ? "Kedudukan maksimal berisi 48 karakter" : ""
+                  }
                 />
                 <DatePicker
                   className="w-1/2"
@@ -806,7 +818,9 @@ function Database() {
         <div className="flex gap-4 justify-between px-6 pb-6 w-full">
           <div className="w-1/2 flex justify-between items-end">
             {!fromAppMenu && (
-              <div className="flex space-x-2"> {/* Container for buttons when not fromAppMenu */}
+              <div className="flex space-x-2">
+                {" "}
+                {/* Container for buttons when not fromAppMenu */}
                 <Button
                   type="button"
                   color="error"
@@ -894,11 +908,12 @@ function Database() {
                   },
                 }}
               >
-                Lanjut ({selectedPeserta.name}) {trainType === "kcic"
-                ? "HST"
-                : trainType === "lrt"
-                ? "LRT"
-                : trainType}
+                Lanjut ({selectedPeserta.name}){" "}
+                {trainType === "kcic"
+                  ? "HST"
+                  : trainType === "lrt"
+                  ? "LRT"
+                  : trainType}
               </Button>
             )}
           </div>

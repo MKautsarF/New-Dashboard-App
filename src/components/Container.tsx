@@ -24,6 +24,8 @@ import { HardwareStatusAtom, safetyEnabledAtom } from "@/context/atom";
 import { getCourseData } from "@/services/course.services";
 import { useLocation } from "react-router-dom";
 
+import * as fs from "fs";
+
 interface ContainerProps {
   children: React.ReactNode;
   h?: number;
@@ -45,11 +47,21 @@ const Container: React.FC<ContainerProps> = ({
   const [isOpen, setIsOpen] = useState(false);
   const [viewHardware, setviewHardware] = useState(false);
 
-  const [hardwareStatus, setHardwareStatus] = useAtom(HardwareStatusAtom);
+  // const [hardwareStatus2, setHardwareStatus2] = useAtom(HardwareStatusAtom);
+  const [hardwareStatus, setHardwareStatus] = useState<HardwareStatus>();
   const [isLoading, setIsLoading] = useState(false);
 
   const [safetyEnabled, setSafetyEnabled] = useAtom(safetyEnabledAtom);
 
+  const [json, setJson] = useState<any>();
+
+  interface HardwareStatus {
+    mode: number;
+    pintu: number;
+    bridge: number;
+    mouse3d: number;
+    kondisiMotion: number;
+  }
   //   const [value, setValue] = useState(0);
 
   //   const fetchValue = async () => {
@@ -62,86 +74,77 @@ const Container: React.FC<ContainerProps> = ({
   //     }
   // };
 
+  // useEffect(() => {
+  //   async function getData() {
+  //     try {
+  //       setIsLoading(true);
+
+  //       const res = await getCourseData();
+  //       console.log("Course DATAAAAAA", res);
+
+  //       // Mencari id terbesar
+  //       const maxId = res.reduce((max: any, item: any) => {
+  //         return item.id > max ? item.id : max;
+  //       }, 0);
+  //       console.log("ID Terbesar:", maxId);
+
+  //       // Mengekstrak filename
+  //       const filenames = res.map((item: any) => item.filename);
+  //       console.log("Filenames:", filenames);
+  //     } catch (e) {
+  //       console.error(e);
+  //     } finally {
+  //       setIsLoading(false);
+  //     }
+  //   }
+
+  //   getData();
+  // }, []);
+
   useEffect(() => {
     async function getData() {
       try {
         setIsLoading(true);
-  
-        const res = await getCourseData();
-        console.log("Course DATAAAAAA", res);
-  
-        // Mencari id terbesar
-        const maxId = res.reduce((max: any, item: any) => {
-          return item.id > max ? item.id : max;
-        }, 0);
-        console.log("ID Terbesar:", maxId);
-  
-        // Mengekstrak filename
-        const filenames = res.map((item: any) => item.filename);
-        console.log("Filenames:", filenames);
-  
+
+        // pakai data hardcode, nanti ganti pakai api saja
+        const filePath = "C:/Train Simulator/Data/test_hardware.json";
+
+        if (fs.existsSync(filePath)) {
+          const rawData = fs.readFileSync(filePath, "utf-8");
+          console.log(`berhasil baca ${filePath}`);
+          setJson(JSON.parse(rawData));
+        }
+        // else {
+        //   console.log("data test_hardware tidak ada");
+        //   fs.writeFileSync(
+        //     filePath,
+        //     JSON.stringify(filePath, null, 2),
+        //     "utf-8"
+        //   );
+        //   console.log("data hardware berhasil terbaca.");
+        // }
+        // pakai data hardcode, nanti ganti pakai api saja
+
+        // baca json
+        if (json) {
+          setHardwareStatus({
+            mode: json.mode,
+            pintu: json.pintu,
+            bridge: json.bridge,
+            mouse3d: json.mouse3d,
+            kondisiMotion: json.kondisiMotion,
+          });
+        }
+        console.log("hardware: ", json);
       } catch (e) {
         console.error(e);
       } finally {
         setIsLoading(false);
       }
     }
-  
+
     getData();
-  }, []);
-
-
-  // useEffect(() => {
-  //   const payloadSafety = {
-  //     status: "EnableSafety",
-  //     value: safetyEnabled,
-  //   };
-
-  //   // console.log(payload);
-  //   // sendTextToClients(JSON.stringify(payloadSafety, null, 2));
-
-  //   /** reading hardware data from UE */
-  //   socketClients.forEach((socket) => {
-  //     socket.on("data", (data) => {
-  //       const stringData = data.toString();
-  //       const payload = stringData.split("|").slice(-1)[0];
-  //       const dataUE = JSON.parse(payload);
-
-  //       if (dataUE.status === "safety") {
-  //         console.log("received hardware data: ", dataUE);
-
-  //         if (dataUE.receive) {
-  //           setHardwareStatus({
-  //             mode: dataUE.cabin,
-  //             pintu: dataUE.doorLock,
-  //             bridge: dataUE.bridge,
-  //             mouse3d: dataUE.mouse3d,
-  //             kondisiMotion: dataUE.KondisiMotion,
-  //           });
-  //         }
-  //         if (!dataUE.receive) {
-  //           setHardwareStatus({
-  //             mode: 99,
-  //             pintu: 99,
-  //             bridge: 99,
-  //             mouse3d: 99,
-  //             kondisiMotion: 99,
-  //           });
-  //         }
-  //       }
-
-  //       if (dataUE.type === "Motion Test") {
-  //         console.log("received motion test data: ", dataUE);
-
-  //         // setMotionTestStatus(dataUE.status);
-  //       }
-  //     });
-  //   });
-  // }, [
-  //   safetyEnabled,
-  //   viewHardware,
-  //   // motionTestStatus,
-  // ]);
+  }, [viewHardware]);
 
   return (
     <>
@@ -247,51 +250,60 @@ const Container: React.FC<ContainerProps> = ({
               <>
                 <div className="flex flex-row items-center">
                   <Train style={{ color: "black", marginRight: "10px" }} />
-                  Mode: {hardwareStatus.mode === 0
+                  Mode:{" "}
+                  {hardwareStatus?.mode === 0
                     ? "High Speed Train"
-                    : hardwareStatus.mode === 1
+                    : hardwareStatus?.mode === 1
                     ? "Light Rapid Transit"
-                    : hardwareStatus.mode === 2
+                    : hardwareStatus?.mode === 2
                     ? "Transisi"
                     : "Tidak ada data"}
                 </div>
                 <br />
                 <div className="flex flex-row items-center">
-                  <CompareArrows style={{ color: "black", marginRight: "10px" }} />
-                  Jembatan: {hardwareStatus.bridge === 0
+                  <CompareArrows
+                    style={{ color: "black", marginRight: "10px" }}
+                  />
+                  Jembatan:{" "}
+                  {hardwareStatus?.bridge === 0
                     ? "Naik"
-                    : hardwareStatus.bridge === 1
+                    : hardwareStatus?.bridge === 1
                     ? "Transisi"
-                    : hardwareStatus.bridge === 2
+                    : hardwareStatus?.bridge === 2
                     ? "Turun"
                     : "Tidak ada data"}
                 </div>
                 <br />
                 <div className="flex flex-row items-center">
                   <Mouse style={{ color: "black", marginRight: "10px" }} />
-                  3D Mouse: {hardwareStatus.mouse3d === 0
+                  3D Mouse:{" "}
+                  {hardwareStatus?.mouse3d === 0
                     ? "Aktif"
-                    : hardwareStatus.mouse3d === 1
+                    : hardwareStatus?.mouse3d === 1
                     ? "Tidak Aktif"
                     : "Tidak ada data"}
                 </div>
                 <br />
                 <div className="flex flex-row items-center">
                   <SensorDoor style={{ color: "black", marginRight: "10px" }} />
-                  Pintu: {hardwareStatus.pintu === 0
+                  Pintu:{" "}
+                  {hardwareStatus?.pintu === 0
                     ? "Terbuka"
-                    : hardwareStatus.pintu === 1
+                    : hardwareStatus?.pintu === 1
                     ? "Tertutup"
                     : "Tidak ada data"}
                 </div>
                 <br />
                 <div className="flex flex-row items-center">
-                  <SettingsPower style={{ color: "black", marginRight: "10px" }} />
-                  Motion: {hardwareStatus.kondisiMotion === 0
+                  <SettingsPower
+                    style={{ color: "black", marginRight: "10px" }}
+                  />
+                  Motion:{" "}
+                  {hardwareStatus?.kondisiMotion === 0
                     ? "Tidak Siap Pakai"
-                    : hardwareStatus.kondisiMotion === 1
+                    : hardwareStatus?.kondisiMotion === 1
                     ? "Motion Tidak Aktif"
-                    : hardwareStatus.kondisiMotion === 2
+                    : hardwareStatus?.kondisiMotion === 2
                     ? "Motion Aktif"
                     : "Tidak ada data"}
                 </div>

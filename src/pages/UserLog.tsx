@@ -29,7 +29,7 @@ import {
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
-import DeleteIcon from "@mui/icons-material/Delete"
+import DeleteIcon from "@mui/icons-material/Delete";
 import Container from "@/components/Container";
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -384,7 +384,7 @@ const UserLog = () => {
 
   const handleOpenPDF = async (id: any) => {
     setSubmissionId(id);
-    console.log("submission id: ",submissionId);
+    console.log("submission id: ", submissionId);
     try {
       const pdfres = await getSubmissionLogByTag(Number(id), "pdf");
       const pdffile = await getSubmissionLogByFileIndex(
@@ -910,13 +910,9 @@ const UserLog = () => {
                     {dateSort == "" ? (
                       <></>
                     ) : dateSort == "desc" ? (
-                      <ExpandLessIcon
-                        style={{ fontSize: 19 }}
-                      />
+                      <ExpandLessIcon style={{ fontSize: 19 }} />
                     ) : (
-                      <ExpandMoreIcon
-                        style={{ fontSize: 19 }}
-                      />
+                      <ExpandMoreIcon style={{ fontSize: 19 }} />
                     )}
                   </Button>
                 </TableCell>
@@ -1054,7 +1050,7 @@ const UserLog = () => {
                           setSubmissionName(row.module);
                         }}
                       >
-                        <DeleteIcon style={{ fontSize: 17 }}/>
+                        <DeleteIcon style={{ fontSize: 17 }} />
                       </Button>
                     </TableCell>
                   </TableRow>

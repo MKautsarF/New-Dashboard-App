@@ -61,7 +61,7 @@ const TraineeDetail: React.FC<TraineeDetailProps> = ({
         const detailData = currentInstructor.isAdmin
           ? await getUserByIdAsAdmin(id)
           : await getUserById(id);
-          console.log("DETAIL DATA", detailData);
+        console.log("DETAIL DATA", detailData);
 
         setData({
           name: detailData.name,
@@ -79,7 +79,6 @@ const TraineeDetail: React.FC<TraineeDetailProps> = ({
     if (isOpen) {
       fetchDetail();
     }
-
   }, [id, isOpen]);
 
   const checkEllipsis = () => {
@@ -162,9 +161,11 @@ const TraineeDetail: React.FC<TraineeDetailProps> = ({
         {!currentInstructor.isAdmin && (
           <Button onClick={handleEdit}>Edit</Button>
         )}
-        {detail === "Peserta" && (
-          <Button onClick={handleLog}>Log</Button>  
-        )}
+        {
+          // detail === "Peserta" && (
+          <Button onClick={handleLog}>Log</Button>
+          // )
+        }
       </DialogActions>
     </Dialog>
   );
