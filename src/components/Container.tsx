@@ -23,6 +23,7 @@ import { useAtom } from "jotai";
 import { HardwareStatusAtom, safetyEnabledAtom } from "@/context/atom";
 import { getCourseData } from "@/services/course.services";
 import { useLocation } from "react-router-dom";
+import { getHardwareStatus, getHardwareStatusByHighestId } from "@/services/hardware.services";
 
 import * as fs from "fs";
 
@@ -54,6 +55,7 @@ const Container: React.FC<ContainerProps> = ({
   const [safetyEnabled, setSafetyEnabled] = useAtom(safetyEnabledAtom);
 
   const [json, setJson] = useState<any>();
+  
 
   interface HardwareStatus {
     mode: number;
@@ -106,35 +108,31 @@ const Container: React.FC<ContainerProps> = ({
       try {
         setIsLoading(true);
 
-        // pakai data hardcode, nanti ganti pakai api saja
-        const filePath = "C:/Train Simulator/Data/test_hardware.json";
+        const fileList = await getHardwareStatus();
 
-        if (fs.existsSync(filePath)) {
-          const rawData = fs.readFileSync(filePath, "utf-8");
-          console.log(`berhasil baca ${filePath}`);
-          setJson(JSON.parse(rawData));
+        if (fileList.length === 0) {
+          console.log("Tidak ada data hardware.");
+          return;
         }
-        // else {
-        //   console.log("data test_hardware tidak ada");
-        //   fs.writeFileSync(
-        //     filePath,
-        //     JSON.stringify(filePath, null, 2),
-        //     "utf-8"
-        //   );
-        //   console.log("data hardware berhasil terbaca.");
-        // }
-        // pakai data hardcode, nanti ganti pakai api saja
 
-        // baca json
-        if (json) {
-          setHardwareStatus({
-            mode: json.mode,
-            pintu: json.pintu,
-            bridge: json.bridge,
-            mouse3d: json.mouse3d,
-            kondisiMotion: json.kondisiMotion,
-          });
-        }
+        const highestIdItem = fileList.reduce((prev: any, current: any) => 
+          prev.id > current.id ? prev : current
+        );
+
+        const highestFileName = highestIdItem.filename;
+        console.log(`Menggunakan file dengan ID tertinggi: ${highestIdItem.id}, filename: ${highestFileName}`);
+
+        const jsonData = await getHardwareStatusByHighestId(highestFileName);
+        setJson(jsonData);
+
+        setHardwareStatus({
+          mode: jsonData.mode,
+          pintu: jsonData.pintu,
+          bridge: jsonData.bridge,
+          mouse3d: jsonData.mouse3d,
+          kondisiMotion: jsonData.kondisiMotion,
+        });
+        
         console.log("hardware: ", json);
       } catch (e) {
         console.error(e);
