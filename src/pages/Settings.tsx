@@ -149,7 +149,7 @@ function Settings() {
 
   const handleLanjut = () => {
     // HARDCODE ID COURSE
-    navigate(`/scoringStart?type=${trainType}&id=65`, {
+    navigate(`/scoringStart?type=${trainType}&id=1`, {
       state: { fromEksplorasi: true },
     });
   };
